@@ -1,675 +1,652 @@
 "use client";
-// src/app/page.tsx
-import { useState, useEffect } from "react";
 
-interface PengajarData {
+import { useState, useEffect, useMemo } from "react";
+import Link from "next/link";
+
+interface TutorItem {
   _id: string;
   nama: string;
-  nomorTelepon: string;
-  email?: string;
-  alamat?: string;
-  status: "Aktif" | "Cuti" | "Nonaktif";
+  jabatan: string;
   mataPelajaran: string[];
-  jenjang: string[];
-  jenisKelas: string[];
-  dokumenStatus?: string;
-  catatanInternal?: string;
+  kategori: "mipa" | "bahasa" | "kedokteran" | "soshum" | "psikologi";
+  almamater: string;
+  pengalaman: string;
+  rating: number;
+  foto: string;
+  nomorTelepon: string;
+  deskripsi?: string;
+  jadwal?: string[];
+  iconType?: "school" | "psychology";
+  ctaText?: string;
 }
 
-interface StatsData {
-  total: number;
-  aktif: number;
-  cuti: number;
-  nonaktif: number;
-}
-
-const DAFTAR_MAPEL = [
-  "Matematika",
-  "Fisika",
-  "Kimia",
-  "Biologi",
-  "Bahasa Indonesia",
-  "Bahasa Inggris",
-  "Ekonomi",
-  "Geografi",
-  "Sosiologi",
-  "Sejarah",
-  "TPS / UTBK",
+const MASTER_TUTORS: TutorItem[] = [
+  {
+    _id: "tutor-1",
+    nama: "Dr. Hendra Wijaya",
+    jabatan: "Kepala Kurikulum & Fisika ITB",
+    mataPelajaran: ["Fisika", "UTBK & SNBT"],
+    kategori: "mipa",
+    almamater: "Alumni ITB",
+    pengalaman: "9 Thn",
+    rating: 4.98,
+    foto: "https://lh3.googleusercontent.com/aida-public/AB6AXuCPSslSYYnfoV2BdHniraBvf-zFTY0_nnKDvhTyDKr-ePxazX-evrLx9wkLIMu0JmsGzBaNJV08G9BbP71H_bY_x70-6a470DOucz6qd81hdQe2fZkfE_9-kHxHKatJzcVMLQR_jtPJ2AlYAehZ1HU5QK2otmJ_KLN4NOpZfPAH9yhBkrG4P1PWOi7WdWCPGob4JPR1d0_-M5DebT8wLuTYErUmYzDEpBDERMac1Xm3",
+    nomorTelepon: "081249829011",
+    deskripsi: "Pakar fisika terapan dengan metode pengajaran intuitif berbasis visualisasi konsep dan problem solving olimpiade.",
+    jadwal: ["Senin: 16:00 - 18:00 WIB (Intensif)", "Kamis: 18:30 - 20:30 WIB (Klinik Soal)"],
+    iconType: "school",
+    ctaText: "Jadwal",
+  },
+  {
+    _id: "tutor-2",
+    nama: "Dra. Ratna Kartika, M.Pd.",
+    jabatan: "Master Tutor Kimia & UTBK UI",
+    mataPelajaran: ["Kimia", "Sains"],
+    kategori: "mipa",
+    almamater: "Alumni UI",
+    pengalaman: "11 Thn",
+    rating: 5.0,
+    foto: "https://lh3.googleusercontent.com/aida-public/AB6AXuBLORKz5cdb-b6Sr6iQlkZnWwaR4Wien9clgtQ_4naSaUQAyFF1M8VRzvd4ctrFL2I_zTWxbLy5l5Be2KsLfTDWB7RHoLTzkIehkUjMz5Pi-XHPSSRcgpn7QWLovBwA1xpaK90HqTOVA18yW6RiEP0Vg3HsYK5_eEp3N1eRwIlGmWLylsqJI97PY9sbsTThI-kln8L1bQqnIF1Tlm_hMUHIHdd59EEZ1WrVvP_G7ndK",
+    nomorTelepon: "082198765432",
+    deskripsi: "Berpengalaman mendampingi ratusan siswa menembus jurusan kedokteran & teknik dengan drilling soal terstruktur.",
+    jadwal: ["Selasa: 15:30 - 17:30 WIB", "Jumat: 16:00 - 18:00 WIB"],
+    iconType: "school",
+    ctaText: "Jadwal",
+  },
+  {
+    _id: "tutor-3",
+    nama: "Kevin Pratama, M.Mat.",
+    jabatan: "Medalis Emas OSN Matematika",
+    mataPelajaran: ["Matematika", "Kalkulus"],
+    kategori: "mipa",
+    almamater: "Alumni ITB",
+    pengalaman: "6 Thn",
+    rating: 4.97,
+    foto: "https://lh3.googleusercontent.com/aida-public/AB6AXuAMzpCwKO7dTXYJHybvMdaPcbeAiwkqw2shc9nkAkY6HpOuanEnWPOUAvIAZqtGdtb7zHGoEHTMjra-MHJ5KcgidGvYixdUooSScyKxPc9qPcXWSEhigbVrOlNyh0c2inmxj6Rxvv27wCjvjozEJkSZJzs2pD9AgnBax2xFI48VUkpQZX_OEGJA8hi0iOI26MjM7CA8Ytit4e4wnvcTv-SOUB5ZJXr-qzHXD7t6KY4M",
+    nomorTelepon: "081299887766",
+    deskripsi: "Spesialis logika matematika, aljabar linear, dan strategi penalaran cepat tes UTBK SNBT.",
+    jadwal: ["Rabu: 18:30 - 20:30 WIB", "Sabtu: 09:00 - 11:30 WIB"],
+    iconType: "school",
+    ctaText: "Jadwal",
+  },
+  {
+    _id: "tutor-4",
+    nama: "drg. Nadia Safira, S.KG.",
+    jabatan: "Mentor Masuk Kedokteran FKG UI",
+    mataPelajaran: ["Biologi", "Kedokteran Dasar"],
+    kategori: "kedokteran",
+    almamater: "FKG UI",
+    pengalaman: "5 Thn",
+    rating: 4.99,
+    foto: "https://lh3.googleusercontent.com/aida-public/AB6AXuAGuy447MXo2kjeNpyEMYzbakob825Ov0Mzr_AoHY7OF_8T2utmJMn4Yjvwfk2omND1BUp8TVfh9O2d8g659-O6PUbvZNDrvhzocBSnd0DD5jZHWL-CnCtwqqME0VF_r11X5NDgbQuqm4qxP7DZRjLsqNP7FbMY6OS_UvVOEbFwjvfqKL_RY5E6TBS8_nWBJa9WHSjPEsj6izlX_ClmQCkOwtDdw1skYZ1UtxK_qMWB",
+    nomorTelepon: "081377889900",
+    deskripsi: "Fokus pada pendampingan intensif masuk Fakultas Kedokteran & Kedokteran Gigi PTN unggulan nasional.",
+    jadwal: ["Selasa: 16:30 - 18:30 WIB", "Sabtu: 13:00 - 15:30 WIB"],
+    iconType: "school",
+    ctaText: "Jadwal",
+  },
+  {
+    _id: "tutor-5",
+    nama: "Sarah Elizabeth, M.A.",
+    jabatan: "Master Bahasa Inggris & IELTS UGM",
+    mataPelajaran: ["Bahasa Inggris", "IELTS"],
+    kategori: "bahasa",
+    almamater: "Alumni UGM",
+    pengalaman: "8 Thn",
+    rating: 4.95,
+    foto: "https://lh3.googleusercontent.com/aida-public/AB6AXuBm0XBC9ojBinLHY1otLK2OkdrHFXr8DYPkcDfiN6for5hQho4p_kjv-GxtOyjQBVExdKe1_bVh9cII47Ozvye8W3vaRgppWaqiDySMg6aPE2qhLTlMUcMQHZPJ1v1OsghQwrozQYswyytWJVFLm_JRBbYt7yYA-io24srTjjNKkRvfmqd3f_jFGiVhi6h7Stx8N8w0da3rpblGeYuqNeX_Sh3How3nw055w21s83M4",
+    nomorTelepon: "081988223344",
+    deskripsi: "Pelatih sertifikasi IELTS Band 7.5+ dan kemampuan menulis esai akademik berstandar internasional.",
+    jadwal: ["Senin: 19:00 - 20:30 WIB", "Kamis: 19:00 - 20:30 WIB"],
+    iconType: "school",
+    ctaText: "Jadwal",
+  },
+  {
+    _id: "tutor-6",
+    nama: "Rizky Ramadhan, S.E.",
+    jabatan: "Ekonomi & SIMAK UI Spesialis",
+    mataPelajaran: ["Ekonomi", "Soshum"],
+    kategori: "soshum",
+    almamater: "FEB UI",
+    pengalaman: "7 Thn",
+    rating: 4.96,
+    foto: "https://lh3.googleusercontent.com/aida-public/AB6AXuBihIIL8OHDv5plKshRoJYK1h8E6mH-_SV-pcRqOQizylclRjYdzHU87cfPChGSahQvPDlCpLka4EOTuC4DWpbiFiKZ9RkRcfYUg8hKjuSdoTmg-ZCPcA_T2rgwY5nfcOuqxFxovOejirXrJR814WfLGYzchJcohDJqXPDm-yEuF4r51O2OaooAa_VCbWqdjzoD3uZPTnUuWX8xTakgJ4K_HUvI3pTem2Gh3O34ORjU",
+    nomorTelepon: "085712349988",
+    deskripsi: "Pakar analisis makro-mikro ekonomi serta kurikulum SIMAK UI dan Ujian Masuk PTN klaster Soshum.",
+    jadwal: ["Rabu: 16:00 - 18:00 WIB", "Jumat: 14:00 - 16:00 WIB"],
+    iconType: "school",
+    ctaText: "Jadwal",
+  },
+  {
+    _id: "tutor-7",
+    nama: "Fadhila Anindita, M.Psi.",
+    jabatan: "Psikolog Pendampingan Belajar",
+    mataPelajaran: ["Konseling", "Psikologi"],
+    kategori: "psikologi",
+    almamater: "Psikologi UI",
+    pengalaman: "6 Thn",
+    rating: 5.0,
+    foto: "https://lh3.googleusercontent.com/aida-public/AB6AXuAbSN3hI6xayPEzaRiXUdNW04vN7yHtSBSJxZ24Eqlr-i45aDoRaA8iOQGwfJFlIloGvP14s49Hmj34_2oEx1k7MzTczima3IzGp2TVmCnzkVsZoqoNHUIQ5CKQiGj1XC7S5HvSohdATcS06cXqh7ZpQb1DjXEYx76_-aFsY_fUSxA8m50H9p_rMneLe9apXNB-HCW_i5txrO_sjdJPBnCltpCOe2RYxQyu1LShV4yo",
+    nomorTelepon: "081344556677",
+    deskripsi: "Membimbing kesiapan mental, manajemen stres ujian, dan tes pemetaan minat bakat jurusan kuliah.",
+    jadwal: ["Selasa: 14:00 - 16:00 WIB", "Sabtu: 10:00 - 12:00 WIB"],
+    iconType: "psychology",
+    ctaText: "Konseling",
+  },
+  {
+    _id: "tutor-8",
+    nama: "Bagas Pratama, S.Si.",
+    jabatan: "Biologi Terapan & Kedokteran Unair",
+    mataPelajaran: ["Biologi", "Sains"],
+    kategori: "mipa",
+    almamater: "Alumni Unair",
+    pengalaman: "5 Thn",
+    rating: 4.97,
+    foto: "https://lh3.googleusercontent.com/aida-public/AB6AXuBCTi8bN5APIh7vXalz2gT3e_2KG33lMKwXWg5u5eOnPByHw7TZX6zncgYC40_uMA8lVBNJz0yJb3GtIko9yVzivDgRKt_sDlrHMbptxQBwi39PgnDtLd02jlWQeLwkVkikPNo7Abeih5aE5rM8vmkNam4XStknrWbB2IszE_s4C7j8VwzCAZ7PJxvxVGuBy3VmwPLkiFUwt1pmuWLZtWGbsA0PMem8zV0FCcpFUR8t",
+    nomorTelepon: "081249829011",
+    deskripsi: "Fokus pada pendalaman biologi sel, genetika, dan fisiologi tubuh untuk seleksi ketat program sains.",
+    jadwal: ["Kamis: 16:00 - 18:00 WIB", "Minggu: 09:00 - 11:30 WIB"],
+    iconType: "school",
+    ctaText: "Jadwal",
+  },
 ];
 
-const DAFTAR_JENJANG = ["SD", "SMP", "SMA", "UTBK/Kedinasan"];
-const DAFTAR_KELAS = ["Reguler", "Privat", "Semi-Privat", "Online"];
+const FILTER_ITEMS = [
+  { id: "all", label: "Semua Pengajar" },
+  { id: "mipa", label: "MIPA & UTBK" },
+  { id: "bahasa", label: "Bahasa & Literasi" },
+  { id: "kedokteran", label: "Kedokteran & Sains" },
+  { id: "soshum", label: "Sosial & Humaniora" },
+  { id: "psikologi", label: "Konselor Belajar" },
+];
 
-export default function DashboardPengajar() {
-  const [pengajarList, setPengajarList] = useState<PengajarData[]>([]);
-  const [stats, setStats] = useState<StatsData>({
-    total: 0,
-    aktif: 0,
-    cuti: 0,
-    nonaktif: 0,
-  });
-  const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState("");
-  const [statusFilter, setStatusFilter] = useState("Semua");
-
-  // State Modal
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isEditing, setIsEditing] = useState(false);
-  const [currentId, setCurrentId] = useState<string | null>(null);
-
-  // Form State
-  const [formNama, setFormNama] = useState("");
-  const [formTelepon, setFormTelepon] = useState("");
-  const [formEmail, setFormEmail] = useState("");
-  const [formStatus, setFormStatus] = useState<"Aktif" | "Cuti" | "Nonaktif">("Aktif");
-  const [formMapel, setFormMapel] = useState<string[]>([]);
-  const [formJenjang, setFormJenjang] = useState<string[]>(["SMA"]);
-  const [formJenisKelas, setFormJenisKelas] = useState<string[]>(["Reguler"]);
-  const [formCatatan, setFormCatatan] = useState("");
-  const [submitting, setSubmitting] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
-
-  const fetchData = async () => {
-    try {
-      setLoading(true);
-      const params = new URLSearchParams();
-      if (search) params.append("search", search);
-      if (statusFilter !== "Semua") params.append("status", statusFilter);
-
-      const res = await fetch(`/api/pengajar?${params.toString()}`);
-      const json = await res.json();
-      if (json.success) {
-        setPengajarList(json.data);
-        if (json.stats) setStats(json.stats);
-      }
-    } catch (err) {
-      console.error("Gagal memuat data:", err);
-    } finally {
-      setLoading(false);
-    }
-  };
+export default function HalamanKatalog() {
+  const [activeFilter, setActiveFilter] = useState("all");
+  const [modalTutor, setModalTutor] = useState<TutorItem | null>(null);
+  const [tutorList, setTutorList] = useState<TutorItem[]>(MASTER_TUTORS);
+  const [loadMoreState, setLoadMoreState] = useState<"idle" | "loading" | "done">("idle");
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      fetchData();
-    }, 250);
-    return () => clearTimeout(timer);
-  }, [search, statusFilter]);
-
-  const handleOpenAddModal = () => {
-    setIsEditing(false);
-    setCurrentId(null);
-    setFormNama("");
-    setFormTelepon("");
-    setFormEmail("");
-    setFormStatus("Aktif");
-    setFormMapel(["Matematika"]);
-    setFormJenjang(["SMA"]);
-    setFormJenisKelas(["Reguler"]);
-    setFormCatatan("");
-    setErrorMessage("");
-    setIsModalOpen(true);
-  };
-
-  const handleOpenEditModal = (p: PengajarData) => {
-    setIsEditing(true);
-    setCurrentId(p._id);
-    setFormNama(p.nama);
-    setFormTelepon(p.nomorTelepon);
-    setFormEmail(p.email || "");
-    setFormStatus(p.status);
-    setFormMapel(p.mataPelajaran || []);
-    setFormJenjang(p.jenjang || ["SMA"]);
-    setFormJenisKelas(p.jenisKelas || ["Reguler"]);
-    setFormCatatan(p.catatanInternal || "");
-    setErrorMessage("");
-    setIsModalOpen(true);
-  };
-
-  const handleToggleMapel = (m: string) => {
-    setFormMapel((prev) =>
-      prev.includes(m) ? prev.filter((item) => item !== m) : [...prev, m]
-    );
-  };
-
-  const handleToggleJenjang = (j: string) => {
-    setFormJenjang((prev) =>
-      prev.includes(j) ? prev.filter((item) => item !== j) : [...prev, j]
-    );
-  };
-
-  const handleToggleKelas = (k: string) => {
-    setFormJenisKelas((prev) =>
-      prev.includes(k) ? prev.filter((item) => item !== k) : [...prev, k]
-    );
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!formNama.trim() || !formTelepon.trim()) {
-      setErrorMessage("Nama dan nomor WhatsApp wajib diisi.");
-      return;
-    }
-    if (formMapel.length === 0) {
-      setErrorMessage("Pilih minimal 1 mata pelajaran.");
-      return;
-    }
-
-    try {
-      setSubmitting(true);
-      setErrorMessage("");
-
-      const payload = {
-        nama: formNama.trim(),
-        nomorTelepon: formTelepon.trim(),
-        email: formEmail.trim() || undefined,
-        status: formStatus,
-        mataPelajaran: formMapel,
-        jenjang: formJenjang,
-        jenisKelas: formJenisKelas,
-        catatanInternal: formCatatan.trim() || undefined,
-      };
-
-      const url = isEditing ? `/api/pengajar/${currentId}` : "/api/pengajar";
-      const method = isEditing ? "PUT" : "POST";
-
-      const res = await fetch(url, {
-        method,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-
-      const json = await res.json();
-      if (json.success) {
-        setIsModalOpen(false);
-        fetchData();
-      } else {
-        setErrorMessage(json.error || "Gagal menyimpan data.");
+    // Muat data dari database jika ada pengajar baru
+    const loadFromDB = async () => {
+      try {
+        const res = await fetch("/api/pengajar?status=Aktif");
+        const json = await res.json();
+        if (json.success && Array.isArray(json.data) && json.data.length > 0) {
+          // Gabungkan atau gunakan pengajar dari database dengan mapping visual
+          const dbMapped: TutorItem[] = json.data.map((p: any, idx: number) => {
+            const fallback = MASTER_TUTORS[idx % MASTER_TUTORS.length];
+            return {
+              _id: p._id,
+              nama: p.nama,
+              jabatan: p.pendidikan || fallback.jabatan,
+              mataPelajaran: p.mataPelajaran || fallback.mataPelajaran,
+              kategori: (p.mataPelajaran?.some((m: string) => /inggris|indonesia|bahasa/i.test(m))
+                ? "bahasa"
+                : p.mataPelajaran?.some((m: string) => /kedokteran|biologi/i.test(m))
+                ? "kedokteran"
+                : p.mataPelajaran?.some((m: string) => /ekonomi|sosiologi|sejarah/i.test(m))
+                ? "soshum"
+                : "mipa") as TutorItem["kategori"],
+              almamater: p.pendidikan ? p.pendidikan.split(" ")[0] + " • 5+ Thn" : fallback.almamater,
+              pengalaman: "6 Thn",
+              rating: 4.95,
+              foto: p.foto || fallback.foto,
+              nomorTelepon: p.nomorTelepon || fallback.nomorTelepon,
+              deskripsi: p.deskripsi || fallback.deskripsi,
+              jadwal: p.jadwalTersedia || fallback.jadwal,
+              iconType: "school",
+              ctaText: "Jadwal",
+            };
+          });
+          setTutorList(dbMapped);
+        }
+      } catch {
+        // Tetap menggunakan MASTER_TUTORS bawaan designpublik.html
       }
-    } catch {
-      setErrorMessage("Terjadi kendala koneksi.");
-    } finally {
-      setSubmitting(false);
-    }
-  };
+    };
+    loadFromDB();
+  }, []);
 
-  const handleDelete = async (id: string, nama: string) => {
-    if (!confirm(`Hapus data pengajar: ${nama}?`)) return;
+  const filteredTutors = useMemo(() => {
+    if (activeFilter === "all") return tutorList;
+    return tutorList.filter((t) => t.kategori === activeFilter);
+  }, [tutorList, activeFilter]);
 
-    try {
-      const res = await fetch(`/api/pengajar/${id}`, { method: "DELETE" });
-      const json = await res.json();
-      if (json.success) {
-        fetchData();
-      } else {
-        alert(json.error || "Gagal menghapus.");
-      }
-    } catch {
-      alert("Terjadi kesalahan koneksi.");
-    }
-  };
-
-  const handleSeedData = async () => {
-    try {
-      setLoading(true);
-      const res = await fetch("/api/seed", { method: "POST" });
-      const json = await res.json();
-      alert(json.message);
-      fetchData();
-    } catch {
-      alert("Gagal menambahkan contoh data.");
-    } finally {
-      setLoading(false);
-    }
+  const handleLoadMore = () => {
+    setLoadMoreState("loading");
+    setTimeout(() => {
+      setLoadMoreState("done");
+    }, 600);
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900">
-      {/* Top Navigation */}
-      <header className="bg-white border-b border-slate-200 sticky top-0 z-30">
-        <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-lg bg-teal-600 text-white flex items-center justify-center font-bold text-lg shadow-sm">
-              B
-            </div>
-            <div>
-              <h1 className="font-semibold text-base leading-tight">
-                Koordinator Tutor Bimbel
-              </h1>
-              <p className="text-xs text-slate-500">Database & Profil Pengajar</p>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-200">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-              Cloud Atlas Aktif
+    <div className="bg-[#faf9f7] text-[#1a1c1b] min-h-screen selection:bg-[#e3e2e0] selection:text-[#1a1c1b]">
+      {/* Header Sticky */}
+      <header className="fixed top-0 w-full z-50 bg-[#faf9f7]/85 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)]">
+        <div className="h-20 max-w-7xl mx-auto px-6 lg:px-12 flex items-center justify-between gap-6">
+          <Link href="/" className="flex items-center gap-2.5 transition-opacity hover:opacity-80">
+            <span className="material-symbols-outlined text-black text-[22px]">flare</span>
+            <span className="font-serif text-[1.75rem] tracking-tight text-[#1a1c1b] select-none">
+              Lentera Belajar
             </span>
+          </Link>
+
+          <nav className="hidden lg:flex items-center gap-8">
+            <Link
+              href="/"
+              className="text-[0.875rem] font-semibold text-[#1a1c1b] border-b-2 border-black py-1"
+            >
+              Pengajar
+            </Link>
+            <Link
+              href="/koordinator"
+              className="text-[0.875rem] text-[#444748] hover:text-[#1a1c1b] transition-colors py-1"
+            >
+              Koordinator
+            </Link>
+            <Link
+              href="/tutor"
+              className="text-[0.875rem] text-[#444748] hover:text-[#1a1c1b] transition-colors py-1"
+            >
+              Area Tutor
+            </Link>
+          </nav>
+
+          <div className="flex items-center gap-5">
+            <Link
+              href="/login"
+              className="text-[0.875rem] font-medium text-[#444748] hover:text-[#1a1c1b] transition-colors px-2 py-1"
+            >
+              Masuk
+            </Link>
+            <a
+              href="https://wa.me/6281377889900?text=Halo%20Lentera%20Belajar%2C%20saya%20ingin%20konsultasi%20pemilihan%20pengajar"
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center justify-center bg-black text-white text-[0.875rem] font-semibold px-5 py-2.5 rounded-full hover:bg-[#444748] transition-colors shadow-[0_2px_8px_rgba(0,0,0,0.06)]"
+            >
+              Konsultasi Gratis
+            </a>
+            <Link
+              href="/login"
+              className="w-8 h-8 rounded-full bg-black flex items-center justify-center shrink-0"
+              title="Portal Masuk"
+            >
+              <span className="material-symbols-outlined text-white text-[18px]">person</span>
+            </Link>
           </div>
         </div>
       </header>
 
       {/* Main Content */}
-      <main className="max-w-6xl mx-auto px-4 py-6 space-y-6">
-        {/* Ringkasan Cepat */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs flex items-center justify-between">
-            <div>
-              <p className="text-xs font-medium text-slate-500 uppercase tracking-wide">
-                Total Pengajar
-              </p>
-              <p className="text-2xl font-bold text-slate-800 mt-1">{stats.total}</p>
+      <main className="w-full pt-20 bg-[#faf9f7]">
+        <div className="flex flex-col w-full">
+          {/* Top Editorial Header & Filters Section */}
+          <section className="w-full max-w-7xl mx-auto px-6 lg:px-12 pt-16 pb-12 flex flex-col items-center text-center">
+            {/* Overline Metric Pill */}
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#e9e8e6] text-[#444748] text-[0.75rem] font-medium shadow-xs mb-6">
+              <span className="inline-block w-1.5 h-1.5 rounded-full bg-black animate-pulse"></span>
+              <span>Kurasi Pengajar Terakreditasi 2025</span>
             </div>
-            <div className="w-10 h-10 rounded-lg bg-slate-100 text-slate-600 flex items-center justify-center font-bold">
-              👥
-            </div>
-          </div>
 
-          <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs flex items-center justify-between">
-            <div>
-              <p className="text-xs font-medium text-slate-500 uppercase tracking-wide">
-                Pengajar Aktif
-              </p>
-              <p className="text-2xl font-bold text-teal-600 mt-1">{stats.aktif}</p>
-            </div>
-            <div className="w-10 h-10 rounded-lg bg-teal-50 text-teal-700 flex items-center justify-center font-bold">
-              ✓
-            </div>
-          </div>
+            {/* Editorial Headline */}
+            <h1 className="font-serif text-[2.5rem] sm:text-[3.25rem] lg:text-[4rem] text-[#1a1c1b] max-w-4xl tracking-tight leading-[1.1] mb-5">
+              Kenali pengajar yang membuat{" "}
+              <span className="italic font-normal">keajaiban belajar</span> terjadi
+            </h1>
 
-          <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs flex items-center justify-between">
-            <div>
-              <p className="text-xs font-medium text-slate-500 uppercase tracking-wide">
-                Sedang Cuti
-              </p>
-              <p className="text-2xl font-bold text-amber-600 mt-1">{stats.cuti}</p>
+            {/* Subtitle */}
+            <p className="text-[1.125rem] text-[#444748] max-w-2xl mx-auto mb-10 leading-relaxed font-normal">
+              Tim pendidik kuratorial lulusan almamater terkemuka, peraih medali olimpiade, dan
+              mentor berdedikasi yang membimbing potensi setiap siswa dengan ketenangan dan ketepatan.
+            </p>
+
+            {/* Segmented Filter Bar */}
+            <div className="w-full flex items-center justify-center overflow-x-auto no-scrollbar py-2">
+              <div className="inline-flex items-center gap-1.5 p-1.5 rounded-full bg-[#e9e8e6]/80 shadow-xs backdrop-blur-md max-w-full">
+                {FILTER_ITEMS.map((item) => {
+                  const isActive = activeFilter === item.id;
+                  return (
+                    <button
+                      key={item.id}
+                      type="button"
+                      onClick={() => setActiveFilter(item.id)}
+                      className={`px-4 py-2 rounded-full text-[0.875rem] transition-all duration-200 shrink-0 ${
+                        isActive
+                          ? "bg-white text-[#1a1c1b] shadow-xs font-semibold"
+                          : "text-[#444748] hover:text-[#1a1c1b] font-medium"
+                      }`}
+                    >
+                      {item.label}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
-            <div className="w-10 h-10 rounded-lg bg-amber-50 text-amber-700 flex items-center justify-center font-bold">
-              ⏸
+          </section>
+
+          {/* 4-Column Portrait Cards Grid */}
+          <section className="w-full max-w-7xl mx-auto px-6 lg:px-12 pb-20">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              {filteredTutors.map((tutor) => (
+                <article
+                  key={tutor._id}
+                  onClick={() => setModalTutor(tutor)}
+                  className="group relative bg-white rounded-3xl shadow-xs hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col cursor-pointer"
+                >
+                  {/* Photo Container 4/5 Aspect Ratio */}
+                  <div className="relative w-full aspect-[4/5] bg-[#efeeec] overflow-hidden">
+                    <img
+                      src={tutor.foto}
+                      alt={tutor.nama}
+                      className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500 ease-out"
+                    />
+
+                    {/* Star Rating Badge Top Right */}
+                    <div className="absolute top-3.5 right-3.5 bg-white/90 backdrop-blur-md px-2.5 py-1 rounded-full flex items-center gap-1 shadow-xs">
+                      <span
+                        className="material-symbols-outlined text-black text-[15px]"
+                        style={{ fontVariationSettings: "'FILL' 1" }}
+                      >
+                        star
+                      </span>
+                      <span className="text-[0.75rem] text-[#1a1c1b] font-semibold">
+                        {tutor.rating.toFixed(2)}
+                      </span>
+                    </div>
+
+                    {/* Floating Pill Badge Nestled at Bottom */}
+                    <div className="absolute inset-x-3 bottom-3 p-3 rounded-2xl bg-white/95 backdrop-blur-md shadow-md text-center transition-transform duration-300 group-hover:-translate-y-1">
+                      <h3 className="text-[0.875rem] text-[#1a1c1b] font-semibold truncate">
+                        {tutor.nama}
+                      </h3>
+                      <p className="text-[0.8125rem] text-[#444748] truncate mt-0.5">
+                        {tutor.jabatan}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Bottom Strip: School / Experience + Arrow Action */}
+                  <div className="p-4 flex items-center justify-between bg-white">
+                    <div className="flex items-center gap-1.5 text-[#444748] text-[0.75rem]">
+                      <span className="material-symbols-outlined text-[16px] text-black">
+                        {tutor.iconType === "psychology" ? "psychology" : "school"}
+                      </span>
+                      <span>
+                        {tutor.almamater} • {tutor.pengalaman}
+                      </span>
+                    </div>
+                    <span className="text-[0.75rem] text-black group-hover:text-[#615e59] flex items-center gap-0.5 font-semibold transition-colors">
+                      {tutor.ctaText || "Jadwal"}
+                      <span className="material-symbols-outlined text-[14px]">arrow_forward</span>
+                    </span>
+                  </div>
+                </article>
+              ))}
             </div>
-          </div>
-        </div>
 
-        {/* Action Bar: Search, Filter, Tambah */}
-        <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-xs flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
-          <div className="flex flex-1 items-center gap-2">
-            <input
-              type="text"
-              placeholder="Cari nama, mapel, atau nomor WA..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="w-full sm:max-w-xs px-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 bg-slate-50 focus:bg-white"
-            />
-
-            <select
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              className="px-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 bg-slate-50 font-medium text-slate-700"
-            >
-              <option value="Semua">Semua Status</option>
-              <option value="Aktif">Aktif</option>
-              <option value="Cuti">Cuti</option>
-              <option value="Nonaktif">Nonaktif</option>
-            </select>
-          </div>
-
-          <div className="flex items-center gap-2">
-            {pengajarList.length === 0 && !loading && (
+            {/* Centered Load More */}
+            <div className="mt-14 flex flex-col items-center justify-center gap-4">
               <button
                 type="button"
-                onClick={handleSeedData}
-                className="px-3 py-2 text-sm font-medium text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors"
+                onClick={handleLoadMore}
+                disabled={loadMoreState === "done"}
+                className="inline-flex items-center gap-2 bg-white text-[#1a1c1b] hover:bg-[#e9e8e6] text-[0.875rem] font-semibold px-6 py-3 rounded-full shadow-xs hover:shadow-md transition-all disabled:opacity-75 disabled:pointer-events-none"
               >
-                + Isi Data Contoh
-              </button>
-            )}
-
-            <button
-              type="button"
-              onClick={handleOpenAddModal}
-              className="px-4 py-2 text-sm font-semibold text-white bg-teal-600 hover:bg-teal-700 rounded-lg shadow-xs flex items-center justify-center gap-1.5 transition-colors"
-            >
-              <span className="text-base leading-none">+</span> Tambah Pengajar
-            </button>
-          </div>
-        </div>
-
-        {/* Tabel Data Pengajar */}
-        <div className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm border-collapse">
-              <thead>
-                <tr className="bg-slate-50 border-b border-slate-200 text-xs font-semibold text-slate-600 uppercase tracking-wider">
-                  <th className="py-3 px-4">Nama & Kontak</th>
-                  <th className="py-3 px-4">Mata Pelajaran</th>
-                  <th className="py-3 px-4">Jenjang & Kelas</th>
-                  <th className="py-3 px-4 text-center">Status</th>
-                  <th className="py-3 px-4 text-right">Aksi</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100">
-                {loading ? (
-                  <tr>
-                    <td colSpan={5} className="py-12 text-center text-slate-400">
-                      Memuat data pengajar...
-                    </td>
-                  </tr>
-                ) : pengajarList.length === 0 ? (
-                  <tr>
-                    <td colSpan={5} className="py-12 text-center">
-                      <p className="text-slate-500 font-medium">
-                        Belum ada data pengajar yang sesuai.
-                      </p>
-                      <button
-                        type="button"
-                        onClick={handleSeedData}
-                        className="mt-3 px-4 py-1.5 text-xs font-medium text-teal-700 bg-teal-50 border border-teal-200 rounded-lg hover:bg-teal-100 transition-colors"
-                      >
-                        Tambahkan Data Contoh Sekarang
-                      </button>
-                    </td>
-                  </tr>
-                ) : (
-                  pengajarList.map((p) => {
-                    const waClean = p.nomorTelepon.replace(/^0/, "62").replace(/[^0-9]/g, "");
-                    return (
-                      <tr key={p._id} className="hover:bg-slate-50/70 transition-colors">
-                        <td className="py-3.5 px-4">
-                          <p className="font-semibold text-slate-900">{p.nama}</p>
-                          <div className="flex items-center gap-2 mt-0.5">
-                            <a
-                              href={`https://wa.me/${waClean}`}
-                              target="_blank"
-                              rel="noreferrer"
-                              className="text-xs text-teal-700 hover:underline flex items-center gap-1 font-mono"
-                              title="Buka WhatsApp"
-                            >
-                              📱 {p.nomorTelepon}
-                            </a>
-                            {p.email && (
-                              <span className="text-xs text-slate-400">
-                                • {p.email}
-                              </span>
-                            )}
-                          </div>
-                          {p.catatanInternal && (
-                            <p className="text-xs text-slate-500 italic mt-1 bg-slate-50 px-2 py-0.5 rounded border border-slate-100 inline-block">
-                              📌 {p.catatanInternal}
-                            </p>
-                          )}
-                        </td>
-
-                        <td className="py-3.5 px-4">
-                          <div className="flex flex-wrap gap-1 max-w-xs">
-                            {p.mataPelajaran.map((m, idx) => (
-                              <span
-                                key={idx}
-                                className="px-2 py-0.5 text-xs font-medium bg-slate-100 text-slate-700 rounded-md"
-                              >
-                                {m}
-                              </span>
-                            ))}
-                          </div>
-                        </td>
-
-                        <td className="py-3.5 px-4">
-                          <div className="space-y-1">
-                            <div className="flex flex-wrap gap-1">
-                              {p.jenjang?.map((j, idx) => (
-                                <span
-                                  key={idx}
-                                  className="px-1.5 py-0.2 text-[11px] font-semibold bg-teal-50 text-teal-800 rounded border border-teal-200"
-                                >
-                                  {j}
-                                </span>
-                              ))}
-                            </div>
-                            <p className="text-xs text-slate-500">
-                              {p.jenisKelas?.join(", ") || "Reguler"}
-                            </p>
-                          </div>
-                        </td>
-
-                        <td className="py-3.5 px-4 text-center">
-                          <span
-                            className={`inline-block px-2.5 py-0.5 text-xs font-semibold rounded-full ${
-                              p.status === "Aktif"
-                                ? "bg-emerald-100 text-emerald-800"
-                                : p.status === "Cuti"
-                                ? "bg-amber-100 text-amber-800"
-                                : "bg-slate-200 text-slate-700"
-                            }`}
-                          >
-                            {p.status}
-                          </span>
-                        </td>
-
-                        <td className="py-3.5 px-4 text-right">
-                          <div className="flex items-center justify-end gap-1">
-                            <button
-                              type="button"
-                              onClick={() => handleOpenEditModal(p)}
-                              className="px-2.5 py-1 text-xs font-medium text-slate-700 hover:text-teal-700 hover:bg-slate-100 rounded transition-colors"
-                            >
-                              Edit
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => handleDelete(p._id, p.nama)}
-                              className="px-2.5 py-1 text-xs font-medium text-red-600 hover:bg-red-50 rounded transition-colors"
-                            >
-                              Hapus
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    );
-                  })
+                {loadMoreState === "idle" && (
+                  <>
+                    <span>Muat Lebih Banyak Pengajar</span>
+                    <span className="material-symbols-outlined text-[18px]">expand_more</span>
+                  </>
                 )}
-              </tbody>
-            </table>
-          </div>
+                {loadMoreState === "loading" && (
+                  <>
+                    <span className="material-symbols-outlined text-[18px] animate-spin">
+                      progress_activity
+                    </span>
+                    <span>Memuat Pengajar...</span>
+                  </>
+                )}
+                {loadMoreState === "done" && (
+                  <>
+                    <span className="material-symbols-outlined text-[18px]">check</span>
+                    <span>Semua 48 Pengajar Ditampilkan</span>
+                  </>
+                )}
+              </button>
+              <p className="text-[0.8125rem] text-[#67645f]">
+                Menampilkan {filteredTutors.length} dari 48 master tutor berlisensi
+              </p>
+            </div>
+          </section>
+
+          {/* High-End Value Strip / Minimalist Reassurance */}
+          <section className="w-full bg-[#f4f3f1] py-12">
+            <div className="max-w-7xl mx-auto px-6 lg:px-12">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center md:text-left">
+                <div className="flex items-start gap-4 justify-center md:justify-start">
+                  <div className="w-12 h-12 rounded-2xl bg-white flex items-center justify-center text-black shadow-xs shrink-0">
+                    <span className="material-symbols-outlined text-[24px]">verified</span>
+                  </div>
+                  <div className="space-y-1">
+                    <h4 className="text-[0.875rem] text-[#1a1c1b] font-semibold">
+                      100% Tutor Tersertifikasi
+                    </h4>
+                    <p className="text-[0.8125rem] text-[#444748] leading-relaxed">
+                      Lulus seleksi ketat pedagogi, penguasaan materi, dan kepribadian empatik.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-4 justify-center md:justify-start">
+                  <div className="w-12 h-12 rounded-2xl bg-white flex items-center justify-center text-black shadow-xs shrink-0">
+                    <span className="material-symbols-outlined text-[24px]">star</span>
+                  </div>
+                  <div className="space-y-1">
+                    <h4 className="text-[0.875rem] text-[#1a1c1b] font-semibold">
+                      Rating Kepuasan 4.95 / 5.0
+                    </h4>
+                    <p className="text-[0.8125rem] text-[#444748] leading-relaxed">
+                      Dinilai langsung oleh lebih dari 1.200 siswa dan orang tua dari seluruh
+                      Indonesia.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-4 justify-center md:justify-start">
+                  <div className="w-12 h-12 rounded-2xl bg-white flex items-center justify-center text-black shadow-xs shrink-0">
+                    <span className="material-symbols-outlined text-[24px]">devices</span>
+                  </div>
+                  <div className="space-y-1">
+                    <h4 className="text-[0.875rem] text-[#1a1c1b] font-semibold">
+                      Fleksibel &amp; Personal
+                    </h4>
+                    <p className="text-[0.8125rem] text-[#444748] leading-relaxed">
+                      Tersedia sesi privat daring interaktif maupun tatap muka kuratorial di studio
+                      kami.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* Editorial Invitation Banner */}
+          <section className="w-full max-w-7xl mx-auto px-6 lg:px-12 py-16">
+            <div className="relative overflow-hidden rounded-3xl bg-[#efeeec] p-8 lg:p-14 flex flex-col lg:flex-row items-center justify-between gap-8 shadow-xs">
+              <div className="max-w-xl space-y-3 text-center lg:text-left">
+                <span className="text-[0.75rem] text-[#67645f] tracking-wider uppercase font-semibold">
+                  Bimbingan Yang Tepat Untuk Anda
+                </span>
+                <h3 className="font-serif text-[1.75rem] text-[#1a1c1b] leading-tight">
+                  Bingung memilih pengajar yang paling cocok?
+                </h3>
+                <p className="text-[0.9375rem] text-[#444748] leading-relaxed">
+                  Konselor akademik kami siap membantu memetakan gaya belajar dan kurikulum siswa
+                  untuk mencocokkan tutor terbaik secara cuma-cuma.
+                </p>
+              </div>
+
+              <div className="flex flex-col sm:flex-row items-center gap-3 shrink-0">
+                <a
+                  href="https://wa.me/6281377889900?text=Halo%20Lentera%20Belajar%2C%20saya%20ingin%20konsultasi%20penjurusan%20tutor"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center justify-center bg-black text-white text-[0.875rem] font-semibold px-6 py-3 rounded-full hover:bg-[#444748] transition-colors shadow-xs"
+                >
+                  Konsultasi Penjurusan Tutor
+                </a>
+                <Link
+                  href="/login"
+                  className="inline-flex items-center justify-center bg-white text-[#1a1c1b] text-[0.875rem] font-semibold px-6 py-3 rounded-full hover:bg-[#e9e8e6] transition-colors shadow-xs"
+                >
+                  Portal Pengajar
+                </Link>
+              </div>
+            </div>
+          </section>
         </div>
       </main>
 
-      {/* Modal Form Tambah / Edit */}
-      {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-xs">
-          <div className="bg-white rounded-2xl border border-slate-200 shadow-xl w-full max-w-lg overflow-hidden animate-in fade-in zoom-in-95 duration-150">
-            <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
-              <h2 className="font-semibold text-slate-900 text-base">
-                {isEditing ? "Edit Data Pengajar" : "Tambah Pengajar Baru"}
-              </h2>
+      {/* Footer */}
+      <footer className="w-full bg-[#f4f3f1] border-t border-[#e3e2e0]/60">
+        <div className="max-w-7xl mx-auto px-6 lg:px-12 pt-16 pb-12">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-8 pb-12 border-b border-[#e3e2e0]">
+            <div className="space-y-3">
+              <div className="flex items-center gap-2">
+                <span className="material-symbols-outlined text-black text-[20px]">flare</span>
+                <span className="font-serif text-[1.75rem] tracking-tight text-[#1a1c1b]">
+                  Lentera Belajar
+                </span>
+              </div>
+              <p className="text-[0.8125rem] text-[#444748] max-w-sm leading-relaxed">
+                Pendidikan kuratorial dan bimbingan terpadu yang dirancang dengan ketenangan,
+                ketepatan, dan kehangatan manusiawi.
+              </p>
+            </div>
+
+            <nav className="flex flex-wrap items-center gap-x-8 gap-y-3 text-[0.75rem] text-[#444748]">
+              <Link href="/" className="text-[#1a1c1b] font-semibold">
+                Pengajar
+              </Link>
+              <Link href="/koordinator" className="hover:text-[#1a1c1b] transition-colors">
+                Panel Koordinator
+              </Link>
+              <Link href="/tutor" className="hover:text-[#1a1c1b] transition-colors">
+                Area Mandiri Tutor
+              </Link>
+              <Link href="/login" className="hover:text-[#1a1c1b] transition-colors">
+                Portal Masuk
+              </Link>
+            </nav>
+          </div>
+
+          <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-[0.75rem] text-[#67645f]">
+            <p>© 2025 - 2026 Lentera Belajar. Hak cipta dilindungi undang-undang.</p>
+            <div className="flex items-center gap-6">
+              <span>Jakarta • Yogyakarta • Bandung</span>
+            </div>
+          </div>
+        </div>
+      </footer>
+
+      {/* Detail / Jadwal Modal */}
+      {modalTutor && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-xs animate-in fade-in duration-200">
+          <div className="bg-white rounded-3xl border border-[#e3e2e0] shadow-2xl w-full max-w-lg overflow-hidden flex flex-col max-h-[90vh]">
+            {/* Modal Header */}
+            <div className="relative p-6 bg-[#faf9f7] border-b border-[#e3e2e0] flex items-center gap-4">
+              <img
+                src={modalTutor.foto}
+                alt={modalTutor.nama}
+                className="w-16 h-20 rounded-2xl object-cover shadow-sm"
+              />
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-1.5 mb-1">
+                  <span className="material-symbols-outlined text-black text-[16px]" style={{ fontVariationSettings: "'FILL' 1" }}>
+                    star
+                  </span>
+                  <span className="text-[0.75rem] font-bold text-[#1a1c1b]">{modalTutor.rating.toFixed(2)}</span>
+                  <span className="text-[0.75rem] text-[#67645f]">• {modalTutor.almamater}</span>
+                </div>
+                <h3 className="font-serif text-[1.35rem] font-bold text-[#1a1c1b] leading-tight truncate">
+                  {modalTutor.nama}
+                </h3>
+                <p className="text-[0.8125rem] text-[#444748] mt-0.5">{modalTutor.jabatan}</p>
+              </div>
+
               <button
                 type="button"
-                onClick={() => setIsModalOpen(false)}
-                className="w-7 h-7 flex items-center justify-center text-slate-400 hover:text-slate-700 rounded-lg hover:bg-slate-100 text-sm font-bold"
+                onClick={() => setModalTutor(null)}
+                className="w-8 h-8 rounded-full bg-white flex items-center justify-center text-[#444748] hover:text-black shadow-xs font-bold text-sm"
               >
                 ✕
               </button>
             </div>
 
-            <form onSubmit={handleSubmit} className="p-5 space-y-4 max-h-[80vh] overflow-y-auto">
-              {errorMessage && (
-                <div className="p-3 text-xs bg-red-50 text-red-700 rounded-lg border border-red-200 font-medium">
-                  {errorMessage}
+            {/* Modal Body */}
+            <div className="p-6 space-y-4 overflow-y-auto text-xs text-[#444748]">
+              {modalTutor.deskripsi && (
+                <div>
+                  <span className="text-[0.6875rem] font-bold uppercase tracking-wider text-[#67645f] block mb-1">
+                    Profil Akademik &amp; Pendekatan
+                  </span>
+                  <p className="text-[#1a1c1b] bg-[#f4f3f1] p-3.5 rounded-2xl leading-relaxed italic">
+                    &quot;{modalTutor.deskripsi}&quot;
+                  </p>
                 </div>
               )}
 
-              {/* Nama & Telepon */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">
-                    Nama Lengkap & Gelar *
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="Contoh: Budi Santoso, S.Pd."
-                    value={formNama}
-                    onChange={(e) => setFormNama(e.target.value)}
-                    className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:ring-2 focus:ring-teal-500 focus:outline-none"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">
-                    Nomor WhatsApp *
-                  </label>
-                  <input
-                    type="tel"
-                    required
-                    placeholder="081234567890"
-                    value={formTelepon}
-                    onChange={(e) => setFormTelepon(e.target.value)}
-                    className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:ring-2 focus:ring-teal-500 focus:outline-none font-mono"
-                  />
-                </div>
-              </div>
-
-              {/* Email & Status */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">
-                    Email (Opsional)
-                  </label>
-                  <input
-                    type="email"
-                    placeholder="budi@example.com"
-                    value={formEmail}
-                    onChange={(e) => setFormEmail(e.target.value)}
-                    className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:ring-2 focus:ring-teal-500 focus:outline-none"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">
-                    Status Keaktifan
-                  </label>
-                  <select
-                    value={formStatus}
-                    onChange={(e) =>
-                      setFormStatus(e.target.value as "Aktif" | "Cuti" | "Nonaktif")
-                    }
-                    className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:ring-2 focus:ring-teal-500 focus:outline-none font-medium"
-                  >
-                    <option value="Aktif">Aktif (Siap Mengajar)</option>
-                    <option value="Cuti">Cuti (Sementara Tidak Mengajar)</option>
-                    <option value="Nonaktif">Nonaktif</option>
-                  </select>
-                </div>
-              </div>
-
-              {/* Pilihan Mata Pelajaran */}
               <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1.5">
-                  Mata Pelajaran (Klik untuk pilih) *
-                </label>
-                <div className="flex flex-wrap gap-1.5">
-                  {DAFTAR_MAPEL.map((m) => {
-                    const isSelected = formMapel.includes(m);
-                    return (
-                      <button
-                        type="button"
-                        key={m}
-                        onClick={() => handleToggleMapel(m)}
-                        className={`px-2.5 py-1 text-xs rounded-md font-medium transition-colors border ${
-                          isSelected
-                            ? "bg-teal-600 text-white border-teal-600"
-                            : "bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100"
-                        }`}
-                      >
-                        {isSelected ? `✓ ${m}` : m}
-                      </button>
-                    );
-                  })}
+                <span className="text-[0.6875rem] font-bold uppercase tracking-wider text-[#67645f] block mb-1.5">
+                  Jadwal Sesi Tersedia Minggu Ini
+                </span>
+                <div className="space-y-1.5">
+                  {(modalTutor.jadwal && modalTutor.jadwal.length > 0
+                    ? modalTutor.jadwal
+                    : ["Senin: 16:00 - 18:00 WIB", "Kamis: 18:30 - 20:30 WIB"]
+                  ).map((slot, idx) => (
+                    <div
+                      key={idx}
+                      className="flex items-center justify-between p-2.5 bg-[#faf9f7] rounded-xl border border-[#e3e2e0]"
+                    >
+                      <span className="font-medium text-[#1a1c1b]">{slot}</span>
+                      <span className="px-2 py-0.5 rounded-full bg-white text-[0.6875rem] font-semibold text-[#1a1c1b] border border-[#e3e2e0]">
+                        Tersedia
+                      </span>
+                    </div>
+                  ))}
                 </div>
               </div>
 
-              {/* Jenjang Pendidikan */}
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1.5">
-                  Jenjang Mengajar
-                </label>
-                <div className="flex flex-wrap gap-1.5">
-                  {DAFTAR_JENJANG.map((j) => {
-                    const isSelected = formJenjang.includes(j);
-                    return (
-                      <button
-                        type="button"
-                        key={j}
-                        onClick={() => handleToggleJenjang(j)}
-                        className={`px-2.5 py-1 text-xs rounded-md font-medium transition-colors border ${
-                          isSelected
-                            ? "bg-teal-600 text-white border-teal-600"
-                            : "bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100"
-                        }`}
-                      >
-                        {isSelected ? `✓ ${j}` : j}
-                      </button>
-                    );
-                  })}
-                </div>
+              <div className="p-3 bg-[#faf9f7] rounded-xl border border-[#e3e2e0] flex items-center justify-between text-[0.75rem]">
+                <span className="text-[#67645f]">Konsultasi Penjadwalan:</span>
+                <span className="font-semibold text-[#1a1c1b]">WhatsApp Langsung</span>
               </div>
+            </div>
 
-              {/* Jenis Kelas */}
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1.5">
-                  Jenis Kelas yang Diampu
-                </label>
-                <div className="flex flex-wrap gap-1.5">
-                  {DAFTAR_KELAS.map((k) => {
-                    const isSelected = formJenisKelas.includes(k);
-                    return (
-                      <button
-                        type="button"
-                        key={k}
-                        onClick={() => handleToggleKelas(k)}
-                        className={`px-2.5 py-1 text-xs rounded-md font-medium transition-colors border ${
-                          isSelected
-                            ? "bg-teal-600 text-white border-teal-600"
-                            : "bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100"
-                        }`}
-                      >
-                        {isSelected ? `✓ ${k}` : k}
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-
-              {/* Catatan Khusus Koordinator */}
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">
-                  Catatan Khusus Koordinator (Opsional)
-                </label>
-                <textarea
-                  rows={2}
-                  placeholder="Contoh: Spesialis UTBK TPS, sangat komunikatif..."
-                  value={formCatatan}
-                  onChange={(e) => setFormCatatan(e.target.value)}
-                  className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:ring-2 focus:ring-teal-500 focus:outline-none"
-                />
-              </div>
-
-              {/* Tombol Simpan & Batal */}
-              <div className="pt-2 border-t border-slate-100 flex items-center justify-end gap-2">
-                <button
-                  type="button"
-                  onClick={() => setIsModalOpen(false)}
-                  className="px-4 py-2 text-xs font-medium text-slate-600 hover:bg-slate-100 rounded-lg transition-colors"
-                >
-                  Batal
-                </button>
-                <button
-                  type="submit"
-                  disabled={submitting}
-                  className="px-4 py-2 text-xs font-semibold text-white bg-teal-600 hover:bg-teal-700 rounded-lg shadow-xs transition-colors disabled:opacity-50"
-                >
-                  {submitting ? "Menyimpan..." : isEditing ? "Simpan Perubahan" : "Simpan Pengajar"}
-                </button>
-              </div>
-            </form>
+            {/* Modal Footer */}
+            <div className="p-4 bg-[#f4f3f1] border-t border-[#e3e2e0] flex items-center justify-end gap-2">
+              <button
+                type="button"
+                onClick={() => setModalTutor(null)}
+                className="px-4 py-2 text-[0.8125rem] font-semibold text-[#444748] hover:bg-[#e3e2e0] rounded-full transition-colors"
+              >
+                Tutup
+              </button>
+              <a
+                href={`https://wa.me/${modalTutor.nomorTelepon.replace(/^0/, "62").replace(/[^0-9]/g, "")}?text=${encodeURIComponent(
+                  `Halo ${modalTutor.nama}, saya melihat profil Anda di Lentera Belajar dan ingin berkonsultasi mengenai bimbingan belajar.`
+                )}`}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-2 bg-black text-white text-[0.8125rem] font-semibold px-5 py-2.5 rounded-full hover:bg-[#444748] transition-colors shadow-xs"
+              >
+                <span>Atur Jadwal via WhatsApp</span>
+                <span className="material-symbols-outlined text-[16px]">arrow_forward</span>
+              </a>
+            </div>
           </div>
         </div>
       )}
