@@ -600,19 +600,20 @@ export default function HalamanKatalog() {
 
               <div>
                 <span className="text-[0.6875rem] font-bold uppercase tracking-wider text-[#67645f] block mb-1.5">
-                  Jadwal Sesi Tersedia Minggu Ini
+                  Hari Ketersediaan Mengajar
                 </span>
-                <div className="space-y-1.5">
+                <div className="flex flex-wrap gap-2">
                   {(modalTutor.jadwal && modalTutor.jadwal.length > 0
                     ? modalTutor.jadwal
-                    : ["Senin: 16:00 - 18:00 WIB", "Kamis: 18:30 - 20:30 WIB"]
+                    : ["Senin", "Rabu", "Jumat"]
                   ).map((slot, idx) => (
                     <div
                       key={idx}
-                      className="flex items-center justify-between p-2.5 bg-[#faf9f7] rounded-xl border border-[#e3e2e0]"
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#faf9f7] rounded-full border border-[#e3e2e0] text-[0.8125rem]"
                     >
-                      <span className="font-medium text-[#1a1c1b]">{slot}</span>
-                      <span className="px-2 py-0.5 rounded-full bg-white text-[0.6875rem] font-semibold text-[#1a1c1b] border border-[#e3e2e0]">
+                      <span className="w-1.5 h-1.5 rounded-full bg-black"></span>
+                      <span className="font-semibold text-[#1a1c1b]">{slot}</span>
+                      <span className="text-[0.6875rem] text-emerald-800 font-medium ml-1">
                         Tersedia
                       </span>
                     </div>

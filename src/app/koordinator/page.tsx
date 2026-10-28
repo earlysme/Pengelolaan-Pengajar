@@ -9,15 +9,18 @@ type TabModul = "pengajar" | "ketersediaan" | "jadwal" | "pemantauan" | "verifik
 interface PengajarData {
   _id: string;
   nama: string;
+  nip?: string;
   nomorTelepon: string;
   email?: string;
   alamat?: string;
   foto?: string;
   deskripsi?: string;
+  pendidikan?: string;
   status: "Aktif" | "Cuti" | "Nonaktif";
   mataPelajaran: string[];
   jenjang: string[];
   jenisKelas: string[];
+  jadwalTersedia?: string[];
   dokumenStatus?: string;
   catatanInternal?: string;
 }
@@ -106,6 +109,7 @@ export default function PanelKoordinator() {
   const [pengajarList, setPengajarList] = useState<PengajarData[]>([]);
   const [searchPengajar, setSearchPengajar] = useState("");
   const [statusFilter, setStatusFilter] = useState("Semua");
+  const [jenjangFilter, setJenjangFilter] = useState("Semua");
   const [isPengajarModalOpen, setIsPengajarModalOpen] = useState(false);
   const [isEditingPengajar, setIsEditingPengajar] = useState(false);
   const [currentPengajarId, setCurrentPengajarId] = useState<string | null>(null);
@@ -114,11 +118,13 @@ export default function PanelKoordinator() {
   const [formNama, setFormNama] = useState("");
   const [formTelepon, setFormTelepon] = useState("");
   const [formEmail, setFormEmail] = useState("");
+  const [formFoto, setFormFoto] = useState("");
   const [formStatus, setFormStatus] = useState<"Aktif" | "Cuti" | "Nonaktif">("Aktif");
   const [formMapel, setFormMapel] = useState<string[]>([]);
   const [formJenjang, setFormJenjang] = useState<string[]>(["SMA"]);
   const [formJenisKelas, setFormJenisKelas] = useState<string[]>(["Reguler"]);
   const [formCatatan, setFormCatatan] = useState("");
+  const [formPendidikan, setFormPendidikan] = useState("");
   const [submittingPengajar, setSubmittingPengajar] = useState(false);
   const [errorPengajar, setErrorPengajar] = useState("");
 
@@ -156,41 +162,28 @@ export default function PanelKoordinator() {
     totalJam: 0,
   });
 
-  // Fetch data sesuai tab
   const fetchAllData = async () => {
     try {
       setLoading(true);
       setDbError("");
 
-      // Fetch Pengajar
       const resP = await fetch("/api/pengajar");
       const jsonP = await resP.json();
-      if (jsonP.success) {
-        setPengajarList(jsonP.data);
-      }
+      if (jsonP.success) setPengajarList(jsonP.data);
 
-      // Fetch Ketersediaan
       const resK = await fetch("/api/ketersediaan");
       const jsonK = await resK.json();
-      if (jsonK.success) {
-        setKetersediaanList(jsonK.data);
-      }
+      if (jsonK.success) setKetersediaanList(jsonK.data);
 
-      // Fetch Jadwal
       const resJ = await fetch("/api/jadwal");
       const jsonJ = await resJ.json();
-      if (jsonJ.success) {
-        setJadwalList(jsonJ.data);
-      }
+      if (jsonJ.success) setJadwalList(jsonJ.data);
 
-      // Fetch Sesi & BAP
       const resS = await fetch("/api/sesi");
       const jsonS = await resS.json();
       if (jsonS.success) {
         setSesiList(jsonS.data);
-        if (jsonS.stats) {
-          setHonorStats(jsonS.stats);
-        }
+        if (jsonS.stats) setHonorStats(jsonS.stats);
       }
     } catch {
       setDbError("Tidak dapat terhubung ke server database.");
@@ -210,6 +203,8 @@ export default function PanelKoordinator() {
     setFormNama("");
     setFormTelepon("");
     setFormEmail("");
+    setFormFoto("");
+    setFormPendidikan("");
     setFormStatus("Aktif");
     setFormMapel(["Matematika"]);
     setFormJenjang(["SMA"]);
@@ -225,6 +220,8 @@ export default function PanelKoordinator() {
     setFormNama(p.nama);
     setFormTelepon(p.nomorTelepon);
     setFormEmail(p.email || "");
+    setFormFoto(p.foto || "");
+    setFormPendidikan(p.pendidikan || "");
     setFormStatus(p.status);
     setFormMapel(p.mataPelajaran || []);
     setFormJenjang(p.jenjang || ["SMA"]);
@@ -252,6 +249,8 @@ export default function PanelKoordinator() {
         nama: formNama.trim(),
         nomorTelepon: formTelepon.trim(),
         email: formEmail.trim() || undefined,
+        foto: formFoto.trim() || undefined,
+        pendidikan: formPendidikan.trim() || undefined,
         status: formStatus,
         mataPelajaran: formMapel,
         jenjang: formJenjang,
@@ -283,7 +282,7 @@ export default function PanelKoordinator() {
   };
 
   const handleDeletePengajar = async (id: string, nama: string) => {
-    if (!confirm(`Hapus pengajar: ${nama}?`)) return;
+    if (!confirm(`Hapus atau arsipkan data tutor: ${nama}?`)) return;
     try {
       const res = await fetch(`/api/pengajar/${id}`, { method: "DELETE" });
       const json = await res.json();
@@ -322,14 +321,10 @@ export default function PanelKoordinator() {
 
   // --- Handlers Modul 3 (Jadwal Resmi) ---
   const handleOpenAddJadwal = () => {
-    if (pengajarList.length === 0) {
-      alert("Tambahkan pengajar terlebih dahulu.");
-      return;
-    }
     setJadwalNamaKelas("");
     setJadwalMapel("Matematika");
     setJadwalJenjang("SMA");
-    setJadwalPengajarId(pengajarList[0]._id);
+    setJadwalPengajarId(pengajarList[0]?._id || "");
     setJadwalHari("Senin");
     setJadwalMulai("16:00");
     setJadwalSelesai("18:00");
@@ -342,9 +337,14 @@ export default function PanelKoordinator() {
 
   const handleSubmitJadwal = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!jadwalNamaKelas.trim() || !jadwalPengajarId) {
+      setErrorJadwal("Nama kelas dan pengajar wajib dipilih.");
+      return;
+    }
+
     const tutorSelected = pengajarList.find((p) => p._id === jadwalPengajarId);
     if (!tutorSelected) {
-      setErrorJadwal("Pilih pengajar penanggung jawab.");
+      setErrorJadwal("Data tutor tidak valid.");
       return;
     }
 
@@ -456,11 +456,13 @@ export default function PanelKoordinator() {
   // Filtered views
   const filteredPengajar = pengajarList.filter((p) => {
     if (statusFilter !== "Semua" && p.status !== statusFilter) return false;
+    if (jenjangFilter !== "Semua" && !p.jenjang.includes(jenjangFilter)) return false;
     if (searchPengajar.trim()) {
       const q = searchPengajar.toLowerCase();
       return (
         p.nama.toLowerCase().includes(q) ||
         p.nomorTelepon.includes(q) ||
+        (p.nip && p.nip.toLowerCase().includes(q)) ||
         p.mataPelajaran.some((m) => m.toLowerCase().includes(q))
       );
     }
@@ -482,1181 +484,1489 @@ export default function PanelKoordinator() {
   });
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 font-sans flex flex-col selection:bg-blue-600 selection:text-white">
-      {/* Top Navbar */}
-      <header className="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-xs">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2.5">
-            <span className="w-8 h-8 rounded-lg bg-slate-900 text-white flex items-center justify-center font-bold text-sm">
-              L
-            </span>
-            <div>
-              <span className="font-bold text-sm text-slate-900 block leading-tight">
+    <div className="bg-[#faf9f7] font-sans text-[#1a1c1b] min-h-screen selection:bg-[#e7e2db] selection:text-[#1a1c1b]">
+        {/* Top Navbar Sederhana & Bersih */}
+        <header className="fixed top-0 w-full z-50 bg-[#faf9f7]/85 backdrop-blur-xl border-b border-[#e3e2e0]/60 shadow-[0_1px_8px_rgba(0,0,0,0.02)]">
+          <div className="h-16 max-w-7xl mx-auto px-6 lg:px-12 flex items-center justify-between">
+            <Link href="/" className="flex items-center gap-2.5 transition-opacity hover:opacity-80">
+              <span className="material-symbols-outlined text-black text-[24px]">local_library</span>
+              <span className="font-serif text-[1.4rem] tracking-tight text-[#1a1c1b] select-none">
                 Lentera Belajar
-              </span>
-              <span className="text-[11px] text-slate-500 leading-none">
-                Panel Koordinator Pengajar
-              </span>
-            </div>
-          </Link>
+                <div className="flex items-center gap-3">
+                  <Link href="/" className="flex items-center gap-2.5 transition-opacity hover:opacity-80">
+                    <span className="material-symbols-outlined text-black text-[22px]">local_library</span>
+                    <span className="font-serif text-[1.35rem] tracking-tight text-[#1a1c1b] select-none">
+                      Lentera Belajar
+                    </span>
+                  </Link>
+                  <span className="text-[#c4c7c7] hidden sm:inline">•</span>
+                  <span className="text-[0.75rem] font-semibold text-[#444748] uppercase tracking-wider hidden sm:inline bg-[#efeeec] px-3 py-1 rounded-full">
+                    Panel Koordinator
+                  </span>
+                </Link>
+              </div>
 
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={handleSeedAll}
-              className="hidden sm:inline-flex px-3 py-1.5 text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors border border-slate-200"
-            >
-              Isi Data Demo
-            </button>
-            <Link
-              href="/"
-              className="px-3 py-1.5 text-xs font-medium text-slate-600 hover:text-slate-900 bg-slate-50 hover:bg-slate-100 rounded-lg transition-colors border border-slate-200"
-            >
-              Lihat Publik
-            </Link>
-            <button
-              type="button"
-              onClick={handleLogout}
-              className="px-3 py-1.5 text-xs font-medium text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-            >
-              Keluar
-            </button>
-          </div>
-        </div>
-      </header>
-
-      {/* 6-Module Tab Navigation */}
-      <div className="bg-white border-b border-slate-200 sticky top-16 z-20 overflow-x-auto">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 flex gap-1 py-1.5 min-w-max">
-          <button
-            type="button"
-            onClick={() => setActiveTab("pengajar")}
-            className={`px-3.5 py-2 text-xs font-semibold rounded-lg transition-all flex items-center gap-1.5 ${
-              activeTab === "pengajar"
-                ? "bg-slate-900 text-white shadow-xs"
-                : "text-slate-600 hover:bg-slate-100"
-            }`}
-          >
-            <span>01. Database Tutor</span>
-            <span className="px-1.5 py-0.2 rounded-full text-[10px] bg-slate-200/40 font-bold">
-              {pengajarList.length}
-            </span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setActiveTab("ketersediaan")}
-            className={`px-3.5 py-2 text-xs font-semibold rounded-lg transition-all flex items-center gap-1.5 ${
-              activeTab === "ketersediaan"
-                ? "bg-slate-900 text-white shadow-xs"
-                : "text-slate-600 hover:bg-slate-100"
-            }`}
-          >
-            <span>02. Ketersediaan</span>
-            <span className="px-1.5 py-0.2 rounded-full text-[10px] bg-blue-100 text-blue-800 font-bold">
-              {ketersediaanList.length}
-            </span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setActiveTab("jadwal")}
-            className={`px-3.5 py-2 text-xs font-semibold rounded-lg transition-all flex items-center gap-1.5 ${
-              activeTab === "jadwal"
-                ? "bg-slate-900 text-white shadow-xs"
-                : "text-slate-600 hover:bg-slate-100"
-            }`}
-          >
-            <span>03. Jadwal Resmi</span>
-            <span className="px-1.5 py-0.2 rounded-full text-[10px] bg-slate-200/40 font-bold">
-              {jadwalList.length}
-            </span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setActiveTab("pemantauan")}
-            className={`px-3.5 py-2 text-xs font-semibold rounded-lg transition-all flex items-center gap-1.5 ${
-              activeTab === "pemantauan"
-                ? "bg-slate-900 text-white shadow-xs"
-                : "text-slate-600 hover:bg-slate-100"
-            }`}
-          >
-            <span>04. Pemantauan Sesi</span>
-            <span className="px-1.5 py-0.2 rounded-full text-[10px] bg-emerald-100 text-emerald-800 font-bold">
-              {sesiList.length}
-            </span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setActiveTab("verifikasi")}
-            className={`px-3.5 py-2 text-xs font-semibold rounded-lg transition-all flex items-center gap-1.5 ${
-              activeTab === "verifikasi"
-                ? "bg-slate-900 text-white shadow-xs"
-                : "text-slate-600 hover:bg-slate-100"
-            }`}
-          >
-            <span>05. Verifikasi BAP</span>
-            <span className="px-1.5 py-0.2 rounded-full text-[10px] bg-amber-100 text-amber-800 font-bold">
-              {sesiList.filter((s) => s.statusVerifikasi === "Menunggu Verifikasi").length}
-            </span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setActiveTab("honor")}
-            className={`px-3.5 py-2 text-xs font-semibold rounded-lg transition-all flex items-center gap-1.5 ${
-              activeTab === "honor"
-                ? "bg-slate-900 text-white shadow-xs"
-                : "text-slate-600 hover:bg-slate-100"
-            }`}
-          >
-            <span>06. Rekap Honor</span>
-          </button>
-        </div>
-      </div>
-
-      {/* Main Content Area */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 py-6 flex-1 w-full space-y-6">
-        {dbError && (
-          <div className="p-4 bg-amber-50 border border-amber-200 rounded-xl text-amber-900 text-xs">
-            <p className="font-semibold text-sm">Pemberitahuan Koneksi</p>
-            <p className="text-amber-800 mt-0.5">{dbError}</p>
-          </div>
-        )}
-
-        {/* ========================================================
-            TAB 01: DATABASE PENGAJAR (MODUL 1)
-        ======================================================== */}
-        {activeTab === "pengajar" && (
-          <div className="space-y-4">
-            {/* Action Bar */}
-            <div className="bg-white p-3 rounded-2xl border border-slate-200 shadow-xs flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
-              <div className="flex flex-1 items-center gap-2">
-                <input
-                  type="text"
-                  placeholder="Cari nama tutor, mapel, atau nomor WA..."
-                  value={searchPengajar}
-                  onChange={(e) => setSearchPengajar(e.target.value)}
-                  className="w-full sm:max-w-xs px-3 py-2 text-xs border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 bg-slate-50 focus:bg-white"
-                />
-                <select
-                  value={statusFilter}
-                  onChange={(e) => setStatusFilter(e.target.value)}
-                  className="px-3 py-2 text-xs border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 bg-slate-50 font-medium text-slate-700"
+              <nav className="hidden md:flex items-center gap-6 text-[0.8125rem]">
+                <button
+                  onClick={() => setActiveTab("pengajar")}
+                  className={`transition-colors py-1 ${activeTab === "pengajar"
+                      ? "font-semibold text-black border-b-2 border-black"
+                      : "text-[#444748] hover:text-black"
+                    }`}
                 >
-                  <option value="Semua">Semua Status</option>
-                  <option value="Aktif">Aktif</option>
-                  <option value="Cuti">Cuti</option>
-                  <option value="Nonaktif">Nonaktif</option>
-                </select>
-              </div>
-
-              <button
-                type="button"
-                onClick={handleOpenAddPengajar}
-                className="px-4 py-2 text-xs font-semibold text-white bg-slate-900 hover:bg-slate-800 rounded-lg shadow-xs transition-colors"
-              >
-                + Tambah Tutor Baru
-              </button>
-            </div>
-
-            {/* Tabel Pengajar */}
-            <div className="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
-              <div className="overflow-x-auto">
-                <table className="w-full text-left text-xs border-collapse">
-                  <thead>
-                    <tr className="bg-slate-50 border-b border-slate-200 text-slate-600 font-semibold uppercase tracking-wider">
-                      <th className="py-3 px-4">Nama &amp; Kontak</th>
-                      <th className="py-3 px-4">Mata Pelajaran</th>
-                      <th className="py-3 px-4">Jenjang &amp; Kelas</th>
-                      <th className="py-3 px-4 text-center">Status</th>
-                      <th className="py-3 px-4 text-right">Aksi</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-100">
-                    {loading ? (
-                      <tr>
-                        <td colSpan={5} className="py-12 text-center text-slate-400">
-                          Memuat data tutor...
-                        </td>
-                      </tr>
-                    ) : filteredPengajar.length === 0 ? (
-                      <tr>
-                        <td colSpan={5} className="py-12 text-center text-slate-500">
-                          Belum ada data pengajar yang sesuai.
-                        </td>
-                      </tr>
-                    ) : (
-                      filteredPengajar.map((p) => {
-                        const waClean = p.nomorTelepon.replace(/^0/, "62").replace(/[^0-9]/g, "");
-                        return (
-                          <tr key={p._id} className="hover:bg-slate-50/70 transition-colors">
-                            <td className="py-3.5 px-4">
-                              <div className="flex items-center gap-3">
-                                <img
-                                  src={
-                                    p.foto ||
-                                    "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&auto=format&fit=crop&q=80"
-                                  }
-                                  alt={p.nama}
-                                  className="w-10 h-10 rounded-xl object-cover border border-slate-200 shrink-0"
-                                />
-                                <div>
-                                  <p className="font-semibold text-slate-900">{p.nama}</p>
-                                  <a
-                                    href={`https://wa.me/${waClean}`}
-                                    target="_blank"
-                                    rel="noreferrer"
-                                    className="text-xs text-emerald-700 hover:underline font-mono"
-                                  >
-                                    WA: {p.nomorTelepon}
-                                  </a>
-                                  {p.catatanInternal && (
-                                    <p className="text-[11px] text-slate-500 italic mt-0.5">
-                                      Catatan: {p.catatanInternal}
-                                    </p>
-                                  )}
-                                </div>
-                              </div>
-                            </td>
-                            <td className="py-3.5 px-4">
-                              <div className="flex flex-wrap gap-1 max-w-xs">
-                                {p.mataPelajaran.map((m, idx) => (
-                                  <span
-                                    key={idx}
-                                    className="px-2 py-0.5 text-[11px] font-medium bg-slate-100 text-slate-700 rounded-md"
-                                  >
-                                    {m}
-                                  </span>
-                                ))}
-                              </div>
-                            </td>
-                            <td className="py-3.5 px-4">
-                              <span className="font-medium text-slate-800">
-                                {p.jenjang?.join(", ") || "SMA"}
-                              </span>
-                              <p className="text-[11px] text-slate-400 mt-0.5">
-                                {p.jenisKelas?.join(", ") || "Reguler"}
-                              </p>
-                            </td>
-                            <td className="py-3.5 px-4 text-center">
-                              <span
-                                className={`inline-block px-2.5 py-0.5 text-[11px] font-semibold rounded-full ${
-                                  p.status === "Aktif"
-                                    ? "bg-emerald-100 text-emerald-800"
-                                    : p.status === "Cuti"
-                                    ? "bg-amber-100 text-amber-800"
-                                    : "bg-slate-200 text-slate-700"
-                                }`}
-                              >
-                                {p.status}
-                              </span>
-                            </td>
-                            <td className="py-3.5 px-4 text-right">
-                              <div className="flex items-center justify-end gap-1">
-                                <button
-                                  type="button"
-                                  onClick={() => handleOpenEditPengajar(p)}
-                                  className="px-2.5 py-1 text-xs font-semibold text-slate-700 hover:bg-slate-100 rounded transition-colors"
-                                >
-                                  Edit
-                                </button>
-                                <button
-                                  type="button"
-                                  onClick={() => handleDeletePengajar(p._id, p.nama)}
-                                  className="px-2.5 py-1 text-xs font-semibold text-red-600 hover:bg-red-50 rounded transition-colors"
-                                >
-                                  Hapus
-                                </button>
-                              </div>
-                            </td>
-                          </tr>
-                        );
-                      })
-                    )}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* ========================================================
-            TAB 02: KETERSEDIAAN TUTOR (MODUL 2)
-        ======================================================== */}
-        {activeTab === "ketersediaan" && (
-          <div className="space-y-4">
-            <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-              <div>
-                <h2 className="text-sm font-bold text-slate-900">
-                  Pemantauan Ketersediaan Waktu Mengajar
-                </h2>
-                <p className="text-xs text-slate-500 mt-0.5">
-                  Review slot waktu yang diajukan oleh tutor untuk periode berjalan.
-                </p>
-              </div>
-
-              <div className="flex items-center gap-2">
-                <select
-                  value={ketersediaanFilter}
-                  onChange={(e) => setKetersediaanFilter(e.target.value)}
-                  className="px-3 py-1.5 text-xs border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 bg-slate-50 font-medium"
+                  Direktori Tutor
+                </button>
+                <button
+                  onClick={() => setActiveTab("ketersediaan")}
+                  className={`transition-colors py-1 ${activeTab === "ketersediaan"
+                      ? "font-semibold text-black border-b-2 border-black"
+                      : "text-[#444748] hover:text-black"
+                    }`}
                 >
-                  <option value="Semua">Semua Status Konfirmasi</option>
-                  <option value="Menunggu Pemeriksaan">Menunggu Pemeriksaan</option>
-                  <option value="Terkonfirmasi">Terkonfirmasi</option>
-                  <option value="Perlu Diperbarui">Perlu Diperbarui</option>
-                </select>
+                  Ketersediaan Waktu
+                </button>
+                <button
+                  onClick={() => setActiveTab("jadwal")}
+                  className={`transition-colors py-1 ${activeTab === "jadwal"
+                      ? "font-semibold text-black border-b-2 border-black"
+                      : "text-[#444748] hover:text-black"
+                    }`}
+                >
+                  Jadwal Resmi
+                </button>
+                <button
+                  onClick={() => setActiveTab("pemantauan")}
+                  className={`transition-colors py-1 ${activeTab === "pemantauan"
+                      ? "font-semibold text-black border-b-2 border-black"
+                      : "text-[#444748] hover:text-black"
+                    }`}
+                >
+                  Pemantauan Sesi
+                </button>
+                <button
+                  onClick={() => setActiveTab("verifikasi")}
+                  className={`transition-colors py-1 ${activeTab === "verifikasi"
+                      ? "font-semibold text-black border-b-2 border-black"
+                      : "text-[#444748] hover:text-black"
+                    }`}
+                >
+                  Verifikasi BAP
+                </button>
+                <button
+                  onClick={() => setActiveTab("honor")}
+                  className={`transition-colors py-1 ${activeTab === "honor"
+                      ? "font-semibold text-black border-b-2 border-black"
+                      : "text-[#444748] hover:text-black"
+                    }`}
+                >
+                  Rekap Honor
+                </button>
+              </nav>
+
+              <div className="flex items-center gap-3">
+                <button
+                  type="button"
+                  onClick={handleSeedAll}
+                  className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#efeeec] hover:bg-[#e3e2e0] text-[#1a1c1b] text-[0.75rem] font-semibold transition-colors"
+                  title="Isi database dengan data demo"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#efeeec] hover:bg-[#e3e2e0] text-[#1a1c1b] text-xs font-semibold transition-colors"
+                  title="Isi database dengan data contoh"
+                >
+                  <span className="material-symbols-outlined text-[16px]">database</span>
+                  <span className="material-symbols-outlined text-[15px]">database</span>
+                  <span>Data Demo</span>
+                </button>
+                <Link
+                  href="/"
+                  className="inline-flex items-center gap-1 text-[#444748] hover:text-black text-[0.8125rem] transition-colors px-2 py-1"
+                  className="inline-flex items-center gap-1 text-[#444748] hover:text-black text-xs font-medium transition-colors px-3 py-1.5 rounded-full hover:bg-[#efeeec]"
+                >
+                  <span className="material-symbols-outlined text-[16px]">open_in_new</span>
+                  <span className="material-symbols-outlined text-[15px]">open_in_new</span>
+                  <span>Lihat Publik</span>
+                </Link>
+                <button
+                  type="button"
+                  onClick={handleLogout}
+                  className="w-8 h-8 rounded-full bg-[#efeeec] hover:bg-red-50 hover:text-[#ba1a1a] flex items-center justify-center transition-colors"
+                  title="Keluar dari panel"
+                  className="inline-flex items-center gap-1 text-[#ba1a1a] hover:bg-red-50 text-xs font-medium transition-colors px-3 py-1.5 rounded-full"
+                  title="Keluar dari akun"
+                >
+                  <span className="material-symbols-outlined text-[18px]">logout</span>
+                  <span className="material-symbols-outlined text-[15px]">logout</span>
+                  <span>Keluar</span>
+                </button>
               </div>
-            </div>
+          </div>
+        </header>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {filteredKetersediaan.length === 0 ? (
-                <div className="col-span-2 py-12 text-center text-slate-400 bg-white rounded-2xl border border-slate-200 text-xs">
-                  Belum ada data ketersediaan yang sesuai.
-                </div>
-              ) : (
-                filteredKetersediaan.map((item) => (
-                  <div
-                    key={item._id}
-                    className="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs space-y-3"
-                  >
-                    <div className="flex items-start justify-between gap-2">
-                      <div>
-                        <h3 className="font-bold text-sm text-slate-900">{item.namaPengajar}</h3>
-                        <p className="text-xs text-slate-500 font-mono">WA: {item.nomorTelepon}</p>
-                        <span className="text-[10px] text-slate-400 block mt-0.5">
-                          Periode: {item.periode}
-                        </span>
-                      </div>
-
-                      <span
-                        className={`px-2.5 py-0.5 rounded-full text-[10px] font-semibold border ${
-                          item.statusKonfirmasi === "Terkonfirmasi"
-                            ? "bg-emerald-50 text-emerald-800 border-emerald-200"
-                            : item.statusKonfirmasi === "Menunggu Pemeriksaan"
-                            ? "bg-amber-50 text-amber-800 border-amber-200"
-                            : "bg-red-50 text-red-800 border-red-200"
-                        }`}
-                      >
-                        {item.statusKonfirmasi}
-                      </span>
+        {/* Main Content Area */}
+        <main className="w-full bg-[#faf9f7] min-h-[calc(100vh-140px)] pt-16">
+          <div className="max-w-7xl mx-auto px-6 lg:px-12 py-10">
+            <div className="max-w-7xl mx-auto px-6 lg:px-12 py-8">
+              <div className="flex flex-col w-full">
+                {/* Editorial Page Intro Header */}
+                <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8">
+                  <div className="space-y-1.5 max-w-2xl">
+                    <div className="inline-flex items-center gap-2 text-[#444748] text-[0.75rem] font-semibold uppercase tracking-widest">
+                      <span className="w-2 h-2 rounded-full bg-black"></span>
+                      Direktori &amp; Tata Kelola Pendidik
                     </div>
-
-                    {/* Daftar Slot Waktu */}
-                    <div className="bg-slate-50 rounded-xl p-3 border border-slate-100 space-y-1.5 text-xs">
-                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
-                        Slot Waktu Siap Mengajar
-                      </span>
-                      {item.slots.map((s, idx) => (
-                        <div
-                          key={idx}
-                          className="flex items-center justify-between font-medium text-slate-700"
-                        >
-                          <div className="flex items-center gap-1.5">
-                            <span className="w-1.5 h-1.5 rounded-full bg-blue-600"></span>
-                            <span>
-                              <strong>{s.hari}:</strong> {s.jamMulai} - {s.jamSelesai}
-                            </span>
-                          </div>
-                          <span className="text-[11px] text-slate-500 bg-white px-2 py-0.5 rounded border border-slate-200">
-                            {s.moda}
-                          </span>
+                    <h1 className="font-serif text-[2.25rem] lg:text-[2.5rem] text-[#1a1c1b] font-normal tracking-tight leading-tight">
+                      Basis Data Pengajar &amp; Rekam Kinerja
+                      {/* Header Sederhana & Ramah User */}
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+                        <div>
+                          <h1 className="font-serif text-2xl sm:text-3xl font-semibold text-[#1a1c1b]">
+                            Pengelolaan Pengajar
+                          </h1>
+                          <p className="text-[0.9375rem] text-[#444748] leading-relaxed">
+                            Kendali terpadu profil pendidik, verifikasi kualifikasi, alokasi jam mengajar, serta
+                            pemantauan integritas Berita Acara Pembelajaran (BAP).
+                            <p className="text-sm text-[#67645f] mt-1">
+                              Kelola data guru, jadwal kelas, verifikasi presensi/BAP, dan honorarium.
+                            </p>
                         </div>
-                      ))}
-                    </div>
 
-                    {item.catatanKoordinator && (
-                      <p className="text-[11px] text-amber-800 bg-amber-50 p-2 rounded-lg border border-amber-100">
-                        Catatan Koordinator: {item.catatanKoordinator}
-                      </p>
-                    )}
-
-                    {/* Tombol Approval */}
-                    <div className="pt-2 border-t border-slate-100 flex items-center justify-end gap-2 text-xs">
-                      <button
-                        type="button"
-                        onClick={() => {
-                          const note = prompt(
-                            "Masukkan catatan perbaikan untuk tutor:",
-                            "Mohon sesuaikan kembali jam yang bentrok."
-                          );
-                          if (note !== null) {
-                            handleUpdateStatusKetersediaan(item._id, "Perlu Diperbarui", note);
-                          }
-                        }}
-                        className="px-3 py-1.5 font-semibold text-amber-700 hover:bg-amber-50 rounded-lg border border-amber-200 transition-colors"
-                      >
-                        Minta Perbarui
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() =>
-                          handleUpdateStatusKetersediaan(item._id, "Terkonfirmasi")
-                        }
-                        className="px-3.5 py-1.5 font-semibold text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg shadow-xs transition-colors"
-                      >
-                        Setujui Ketersediaan
-                      </button>
-                    </div>
-                  </div>
-                ))
-              )}
-            </div>
-          </div>
-        )}
-
-        {/* ========================================================
-            TAB 03: JADWAL RESMI & KELAS (MODUL 3)
-        ======================================================== */}
-        {activeTab === "jadwal" && (
-          <div className="space-y-4">
-            <div className="bg-white p-3 rounded-2xl border border-slate-200 shadow-xs flex items-center justify-between">
-              <div>
-                <h2 className="text-sm font-bold text-slate-900">
-                  Sinkronisasi Jadwal Resmi Bimbel
-                </h2>
-                <p className="text-xs text-slate-500">
-                  Jadwal definitif kelas, penugasan tutor, ruangan, dan deteksi bentrok.
-                </p>
-              </div>
-
-              <button
-                type="button"
-                onClick={handleOpenAddJadwal}
-                className="px-4 py-2 text-xs font-semibold text-white bg-slate-900 hover:bg-slate-800 rounded-lg shadow-xs transition-colors"
-              >
-                + Terbitkan Jadwal Baru
-              </button>
-            </div>
-
-            <div className="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
-              <div className="overflow-x-auto">
-                <table className="w-full text-left text-xs border-collapse">
-                  <thead>
-                    <tr className="bg-slate-50 border-b border-slate-200 text-slate-600 font-semibold uppercase tracking-wider">
-                      <th className="py-3 px-4">Nama Kelas &amp; Mapel</th>
-                      <th className="py-3 px-4">Tutor Penanggung Jawab</th>
-                      <th className="py-3 px-4">Hari &amp; Waktu</th>
-                      <th className="py-3 px-4">Ruangan &amp; Moda</th>
-                      <th className="py-3 px-4 text-center">Status</th>
-                      <th className="py-3 px-4 text-right">Aksi</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-100">
-                    {jadwalList.length === 0 ? (
-                      <tr>
-                        <td colSpan={6} className="py-12 text-center text-slate-400">
-                          Belum ada jadwal resmi yang diterbitkan.
-                        </td>
-                      </tr>
-                    ) : (
-                      jadwalList.map((j) => (
-                        <tr key={j._id} className="hover:bg-slate-50/70 transition-colors">
-                          <td className="py-3 px-4">
-                            <p className="font-semibold text-slate-900">{j.namaKelas}</p>
-                            <p className="text-slate-500 text-[11px]">
-                              {j.mataPelajaran} ({j.jenjang}) • {j.jumlahSiswa} Siswa
-                            </p>
-                          </td>
-                          <td className="py-3 px-4 font-medium text-slate-800">
-                            {j.namaPengajar}
-                          </td>
-                          <td className="py-3 px-4">
-                            <span className="font-semibold text-blue-600">{j.hari}</span>
-                            <p className="text-slate-500 font-mono text-[11px]">
-                              {j.jamMulai} - {j.jamSelesai}
-                            </p>
-                          </td>
-                          <td className="py-3 px-4">
-                            <p className="font-medium text-slate-700">{j.ruangan}</p>
-                            <span className="text-[10px] text-slate-500 font-semibold">
-                              {j.moda}
-                            </span>
-                          </td>
-                          <td className="py-3 px-4 text-center">
-                            <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-blue-50 text-blue-700 border border-blue-200">
-                              {j.status}
-                            </span>
-                          </td>
-                          <td className="py-3 px-4 text-right">
+                        {/* Quick Actions Top Bar */}
+                        <div className="flex items-center gap-3 self-start md:self-auto">
+                          <div className="flex items-center gap-2 self-start sm:self-auto">
                             <button
                               type="button"
-                              onClick={() => handleDeleteJadwal(j._id, j.namaKelas)}
-                              className="text-red-600 hover:text-red-800 font-semibold text-xs"
+                              onClick={() => window.print()}
+                              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-full bg-[#efeeec] hover:bg-[#e3e2e0] text-[#1a1c1b] text-[0.875rem] font-semibold transition-colors shadow-xs"
                             >
-                              Hapus
+                              <span className="material-symbols-outlined text-[18px]">file_download</span>
+                              Ekspor Laporan
                             </button>
-                          </td>
-                        </tr>
-                      ))
-                    )}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* ========================================================
-            TAB 04: PEMANTAUAN SESI & BAP (MODUL 4)
-        ======================================================== */}
-        {activeTab === "pemantauan" && (
-          <div className="space-y-4">
-            <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs flex items-center justify-between">
-              <div>
-                <h2 className="text-sm font-bold text-slate-900">
-                  Pemantauan Pelaksanaan Sesi Real-Time
-                </h2>
-                <p className="text-xs text-slate-500">
-                  Presensi kehadiran tutor, materi ajar riil (BAP), dan kendala lapangan.
-                </p>
-              </div>
-            </div>
-
-            <div className="space-y-3">
-              {sesiList.length === 0 ? (
-                <div className="bg-white p-12 text-center text-slate-400 rounded-2xl border border-slate-200 text-xs">
-                  Belum ada laporan pelaksanaan sesi yang masuk.
-                </div>
-              ) : (
-                sesiList.map((s) => (
-                  <div
-                    key={s._id}
-                    className="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs space-y-3"
-                  >
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-slate-100">
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <h3 className="font-bold text-sm text-slate-900">{s.namaKelas}</h3>
-                          <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-blue-50 text-blue-700">
-                            {s.mataPelajaran}
-                          </span>
-                        </div>
-                        <p className="text-xs text-slate-500 mt-0.5">
-                          Tutor: <strong className="text-slate-800">{s.namaPengajar}</strong> •
-                          Tanggal: {s.tanggal} ({s.waktuMulai} - {s.waktuSelesai})
-                        </p>
-                      </div>
-
-                      <div className="flex items-center gap-2">
-                        <span className="px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-100 text-emerald-800">
-                          {s.statusKehadiran}
-                        </span>
-                        <span
-                          className={`px-2.5 py-0.5 rounded-full text-[10px] font-semibold ${
-                            s.statusVerifikasi === "Terverifikasi"
-                              ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
-                              : s.statusVerifikasi === "Menunggu Verifikasi"
-                              ? "bg-amber-50 text-amber-700 border border-amber-200"
-                              : "bg-red-50 text-red-700 border border-red-200"
-                          }`}
-                        >
-                          {s.statusVerifikasi}
-                        </span>
-                      </div>
-                    </div>
-
-                    <div className="text-xs space-y-2">
-                      <div>
-                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
-                          Berita Acara Pembelajaran (Materi Riil):
-                        </span>
-                        <p className="text-slate-700 bg-slate-50 p-2.5 rounded-xl border border-slate-100 mt-1">
-                          {s.materiAjar}
-                        </p>
-                      </div>
-
-                      {s.capaianSiswa && (
-                        <p className="text-slate-600">
-                          <strong className="text-slate-700">Capaian Siswa:</strong>{" "}
-                          {s.capaianSiswa}
-                        </p>
-                      )}
-
-                      {s.kendala && (
-                        <p className="text-amber-800 bg-amber-50 px-2.5 py-1.5 rounded-lg border border-amber-200 font-medium">
-                          Kendala: {s.kendala}
-                        </p>
-                      )}
-
-                      {s.buktiFoto && (
-                        <div className="pt-1 flex items-center gap-2">
-                          <span className="text-slate-400 text-[11px]">Bukti Sesi:</span>
-                          <a
-                            href={s.buktiFoto}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="text-blue-600 hover:underline font-semibold text-xs"
-                          >
-                            Lihat Foto / Dokumen Presensi
-                          </a>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                ))
-              )}
-            </div>
-          </div>
-        )}
-
-        {/* ========================================================
-            TAB 05: VERIFIKASI SESI & APPROVAL (MODUL 5)
-        ======================================================== */}
-        {activeTab === "verifikasi" && (
-          <div className="space-y-4">
-            <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-              <div>
-                <h2 className="text-sm font-bold text-slate-900">
-                  Verifikasi Data Sesi &amp; Validasi Bukti
-                </h2>
-                <p className="text-xs text-slate-500">
-                  Pastikan bukti sesi valid sebelum diteruskan ke rekapitulasi honorarium.
-                </p>
-              </div>
-
-              <select
-                value={verifikasiFilter}
-                onChange={(e) => setVerifikasiFilter(e.target.value)}
-                className="px-3 py-1.5 text-xs border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 bg-slate-50 font-medium"
-              >
-                <option value="Semua">Semua Status</option>
-                <option value="Menunggu Verifikasi">Menunggu Verifikasi</option>
-                <option value="Terverifikasi">Terverifikasi</option>
-                <option value="Perlu Revisi">Perlu Revisi</option>
-              </select>
-            </div>
-
-            <div className="space-y-3">
-              {filteredSesi.length === 0 ? (
-                <div className="bg-white p-12 text-center text-slate-400 rounded-2xl border border-slate-200 text-xs">
-                  Tidak ada laporan sesi yang memerlukan verifikasi.
-                </div>
-              ) : (
-                filteredSesi.map((s) => (
-                  <div
-                    key={s._id}
-                    className="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4"
-                  >
-                    <div className="space-y-1.5 flex-1 min-w-0">
-                      <div className="flex items-center gap-2">
-                        <span className="font-bold text-sm text-slate-900">{s.namaPengajar}</span>
-                        <span className="text-slate-400">•</span>
-                        <span className="font-semibold text-blue-600 text-xs">{s.namaKelas}</span>
-                        <span
-                          className={`ml-2 px-2 py-0.5 rounded-full text-[10px] font-semibold ${
-                            s.statusVerifikasi === "Terverifikasi"
-                              ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
-                              : s.statusVerifikasi === "Menunggu Verifikasi"
-                              ? "bg-amber-50 text-amber-700 border border-amber-200"
-                              : "bg-red-50 text-red-700 border border-red-200"
-                          }`}
-                        >
-                          {s.statusVerifikasi}
-                        </span>
-                      </div>
-
-                      <p className="text-xs text-slate-600">
-                        {s.materiAjar}
-                      </p>
-
-                      <div className="flex items-center gap-3 text-[11px] text-slate-400">
-                        <span>Tanggal: {s.tanggal} ({s.waktuMulai} - {s.waktuSelesai})</span>
-                        <span>•</span>
-                        <span>Honor Sesi: Rp {s.honorPerSesi?.toLocaleString("id-ID")}</span>
-                        {s.buktiFoto && (
-                          <>
-                            <span>•</span>
-                            <a
-                              href={s.buktiFoto}
-                              target="_blank"
-                              rel="noreferrer"
-                              className="text-blue-600 hover:underline font-semibold"
+                            <button
+                              type="button"
+                              onClick={handleOpenAddPengajar}
+                              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-black hover:bg-neutral-800 text-white text-[0.875rem] font-semibold shadow-sm transition-all active:scale-[0.98]"
+                              className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-full bg-black hover:bg-neutral-800 text-white text-xs font-semibold transition-colors shadow-xs"
                             >
-                              Bukti Foto
-                            </a>
-                          </>
-                        )}
+                              <span className="material-symbols-outlined text-[18px]">person_add</span>
+                              + Tambah Tutor Baru
+                              <span className="material-symbols-outlined text-[16px]">person_add</span>
+                              <span>+ Tambah Guru Baru</span>
+                            </button>
+                          </div>
+                        </div>
+
+                        {/* Operational Flow Segmented Nav (Tabs 01 - 06) */}
+                        <div className="w-full overflow-x-auto pb-2 mb-8 no-scrollbar">
+                          <div className="inline-flex items-center p-1.5 bg-[#f4f3f1] rounded-full shadow-xs gap-1 min-w-max border border-[#e3e2e0]/60">
+                            {/* 4 Kartu Metrik Ringkas */}
+                            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6">
+                              <div className="p-4 sm:p-5 rounded-2xl bg-white border border-[#e3e2e0] shadow-xs">
+                                <span className="text-xs text-[#67645f] block font-medium">Total Guru</span>
+                                <span className="font-serif text-2xl sm:text-3xl font-semibold text-black mt-1 block">
+                                  {pengajarList.length}
+                                </span>
+                                <span className="text-[0.72rem] text-[#67645f] mt-0.5 block">
+                                  {pengajarList.filter((p) => p.status === "Aktif").length} guru aktif
+                                </span>
+                              </div>
+
+                              <div className="p-4 sm:p-5 rounded-2xl bg-white border border-[#e3e2e0] shadow-xs">
+                                <span className="text-xs text-[#67645f] block font-medium">Jadwal Kelas</span>
+                                <span className="font-serif text-2xl sm:text-3xl font-semibold text-black mt-1 block">
+                                  {jadwalList.length}
+                                </span>
+                                <span className="text-[0.72rem] text-[#67645f] mt-0.5 block">Kelas teralokasi</span>
+                              </div>
+
+                              <div className="p-4 sm:p-5 rounded-2xl bg-white border border-[#e3e2e0] shadow-xs">
+                                <span className="text-xs text-[#67645f] block font-medium">Perlu Verifikasi</span>
+                                <span className="font-serif text-2xl sm:text-3xl font-semibold text-black mt-1 block">
+                                  {sesiList.filter((s) => s.statusVerifikasi === "Menunggu Verifikasi").length}
+                                </span>
+                                <span className="text-[0.72rem] text-[#67645f] mt-0.5 block">BAP menunggu review</span>
+                              </div>
+
+                              <div className="p-4 sm:p-5 rounded-2xl bg-white border border-[#e3e2e0] shadow-xs">
+                                <span className="text-xs text-[#67645f] block font-medium">Total Honor</span>
+                                <div className="flex items-baseline gap-1 mt-1">
+                                  <span className="text-xs font-semibold text-[#67645f]">Rp</span>
+                                  <span className="font-serif text-xl sm:text-2xl font-semibold text-black">
+                                    {(honorStats.totalHonor || 0).toLocaleString("id-ID")}
+                                  </span>
+                                </div>
+                                <span className="text-[0.72rem] text-[#67645f] mt-0.5 block">Dari sesi terverifikasi</span>
+                              </div>
+                            </div>
+
+                            {/* Segmented Module Tabs (Satu Baris Rapi) */}
+                            <div className="w-full overflow-x-auto pb-2 mb-6 no-scrollbar">
+                              <div className="inline-flex items-center p-1 bg-[#efeeec] rounded-full gap-1 min-w-max">
+                                <button
+                                  type="button"
+                                  onClick={() => setActiveTab("pengajar")}
+                                  className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-[0.875rem] font-semibold transition-all ${className = {`inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-semibold transition-all ${activeTab === "pengajar"
+                                        ? "bg-black text-white shadow-xs"
+                                        : "text-[#444748] hover:text-black hover:bg-[#efeeec]"
+                      : "text-[#444748] hover:text-black hover:bg-white/50"
+                  }`}
+                >
+                                <span>01. Database Tutor</span>
+                                <span
+                                  className={`px-2 py-0.5 rounded-full text-[0.75rem] ${activeTab === "pengajar" ? "bg-[#333] text-white" : "bg-[#e3e2e0] text-black"
+                                    }`}
+                                >
+                                  <span>01. Guru</span>
+                                  <span className="px-1.5 py-0.2 rounded-full text-[10px] bg-white/20">
+                                    {pengajarList.length}
+                                  </span>
+                                </button>
+
+                                <button
+                                  type="button"
+                                  onClick={() => setActiveTab("ketersediaan")}
+                                  className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-[0.875rem] font-semibold transition-all ${className = {`inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-semibold transition-all ${activeTab === "ketersediaan"
+                                        ? "bg-black text-white shadow-xs"
+                                        : "text-[#444748] hover:text-black hover:bg-[#efeeec]"
+                      : "text-[#444748] hover:text-black hover:bg-white/50"
+                  }`}
+                >
+                                <span>02. Ketersediaan Waktu</span>
+                                <span className="px-2 py-0.5 rounded-full bg-[#e7e2db] text-[#494642] text-[0.75rem]">
+                                  {ketersediaanList.length} Entri
+                                  <span>02. Ketersediaan</span>
+                                  <span className="px-1.5 py-0.2 rounded-full text-[10px] bg-white/20">
+                                    {ketersediaanList.length}
+                                  </span>
+                                </button>
+
+                                <button
+                                  type="button"
+                                  onClick={() => setActiveTab("jadwal")}
+                                  className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-[0.875rem] font-semibold transition-all ${className = {`inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-semibold transition-all ${activeTab === "jadwal"
+                                        ? "bg-black text-white shadow-xs"
+                                        : "text-[#444748] hover:text-black hover:bg-[#efeeec]"
+                      : "text-[#444748] hover:text-black hover:bg-white/50"
+                  }`}
+                >
+                                <span>03. Jadwal Resmi</span>
+                                <span className="px-2 py-0.5 rounded-full bg-[#efeeec] text-[#444748] text-[0.75rem]">
+                                  {jadwalList.length} Sesi
+                                  <span>03. Jadwal</span>
+                                  <span className="px-1.5 py-0.2 rounded-full text-[10px] bg-white/20">
+                                    {jadwalList.length}
+                                  </span>
+                                </button>
+
+                                <button
+                                  type="button"
+                                  onClick={() => setActiveTab("pemantauan")}
+                                  className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-[0.875rem] font-semibold transition-all ${className = {`inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-semibold transition-all ${activeTab === "pemantauan"
+                                        ? "bg-black text-white shadow-xs"
+                                        : "text-[#444748] hover:text-black hover:bg-[#efeeec]"
+                      : "text-[#444748] hover:text-black hover:bg-white/50"
+                  }`}
+                >
+                                <span>04. Pemantauan Sesi</span>
+                                <span className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-[#efeeec] text-[#444748] text-[0.75rem]">
+                                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-pulse"></span>
+                                  Live
+                                </span>
+                                <span>04. Presensi</span>
+                                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                              </button>
+
+                              <button
+                                type="button"
+                                onClick={() => setActiveTab("verifikasi")}
+                                className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-[0.875rem] font-semibold transition-all ${className = {`inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-semibold transition-all ${activeTab === "verifikasi"
+                                      ? "bg-black text-white shadow-xs"
+                                      : "text-[#444748] hover:text-black hover:bg-[#efeeec]"
+                      : "text-[#444748] hover:text-black hover:bg-white/50"
+                  }`}
+                >
+                              <span>05. Verifikasi BAP</span>
+                              <span className="px-2 py-0.5 rounded-full bg-amber-100 text-amber-900 text-[0.75rem]">
+                                {sesiList.filter((s) => s.statusVerifikasi === "Menunggu Verifikasi").length} Review
+                              </span>
+                              {sesiList.filter((s) => s.statusVerifikasi === "Menunggu Verifikasi").length > 0 && (
+                                <span className="px-1.5 py-0.2 rounded-full text-[10px] bg-amber-200 text-amber-900 font-bold">
+                                  {sesiList.filter((s) => s.statusVerifikasi === "Menunggu Verifikasi").length}
+                                </span>
+                              )}
+                            </button>
+
+                            <button
+                              type="button"
+                              onClick={() => setActiveTab("honor")}
+                              className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-[0.875rem] font-semibold transition-all ${className = {`inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-semibold transition-all ${activeTab === "honor"
+                                    ? "bg-black text-white shadow-xs"
+                                    : "text-[#444748] hover:text-black hover:bg-[#efeeec]"
+                      : "text-[#444748] hover:text-black hover:bg-white/50"
+                  }`}
+                >
+                            <span>06. Rekap Honorarium</span>
+                            <span>06. Rekap Honor</span>
+                          </button>
+                        </div>
                       </div>
 
-                      {s.catatanVerifikasi && (
-                        <p className="text-[11px] text-red-700 bg-red-50 p-2 rounded-lg border border-red-100">
-                          Catatan Revisi: {s.catatanVerifikasi}
-                        </p>
+                      {/* Operational Stat Indicators (Editorial Cards) */}
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+                        <div className="p-6 rounded-2xl bg-white border border-[#e3e2e0] shadow-[0_2px_8px_rgba(0,0,0,0.02)] flex flex-col justify-between">
+                          <div className="flex items-center justify-between text-[#444748] mb-3">
+                            <span className="text-[0.75rem] font-semibold uppercase tracking-wider">
+                              Total Tutor Terdaftar
+                            </span>
+                            <span className="material-symbols-outlined text-[20px]">groups</span>
+                          </div>
+                          <div className="flex items-baseline gap-2">
+                            <span className="font-serif text-[2.25rem] text-[#1a1c1b] leading-none">
+                              {pengajarList.length}
+                            </span>
+                            <span className="text-[0.8125rem] text-[#444748]">Pendidik</span>
+                          </div>
+                          <div className="mt-4 pt-3 border-t border-[#efeeec] flex items-center justify-between text-[0.75rem] text-[#444748]">
+                            <span>{pengajarList.filter((p) => p.status === "Aktif").length} Aktif Mengajar</span>
+                            <span className="font-medium text-black">
+                              {pengajarList.filter((p) => p.status !== "Aktif").length} Nonaktif/Cuti
+                            </span>
+                          </div>
+                        </div>
+
+                        <div className="p-6 rounded-2xl bg-white border border-[#e3e2e0] shadow-[0_2px_8px_rgba(0,0,0,0.02)] flex flex-col justify-between">
+                          <div className="flex items-center justify-between text-[#444748] mb-3">
+                            <span className="text-[0.75rem] font-semibold uppercase tracking-wider">
+                              Alokasi Jadwal Resmi
+                            </span>
+                            <span className="material-symbols-outlined text-[20px]">event_available</span>
+                          </div>
+                          <div className="flex items-baseline gap-2">
+                            <span className="font-serif text-[2.25rem] text-[#1a1c1b] leading-none">
+                              {jadwalList.length}
+                            </span>
+                            <span className="text-[0.8125rem] text-[#444748]">Kelas Terjadwal</span>
+                          </div>
+                          <div className="mt-4 pt-3 border-t border-[#efeeec] flex items-center justify-between text-[0.75rem] text-[#444748]">
+                            <span>Moda Offline &amp; Online</span>
+                            <span className="font-medium text-black">Terkoordinasi</span>
+                          </div>
+                        </div>
+
+                        <div className="p-6 rounded-2xl bg-white border border-[#e3e2e0] shadow-[0_2px_8px_rgba(0,0,0,0.02)] flex flex-col justify-between">
+                          <div className="flex items-center justify-between text-[#444748] mb-3">
+                            <span className="text-[0.75rem] font-semibold uppercase tracking-wider">
+                              Verifikasi Sesi &amp; BAP
+                            </span>
+                            <span className="material-symbols-outlined text-[20px]">task_alt</span>
+                          </div>
+                          <div className="flex items-baseline gap-2">
+                            <span className="font-serif text-[2.25rem] text-[#1a1c1b] leading-none">
+                              {honorStats.terverifikasi} / {honorStats.totalSesi}
+                            </span>
+                            <span className="text-[0.8125rem] text-[#444748]">BAP Disetujui</span>
+                          </div>
+                          <div className="mt-4 pt-3 border-t border-[#efeeec] flex items-center justify-between text-[0.75rem] text-[#444748]">
+                            <span>Standar Pembelajaran</span>
+                            <span className="font-medium text-emerald-800">Valid</span>
+                          </div>
+                        </div>
+
+                        <div className="p-6 rounded-2xl bg-white border border-[#e3e2e0] shadow-[0_2px_8px_rgba(0,0,0,0.02)] flex flex-col justify-between">
+                          <div className="flex items-center justify-between text-[#444748] mb-3">
+                            <span className="text-[0.75rem] font-semibold uppercase tracking-wider">
+                              Total Honorarium Terbit
+                            </span>
+                            <span className="material-symbols-outlined text-[20px]">payments</span>
+                          </div>
+                          <div className="flex items-baseline gap-1.5">
+                            <span className="text-[1rem] font-semibold text-[#1a1c1b]">Rp</span>
+                            <span className="font-serif text-[2rem] text-[#1a1c1b] leading-none">
+                              {(honorStats.totalHonor || 0).toLocaleString("id-ID")}
+                            </span>
+                          </div>
+                          <div className="mt-4 pt-3 border-t border-[#efeeec] flex items-center justify-between text-[0.75rem] text-[#444748]">
+                            <span>Akumulasi Semester</span>
+                            <span className="font-medium text-black">Siap Cair</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* TAB 01: DATABASE PENGAJAR */}
+                      {activeTab === "pengajar" && (
+                        <div className="space-y-6">
+                          {/* Search & Filter Strip */}
+                          <div className="p-4 rounded-2xl bg-white border border-[#e3e2e0] shadow-xs flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4">
+                            <div className="relative flex-1">
+                              <span className="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-[#747878] text-[20px]">
+                                search
+                              </span>
+                              <input
+                                type="text"
+                                value={searchPengajar}
+                                onChange={(e) => setSearchPengajar(e.target.value)}
+                                placeholder="Cari nama tutor, NIP, keahlian mata pelajaran, atau nomor WhatsApp..."
+                                className="w-full pl-11 pr-4 py-2.5 rounded-xl bg-[#f4f3f1] text-[#1a1c1b] placeholder:text-[#67645f] text-[0.875rem] focus:outline-none focus:bg-white focus:ring-1 focus:ring-black transition-all"
+                              />
+                            </div>
+
+                            <div className="flex flex-wrap items-center gap-2.5">
+                              <div className="relative">
+                                <select
+                                  value={statusFilter}
+                                  onChange={(e) => setStatusFilter(e.target.value)}
+                                  className="appearance-none pl-4 pr-9 py-2.5 rounded-xl bg-[#f4f3f1] text-[#1a1c1b] text-[0.8125rem] font-medium cursor-pointer focus:outline-none"
+                                >
+                                  <option value="Semua">Semua Status</option>
+                                  <option value="Aktif">Aktif</option>
+                                  <option value="Cuti">Cuti</option>
+                                  <option value="Nonaktif">Nonaktif</option>
+                                </select>
+                                <span className="material-symbols-outlined absolute right-2.5 top-1/2 -translate-y-1/2 text-[#747878] pointer-events-none text-[18px]">
+                                  expand_more
+                                </span>
+                              </div>
+
+                              <div className="relative">
+                                <select
+                                  value={jenjangFilter}
+                                  onChange={(e) => setJenjangFilter(e.target.value)}
+                                  className="appearance-none pl-4 pr-9 py-2.5 rounded-xl bg-[#f4f3f1] text-[#1a1c1b] text-[0.8125rem] font-medium cursor-pointer focus:outline-none"
+                                >
+                                  <option value="Semua">Semua Jenjang</option>
+                                  {DAFTAR_JENJANG.map((j) => (
+                                    <option key={j} value={j}>
+                                      {j}
+                                    </option>
+                                  ))}
+                                </select>
+                                <span className="material-symbols-outlined absolute right-2.5 top-1/2 -translate-y-1/2 text-[#747878] pointer-events-none text-[18px]">
+                                  expand_more
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Editorial Table */}
+                          <div className="rounded-2xl bg-white border border-[#e3e2e0] shadow-xs overflow-hidden">
+                            <div className="overflow-x-auto">
+                              <table className="w-full text-left border-collapse">
+                                <thead>
+                                  <tr className="bg-[#f4f3f1] text-[#444748] text-[0.75rem] uppercase tracking-wider border-b border-[#e3e2e0]">
+                                    <th className="py-4 pl-6 pr-4 font-semibold">Nama &amp; Rekam Profil</th>
+                                    <th className="py-4 px-4 font-semibold">Mata Pelajaran</th>
+                                    <th className="py-4 px-4 font-semibold">Jenjang &amp; Kelas</th>
+                                    <th className="py-4 px-4 font-semibold">Ketersediaan Hari</th>
+                                    <th className="py-4 px-4 font-semibold">Status</th>
+                                    <th className="py-4 pl-4 pr-6 text-right font-semibold">Aksi</th>
+                                  </tr>
+                                </thead>
+                                <tbody className="divide-y divide-[#efeeec] text-[0.875rem]">
+                                  {loading ? (
+                                    <tr>
+                                      <td colSpan={6} className="py-12 text-center text-[#67645f]">
+                                        <span className="material-symbols-outlined text-[28px] animate-spin block mb-2">
+                                          progress_activity
+                                        </span>
+                                        Memuat basis data pendidik...
+                                      </td>
+                                    </tr>
+                                  ) : filteredPengajar.length === 0 ? (
+                                    <tr>
+                                      <td colSpan={6} className="py-12 text-center text-[#67645f]">
+                                        Tidak ada pengajar yang sesuai dengan kriteria pencarian.
+                                      </td>
+                                    </tr>
+                                  ) : (
+                                    filteredPengajar.map((p) => (
+                                      <tr key={p._id} className="hover:bg-[#faf9f7] transition-colors">
+                                        <td className="py-4 pl-6 pr-4 align-top">
+                                          <div className="flex items-start gap-3.5">
+                                            <div className="w-12 h-14 rounded-xl overflow-hidden bg-[#e3e2e0] shrink-0 shadow-xs">
+                                              <img
+                                                src={p.foto || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300"}
+                                                alt={p.nama}
+                                                className="w-full h-full object-cover"
+                                              />
+                                            </div>
+                                            <div className="space-y-1 max-w-sm">
+                                              <div className="flex items-center gap-1.5">
+                                                <span className="font-semibold text-[#1a1c1b]">{p.nama}</span>
+                                                <span
+                                                  className="material-symbols-outlined text-[16px] text-black"
+                                                  title="Pendidik Terverifikasi"
+                                                >
+                                                  verified
+                                                </span>
+                                              </div>
+                                              <div className="flex items-center gap-2 text-[0.75rem] text-[#67645f]">
+                                                <span>NIP: {p.nip || "LB-TUT"}</span>
+                                                <span>•</span>
+                                                <a
+                                                  href={`https://wa.me/${p.nomorTelepon.replace(/^0/, "62")}`}
+                                                  target="_blank"
+                                                  rel="noreferrer"
+                                                  className="inline-flex items-center gap-0.5 text-black hover:underline font-medium"
+                                                >
+                                                  <span className="material-symbols-outlined text-[13px]">chat</span>
+                                                  {p.nomorTelepon}
+                                                </a>
+                                              </div>
+                                              {p.pendidikan && (
+                                                <p className="text-[0.75rem] text-[#444748] truncate max-w-xs">
+                                                  {p.pendidikan}
+                                                </p>
+                                              )}
+                                            </div>
+                                          </div>
+                                        </td>
+
+                                        <td className="py-4 px-4 align-top">
+                                          <div className="flex flex-wrap gap-1 max-w-[200px]">
+                                            {p.mataPelajaran.map((m, idx) => (
+                                              <span
+                                                key={idx}
+                                                className="px-2 py-0.5 rounded-full bg-[#efeeec] text-[0.75rem] font-medium text-[#1a1c1b]"
+                                              >
+                                                {m}
+                                              </span>
+                                            ))}
+                                          </div>
+                                        </td>
+
+                                        <td className="py-4 px-4 align-top">
+                                          <div className="space-y-0.5 text-[0.8125rem]">
+                                            <div className="font-medium text-[#1a1c1b]">{p.jenjang.join(", ")}</div>
+                                            <div className="text-[0.75rem] text-[#67645f]">
+                                              {p.jenisKelas.join(", ") || "Reguler"}
+                                            </div>
+                                          </div>
+                                        </td>
+
+                                        <td className="py-4 px-4 align-top">
+                                          <div className="flex flex-wrap gap-1 max-w-[180px]">
+                                            {p.jadwalTersedia && p.jadwalTersedia.length > 0 ? (
+                                              p.jadwalTersedia.slice(0, 3).map((j, idx) => (
+                                                <span
+                                                  key={idx}
+                                                  className="px-2 py-0.5 rounded-full bg-[#f4f3f1] text-[0.72rem] text-[#444748] border border-[#e3e2e0]"
+                                                >
+                                                  {j}
+                                                </span>
+                                              ))
+                                            ) : (
+                                              <span className="text-[0.75rem] text-[#747878] italic">Belum diisi</span>
+                                            )}
+                                          </div>
+                                        </td>
+
+                                        <td className="py-4 px-4 align-top">
+                                          <span
+                                            className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[0.75rem] font-semibold ${p.status === "Aktif"
+                                                ? "bg-emerald-50 text-emerald-800 border border-emerald-200"
+                                                : p.status === "Cuti"
+                                                  ? "bg-amber-50 text-amber-800 border border-amber-200"
+                                                  : "bg-neutral-100 text-neutral-600 border border-neutral-300"
+                                              }`}
+                                          >
+                                            <span
+                                              className={`w-1.5 h-1.5 rounded-full ${p.status === "Aktif" ? "bg-emerald-600" : "bg-neutral-400"
+                                                }`}
+                                            ></span>
+                                            {p.status}
+                                          </span>
+                                        </td>
+
+                                        <td className="py-4 pl-4 pr-6 align-top text-right">
+                                          <div className="inline-flex items-center justify-end gap-1.5">
+                                            <button
+                                              type="button"
+                                              onClick={() => handleOpenEditPengajar(p)}
+                                              className="px-3 py-1 rounded-full bg-[#efeeec] hover:bg-[#e3e2e0] text-[#1a1c1b] text-[0.75rem] font-medium transition-colors"
+                                            >
+                                              Edit
+                                            </button>
+                                            <button
+                                              type="button"
+                                              onClick={() => handleDeletePengajar(p._id, p.nama)}
+                                              className="p-1 rounded-full hover:bg-red-50 text-[#747878] hover:text-[#ba1a1a] transition-colors"
+                                              title="Hapus data pengajar"
+                                            >
+                                              <span className="material-symbols-outlined text-[18px]">delete</span>
+                                            </button>
+                                          </div>
+                                        </td>
+                                      </tr>
+                                    ))
+                                  )}
+                                </tbody>
+                              </table>
+                            </div>
+
+                            {/* Table Footer */}
+                            <div className="p-4 bg-[#f4f3f1] border-t border-[#e3e2e0] flex flex-col sm:flex-row items-center justify-between gap-3 text-[0.8125rem] text-[#67645f]">
+                              <span>
+                                Menampilkan <strong className="text-black">{filteredPengajar.length}</strong> dari{" "}
+                                <strong className="text-black">{pengajarList.length}</strong> total tutor
+                              </span>
+                              <span className="text-[0.75rem]">Sinkronisasi data langsung dengan MongoDB Atlas</span>
+                            </div>
+                          </div>
+                        </div>
                       )}
+
+                      {/* TAB 02: KETERSEDIAAN WAKTU */}
+                      {activeTab === "ketersediaan" && (
+                        <div className="space-y-6">
+                          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-2xl bg-white border border-[#e3e2e0]">
+                            <div>
+                              <h2 className="font-serif text-[1.25rem] text-[#1a1c1b]">
+                                Pemeriksaan Slot Waktu Mengajar Tutor
+                              </h2>
+                              <p className="text-[0.8125rem] text-[#444748]">
+                                Validasi ketersediaan jam mengajar mandiri yang diajukan oleh para tutor.
+                              </p>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <select
+                                value={ketersediaanFilter}
+                                onChange={(e) => setKetersediaanFilter(e.target.value)}
+                                className="px-3.5 py-2 rounded-full bg-[#f4f3f1] text-[#1a1c1b] text-[0.8125rem] font-medium focus:outline-none"
+                              >
+                                <option value="Semua">Semua Status Konfirmasi</option>
+                                <option value="Menunggu Pemeriksaan">Menunggu Pemeriksaan</option>
+                                <option value="Terkonfirmasi">Terkonfirmasi</option>
+                                <option value="Perlu Diperbarui">Perlu Diperbarui</option>
+                              </select>
+                            </div>
+                          </div>
+
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {filteredKetersediaan.length === 0 ? (
+                              <div className="col-span-2 py-12 text-center text-[#67645f] bg-white rounded-2xl border border-[#e3e2e0]">
+                                Belum ada data pengajuan ketersediaan waktu.
+                              </div>
+                            ) : (
+                              filteredKetersediaan.map((item) => (
+                                <div
+                                  key={item._id}
+                                  className="bg-white rounded-2xl p-6 border border-[#e3e2e0] shadow-xs space-y-4"
+                                >
+                                  <div className="flex items-start justify-between gap-4">
+                                    <div>
+                                      <h3 className="font-semibold text-[#1a1c1b] text-[1.05rem]">
+                                        {item.namaPengajar}
+                                      </h3>
+                                      <p className="text-[0.75rem] text-[#67645f]">Periode: {item.periode}</p>
+                                    </div>
+                                    <span
+                                      className={`px-3 py-1 rounded-full text-[0.72rem] font-semibold border ${item.statusKonfirmasi === "Terkonfirmasi"
+                                          ? "bg-emerald-50 text-emerald-800 border-emerald-200"
+                                          : item.statusKonfirmasi === "Menunggu Pemeriksaan"
+                                            ? "bg-amber-50 text-amber-800 border-amber-200"
+                                            : "bg-red-50 text-red-800 border-red-200"
+                                        }`}
+                                    >
+                                      {item.statusKonfirmasi}
+                                    </span>
+                                  </div>
+
+                                  <div className="space-y-2">
+                                    <span className="text-[0.72rem] font-semibold uppercase tracking-wider text-[#67645f] block">
+                                      Slot Waktu Diajukan:
+                                    </span>
+                                    <div className="space-y-1.5">
+                                      {item.slots.map((s, idx) => (
+                                        <div
+                                          key={idx}
+                                          className="flex items-center justify-between text-[0.8125rem] bg-[#f4f3f1] px-3 py-2 rounded-xl"
+                                        >
+                                          <span className="font-medium text-[#1a1c1b]">
+                                            {s.hari}: {s.jamMulai} - {s.jamSelesai}
+                                          </span>
+                                          <span className="text-[0.72rem] bg-white px-2 py-0.5 rounded-md font-semibold text-[#444748] border border-[#e3e2e0]">
+                                            {s.moda}
+                                          </span>
+                                        </div>
+                                      ))}
+                                    </div>
+                                  </div>
+
+                                  {item.catatanKoordinator && (
+                                    <p className="text-[0.75rem] text-[#444748] bg-[#efeeec] p-2.5 rounded-xl">
+                                      Catatan: {item.catatanKoordinator}
+                                    </p>
+                                  )}
+
+                                  <div className="pt-2 border-t border-[#efeeec] flex items-center justify-end gap-2">
+                                    <button
+                                      type="button"
+                                      onClick={() => {
+                                        const note = prompt("Catatan permintaan pembaruan:");
+                                        if (note !== null) {
+                                          handleUpdateStatusKetersediaan(item._id, "Perlu Diperbarui", note);
+                                        }
+                                      }}
+                                      className="px-3.5 py-1.5 text-[0.75rem] font-semibold text-[#ba1a1a] hover:bg-red-50 rounded-full transition-colors"
+                                    >
+                                      Minta Revisi
+                                    </button>
+                                    <button
+                                      type="button"
+                                      onClick={() => handleUpdateStatusKetersediaan(item._id, "Terkonfirmasi")}
+                                      className="px-4 py-1.5 text-[0.75rem] font-semibold bg-black hover:bg-neutral-800 text-white rounded-full transition-colors shadow-xs"
+                                    >
+                                      Setujui Slot
+                                    </button>
+                                  </div>
+                                </div>
+                              ))
+                            )}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* TAB 03: JADWAL RESMI */}
+                      {activeTab === "jadwal" && (
+                        <div className="space-y-6">
+                          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-2xl bg-white border border-[#e3e2e0]">
+                            <div>
+                              <h2 className="font-serif text-[1.25rem] text-[#1a1c1b]">
+                                Jadwal Kelas Resmi &amp; Penugasan
+                              </h2>
+                              <p className="text-[0.8125rem] text-[#444748]">
+                                Alokasi resmi pengajar ke kelas belajar dengan deteksi bentrok ruangan &amp; jam.
+                              </p>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={handleOpenAddJadwal}
+                              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-black hover:bg-neutral-800 text-white text-[0.875rem] font-semibold shadow-sm transition-all"
+                            >
+                              <span className="material-symbols-outlined text-[18px]">add_circle</span>
+                              + Buat Jadwal Baru
+                            </button>
+                          </div>
+
+                          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            {jadwalList.length === 0 ? (
+                              <div className="col-span-3 py-12 text-center text-[#67645f] bg-white rounded-2xl border border-[#e3e2e0]">
+                                Belum ada jadwal kelas resmi yang dibuat.
+                              </div>
+                            ) : (
+                              jadwalList.map((j) => (
+                                <div
+                                  key={j._id}
+                                  className="bg-white rounded-2xl p-5 border border-[#e3e2e0] shadow-xs flex flex-col justify-between space-y-4"
+                                >
+                                  <div className="space-y-2">
+                                    <div className="flex items-start justify-between">
+                                      <span className="text-[0.72rem] font-semibold uppercase tracking-wider bg-[#efeeec] px-2.5 py-0.5 rounded-full text-[#1a1c1b]">
+                                        {j.mataPelajaran} • {j.jenjang}
+                                      </span>
+                                      <span className="text-[0.75rem] font-medium text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+                                        {j.status}
+                                      </span>
+                                    </div>
+
+                                    <h3 className="font-serif text-[1.2rem] text-[#1a1c1b] leading-tight">
+                                      {j.namaKelas}
+                                    </h3>
+
+                                    <div className="space-y-1 text-[0.8125rem] text-[#444748] pt-1">
+                                      <div className="flex items-center gap-2 text-black font-medium">
+                                        <span className="material-symbols-outlined text-[16px] text-[#67645f]">
+                                          person
+                                        </span>
+                                        <span>{j.namaPengajar}</span>
+                                      </div>
+                                      <div className="flex items-center gap-2">
+                                        <span className="material-symbols-outlined text-[16px] text-[#67645f]">
+                                          schedule
+                                        </span>
+                                        <span>
+                                          {j.hari}, {j.jamMulai} - {j.jamSelesai}
+                                        </span>
+                                      </div>
+                                      <div className="flex items-center gap-2">
+                                        <span className="material-symbols-outlined text-[16px] text-[#67645f]">
+                                          meeting_room
+                                        </span>
+                                        <span>
+                                          {j.ruangan} ({j.moda})
+                                        </span>
+                                      </div>
+                                      <div className="flex items-center gap-2">
+                                        <span className="material-symbols-outlined text-[16px] text-[#67645f]">
+                                          groups
+                                        </span>
+                                        <span>{j.jumlahSiswa} Siswa Terdaftar</span>
+                                      </div>
+                                    </div>
+                                  </div>
+
+                                  <div className="pt-3 border-t border-[#efeeec] flex items-center justify-end">
+                                    <button
+                                      type="button"
+                                      onClick={() => handleDeleteJadwal(j._id, j.namaKelas)}
+                                      className="text-[0.75rem] font-medium text-[#ba1a1a] hover:bg-red-50 px-3 py-1 rounded-full transition-colors"
+                                    >
+                                      Hapus Jadwal
+                                    </button>
+                                  </div>
+                                </div>
+                              ))
+                            )}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* TAB 04: PEMANTAUAN SESI */}
+                      {activeTab === "pemantauan" && (
+                        <div className="space-y-6">
+                          <div className="p-4 rounded-2xl bg-white border border-[#e3e2e0] flex items-center justify-between">
+                            <div>
+                              <h2 className="font-serif text-[1.25rem] text-[#1a1c1b]">
+                                Pemantauan Pelaksanaan Sesi Belajar Real-Time
+                              </h2>
+                              <p className="text-[0.8125rem] text-[#444748]">
+                                Log presensi mengajar, materi ajar yang disampaikan, dan progres siswa.
+                              </p>
+                            </div>
+                            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-800 text-[0.75rem] font-semibold border border-emerald-200">
+                              <span className="w-2 h-2 rounded-full bg-emerald-600 animate-pulse"></span>
+                              Live Tracking
+                            </span>
+                          </div>
+
+                          <div className="rounded-2xl bg-white border border-[#e3e2e0] shadow-xs overflow-hidden">
+                            <div className="overflow-x-auto">
+                              <table className="w-full text-left border-collapse text-[0.875rem]">
+                                <thead>
+                                  <tr className="bg-[#f4f3f1] text-[#444748] text-[0.75rem] uppercase tracking-wider border-b border-[#e3e2e0]">
+                                    <th className="py-3.5 pl-6 pr-4 font-semibold">Kelas &amp; Tutor</th>
+                                    <th className="py-3.5 px-4 font-semibold">Tanggal &amp; Waktu</th>
+                                    <th className="py-3.5 px-4 font-semibold">Materi yang Diajarkan</th>
+                                    <th className="py-3.5 px-4 font-semibold">Presensi</th>
+                                    <th className="py-3.5 pl-4 pr-6 text-right font-semibold">Status BAP</th>
+                                  </tr>
+                                </thead>
+                                <tbody className="divide-y divide-[#efeeec]">
+                                  {sesiList.length === 0 ? (
+                                    <tr>
+                                      <td colSpan={5} className="py-12 text-center text-[#67645f]">
+                                        Belum ada catatan pelaksanaan sesi bimbingan.
+                                      </td>
+                                    </tr>
+                                  ) : (
+                                    sesiList.map((s) => (
+                                      <tr key={s._id} className="hover:bg-[#faf9f7] transition-colors">
+                                        <td className="py-3.5 pl-6 pr-4 align-top">
+                                          <span className="font-semibold text-[#1a1c1b] block">{s.namaKelas}</span>
+                                          <span className="text-[0.75rem] text-[#67645f]">
+                                            {s.namaPengajar} • {s.mataPelajaran}
+                                          </span>
+                                        </td>
+                                        <td className="py-3.5 px-4 align-top text-[0.8125rem]">
+                                          <div>{s.tanggal}</div>
+                                          <div className="text-[0.75rem] text-[#67645f]">
+                                            {s.waktuMulai} - {s.waktuSelesai}
+                                          </div>
+                                        </td>
+                                        <td className="py-3.5 px-4 align-top max-w-xs text-[0.8125rem]">
+                                          <p className="text-[#1a1c1b] font-medium">{s.materiAjar}</p>
+                                          {s.capaianSiswa && (
+                                            <p className="text-[0.75rem] text-[#67645f] truncate mt-0.5">
+                                              Capaian: {s.capaianSiswa}
+                                            </p>
+                                          )}
+                                        </td>
+                                        <td className="py-3.5 px-4 align-top">
+                                          <span
+                                            className={`px-2.5 py-0.5 rounded-full text-[0.72rem] font-semibold border ${s.statusKehadiran === "Hadir"
+                                                ? "bg-emerald-50 text-emerald-800 border-emerald-200"
+                                                : "bg-amber-50 text-amber-800 border-amber-200"
+                                              }`}
+                                          >
+                                            {s.statusKehadiran}
+                                          </span>
+                                        </td>
+                                        <td className="py-3.5 pl-4 pr-6 align-top text-right">
+                                          <span
+                                            className={`px-3 py-1 rounded-full text-[0.75rem] font-semibold border inline-block ${s.statusVerifikasi === "Terverifikasi"
+                                                ? "bg-emerald-50 text-emerald-800 border-emerald-200"
+                                                : s.statusVerifikasi === "Menunggu Verifikasi"
+                                                  ? "bg-amber-50 text-amber-800 border-amber-200"
+                                                  : "bg-red-50 text-red-800 border-red-200"
+                                              }`}
+                                          >
+                                            {s.statusVerifikasi}
+                                          </span>
+                                        </td>
+                                      </tr>
+                                    ))
+                                  )}
+                                </tbody>
+                              </table>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* TAB 05: VERIFIKASI BAP */}
+                      {activeTab === "verifikasi" && (
+                        <div className="space-y-6">
+                          <div className="p-4 rounded-2xl bg-white border border-[#e3e2e0] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                            <div>
+                              <h2 className="font-serif text-[1.25rem] text-[#1a1c1b]">
+                                Antrean Verifikasi Berita Acara (BAP)
+                              </h2>
+                              <p className="text-[0.8125rem] text-[#444748]">
+                                Validasi bukti kehadiran dan catatan bimbingan sebelum honorarium disetujui.
+                              </p>
+                            </div>
+                            <select
+                              value={verifikasiFilter}
+                              onChange={(e) => setVerifikasiFilter(e.target.value)}
+                              className="px-3.5 py-2 rounded-full bg-[#f4f3f1] text-[#1a1c1b] text-[0.8125rem] font-medium focus:outline-none"
+                            >
+                              <option value="Semua">Semua Status BAP</option>
+                              <option value="Menunggu Verifikasi">Menunggu Verifikasi</option>
+                              <option value="Terverifikasi">Terverifikasi</option>
+                              <option value="Perlu Revisi">Perlu Revisi</option>
+                            </select>
+                          </div>
+
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {filteredSesi.length === 0 ? (
+                              <div className="col-span-2 py-12 text-center text-[#67645f] bg-white rounded-2xl border border-[#e3e2e0]">
+                                Tidak ada data BAP yang menunggu verifikasi.
+                              </div>
+                            ) : (
+                              filteredSesi.map((s) => (
+                                <div
+                                  key={s._id}
+                                  className="bg-white rounded-2xl p-6 border border-[#e3e2e0] shadow-xs space-y-4 flex flex-col justify-between"
+                                >
+                                  <div className="space-y-3">
+                                    <div className="flex items-start justify-between">
+                                      <div>
+                                        <span className="text-[0.72rem] font-semibold uppercase tracking-wider text-[#67645f]">
+                                          {s.namaPengajar}
+                                        </span>
+                                        <h3 className="font-serif text-[1.2rem] text-[#1a1c1b] leading-tight">
+                                          {s.namaKelas}
+                                        </h3>
+                                      </div>
+                                      <span
+                                        className={`px-3 py-1 rounded-full text-[0.72rem] font-semibold border ${s.statusVerifikasi === "Terverifikasi"
+                                            ? "bg-emerald-50 text-emerald-800 border-emerald-200"
+                                            : s.statusVerifikasi === "Menunggu Verifikasi"
+                                              ? "bg-amber-50 text-amber-800 border-amber-200"
+                                              : "bg-red-50 text-red-800 border-red-200"
+                                          }`}
+                                      >
+                                        {s.statusVerifikasi}
+                                      </span>
+                                    </div>
+
+                                    <div className="bg-[#f4f3f1] rounded-xl p-3.5 space-y-1.5 text-[0.8125rem]">
+                                      <div>
+                                        <span className="text-[#67645f]">Tanggal: </span>
+                                        <span className="font-semibold text-black">
+                                          {s.tanggal} ({s.waktuMulai} - {s.waktuSelesai})
+                                        </span>
+                                      </div>
+                                      <div>
+                                        <span className="text-[#67645f]">Materi: </span>
+                                        <span className="text-black">{s.materiAjar}</span>
+                                      </div>
+                                      {s.capaianSiswa && (
+                                        <div>
+                                          <span className="text-[#67645f]">Capaian: </span>
+                                          <span className="text-black">{s.capaianSiswa}</span>
+                                        </div>
+                                      )}
+                                      {s.kendala && (
+                                        <div>
+                                          <span className="text-[#67645f]">Kendala: </span>
+                                          <span className="text-black">{s.kendala}</span>
+                                        </div>
+                                      )}
+                                    </div>
+
+                                    {s.buktiFoto && (
+                                      <div>
+                                        <a
+                                          href={s.buktiFoto}
+                                          target="_blank"
+                                          rel="noreferrer"
+                                          className="inline-flex items-center gap-1.5 text-[0.75rem] font-semibold text-black hover:underline"
+                                        >
+                                          <span className="material-symbols-outlined text-[16px]">attachment</span>
+                                          Lihat Bukti Foto Pembelajaran
+                                        </a>
+                                      </div>
+                                    )}
+
+                                    {s.catatanVerifikasi && (
+                                      <p className="text-[0.75rem] text-[#ba1a1a] bg-red-50 p-2.5 rounded-xl border border-red-100">
+                                        Catatan Revisi: {s.catatanVerifikasi}
+                                      </p>
+                                    )}
+                                  </div>
+
+                                  <div className="pt-3 border-t border-[#efeeec] flex items-center justify-end gap-2">
+                                    <button
+                                      type="button"
+                                      onClick={() => {
+                                        const note = prompt("Tuliskan catatan revisi untuk tutor:");
+                                        if (note !== null) {
+                                          handleVerifikasiSesi(s._id, "Perlu Revisi", note);
+                                        }
+                                      }}
+                                      className="px-4 py-1.5 text-[0.75rem] font-semibold text-[#ba1a1a] hover:bg-red-50 rounded-full transition-colors"
+                                    >
+                                      Minta Revisi
+                                    </button>
+                                    <button
+                                      type="button"
+                                      onClick={() => handleVerifikasiSesi(s._id, "Terverifikasi")}
+                                      className="px-5 py-1.5 text-[0.75rem] font-semibold bg-black hover:bg-neutral-800 text-white rounded-full transition-colors shadow-xs"
+                                    >
+                                      Verifikasi Selesai
+                                    </button>
+                                  </div>
+                                </div>
+                              ))
+                            )}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* TAB 06: REKAP HONORARIUM */}
+                      {activeTab === "honor" && (
+                        <div className="space-y-6">
+                          <div className="p-4 rounded-2xl bg-white border border-[#e3e2e0] flex items-center justify-between">
+                            <div>
+                              <h2 className="font-serif text-[1.25rem] text-[#1a1c1b]">
+                                Laporan &amp; Rekapitulasi Honorarium Pengajar
+                              </h2>
+                              <p className="text-[0.8125rem] text-[#444748]">
+                                Perhitungan honor otomatis berdasarkan sesi terverifikasi (Standar: Rp 150.000 / sesi).
+                              </p>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => window.print()}
+                              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-black hover:bg-neutral-800 text-white text-[0.8125rem] font-semibold transition-colors shadow-xs"
+                            >
+                              <span className="material-symbols-outlined text-[16px]">print</span>
+                              Cetak Rekap
+                            </button>
+                          </div>
+
+                          <div className="rounded-2xl bg-white border border-[#e3e2e0] shadow-xs overflow-hidden">
+                            <div className="overflow-x-auto">
+                              <table className="w-full text-left border-collapse text-[0.875rem]">
+                                <thead>
+                                  <tr className="bg-[#f4f3f1] text-[#444748] text-[0.75rem] uppercase tracking-wider border-b border-[#e3e2e0]">
+                                    <th className="py-4 pl-6 pr-4 font-semibold">Nama Tutor</th>
+                                    <th className="py-4 px-4 font-semibold">Total Sesi Diajukan</th>
+                                    <th className="py-4 px-4 font-semibold">Sesi Terverifikasi</th>
+                                    <th className="py-4 px-4 font-semibold">Total Jam Efektif</th>
+                                    <th className="py-4 pl-4 pr-6 text-right font-semibold">Total Honorarium</th>
+                                  </tr>
+                                </thead>
+                                <tbody className="divide-y divide-[#efeeec]">
+                                  {pengajarList.map((p) => {
+                                    const tutorSesi = sesiList.filter((s) => s.pengajarId === p._id);
+                                    const verifiedSesi = tutorSesi.filter((s) => s.statusVerifikasi === "Terverifikasi");
+                                    const totalJam = verifiedSesi.reduce((acc, curr) => acc + (curr.durasiJam || 1.5), 0);
+                                    const totalHonor = verifiedSesi.reduce(
+                                      (acc, curr) => acc + (curr.honorPerSesi || 150000),
+                                      0
+                                    );
+
+                                    return (
+                                      <tr key={p._id} className="hover:bg-[#faf9f7] transition-colors">
+                                        <td className="py-4 pl-6 pr-4 align-top">
+                                          <span className="font-semibold text-[#1a1c1b] block">{p.nama}</span>
+                                          <span className="text-[0.75rem] text-[#67645f]">{p.nomorTelepon}</span>
+                                        </td>
+                                        <td className="py-4 px-4 align-top">{tutorSesi.length} Sesi</td>
+                                        <td className="py-4 px-4 align-top">
+                                          <span className="px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-800 text-[0.75rem] font-semibold border border-emerald-200">
+                                            {verifiedSesi.length} Terverifikasi
+                                          </span>
+                                        </td>
+                                        <td className="py-4 px-4 align-top">{totalJam.toFixed(1)} Jam</td>
+                                        <td className="py-4 pl-4 pr-6 align-top text-right font-serif text-[1.125rem] text-[#1a1c1b] font-medium">
+                                          Rp {totalHonor.toLocaleString("id-ID")}
+                                        </td>
+                                      </tr>
+                                    );
+                                  })}
+                                </tbody>
+                              </table>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Editorial Note / Operational Quality Banner */}
+                      <div className="mt-8 p-6 rounded-2xl bg-[#f4f3f1] border border-[#e3e2e0]/60 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                        <div className="flex items-start gap-4">
+                          <div className="w-10 h-10 rounded-full bg-white shadow-xs flex items-center justify-center shrink-0 text-black">
+                            <span className="material-symbols-outlined text-[20px]">verified_user</span>
+                          </div>
+                          <div className="space-y-0.5">
+                            <h2 className="text-[0.875rem] font-semibold text-[#1a1c1b]">
+                              Prosedur Kurasi &amp; Penjaminan Mutu Tutor Lentera Belajar
+                            </h2>
+                            <p className="text-[0.8125rem] text-[#444748] leading-relaxed">
+                              Setiap pendidik melalui telaah kualifikasi pedagogis, verifikasi ketersediaan hari, serta
+                              validasi Berita Acara Pembelajaran sebelum rekonsiliasi honor bulanan diterbitkan.
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                  </div>
+                </div>
+              </main>
+
+              {/* Modal Tambah / Edit Tutor */}
+              {/* Footer Bersih & Minimalis */}
+              <footer className="w-full bg-[#f4f3f1] border-t border-[#e3e2e0]/60 mt-12 py-6 text-center text-xs text-[#67645f]">
+                © 2025 - 2026 Lentera Belajar • Sistem Pengelolaan Pengajar Bimbel.
+              </footer>
+              {isPengajarModalOpen && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-xs animate-in fade-in duration-200">
+                  <div className="bg-white rounded-2xl border border-[#e3e2e0] max-w-lg w-full p-6 sm:p-8 shadow-2xl space-y-6 max-h-[90vh] overflow-y-auto">
+                    <div className="flex items-center justify-between border-b border-[#efeeec] pb-4">
+                      <h2 className="font-serif text-[1.5rem] text-[#1a1c1b]">
+                        {isEditingPengajar ? "Sunting Profil Tutor" : "Tambah Tutor Baru"}
+                      </h2>
+                      <button
+                        type="button"
+                        onClick={() => setIsPengajarModalOpen(false)}
+                        className="w-8 h-8 rounded-full hover:bg-[#efeeec] flex items-center justify-center text-[#747878] hover:text-black transition-colors"
+                      >
+                        <span className="material-symbols-outlined text-[20px]">close</span>
+                      </button>
                     </div>
 
-                    <div className="flex items-center gap-2 shrink-0">
-                      {s.statusVerifikasi !== "Terverifikasi" && (
+                    {errorPengajar && (
+                      <div className="p-3 bg-red-50 border border-red-200 text-[#ba1a1a] rounded-xl text-[0.8125rem]">
+                        {errorPengajar}
+                      </div>
+                    )}
+
+                    <form onSubmit={handleSubmitPengajar} className="space-y-4">
+                      <div>
+                        <label className="block text-[0.8125rem] font-medium text-[#1a1c1b] mb-1.5">
+                          Nama Lengkap &amp; Gelar
+                        </label>
+                        <input
+                          type="text"
+                          required
+                          placeholder="Contoh: Siti Rahmawati, M.Si."
+                          value={formNama}
+                          onChange={(e) => setFormNama(e.target.value)}
+                          className="w-full px-3.5 py-2.5 rounded-xl bg-[#faf9f7] border border-[#e3e2e0] text-[0.875rem] focus:outline-none focus:border-black"
+                        />
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-[0.8125rem] font-medium text-[#1a1c1b] mb-1.5">
+                            Nomor WhatsApp
+                          </label>
+                          <input
+                            type="tel"
+                            required
+                            placeholder="081234567890"
+                            value={formTelepon}
+                            onChange={(e) => setFormTelepon(e.target.value)}
+                            className="w-full px-3.5 py-2.5 rounded-xl bg-[#faf9f7] border border-[#e3e2e0] text-[0.875rem] focus:outline-none focus:border-black font-mono"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-[0.8125rem] font-medium text-[#1a1c1b] mb-1.5">
+                            Status Pendidik
+                          </label>
+                          <select
+                            value={formStatus}
+                            onChange={(e) => setFormStatus(e.target.value as "Aktif" | "Cuti" | "Nonaktif")}
+                            className="w-full px-3.5 py-2.5 rounded-xl bg-[#faf9f7] border border-[#e3e2e0] text-[0.875rem] focus:outline-none focus:border-black"
+                          >
+                            <option value="Aktif">Aktif</option>
+                            <option value="Cuti">Cuti</option>
+                            <option value="Nonaktif">Nonaktif</option>
+                          </select>
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="block text-[0.8125rem] font-medium text-[#1a1c1b] mb-1.5">
+                          Latar Belakang Pendidikan &amp; Almamater
+                        </label>
+                        <input
+                          type="text"
+                          placeholder="Contoh: S1 Kimia UI • S2 ITB"
+                          value={formPendidikan}
+                          onChange={(e) => setFormPendidikan(e.target.value)}
+                          className="w-full px-3.5 py-2.5 rounded-xl bg-[#faf9f7] border border-[#e3e2e0] text-[0.875rem] focus:outline-none focus:border-black"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-[0.8125rem] font-medium text-[#1a1c1b] mb-1.5">
+                          Tautan URL Foto Profil
+                        </label>
+                        <input
+                          type="text"
+                          placeholder="https://..."
+                          value={formFoto}
+                          onChange={(e) => setFormFoto(e.target.value)}
+                          className="w-full px-3.5 py-2.5 rounded-xl bg-[#faf9f7] border border-[#e3e2e0] text-[0.875rem] focus:outline-none focus:border-black"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-[0.8125rem] font-medium text-[#1a1c1b] mb-1.5">
+                          Mata Pelajaran (Pilih yang relevan)
+                        </label>
+                        <div className="flex flex-wrap gap-1.5 pt-1">
+                          {DAFTAR_MAPEL.map((m) => {
+                            const selected = formMapel.includes(m);
+                            return (
+                              <button
+                                key={m}
+                                type="button"
+                                onClick={() => {
+                                  setFormMapel((prev) =>
+                                    selected ? prev.filter((item) => item !== m) : [...prev, m]
+                                  );
+                                }}
+                                className={`px-3 py-1 rounded-full text-[0.75rem] font-medium transition-colors ${selected
+                                    ? "bg-black text-white"
+                                    : "bg-[#f4f3f1] text-[#444748] hover:bg-[#efeeec] border border-[#e3e2e0]"
+                                  }`}
+                              >
+                                {m}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+
+                      <div className="pt-4 border-t border-[#efeeec] flex items-center justify-end gap-3">
                         <button
                           type="button"
-                          onClick={() => handleVerifikasiSesi(s._id, "Terverifikasi")}
-                          className="px-4 py-2 text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-700 rounded-xl shadow-xs transition-colors"
+                          onClick={() => setIsPengajarModalOpen(false)}
+                          className="px-5 py-2.5 rounded-full text-[0.8125rem] font-semibold text-[#444748] hover:bg-[#efeeec] transition-colors"
                         >
-                          Approve / Verifikasi
+                          Batal
                         </button>
-                      )}
+                        <button
+                          type="submit"
+                          disabled={submittingPengajar}
+                          className="px-6 py-2.5 rounded-full bg-black hover:bg-neutral-800 text-white text-[0.8125rem] font-semibold transition-colors shadow-xs disabled:opacity-50"
+                        >
+                          {submittingPengajar ? "Menyimpan..." : "Simpan Data Tutor"}
+                        </button>
+                      </div>
+                    </form>
+                  </div>
+                </div>
+              )}
 
+              {/* Modal Buat Jadwal Baru */}
+              {isJadwalModalOpen && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-xs animate-in fade-in duration-200">
+                  <div className="bg-white rounded-2xl border border-[#e3e2e0] max-w-lg w-full p-6 sm:p-8 shadow-2xl space-y-6 max-h-[90vh] overflow-y-auto">
+                    <div className="flex items-center justify-between border-b border-[#efeeec] pb-4">
+                      <h2 className="font-serif text-[1.5rem] text-[#1a1c1b]">Buat Jadwal Kelas Resmi</h2>
                       <button
                         type="button"
-                        onClick={() => {
-                          const note = prompt(
-                            "Tuliskan catatan perbaikan untuk tutor:",
-                            "Mohon upload bukti presensi siswa."
-                          );
-                          if (note !== null) {
-                            handleVerifikasiSesi(s._id, "Perlu Revisi", note);
-                          }
-                        }}
-                        className="px-3.5 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 border border-slate-200 rounded-xl transition-colors"
+                        onClick={() => setIsJadwalModalOpen(false)}
+                        className="w-8 h-8 rounded-full hover:bg-[#efeeec] flex items-center justify-center text-[#747878] hover:text-black transition-colors"
                       >
-                        Minta Revisi
+                        <span className="material-symbols-outlined text-[20px]">close</span>
                       </button>
                     </div>
-                  </div>
-                ))
-              )}
-            </div>
-          </div>
-        )}
 
-        {/* ========================================================
-            TAB 06: REKAP HONOR & LAPORAN (MODUL 6)
-        ======================================================== */}
-        {activeTab === "honor" && (
-          <div className="space-y-5">
-            {/* Ringkasan Keuangan Sesi */}
-            <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
-              <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs">
-                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
-                  Total Sesi Masuk
-                </span>
-                <p className="text-2xl font-extrabold text-slate-800 mt-1">
-                  {honorStats.totalSesi}
-                </p>
-              </div>
+                    {errorJadwal && (
+                      <div className="p-3 bg-red-50 border border-red-200 text-[#ba1a1a] rounded-xl text-[0.8125rem]">
+                        {errorJadwal}
+                      </div>
+                    )}
 
-              <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs">
-                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
-                  Sesi Tervalidasi
-                </span>
-                <p className="text-2xl font-extrabold text-emerald-600 mt-1">
-                  {honorStats.terverifikasi}
-                </p>
-              </div>
+                    <form onSubmit={handleSubmitJadwal} className="space-y-4">
+                      <div>
+                        <label className="block text-[0.8125rem] font-medium text-[#1a1c1b] mb-1.5">
+                          Nama Kelas
+                        </label>
+                        <input
+                          type="text"
+                          required
+                          placeholder="Contoh: XII MIPA Intensif UTBK 1"
+                          value={jadwalNamaKelas}
+                          onChange={(e) => setJadwalNamaKelas(e.target.value)}
+                          className="w-full px-3.5 py-2.5 rounded-xl bg-[#faf9f7] border border-[#e3e2e0] text-[0.875rem] focus:outline-none focus:border-black"
+                        />
+                      </div>
 
-              <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs">
-                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
-                  Total Jam Mengajar
-                </span>
-                <p className="text-2xl font-extrabold text-blue-600 mt-1">
-                  {honorStats.totalJam} Jam
-                </p>
-              </div>
+                      <div>
+                        <label className="block text-[0.8125rem] font-medium text-[#1a1c1b] mb-1.5">
+                          Tutor Pengajar
+                        </label>
+                        <select
+                          value={jadwalPengajarId}
+                          onChange={(e) => setJadwalPengajarId(e.target.value)}
+                          className="w-full px-3.5 py-2.5 rounded-xl bg-[#faf9f7] border border-[#e3e2e0] text-[0.875rem] focus:outline-none focus:border-black"
+                        >
+                          {pengajarList.map((p) => (
+                            <option key={p._id} value={p._id}>
+                              {p.nama} ({p.mataPelajaran.join(", ")})
+                            </option>
+                          ))}
+                        </select>
+                      </div>
 
-              <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs">
-                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
-                  Total Honor Valid
-                </span>
-                <p className="text-2xl font-extrabold text-slate-900 mt-1">
-                  Rp {honorStats.totalHonor?.toLocaleString("id-ID")}
-                </p>
-              </div>
-            </div>
-
-            {/* Tabel Rincian Honor Per Sesi */}
-            <div className="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
-              <div className="p-4 border-b border-slate-100 flex items-center justify-between">
-                <div>
-                  <h3 className="font-bold text-sm text-slate-900">
-                    Rekapitulasi Honorarium Tutor Periode Ini
-                  </h3>
-                  <p className="text-xs text-slate-500">
-                    Hanya sesi berstatus <strong>Terverifikasi</strong> yang masuk kalkulasi honor.
-                  </p>
-                </div>
-
-                <button
-                  type="button"
-                  onClick={() => {
-                    const csvRows = [
-                      ["Nama Tutor", "Kelas", "Mapel", "Tanggal", "Durasi (Jam)", "Honor (Rp)"],
-                      ...sesiList
-                        .filter((s) => s.statusVerifikasi === "Terverifikasi")
-                        .map((s) => [
-                          s.namaPengajar,
-                          s.namaKelas,
-                          s.mataPelajaran,
-                          s.tanggal,
-                          s.durasiJam.toString(),
-                          s.honorPerSesi.toString(),
-                        ]),
-                    ];
-                    const csvContent =
-                      "data:text/csv;charset=utf-8," +
-                      csvRows.map((e) => e.join(",")).join("\n");
-                    const encodedUri = encodeURI(csvContent);
-                    const link = document.createElement("a");
-                    link.setAttribute("href", encodedUri);
-                    link.setAttribute("download", "rekap_honor_tutor.csv");
-                    document.body.appendChild(link);
-                    link.click();
-                    document.body.removeChild(link);
-                  }}
-                  className="px-4 py-2 text-xs font-semibold text-slate-800 bg-slate-100 hover:bg-slate-200 border border-slate-200 rounded-xl transition-colors"
-                >
-                  Ekspor ke CSV
-                </button>
-              </div>
-
-              <div className="overflow-x-auto">
-                <table className="w-full text-left text-xs border-collapse">
-                  <thead>
-                    <tr className="bg-slate-50 border-b border-slate-200 text-slate-600 font-semibold uppercase tracking-wider">
-                      <th className="py-3 px-4">Nama Pengajar</th>
-                      <th className="py-3 px-4">Kelas &amp; Mapel</th>
-                      <th className="py-3 px-4">Tanggal Sesi</th>
-                      <th className="py-3 px-4 text-center">Durasi</th>
-                      <th className="py-3 px-4 text-center">Status</th>
-                      <th className="py-3 px-4 text-right">Honorarium</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-100">
-                    {sesiList.map((s) => (
-                      <tr key={s._id} className="hover:bg-slate-50/70">
-                        <td className="py-3 px-4 font-semibold text-slate-900">
-                          {s.namaPengajar}
-                        </td>
-                        <td className="py-3 px-4 text-slate-600">
-                          {s.namaKelas} ({s.mataPelajaran})
-                        </td>
-                        <td className="py-3 px-4 text-slate-500">{s.tanggal}</td>
-                        <td className="py-3 px-4 text-center font-mono">{s.durasiJam} Jam</td>
-                        <td className="py-3 px-4 text-center">
-                          <span
-                            className={`px-2 py-0.5 rounded-full text-[10px] font-semibold ${
-                              s.statusVerifikasi === "Terverifikasi"
-                                ? "bg-emerald-50 text-emerald-800"
-                                : "bg-slate-100 text-slate-500"
-                            }`}
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-[0.8125rem] font-medium text-[#1a1c1b] mb-1.5">
+                            Mata Pelajaran
+                          </label>
+                          <select
+                            value={jadwalMapel}
+                            onChange={(e) => setJadwalMapel(e.target.value)}
+                            className="w-full px-3.5 py-2.5 rounded-xl bg-[#faf9f7] border border-[#e3e2e0] text-[0.875rem] focus:outline-none focus:border-black"
                           >
-                            {s.statusVerifikasi}
-                          </span>
-                        </td>
-                        <td className="py-3 px-4 text-right font-semibold text-slate-900 font-mono">
-                          Rp {s.honorPerSesi?.toLocaleString("id-ID")}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-        )}
-      </main>
+                            {DAFTAR_MAPEL.map((m) => (
+                              <option key={m} value={m}>
+                                {m}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                        <div>
+                          <label className="block text-[0.8125rem] font-medium text-[#1a1c1b] mb-1.5">
+                            Jenjang
+                          </label>
+                          <select
+                            value={jadwalJenjang}
+                            onChange={(e) => setJadwalJenjang(e.target.value)}
+                            className="w-full px-3.5 py-2.5 rounded-xl bg-[#faf9f7] border border-[#e3e2e0] text-[0.875rem] focus:outline-none focus:border-black"
+                          >
+                            {DAFTAR_JENJANG.map((j) => (
+                              <option key={j} value={j}>
+                                {j}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                      </div>
 
-      {/* Modal Form Tambah / Edit Pengajar */}
-      {isPengajarModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40">
-          <div className="bg-white rounded-2xl border border-slate-200 shadow-xl w-full max-w-lg overflow-hidden">
-            <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
-              <h2 className="font-semibold text-slate-900 text-sm">
-                {isEditingPengajar ? "Edit Data Tutor" : "Tambah Tutor Baru"}
-              </h2>
-              <button
-                type="button"
-                onClick={() => setIsPengajarModalOpen(false)}
-                className="w-7 h-7 flex items-center justify-center text-slate-400 hover:text-slate-700 rounded-lg hover:bg-slate-100 text-xs font-bold"
-              >
-                ✕
-              </button>
-            </div>
+                      <div className="grid grid-cols-3 gap-3">
+                        <div>
+                          <label className="block text-[0.8125rem] font-medium text-[#1a1c1b] mb-1.5">
+                            Hari
+                          </label>
+                          <select
+                            value={jadwalHari}
+                            onChange={(e) => setJadwalHari(e.target.value)}
+                            className="w-full px-3 py-2.5 rounded-xl bg-[#faf9f7] border border-[#e3e2e0] text-[0.8125rem] focus:outline-none focus:border-black"
+                          >
+                            {DAFTAR_HARI.map((h) => (
+                              <option key={h} value={h}>
+                                {h}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                        <div>
+                          <label className="block text-[0.8125rem] font-medium text-[#1a1c1b] mb-1.5">
+                            Mulai
+                          </label>
+                          <input
+                            type="time"
+                            value={jadwalMulai}
+                            onChange={(e) => setJadwalMulai(e.target.value)}
+                            className="w-full px-2 py-2 rounded-xl bg-[#faf9f7] border border-[#e3e2e0] text-[0.8125rem] focus:outline-none"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-[0.8125rem] font-medium text-[#1a1c1b] mb-1.5">
+                            Selesai
+                          </label>
+                          <input
+                            type="time"
+                            value={jadwalSelesai}
+                            onChange={(e) => setJadwalSelesai(e.target.value)}
+                            className="w-full px-2 py-2 rounded-xl bg-[#faf9f7] border border-[#e3e2e0] text-[0.8125rem] focus:outline-none"
+                          />
+                        </div>
+                      </div>
 
-            <form onSubmit={handleSubmitPengajar} className="p-5 space-y-4 max-h-[80vh] overflow-y-auto">
-              {errorPengajar && (
-                <div className="p-3 text-xs bg-red-50 text-red-700 rounded-lg border border-red-200 font-medium">
-                  {errorPengajar}
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-[0.8125rem] font-medium text-[#1a1c1b] mb-1.5">
+                            Ruangan / Link
+                          </label>
+                          <input
+                            type="text"
+                            value={jadwalRuangan}
+                            onChange={(e) => setJadwalRuangan(e.target.value)}
+                            placeholder="Ruang A1 / Zoom Link"
+                            className="w-full px-3.5 py-2.5 rounded-xl bg-[#faf9f7] border border-[#e3e2e0] text-[0.875rem] focus:outline-none"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-[0.8125rem] font-medium text-[#1a1c1b] mb-1.5">
+                            Jumlah Siswa
+                          </label>
+                          <input
+                            type="number"
+                            value={jadwalSiswa}
+                            onChange={(e) => setJadwalSiswa(Number(e.target.value))}
+                            className="w-full px-3.5 py-2.5 rounded-xl bg-[#faf9f7] border border-[#e3e2e0] text-[0.875rem] focus:outline-none"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="pt-4 border-t border-[#efeeec] flex items-center justify-end gap-3">
+                        <button
+                          type="button"
+                          onClick={() => setIsJadwalModalOpen(false)}
+                          className="px-5 py-2.5 rounded-full text-[0.8125rem] font-semibold text-[#444748] hover:bg-[#efeeec] transition-colors"
+                        >
+                          Batal
+                        </button>
+                        <button
+                          type="submit"
+                          disabled={submittingJadwal}
+                          className="px-6 py-2.5 rounded-full bg-black hover:bg-neutral-800 text-white text-[0.8125rem] font-semibold transition-colors shadow-xs disabled:opacity-50"
+                        >
+                          {submittingJadwal ? "Menyimpan..." : "Simpan Jadwal"}
+                        </button>
+                      </div>
+                    </form>
+                  </div>
                 </div>
               )}
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">
-                    Nama Lengkap *
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={formNama}
-                    onChange={(e) => setFormNama(e.target.value)}
-                    className="w-full px-3 py-2 text-xs border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-600 focus:outline-none"
-                  />
+              {/* Footer */}
+              <footer className="w-full bg-[#f4f3f1] border-t border-[#e3e2e0]/60 mt-16">
+                <div className="max-w-7xl mx-auto px-6 lg:px-12 py-10 flex flex-col sm:flex-row items-center justify-between gap-4 text-[0.75rem] text-[#67645f]">
+                  <div className="flex items-center gap-2">
+                    <span className="material-symbols-outlined text-black text-[20px]">local_library</span>
+                    <span className="font-serif text-[1.25rem] text-[#1a1c1b]">Lentera Belajar</span>
+                    <span className="ml-2 text-[#444748]">• Tata Kelola &amp; Pembinaan Pengajar</span>
+                  </div>
+                  <p>© 2025 - 2026 Lentera Belajar. Hak cipta dilindungi undang-undang.</p>
                 </div>
-                <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">
-                    Nomor WhatsApp *
-                  </label>
-                  <input
-                    type="tel"
-                    required
-                    placeholder="081234567890"
-                    value={formTelepon}
-                    onChange={(e) => setFormTelepon(e.target.value)}
-                    className="w-full px-3 py-2 text-xs border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-600 focus:outline-none font-mono"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">
-                    Email
-                  </label>
-                  <input
-                    type="email"
-                    value={formEmail}
-                    onChange={(e) => setFormEmail(e.target.value)}
-                    className="w-full px-3 py-2 text-xs border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-600 focus:outline-none"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">
-                    Status Keaktifan
-                  </label>
-                  <select
-                    value={formStatus}
-                    onChange={(e) => setFormStatus(e.target.value as "Aktif" | "Cuti" | "Nonaktif")}
-                    className="w-full px-3 py-2 text-xs border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-600 focus:outline-none font-medium"
-                  >
-                    <option value="Aktif">Aktif</option>
-                    <option value="Cuti">Cuti</option>
-                    <option value="Nonaktif">Nonaktif</option>
-                  </select>
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1.5">
-                  Mata Pelajaran (Klik untuk pilih) *
-                </label>
-                <div className="flex flex-wrap gap-1.5">
-                  {DAFTAR_MAPEL.map((m) => {
-                    const isSelected = formMapel.includes(m);
-                    return (
-                      <button
-                        type="button"
-                        key={m}
-                        onClick={() =>
-                          setFormMapel((prev) =>
-                            prev.includes(m) ? prev.filter((i) => i !== m) : [...prev, m]
-                          )
-                        }
-                        className={`px-2.5 py-1 text-xs rounded-md font-medium border ${
-                          isSelected
-                            ? "bg-slate-900 text-white border-slate-900"
-                            : "bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100"
-                        }`}
-                      >
-                        {m}
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-
-              <div className="pt-2 border-t border-slate-100 flex items-center justify-end gap-2">
-                <button
-                  type="button"
-                  onClick={() => setIsPengajarModalOpen(false)}
-                  className="px-4 py-2 text-xs font-medium text-slate-600 hover:bg-slate-100 rounded-lg"
-                >
-                  Batal
-                </button>
-                <button
-                  type="submit"
-                  disabled={submittingPengajar}
-                  className="px-4 py-2 text-xs font-semibold text-white bg-slate-900 hover:bg-slate-800 rounded-lg shadow-xs disabled:opacity-50"
-                >
-                  {submittingPengajar ? "Menyimpan..." : "Simpan Data"}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* Modal Terbitkan Jadwal Baru */}
-      {isJadwalModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40">
-          <div className="bg-white rounded-2xl border border-slate-200 shadow-xl w-full max-w-lg overflow-hidden">
-            <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
-              <h2 className="font-semibold text-slate-900 text-sm">Terbitkan Jadwal Kelas Baru</h2>
-              <button
-                type="button"
-                onClick={() => setIsJadwalModalOpen(false)}
-                className="w-7 h-7 flex items-center justify-center text-slate-400 hover:text-slate-700 rounded-lg hover:bg-slate-100 text-xs font-bold"
-              >
-                ✕
-              </button>
+              </footer>
             </div>
-
-            <form onSubmit={handleSubmitJadwal} className="p-5 space-y-4 max-h-[80vh] overflow-y-auto">
-              {errorJadwal && (
-                <div className="p-3 text-xs bg-red-50 text-red-700 rounded-lg border border-red-200 font-medium">
-                  {errorJadwal}
-                </div>
-              )}
-
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">
-                  Nama Rombongan Belajar / Kelas *
-                </label>
-                <input
-                  type="text"
-                  required
-                  placeholder="Contoh: Kelas 12 Intensif UTBK Sains"
-                  value={jadwalNamaKelas}
-                  onChange={(e) => setJadwalNamaKelas(e.target.value)}
-                  className="w-full px-3 py-2 text-xs border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-600 focus:outline-none"
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">
-                    Mata Pelajaran
-                  </label>
-                  <select
-                    value={jadwalMapel}
-                    onChange={(e) => setJadwalMapel(e.target.value)}
-                    className="w-full px-3 py-2 text-xs border border-slate-200 rounded-lg"
-                  >
-                    {DAFTAR_MAPEL.map((m) => (
-                      <option key={m} value={m}>
-                        {m}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Jenjang</label>
-                  <select
-                    value={jadwalJenjang}
-                    onChange={(e) => setJadwalJenjang(e.target.value)}
-                    className="w-full px-3 py-2 text-xs border border-slate-200 rounded-lg"
-                  >
-                    {DAFTAR_JENJANG.map((j) => (
-                      <option key={j} value={j}>
-                        {j}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">
-                  Pilih Tutor Penanggung Jawab *
-                </label>
-                <select
-                  value={jadwalPengajarId}
-                  onChange={(e) => setJadwalPengajarId(e.target.value)}
-                  className="w-full px-3 py-2 text-xs border border-slate-200 rounded-lg font-medium"
-                >
-                  {pengajarList.map((p) => (
-                    <option key={p._id} value={p._id}>
-                      {p.nama} ({p.mataPelajaran.join(", ")})
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="grid grid-cols-3 gap-3">
-                <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Hari</label>
-                  <select
-                    value={jadwalHari}
-                    onChange={(e) => setJadwalHari(e.target.value)}
-                    className="w-full px-3 py-2 text-xs border border-slate-200 rounded-lg"
-                  >
-                    {DAFTAR_HARI.map((h) => (
-                      <option key={h} value={h}>
-                        {h}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Mulai</label>
-                  <input
-                    type="time"
-                    required
-                    value={jadwalMulai}
-                    onChange={(e) => setJadwalMulai(e.target.value)}
-                    className="w-full px-3 py-2 text-xs border border-slate-200 rounded-lg font-mono"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Selesai</label>
-                  <input
-                    type="time"
-                    required
-                    value={jadwalSelesai}
-                    onChange={(e) => setJadwalSelesai(e.target.value)}
-                    className="w-full px-3 py-2 text-xs border border-slate-200 rounded-lg font-mono"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">
-                    Ruangan / Link
-                  </label>
-                  <input
-                    type="text"
-                    value={jadwalRuangan}
-                    onChange={(e) => setJadwalRuangan(e.target.value)}
-                    className="w-full px-3 py-2 text-xs border border-slate-200 rounded-lg"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Moda</label>
-                  <select
-                    value={jadwalModa}
-                    onChange={(e) => setJadwalModa(e.target.value as "Online" | "Offline")}
-                    className="w-full px-3 py-2 text-xs border border-slate-200 rounded-lg"
-                  >
-                    <option value="Offline">Tatap Muka (Offline)</option>
-                    <option value="Online">Daring (Online)</option>
-                  </select>
-                </div>
-              </div>
-
-              <div className="pt-2 border-t border-slate-100 flex items-center justify-end gap-2">
-                <button
-                  type="button"
-                  onClick={() => setIsJadwalModalOpen(false)}
-                  className="px-4 py-2 text-xs font-medium text-slate-600 hover:bg-slate-100 rounded-lg"
-                >
-                  Batal
-                </button>
-                <button
-                  type="submit"
-                  disabled={submittingJadwal}
-                  className="px-4 py-2 text-xs font-semibold text-white bg-slate-900 hover:bg-slate-800 rounded-lg shadow-xs disabled:opacity-50"
-                >
-                  {submittingJadwal ? "Menerbitkan..." : "Terbitkan Jadwal"}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-    </div>
-  );
+            );
 }

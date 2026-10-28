@@ -39,3 +39,7 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+prd/AGENTS.md
+prd/GEMINI.md
+prd/planning_keinginan_klien.md
+prd/PRD.md

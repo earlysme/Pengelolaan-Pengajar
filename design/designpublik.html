@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+
+<html lang="id">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <meta content="web_standard" name="shell-type" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"
+        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=Newsreader:wght@100..900&display=swap"
+        rel="stylesheet" />
+    <style>
+        @layer base {
+
+            html,
+            body {
+                margin: 0;
+                padding: 0;
+            }
+
+            body {
+                overscroll-behavior: none;
+            }
+
+            main>:first-child {
+                margin-top: 0 !important;
+            }
+
+            main>:last-child {
+                margin-bottom: 0 !important;
+            }
+        }
+
+        ::-webkit-scrollbar {
+            display: none;
+        }
+    </style>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script
+        id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { "colors": { "background": "#faf9f7", "surface-variant": "#e3e2e0", "tertiary-container": "#1c1b1a", "on-primary": "#ffffff", "tertiary-fixed": "#e6e1df", "on-tertiary-fixed": "#1c1b1a", "surface-container-highest": "#e3e2e0", "surface": "#faf9f7", "on-secondary-container": "#67645f", "surface-container-high": "#e9e8e6", "surface-dim": "#dadad8", "secondary-fixed-dim": "#cac6c0", "on-secondary-fixed-variant": "#494642", "error-container": "#ffdad6", "primary-fixed": "#e5e2e1", "on-surface": "#1a1c1b", "on-error": "#ffffff", "on-secondary": "#ffffff", "surface-container-lowest": "#ffffff", "inverse-primary": "#c8c6c5", "on-error-container": "#93000a", "on-secondary-fixed": "#1d1b18", "surface-bright": "#faf9f7", "secondary-container": "#e7e2db", "outline-variant": "#c4c7c7", "primary-fixed-dim": "#c8c6c5", "on-surface-variant": "#444748", "on-tertiary-fixed-variant": "#484645", "tertiary-fixed-dim": "#cac6c3", "on-primary-fixed": "#1c1b1b", "inverse-surface": "#2f3130", "on-primary-fixed-variant": "#474646", "primary": "#000000", "on-background": "#1a1c1b", "on-tertiary": "#ffffff", "on-tertiary-container": "#868381", "surface-tint": "#5f5e5e", "secondary-fixed": "#e7e2db", "inverse-on-surface": "#f1f1ef", "surface-container-low": "#f4f3f1", "secondary": "#615e59", "on-primary-container": "#858383", "tertiary": "#000000", "error": "#ba1a1a", "primary-container": "#1c1b1b", "outline": "#747878", "surface-container": "#efeeec" }, "borderRadius": { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" }, "spacing": { "space-xs": "0.25rem", "space-md": "1rem", "space-xl": "2.5rem", "gutter-mobile": "1rem", "gutter": "1.5rem", "space-lg": "1.5rem", "margin": "3rem", "margin-mobile": "1.25rem", "space-sm": "0.5rem" }, "fontFamily": { "body-md": ["Inter"], "headline-md": ["Newsreader"], "body-sm": ["Inter"], "body-lg": ["Inter"], "headline-xl-mobile": ["Newsreader"], "headline-lg": ["Newsreader"], "label-md": ["Inter"], "headline-xl": ["Newsreader"], "label-sm": ["Inter"] }, "fontSize": { "body-md": ["0.9375rem", { "lineHeight": "1.5", "letterSpacing": "0", "fontWeight": "400" }], "headline-md": ["1.75rem", { "lineHeight": "1.25", "letterSpacing": "-0.01em", "fontWeight": "400" }], "body-sm": ["0.8125rem", { "lineHeight": "1.45", "letterSpacing": "0.01em", "fontWeight": "400" }], "body-lg": ["1.125rem", { "lineHeight": "1.6", "letterSpacing": "-0.01em", "fontWeight": "400" }], "headline-xl-mobile": ["2.25rem", { "lineHeight": "1.2", "letterSpacing": "-0.015em", "fontWeight": "400" }], "headline-lg": ["2.5rem", { "lineHeight": "1.2", "letterSpacing": "-0.015em", "fontWeight": "400" }], "label-md": ["0.875rem", { "lineHeight": "1.2", "letterSpacing": "0.005em", "fontWeight": "600" }], "headline-xl": ["3.5rem", { "lineHeight": "1.15", "letterSpacing": "-0.02em", "fontWeight": "400" }], "label-sm": ["0.75rem", { "lineHeight": "1.2", "letterSpacing": "0.02em", "fontWeight": "500" }] } } } };</script>
+</head>
+
+<body
+    class="bg-surface font-body-md text-on-surface antialiased selection:bg-surface-variant selection:text-on-surface">
+    <header class="fixed top-0 w-full z-50 bg-surface/85 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)]">
+        <div class="h-20 max-w-7xl mx-auto px-6 lg:px-12 flex items-center justify-between gap-6"><a
+                class="flex items-center gap-2.5 transition-opacity hover:opacity-80" data-path="beranda" href="#"><span
+                    class="material-symbols-outlined text-primary text-[22px]">flare</span><span
+                    class="font-headline-md text-headline-md tracking-tight text-on-surface select-none">Lentera
+                    Belajar</span></a>
+            <nav class="hidden lg:flex items-center gap-8"
+                data-active-classes="text-on-surface font-medium border-b-2 border-primary"><a
+                    class="font-label-md text-label-md text-on-surface-variant hover:text-on-surface transition-colors py-1"
+                    data-path="beranda" href="#">Beranda</a><a aria-current="page"
+                    class="transition-colors py-1 text-on-surface font-medium border-b-2 border-primary"
+                    data-path="pengajar" href="#">Pengajar</a><a
+                    class="font-label-md text-label-md text-on-surface-variant hover:text-on-surface transition-colors py-1"
+                    data-path="program" href="#">Program</a><a
+                    class="font-label-md text-label-md text-on-surface-variant hover:text-on-surface transition-colors py-1"
+                    data-path="biaya" href="#">Biaya</a><a
+                    class="font-label-md text-label-md text-on-surface-variant hover:text-on-surface transition-colors py-1"
+                    data-path="filosofi" href="#">Filosofi</a><a
+                    class="font-label-md text-label-md text-on-surface-variant hover:text-on-surface transition-colors py-1"
+                    data-path="tentang-kami" href="#">Tentang Kami</a></nav>
+            <div class="flex items-center gap-5"><a
+                    class="font-label-md text-label-md text-on-surface-variant hover:text-on-surface transition-colors px-2 py-1"
+                    data-path="masuk" href="#">Masuk</a><a
+                    class="inline-flex items-center justify-center bg-primary text-on-primary font-label-md text-label-md px-5 py-2.5 rounded-full hover:bg-on-surface-variant transition-colors shadow-[0_2px_8px_rgba(0,0,0,0.06)]"
+                    data-path="konsultasi-gratis" href="#">Konsultasi Gratis</a>
+                <div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center shrink-0"><span
+                        class="material-symbols-outlined text-on-primary text-[18px]">person</span></div>
+            </div>
+        </div>
+    </header>
+    <main class="w-full pt-20 bg-surface">
+        <div class="flex flex-col w-full">
+            <!-- Top Editorial Header & Filters Section -->
+            <section class="w-full max-w-7xl mx-auto px-6 lg:px-12 pt-16 pb-12 flex flex-col items-center text-center">
+                <!-- Overline Metric Pill -->
+                <div
+                    class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-surface-container-high text-on-surface-variant font-label-sm text-label-sm shadow-sm mb-6">
+                    <span class="inline-block w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></span>
+                    <span>Kurasi Pengajar Terakreditasi 2025</span>
+                </div>
+                <!-- Centered Editorial Headline matching the reference with italicized serif accent -->
+                <h1
+                    class="font-headline-xl text-headline-xl lg:text-[4rem] text-on-surface max-w-4xl tracking-tight leading-[1.1] mb-5">
+                    Kenali pengajar yang membuat <span
+                        class="italic font-headline-xl font-normal text-on-surface">keajaiban belajar</span> terjadi
+                </h1>
+                <!-- Descriptive Subtitle -->
+                <p class="font-body-lg text-body-lg text-on-surface-variant max-w-2xl mx-auto mb-10 leading-relaxed">
+                    Tim pendidik kuratorial lulusan almamater terkemuka, peraih medali olimpiade, dan mentor berdedikasi
+                    yang membimbing potensi setiap siswa dengan ketenangan dan ketepatan.
+                </p>
+                <!-- Centered Segmented Filter Bar -->
+                <div class="w-full flex items-center justify-center overflow-x-auto no-scrollbar py-2">
+                    <div
+                        class="inline-flex items-center gap-1.5 p-1.5 rounded-full bg-surface-container-high/80 shadow-sm backdrop-blur-md max-w-full">
+                        <button
+                            class="filter-btn px-4 py-2 rounded-full font-label-md text-label-md transition-all duration-200 bg-surface-container-lowest text-on-surface shadow-sm font-medium"
+                            data-filter="all" type="button">
+                            Semua Pengajar
+                        </button>
+                        <button
+                            class="filter-btn px-4 py-2 rounded-full font-label-md text-label-md transition-all duration-200 text-on-surface-variant hover:text-on-surface"
+                            data-filter="mipa" type="button">
+                            MIPA & UTBK
+                        </button>
+                        <button
+                            class="filter-btn px-4 py-2 rounded-full font-label-md text-label-md transition-all duration-200 text-on-surface-variant hover:text-on-surface"
+                            data-filter="bahasa" type="button">
+                            Bahasa & Literasi
+                        </button>
+                        <button
+                            class="filter-btn px-4 py-2 rounded-full font-label-md text-label-md transition-all duration-200 text-on-surface-variant hover:text-on-surface"
+                            data-filter="kedokteran" type="button">
+                            Kedokteran & Sains
+                        </button>
+                        <button
+                            class="filter-btn px-4 py-2 rounded-full font-label-md text-label-md transition-all duration-200 text-on-surface-variant hover:text-on-surface"
+                            data-filter="soshum" type="button">
+                            Sosial & Humaniora
+                        </button>
+                        <button
+                            class="filter-btn px-4 py-2 rounded-full font-label-md text-label-md transition-all duration-200 text-on-surface-variant hover:text-on-surface"
+                            data-filter="psikologi" type="button">
+                            Konselor Belajar
+                        </button>
+                    </div>
+                </div>
+            </section>
+            <!-- 4-Column Portrait Cards Grid (Direct Reference Adaptation) -->
+            <section class="w-full max-w-7xl mx-auto px-6 lg:px-12 pb-20">
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6" id="tutor-grid">
+                    <!-- Tutor Card 1 -->
+                    <article
+                        class="tutor-card group relative bg-surface-container-lowest rounded-3xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col"
+                        data-category="mipa">
+                        <div class="relative w-full aspect-[4/5] bg-surface-container overflow-hidden">
+                            <img class="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500 ease-out"
+                                data-alt="Editorial close-up studio portrait of Dr. Hendra Wijaya, an Indonesian male educator in his late 30s with gentle smiling expression, neat minimal linen shirt, soft natural ambient warm ivory studio background, high-end magazine photography, realistic warm skin tones."
+                                src="https://lh3.googleusercontent.com/aida-public/AB6AXuCPSslSYYnfoV2BdHniraBvf-zFTY0_nnKDvhTyDKr-ePxazX-evrLx9wkLIMu0JmsGzBaNJV08G9BbP71H_bY_x70-6a470DOucz6qd81hdQe2fZkfE_9-kHxHKatJzcVMLQR_jtPJ2AlYAehZ1HU5QK2otmJ_KLN4NOpZfPAH9yhBkrG4P1PWOi7WdWCPGob4JPR1d0_-M5DebT8wLuTYErUmYzDEpBDERMac1Xm3" />
+                            <div
+                                class="absolute top-3.5 right-3.5 bg-surface-container-lowest/90 backdrop-blur-md px-2.5 py-1 rounded-full flex items-center gap-1 shadow-sm">
+                                <span class="material-symbols-outlined text-primary text-[15px]"
+                                    style="font-variation-settings: 'FILL' 1;">star</span>
+                                <span class="font-label-sm text-label-sm text-on-surface font-semibold">4.98</span>
+                            </div>
+                            <!-- Floating Pill Badge Nestled at Bottom -->
+                            <div
+                                class="absolute inset-x-3 bottom-3 p-3 rounded-2xl bg-surface-container-lowest/95 backdrop-blur-md shadow-md text-center transition-transform duration-300 group-hover:-translate-y-1">
+                                <h3 class="font-label-md text-label-md text-on-surface font-semibold truncate">Dr.
+                                    Hendra Wijaya</h3>
+                                <p class="font-body-sm text-body-sm text-on-surface-variant truncate mt-0.5">Kepala
+                                    Kurikulum & Fisika ITB</p>
+                            </div>
+                        </div>
+                        <div class="p-4 flex items-center justify-between bg-surface-container-lowest">
+                            <div class="flex items-center gap-1.5 text-on-surface-variant font-label-sm text-label-sm">
+                                <span class="material-symbols-outlined text-[16px] text-primary">school</span>
+                                <span>Alumni ITB • 9 Thn</span>
+                            </div>
+                            <a class="font-label-sm text-label-sm text-primary hover:text-secondary flex items-center gap-0.5 font-medium"
+                                href="#">
+                                Jadwal
+                                <span class="material-symbols-outlined text-[14px]">arrow_forward</span>
+                            </a>
+                        </div>
+                    </article>
+                    <!-- Tutor Card 2 -->
+                    <article
+                        class="tutor-card group relative bg-surface-container-lowest rounded-3xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col"
+                        data-category="mipa">
+                        <div class="relative w-full aspect-[4/5] bg-surface-container overflow-hidden">
+                            <img class="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500 ease-out"
+                                data-alt="Editorial portrait of Dra. Ratna Kartika, an Indonesian female master teacher in her early 30s with a warm welcoming smile and tortoiseshell glasses, neutral beige knit sweater, soft warm cream background, high-end educational aesthetic."
+                                src="https://lh3.googleusercontent.com/aida-public/AB6AXuBLORKz5cdb-b6Sr6iQlkZnWwaR4Wien9clgtQ_4naSaUQAyFF1M8VRzvd4ctrFL2I_zTWxbLy5l5Be2KsLfTDWB7RHoLTzkIehkUjMz5Pi-XHPSSRcgpn7QWLovBwA1xpaK90HqTOVA18yW6RiEP0Vg3HsYK5_eEp3N1eRwIlGmWLylsqJI97PY9sbsTThI-kln8L1bQqnIF1Tlm_hMUHIHdd59EEZ1WrVvP_G7ndK" />
+                            <div
+                                class="absolute top-3.5 right-3.5 bg-surface-container-lowest/90 backdrop-blur-md px-2.5 py-1 rounded-full flex items-center gap-1 shadow-sm">
+                                <span class="material-symbols-outlined text-primary text-[15px]"
+                                    style="font-variation-settings: 'FILL' 1;">star</span>
+                                <span class="font-label-sm text-label-sm text-on-surface font-semibold">5.0</span>
+                            </div>
+                            <!-- Floating Pill Badge Nestled at Bottom -->
+                            <div
+                                class="absolute inset-x-3 bottom-3 p-3 rounded-2xl bg-surface-container-lowest/95 backdrop-blur-md shadow-md text-center transition-transform duration-300 group-hover:-translate-y-1">
+                                <h3 class="font-label-md text-label-md text-on-surface font-semibold truncate">Dra.
+                                    Ratna Kartika, M.Pd.</h3>
+                                <p class="font-body-sm text-body-sm text-on-surface-variant truncate mt-0.5">Master
+                                    Tutor Kimia & UTBK UI</p>
+                            </div>
+                        </div>
+                        <div class="p-4 flex items-center justify-between bg-surface-container-lowest">
+                            <div class="flex items-center gap-1.5 text-on-surface-variant font-label-sm text-label-sm">
+                                <span class="material-symbols-outlined text-[16px] text-primary">school</span>
+                                <span>Alumni UI • 11 Thn</span>
+                            </div>
+                            <a class="font-label-sm text-label-sm text-primary hover:text-secondary flex items-center gap-0.5 font-medium"
+                                href="#">
+                                Jadwal
+                                <span class="material-symbols-outlined text-[14px]">arrow_forward</span>
+                            </a>
+                        </div>
+                    </article>
+                    <!-- Tutor Card 3 -->
+                    <article
+                        class="tutor-card group relative bg-surface-container-lowest rounded-3xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col"
+                        data-category="mipa">
+                        <div class="relative w-full aspect-[4/5] bg-surface-container overflow-hidden">
+                            <img class="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500 ease-out"
+                                data-alt="Modern studio portrait of Kevin Pratama, a young Indonesian male mathematics tutor in his late 20s with charming friendly smile, crisp white casual t-shirt, clean neutral paper studio lighting, elegant contemporary editorial vibe."
+                                src="https://lh3.googleusercontent.com/aida-public/AB6AXuAMzpCwKO7dTXYJHybvMdaPcbeAiwkqw2shc9nkAkY6HpOuanEnWPOUAvIAZqtGdtb7zHGoEHTMjra-MHJ5KcgidGvYixdUooSScyKxPc9qPcXWSEhigbVrOlNyh0c2inmxj6Rxvv27wCjvjozEJkSZJzs2pD9AgnBax2xFI48VUkpQZX_OEGJA8hi0iOI26MjM7CA8Ytit4e4wnvcTv-SOUB5ZJXr-qzHXD7t6KY4M" />
+                            <div
+                                class="absolute top-3.5 right-3.5 bg-surface-container-lowest/90 backdrop-blur-md px-2.5 py-1 rounded-full flex items-center gap-1 shadow-sm">
+                                <span class="material-symbols-outlined text-primary text-[15px]"
+                                    style="font-variation-settings: 'FILL' 1;">star</span>
+                                <span class="font-label-sm text-label-sm text-on-surface font-semibold">4.97</span>
+                            </div>
+                            <!-- Floating Pill Badge Nestled at Bottom -->
+                            <div
+                                class="absolute inset-x-3 bottom-3 p-3 rounded-2xl bg-surface-container-lowest/95 backdrop-blur-md shadow-md text-center transition-transform duration-300 group-hover:-translate-y-1">
+                                <h3 class="font-label-md text-label-md text-on-surface font-semibold truncate">Kevin
+                                    Pratama, M.Mat.</h3>
+                                <p class="font-body-sm text-body-sm text-on-surface-variant truncate mt-0.5">Medalis
+                                    Emas OSN Matematika</p>
+                            </div>
+                        </div>
+                        <div class="p-4 flex items-center justify-between bg-surface-container-lowest">
+                            <div class="flex items-center gap-1.5 text-on-surface-variant font-label-sm text-label-sm">
+                                <span class="material-symbols-outlined text-[16px] text-primary">school</span>
+                                <span>Alumni ITB • 6 Thn</span>
+                            </div>
+                            <a class="font-label-sm text-label-sm text-primary hover:text-secondary flex items-center gap-0.5 font-medium"
+                                href="#">
+                                Jadwal
+                                <span class="material-symbols-outlined text-[14px]">arrow_forward</span>
+                            </a>
+                        </div>
+                    </article>
+                    <!-- Tutor Card 4 -->
+                    <article
+                        class="tutor-card group relative bg-surface-container-lowest rounded-3xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col"
+                        data-category="kedokteran">
+                        <div class="relative w-full aspect-[4/5] bg-surface-container overflow-hidden">
+                            <img class="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500 ease-out"
+                                data-alt="Natural portrait of drg. Nadia Safira, young Southeast Asian medical educator with warm confident smile, hair neatly tied back, soft sand tone background, clean contemporary medical academy portrait."
+                                src="https://lh3.googleusercontent.com/aida-public/AB6AXuAGuy447MXo2kjeNpyEMYzbakob825Ov0Mzr_AoHY7OF_8T2utmJMn4Yjvwfk2omND1BUp8TVfh9O2d8g659-O6PUbvZNDrvhzocBSnd0DD5jZHWL-CnCtwqqME0VF_r11X5NDgbQuqm4qxP7DZRjLsqNP7FbMY6OS_UvVOEbFwjvfqKL_RY5E6TBS8_nWBJa9WHSjPEsj6izlX_ClmQCkOwtDdw1skYZ1UtxK_qMWB" />
+                            <div
+                                class="absolute top-3.5 right-3.5 bg-surface-container-lowest/90 backdrop-blur-md px-2.5 py-1 rounded-full flex items-center gap-1 shadow-sm">
+                                <span class="material-symbols-outlined text-primary text-[15px]"
+                                    style="font-variation-settings: 'FILL' 1;">star</span>
+                                <span class="font-label-sm text-label-sm text-on-surface font-semibold">4.99</span>
+                            </div>
+                            <!-- Floating Pill Badge Nestled at Bottom -->
+                            <div
+                                class="absolute inset-x-3 bottom-3 p-3 rounded-2xl bg-surface-container-lowest/95 backdrop-blur-md shadow-md text-center transition-transform duration-300 group-hover:-translate-y-1">
+                                <h3 class="font-label-md text-label-md text-on-surface font-semibold truncate">drg.
+                                    Nadia Safira, S.KG.</h3>
+                                <p class="font-body-sm text-body-sm text-on-surface-variant truncate mt-0.5">Mentor
+                                    Masuk Kedokteran FKG UI</p>
+                            </div>
+                        </div>
+                        <div class="p-4 flex items-center justify-between bg-surface-container-lowest">
+                            <div class="flex items-center gap-1.5 text-on-surface-variant font-label-sm text-label-sm">
+                                <span class="material-symbols-outlined text-[16px] text-primary">school</span>
+                                <span>FKG UI • 5 Thn</span>
+                            </div>
+                            <a class="font-label-sm text-label-sm text-primary hover:text-secondary flex items-center gap-0.5 font-medium"
+                                href="#">
+                                Jadwal
+                                <span class="material-symbols-outlined text-[14px]">arrow_forward</span>
+                            </a>
+                        </div>
+                    </article>
+                    <!-- Tutor Card 5 -->
+                    <article
+                        class="tutor-card group relative bg-surface-container-lowest rounded-3xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col"
+                        data-category="bahasa">
+                        <div class="relative w-full aspect-[4/5] bg-surface-container overflow-hidden">
+                            <img class="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500 ease-out"
+                                data-alt="Editorial portrait of Sarah Elizabeth, MA, language tutor with gentle intelligent demeanor, mustard textured cardigan, warm beige clean studio background, literary aesthetic, soft studio lighting."
+                                src="https://lh3.googleusercontent.com/aida-public/AB6AXuBm0XBC9ojBinLHY1otLK2OkdrHFXr8DYPkcDfiN6for5hQho4p_kjv-GxtOyjQBVExdKe1_bVh9cII47Ozvye8W3vaRgppWaqiDySMg6aPE2qhLTlMUcMQHZPJ1v1OsghQwrozQYswyytWJVFLm_JRBbYt7yYA-io24srTjjNKkRvfmqd3f_jFGiVhi6h7Stx8N8w0da3rpblGeYuqNeX_Sh3How3nw055w21s83M4" />
+                            <div
+                                class="absolute top-3.5 right-3.5 bg-surface-container-lowest/90 backdrop-blur-md px-2.5 py-1 rounded-full flex items-center gap-1 shadow-sm">
+                                <span class="material-symbols-outlined text-primary text-[15px]"
+                                    style="font-variation-settings: 'FILL' 1;">star</span>
+                                <span class="font-label-sm text-label-sm text-on-surface font-semibold">4.95</span>
+                            </div>
+                            <!-- Floating Pill Badge Nestled at Bottom -->
+                            <div
+                                class="absolute inset-x-3 bottom-3 p-3 rounded-2xl bg-surface-container-lowest/95 backdrop-blur-md shadow-md text-center transition-transform duration-300 group-hover:-translate-y-1">
+                                <h3 class="font-label-md text-label-md text-on-surface font-semibold truncate">Sarah
+                                    Elizabeth, M.A.</h3>
+                                <p class="font-body-sm text-body-sm text-on-surface-variant truncate mt-0.5">Master
+                                    Bahasa Inggris & IELTS UGM</p>
+                            </div>
+                        </div>
+                        <div class="p-4 flex items-center justify-between bg-surface-container-lowest">
+                            <div class="flex items-center gap-1.5 text-on-surface-variant font-label-sm text-label-sm">
+                                <span class="material-symbols-outlined text-[16px] text-primary">school</span>
+                                <span>Alumni UGM • 8 Thn</span>
+                            </div>
+                            <a class="font-label-sm text-label-sm text-primary hover:text-secondary flex items-center gap-0.5 font-medium"
+                                href="#">
+                                Jadwal
+                                <span class="material-symbols-outlined text-[14px]">arrow_forward</span>
+                            </a>
+                        </div>
+                    </article>
+                    <!-- Tutor Card 6 -->
+                    <article
+                        class="tutor-card group relative bg-surface-container-lowest rounded-3xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col"
+                        data-category="soshum">
+                        <div class="relative w-full aspect-[4/5] bg-surface-container overflow-hidden">
+                            <img class="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500 ease-out"
+                                data-alt="Studio portrait of Rizky Ramadhan, an Indonesian male tutor with round eyeglasses and a warm smile, casual dark blue shirt, pure light neutral background, high resolution portrait style."
+                                src="https://lh3.googleusercontent.com/aida-public/AB6AXuBihIIL8OHDv5plKshRoJYK1h8E6mH-_SV-pcRqOQizylclRjYdzHU87cfPChGSahQvPDlCpLka4EOTuC4DWpbiFiKZ9RkRcfYUg8hKjuSdoTmg-ZCPcA_T2rgwY5nfcOuqxFxovOejirXrJR814WfLGYzchJcohDJqXPDm-yEuF4r51O2OaooAa_VCbWqdjzoD3uZPTnUuWX8xTakgJ4K_HUvI3pTem2Gh3O34ORjU" />
+                            <div
+                                class="absolute top-3.5 right-3.5 bg-surface-container-lowest/90 backdrop-blur-md px-2.5 py-1 rounded-full flex items-center gap-1 shadow-sm">
+                                <span class="material-symbols-outlined text-primary text-[15px]"
+                                    style="font-variation-settings: 'FILL' 1;">star</span>
+                                <span class="font-label-sm text-label-sm text-on-surface font-semibold">4.96</span>
+                            </div>
+                            <!-- Floating Pill Badge Nestled at Bottom -->
+                            <div
+                                class="absolute inset-x-3 bottom-3 p-3 rounded-2xl bg-surface-container-lowest/95 backdrop-blur-md shadow-md text-center transition-transform duration-300 group-hover:-translate-y-1">
+                                <h3 class="font-label-md text-label-md text-on-surface font-semibold truncate">Rizky
+                                    Ramadhan, S.E.</h3>
+                                <p class="font-body-sm text-body-sm text-on-surface-variant truncate mt-0.5">Ekonomi &
+                                    SIMAK UI Spesialis</p>
+                            </div>
+                        </div>
+                        <div class="p-4 flex items-center justify-between bg-surface-container-lowest">
+                            <div class="flex items-center gap-1.5 text-on-surface-variant font-label-sm text-label-sm">
+                                <span class="material-symbols-outlined text-[16px] text-primary">school</span>
+                                <span>FEB UI • 7 Thn</span>
+                            </div>
+                            <a class="font-label-sm text-label-sm text-primary hover:text-secondary flex items-center gap-0.5 font-medium"
+                                href="#">
+                                Jadwal
+                                <span class="material-symbols-outlined text-[14px]">arrow_forward</span>
+                            </a>
+                        </div>
+                    </article>
+                    <!-- Tutor Card 7 -->
+                    <article
+                        class="tutor-card group relative bg-surface-container-lowest rounded-3xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col"
+                        data-category="psikologi">
+                        <div class="relative w-full aspect-[4/5] bg-surface-container overflow-hidden">
+                            <img class="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500 ease-out"
+                                data-alt="Gentle portrait of Fadhila Anindita, an Indonesian female educational psychologist with soft empathetic expression, dark wavy hair, warm linen collared shirt, studio warm cream background."
+                                src="https://lh3.googleusercontent.com/aida-public/AB6AXuAbSN3hI6xayPEzaRiXUdNW04vN7yHtSBSJxZ24Eqlr-i45aDoRaA8iOQGwfJFlIloGvP14s49Hmj34_2oEx1k7MzTczima3IzGp2TVmCnzkVsZoqoNHUIQ5CKQiGj1XC7S5HvSohdATcS06cXqh7ZpQb1DjXEYx76_-aFsY_fUSxA8m50H9p_rMneLe9apXNB-HCW_i5txrO_sjdJPBnCltpCOe2RYxQyu1LShV4yo" />
+                            <div
+                                class="absolute top-3.5 right-3.5 bg-surface-container-lowest/90 backdrop-blur-md px-2.5 py-1 rounded-full flex items-center gap-1 shadow-sm">
+                                <span class="material-symbols-outlined text-primary text-[15px]"
+                                    style="font-variation-settings: 'FILL' 1;">star</span>
+                                <span class="font-label-sm text-label-sm text-on-surface font-semibold">5.0</span>
+                            </div>
+                            <!-- Floating Pill Badge Nestled at Bottom -->
+                            <div
+                                class="absolute inset-x-3 bottom-3 p-3 rounded-2xl bg-surface-container-lowest/95 backdrop-blur-md shadow-md text-center transition-transform duration-300 group-hover:-translate-y-1">
+                                <h3 class="font-label-md text-label-md text-on-surface font-semibold truncate">Fadhila
+                                    Anindita, M.Psi.</h3>
+                                <p class="font-body-sm text-body-sm text-on-surface-variant truncate mt-0.5">Psikolog
+                                    Pendampingan Belajar</p>
+                            </div>
+                        </div>
+                        <div class="p-4 flex items-center justify-between bg-surface-container-lowest">
+                            <div class="flex items-center gap-1.5 text-on-surface-variant font-label-sm text-label-sm">
+                                <span class="material-symbols-outlined text-[16px] text-primary">psychology</span>
+                                <span>Psikologi UI • 6 Thn</span>
+                            </div>
+                            <a class="font-label-sm text-label-sm text-primary hover:text-secondary flex items-center gap-0.5 font-medium"
+                                href="#">
+                                Konseling
+                                <span class="material-symbols-outlined text-[14px]">arrow_forward</span>
+                            </a>
+                        </div>
+                    </article>
+                    <!-- Tutor Card 8 -->
+                    <article
+                        class="tutor-card group relative bg-surface-container-lowest rounded-3xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col"
+                        data-category="mipa">
+                        <div class="relative w-full aspect-[4/5] bg-surface-container overflow-hidden">
+                            <img class="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500 ease-out"
+                                data-alt="Clean corporate portrait of Bagas Pratama, an Indonesian male educator in elegant black blazer over white crewneck, poised and confident smiling expression, neutral studio background."
+                                src="https://lh3.googleusercontent.com/aida-public/AB6AXuBCTi8bN5APIh7vXalz2gT3e_2KG33lMKwXWg5u5eOnPByHw7TZX6zncgYC40_uMA8lVBNJz0yJb3GtIko9yVzivDgRKt_sDlrHMbptxQBwi39PgnDtLd02jlWQeLwkVkikPNo7Abeih5aE5rM8vmkNam4XStknrWbB2IszE_s4C7j8VwzCAZ7PJxvxVGuBy3VmwPLkiFUwt1pmuWLZtWGbsA0PMem8zV0FCcpFUR8t" />
+                            <div
+                                class="absolute top-3.5 right-3.5 bg-surface-container-lowest/90 backdrop-blur-md px-2.5 py-1 rounded-full flex items-center gap-1 shadow-sm">
+                                <span class="material-symbols-outlined text-primary text-[15px]"
+                                    style="font-variation-settings: 'FILL' 1;">star</span>
+                                <span class="font-label-sm text-label-sm text-on-surface font-semibold">4.97</span>
+                            </div>
+                            <!-- Floating Pill Badge Nestled at Bottom -->
+                            <div
+                                class="absolute inset-x-3 bottom-3 p-3 rounded-2xl bg-surface-container-lowest/95 backdrop-blur-md shadow-md text-center transition-transform duration-300 group-hover:-translate-y-1">
+                                <h3 class="font-label-md text-label-md text-on-surface font-semibold truncate">Bagas
+                                    Pratama, S.Si.</h3>
+                                <p class="font-body-sm text-body-sm text-on-surface-variant truncate mt-0.5">Biologi
+                                    Terapan & Kedokteran Unair</p>
+                            </div>
+                        </div>
+                        <div class="p-4 flex items-center justify-between bg-surface-container-lowest">
+                            <div class="flex items-center gap-1.5 text-on-surface-variant font-label-sm text-label-sm">
+                                <span class="material-symbols-outlined text-[16px] text-primary">school</span>
+                                <span>Alumni Unair • 5 Thn</span>
+                            </div>
+                            <a class="font-label-sm text-label-sm text-primary hover:text-secondary flex items-center gap-0.5 font-medium"
+                                href="#">
+                                Jadwal
+                                <span class="material-symbols-outlined text-[14px]">arrow_forward</span>
+                            </a>
+                        </div>
+                    </article>
+                </div>
+                <!-- Centered Call to Action / Load More -->
+                <div class="mt-14 flex flex-col items-center justify-center gap-4">
+                    <button
+                        class="inline-flex items-center gap-2 bg-surface-container-lowest text-on-surface hover:bg-surface-container-high font-label-md text-label-md px-6 py-3 rounded-full shadow-sm hover:shadow-md transition-all"
+                        id="load-more-btn" type="button">
+                        <span>Muat Lebih Banyak Pengajar</span>
+                        <span class="material-symbols-outlined text-[18px]">expand_more</span>
+                    </button>
+                    <p class="font-body-sm text-body-sm text-on-secondary-container">Menampilkan 8 dari 48 master tutor
+                        berlisensi</p>
+                </div>
+            </section>
+            <!-- High-End Value Strip / Minimalist Reassurance -->
+            <section class="w-full bg-surface-container-low py-12">
+                <div class="max-w-7xl mx-auto px-6 lg:px-12">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-center md:text-left">
+                        <div class="flex items-start gap-4 justify-center md:justify-start">
+                            <div
+                                class="w-12 h-12 rounded-2xl bg-surface-container-lowest flex items-center justify-center text-primary shadow-sm shrink-0">
+                                <span class="material-symbols-outlined text-[24px]">verified</span>
+                            </div>
+                            <div class="space-y-1">
+                                <h4 class="font-label-md text-label-md text-on-surface font-semibold">100% Tutor
+                                    Tersertifikasi</h4>
+                                <p class="font-body-sm text-body-sm text-on-surface-variant">Lulus seleksi ketat
+                                    pedagogi, penguasaan materi, dan kepribadian empatik.</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-4 justify-center md:justify-start">
+                            <div
+                                class="w-12 h-12 rounded-2xl bg-surface-container-lowest flex items-center justify-center text-primary shadow-sm shrink-0">
+                                <span class="material-symbols-outlined text-[24px]">star</span>
+                            </div>
+                            <div class="space-y-1">
+                                <h4 class="font-label-md text-label-md text-on-surface font-semibold">Rating Kepuasan
+                                    4.95 / 5.0</h4>
+                                <p class="font-body-sm text-body-sm text-on-surface-variant">Dinilai langsung oleh lebih
+                                    dari 1.200 siswa dan orang tua dari seluruh Indonesia.</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-4 justify-center md:justify-start">
+                            <div
+                                class="w-12 h-12 rounded-2xl bg-surface-container-lowest flex items-center justify-center text-primary shadow-sm shrink-0">
+                                <span class="material-symbols-outlined text-[24px]">devices</span>
+                            </div>
+                            <div class="space-y-1">
+                                <h4 class="font-label-md text-label-md text-on-surface font-semibold">Fleksibel &
+                                    Personal</h4>
+                                <p class="font-body-sm text-body-sm text-on-surface-variant">Tersedia sesi privat daring
+                                    interaktif maupun tatap muka kuratorial di studio kami.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <!-- Editorial Invitation Banner -->
+            <section class="w-full max-w-7xl mx-auto px-6 lg:px-12 py-16">
+                <div
+                    class="relative overflow-hidden rounded-3xl bg-surface-container p-8 lg:p-14 flex flex-col lg:flex-row items-center justify-between gap-8 shadow-sm">
+                    <div class="max-w-xl space-y-3 text-center lg:text-left">
+                        <span
+                            class="font-label-sm text-label-sm text-on-secondary-container tracking-wider uppercase">Bimbingan
+                            Yang Tepat Untuk Anda</span>
+                        <h3 class="font-headline-md text-headline-md text-on-surface">Bingung memilih pengajar yang
+                            paling cocok?</h3>
+                        <p class="font-body-md text-body-md text-on-surface-variant">
+                            Konselor akademik kami siap membantu memetakan gaya belajar dan kurikulum siswa untuk
+                            mencocokkan tutor terbaik secara cuma-cuma.
+                        </p>
+                    </div>
+                    <div class="flex flex-col sm:flex-row items-center gap-3 shrink-0">
+                        <a class="inline-flex items-center justify-center bg-primary text-on-primary font-label-md text-label-md px-6 py-3 rounded-full hover:bg-on-surface-variant transition-colors shadow-sm"
+                            href="#">
+                            Konsultasi Penjurusan Tutor
+                        </a>
+                        <a class="inline-flex items-center justify-center bg-surface-container-lowest text-on-surface font-label-md text-label-md px-6 py-3 rounded-full hover:bg-surface-container-high transition-colors shadow-sm"
+                            href="#">
+                            Unduh Profil Lengkap (PDF)
+                        </a>
+                    </div>
+                </div>
+            </section>
+        </div>
+        <script>
+            // Simple interactive filter implementation
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    // Toggle button styles
+                    document.querySelectorAll('.filter-btn').forEach(b => {
+                        b.classList.remove('bg-surface-container-lowest', 'text-on-surface', 'shadow-sm', 'font-medium');
+                        b.classList.add('text-on-surface-variant');
+                    });
+                    btn.classList.remove('text-on-surface-variant');
+                    btn.classList.add('bg-surface-container-lowest', 'text-on-surface', 'shadow-sm', 'font-medium');
+
+                    const filterVal = btn.getAttribute('data-filter');
+                    const cards = document.querySelectorAll('.tutor-card');
+
+                    cards.forEach(card => {
+                        const cat = card.getAttribute('data-category');
+                        if (filterVal === 'all' || cat === filterVal) {
+                            card.style.display = 'flex';
+                            card.style.opacity = '1';
+                        } else {
+                            card.style.display = 'none';
+                        }
+                    });
+                });
+            });
+
+            // Micro interaction on "Muat Lebih Banyak" button
+            const loadMoreBtn = document.getElementById('load-more-btn');
+            if (loadMoreBtn) {
+                loadMoreBtn.addEventListener('click', function () {
+                    const origText = this.innerHTML;
+                    this.innerHTML = '<span class="material-symbols-outlined text-[18px] animate-spin">progress_activity</span><span>Memuat Pengajar...</span>';
+                    setTimeout(() => {
+                        this.innerHTML = '<span class="material-symbols-outlined text-[18px]">check</span><span>Semua 48 Pengajar Ditampilkan</span>';
+                        this.classList.add('opacity-75', 'pointer-events-none');
+                    }, 600);
+                });
+            }
+        </script>
+    </main>
+    <footer class="w-full bg-surface-container-low">
+        <div class="max-w-7xl mx-auto px-6 lg:px-12 pt-16 pb-12">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-8 pb-12">
+                <div class="space-y-3">
+                    <div class="flex items-center gap-2"><span
+                            class="material-symbols-outlined text-primary text-[20px]">flare</span><span
+                            class="font-headline-md text-headline-md tracking-tight text-on-surface">Lentera
+                            Belajar</span></div>
+                    <p class="font-body-sm text-body-sm text-on-surface-variant max-w-sm">Pendidikan kuratorial dan
+                        bimbingan terpadu yang dirancang dengan ketenangan, ketepatan, dan kehangatan manusiawi.</p>
+                </div>
+                <nav class="flex flex-wrap items-center gap-x-8 gap-y-3"
+                    data-active-classes="text-on-surface font-semibold"><a
+                        class="font-label-sm text-label-sm text-on-surface-variant hover:text-on-surface transition-colors"
+                        data-path="beranda" href="#">Beranda</a><a aria-current="page"
+                        class="transition-colors text-on-surface font-semibold" data-path="pengajar"
+                        href="#">Pengajar</a><a
+                        class="font-label-sm text-label-sm text-on-surface-variant hover:text-on-surface transition-colors"
+                        data-path="program" href="#">Program</a><a
+                        class="font-label-sm text-label-sm text-on-surface-variant hover:text-on-surface transition-colors"
+                        data-path="biaya" href="#">Biaya</a><a
+                        class="font-label-sm text-label-sm text-on-surface-variant hover:text-on-surface transition-colors"
+                        data-path="filosofi" href="#">Filosofi</a><a
+                        class="font-label-sm text-label-sm text-on-surface-variant hover:text-on-surface transition-colors"
+                        data-path="tentang-kami" href="#">Tentang Kami</a><a
+                        class="font-label-sm text-label-sm text-on-surface-variant hover:text-on-surface transition-colors"
+                        data-path="kebijakan-privasi" href="#">Kebijakan Privasi</a><a
+                        class="font-label-sm text-label-sm text-on-surface-variant hover:text-on-surface transition-colors"
+                        data-path="syarat-ketentuan" href="#">Syarat & Ketentuan</a></nav>
+            </div>
+            <div class="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <p class="font-label-sm text-label-sm text-on-secondary-container">© 2025 Lentera Belajar. Hak cipta
+                    dilindungi undang-undang.</p>
+                <div class="flex items-center gap-6"><span
+                        class="font-label-sm text-label-sm text-on-secondary-container">Jakarta • Yogyakarta •
+                        Bandung</span></div>
+            </div>
+        </div>
+    </footer>
+</body>
+
+</html>

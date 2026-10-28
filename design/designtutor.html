@@ -1,0 +1,893 @@
+<!DOCTYPE html>
+
+<html lang="id">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <meta content="web_standard" name="shell-type" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&amp;family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&amp;family=Newsreader:wght@100..900&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <style>
+        @layer base {
+
+            html,
+            body {
+                margin: 0;
+                padding: 0;
+            }
+
+            body {
+                overscroll-behavior: none;
+            }
+
+            main>:first-child {
+                margin-top: 0 !important;
+            }
+
+            main>:last-child {
+                margin-bottom: 0 !important;
+            }
+        }
+
+        ::-webkit-scrollbar {
+            display: none;
+        }
+    </style>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script
+        id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { "colors": { "background": "#faf9f7", "surface-variant": "#e3e2e0", "tertiary-container": "#1c1b1a", "on-primary": "#ffffff", "tertiary-fixed": "#e6e1df", "on-tertiary-fixed": "#1c1b1a", "surface-container-highest": "#e3e2e0", "surface": "#faf9f7", "on-secondary-container": "#67645f", "surface-container-high": "#e9e8e6", "surface-dim": "#dadad8", "secondary-fixed-dim": "#cac6c0", "on-secondary-fixed-variant": "#494642", "error-container": "#ffdad6", "primary-fixed": "#e5e2e1", "on-surface": "#1a1c1b", "on-error": "#ffffff", "on-secondary": "#ffffff", "surface-container-lowest": "#ffffff", "inverse-primary": "#c8c6c5", "on-error-container": "#93000a", "on-secondary-fixed": "#1d1b18", "surface-bright": "#faf9f7", "secondary-container": "#e7e2db", "outline-variant": "#c4c7c7", "primary-fixed-dim": "#c8c6c5", "on-surface-variant": "#444748", "on-tertiary-fixed-variant": "#484645", "tertiary-fixed-dim": "#cac6c3", "on-primary-fixed": "#1c1b1b", "inverse-surface": "#2f3130", "on-primary-fixed-variant": "#474646", "primary": "#000000", "on-background": "#1a1c1b", "on-tertiary": "#ffffff", "on-tertiary-container": "#868381", "surface-tint": "#5f5e5e", "secondary-fixed": "#e7e2db", "inverse-on-surface": "#f1f1ef", "surface-container-low": "#f4f3f1", "secondary": "#615e59", "on-primary-container": "#858383", "tertiary": "#000000", "error": "#ba1a1a", "primary-container": "#1c1b1b", "outline": "#747878", "surface-container": "#efeeec" }, "borderRadius": { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" }, "spacing": { "space-xs": "0.25rem", "space-md": "1rem", "space-xl": "2.5rem", "gutter-mobile": "1rem", "gutter": "1.5rem", "space-lg": "1.5rem", "margin": "3rem", "margin-mobile": "1.25rem", "space-sm": "0.5rem" }, "fontFamily": { "body-md": ["Inter"], "headline-md": ["Newsreader"], "body-sm": ["Inter"], "body-lg": ["Inter"], "headline-xl-mobile": ["Newsreader"], "headline-lg": ["Newsreader"], "label-md": ["Inter"], "headline-xl": ["Newsreader"], "label-sm": ["Inter"] }, "fontSize": { "body-md": ["0.9375rem", { "lineHeight": "1.5", "letterSpacing": "0", "fontWeight": "400" }], "headline-md": ["1.75rem", { "lineHeight": "1.25", "letterSpacing": "-0.01em", "fontWeight": "400" }], "body-sm": ["0.8125rem", { "lineHeight": "1.45", "letterSpacing": "0.01em", "fontWeight": "400" }], "body-lg": ["1.125rem", { "lineHeight": "1.6", "letterSpacing": "-0.01em", "fontWeight": "400" }], "headline-xl-mobile": ["2.25rem", { "lineHeight": "1.2", "letterSpacing": "-0.015em", "fontWeight": "400" }], "headline-lg": ["2.5rem", { "lineHeight": "1.2", "letterSpacing": "-0.015em", "fontWeight": "400" }], "label-md": ["0.875rem", { "lineHeight": "1.2", "letterSpacing": "0.005em", "fontWeight": "600" }], "headline-xl": ["3.5rem", { "lineHeight": "1.15", "letterSpacing": "-0.02em", "fontWeight": "400" }], "label-sm": ["0.75rem", { "lineHeight": "1.2", "letterSpacing": "0.02em", "fontWeight": "500" }] } } } };</script>
+</head>
+
+<body
+    class="bg-surface font-body-md text-on-surface antialiased selection:bg-surface-variant selection:text-on-surface">
+    <header class="fixed top-0 w-full z-50 bg-surface/85 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)]">
+        <div class="h-20 max-w-7xl mx-auto px-6 lg:px-12 flex items-center justify-between gap-6"><a
+                class="flex items-center gap-2.5 transition-opacity hover:opacity-80" data-path="beranda" href="#"><span
+                    class="material-symbols-outlined text-primary text-[22px]">flare</span><span
+                    class="font-headline-md text-headline-md tracking-tight text-on-surface select-none">Lentera
+                    Belajar</span></a>
+            <nav class="hidden lg:flex items-center gap-8"
+                data-active-classes="text-on-surface font-medium border-b-2 border-primary"><a
+                    class="font-label-md text-label-md text-on-surface-variant hover:text-on-surface transition-colors py-1"
+                    data-path="beranda" href="#">Beranda</a><a
+                    class="font-label-md text-label-md text-on-surface-variant hover:text-on-surface transition-colors py-1"
+                    data-path="pengajar" href="#">Pengajar</a><a
+                    class="font-label-md text-label-md text-on-surface-variant hover:text-on-surface transition-colors py-1"
+                    data-path="program" href="#">Program</a><a
+                    class="font-label-md text-label-md text-on-surface-variant hover:text-on-surface transition-colors py-1"
+                    data-path="biaya" href="#">Biaya</a><a
+                    class="font-label-md text-label-md text-on-surface-variant hover:text-on-surface transition-colors py-1"
+                    data-path="filosofi" href="#">Filosofi</a><a
+                    class="font-label-md text-label-md text-on-surface-variant hover:text-on-surface transition-colors py-1"
+                    data-path="tentang-kami" href="#">Tentang Kami</a></nav>
+            <div class="flex items-center gap-5"><a
+                    class="font-label-md text-label-md text-on-surface-variant hover:text-on-surface transition-colors px-2 py-1"
+                    data-path="masuk" href="#">Masuk</a><a
+                    class="inline-flex items-center justify-center bg-primary text-on-primary font-label-md text-label-md px-5 py-2.5 rounded-full hover:bg-on-surface-variant transition-colors shadow-[0_2px_8px_rgba(0,0,0,0.06)]"
+                    data-path="konsultasi-gratis" href="#">Konsultasi Gratis</a>
+                <div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center shrink-0"><span
+                        class="material-symbols-outlined text-on-primary text-[18px]">person</span></div>
+            </div>
+        </div>
+    </header>
+    <main class="w-full pt-20 bg-surface">
+        <div class="flex flex-col w-full">
+            <!-- Top Subtle Notification Bar -->
+            <aside
+                class="w-full bg-surface-container-high py-2.5 px-6 lg:px-12 flex items-center justify-between transition-colors">
+                <div class="max-w-7xl mx-auto w-full flex flex-wrap items-center justify-between gap-3">
+                    <div class="flex items-center gap-2 text-on-surface-variant font-body-sm text-body-sm">
+                        <span class="inline-block w-2 h-2 rounded-full bg-primary animate-pulse"></span>
+                        <span>Semester Ganjil 2025/2026: Verifikasi jadwal mandiri dibuka hingga <strong>30
+                                November</strong></span>
+                    </div>
+                    <div class="flex items-center gap-4 text-on-surface-variant font-label-sm text-label-sm">
+                        <span class="flex items-center gap-1.5"><span
+                                class="material-symbols-outlined text-[16px]">verified_user</span> Status ID: <strong
+                                class="text-on-surface">LB-TUT-0894</strong></span>
+                        <span class="text-outline-variant">•</span>
+                        <a class="text-on-surface hover:underline font-label-sm" href="#">Pusat Bantuan Akademik</a>
+                    </div>
+                </div>
+            </aside>
+            <!-- Main Teacher Portal Wrapper -->
+            <section class="max-w-7xl mx-auto px-6 lg:px-12 py-10 w-full space-y-10">
+                <!-- Header & Profile Identity Bento Banner -->
+                <header
+                    class="bg-surface-container-low rounded-2xl p-6 lg:p-10 shadow-[0_4px_24px_-4px_rgba(0,0,0,0.04)] relative overflow-hidden">
+                    <!-- Ambient decorative backdrop pattern -->
+                    <div
+                        class="absolute -right-24 -top-24 w-96 h-96 rounded-full bg-secondary-container/40 blur-3xl pointer-events-none">
+                    </div>
+                    <div class="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-8">
+                        <!-- Left: Portrait Thumbnail + Core Identity Details -->
+                        <div class="flex flex-col sm:flex-row items-start sm:items-center gap-6">
+                            <div class="relative group">
+                                <div
+                                    class="w-24 h-24 lg:w-28 lg:h-28 rounded-2xl overflow-hidden bg-surface-container shadow-[0_8px_20px_-6px_rgba(0,0,0,0.12)]">
+                                    <img class="w-full h-full object-cover"
+                                        data-alt="Editorial portrait photography of a confident Indonesian female chemistry lecturer in her early thirties, smiling warmly with neat modern blazer, neutral beige studio backdrop, soft diffused magazine lighting"
+                                        id="header-avatar-preview"
+                                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuDyGO8NDiQMCXYa1Ayxu7x2LSeWBk4ek7WXGfUGQNt62cvw87minkCvLCBDEiA6trj1MzqPyQEExM4W2Sn-NZCuddw0SV2CqPjoTmGP9KR4F-1FvyR225fV8_5Q6GKMXySl50enktf2QCUclqk1gls4wywDhmhfMF8zqVGnSi6_5ADoEUq-J3l8hBTzlvHH9tbsG8JoAv_8DwsxFmMI-eMg5nVCYz4XRkdQasEXYZpJ" />
+                                </div>
+                                <span
+                                    class="absolute -bottom-2 -right-2 bg-primary text-on-primary rounded-full p-1.5 shadow-sm"
+                                    title="Tutor Terverifikasi">
+                                    <span class="material-symbols-outlined text-[16px] block">verified</span>
+                                </span>
+                            </div>
+                            <div class="space-y-1.5">
+                                <div class="flex flex-wrap items-center gap-2.5">
+                                    <span
+                                        class="bg-surface-container-highest text-on-surface font-label-sm text-label-sm px-3 py-1 rounded-full uppercase tracking-wider">Area
+                                        Mandiri Tutor</span>
+                                    <span
+                                        class="bg-surface text-on-surface-variant font-label-sm text-label-sm px-3 py-1 rounded-full flex items-center gap-1.5 shadow-[0_1px_4px_rgba(0,0,0,0.04)]">
+                                        <span class="w-2 h-2 rounded-full bg-on-surface"></span> Tutor Terverifikasi
+                                        &amp; Aktif
+                                    </span>
+                                </div>
+                                <h1 class="font-headline-lg text-headline-lg text-on-surface tracking-tight">Siti
+                                    Rahmawati, M.Si.</h1>
+                                <div
+                                    class="flex flex-wrap items-center gap-y-1 gap-x-4 font-body-sm text-body-sm text-on-surface-variant">
+                                    <span class="flex items-center gap-1.5 font-medium text-on-surface">
+                                        <span
+                                            class="material-symbols-outlined text-[16px] text-on-surface-variant">biotech</span>
+                                        Kimia, Biologi
+                                    </span>
+                                    <span>•</span>
+                                    <span class="flex items-center gap-1.5">
+                                        <span
+                                            class="material-symbols-outlined text-[16px] text-on-surface-variant">chat</span>
+                                        WhatsApp: <a class="hover:underline text-on-surface"
+                                            href="https://wa.me/6282198765432" target="_blank">082198765432</a>
+                                    </span>
+                                    <span>•</span>
+                                    <span class="flex items-center gap-1.5">
+                                        <span
+                                            class="material-symbols-outlined text-[16px] text-on-surface-variant">school</span>
+                                        S2 Kimia ITB
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Right: Fast Account Switcher & Quick Actions -->
+                        <div
+                            class="flex flex-col sm:flex-row lg:flex-col items-start lg:items-end justify-between gap-4">
+                            <div class="w-full sm:w-auto">
+                                <label
+                                    class="font-label-sm text-label-sm text-on-surface-variant block mb-1.5 lg:text-right"
+                                    for="account-switcher">Sesi Akun Aktif:</label>
+                                <div class="relative inline-block w-full sm:w-64">
+                                    <select
+                                        class="w-full appearance-none bg-surface text-on-surface font-label-md text-label-md py-2.5 pl-4 pr-10 rounded-full shadow-[0_2px_8px_rgba(0,0,0,0.04)] focus:outline-none focus:ring-2 focus:ring-primary/20 cursor-pointer"
+                                        id="account-switcher">
+                                        <option selected="">Siti Rahmawati, M.Si. (Utama)</option>
+                                        <option>Siti R. (Penguji Seleksi)</option>
+                                        <option>Mode Editor Modul OSN</option>
+                                    </select>
+                                    <span
+                                        class="material-symbols-outlined pointer-events-none absolute right-3.5 top-2.5 text-on-surface-variant text-[20px]">expand_more</span>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-3 w-full sm:w-auto">
+                                <a class="inline-flex items-center justify-center gap-2 bg-surface text-on-surface font-label-md text-label-md px-4 py-2.5 rounded-full hover:bg-surface-variant transition-colors shadow-[0_2px_6px_rgba(0,0,0,0.04)]"
+                                    href="#" title="Buka tampilan profil sebagaimana dilihat wali murid">
+                                    <span class="material-symbols-outlined text-[18px]">visibility</span>
+                                    Lihat Publik
+                                </a>
+                                <button
+                                    class="inline-flex items-center justify-center gap-2 bg-primary text-on-primary font-label-md text-label-md px-5 py-2.5 rounded-full hover:bg-on-surface-variant transition-colors shadow-[0_4px_12px_rgba(0,0,0,0.12)]"
+                                    onclick="submitProfileNotice()" type="button">
+                                    <span class="material-symbols-outlined text-[18px]">save</span>
+                                    Simpan Profil
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Performance Metrics Ribbon -->
+                    <div
+                        class="mt-8 pt-6 grid grid-cols-2 md:grid-cols-4 gap-4 bg-surface/70 rounded-xl p-4 lg:p-5 backdrop-blur-sm">
+                        <div class="flex items-center gap-3.5 px-2">
+                            <div
+                                class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center text-primary shrink-0">
+                                <span class="material-symbols-outlined text-[20px]"
+                                    style="font-variation-settings: 'FILL' 1;">star</span>
+                            </div>
+                            <div>
+                                <div class="font-headline-md text-headline-md text-on-surface leading-none">4.98<span
+                                        class="font-body-sm text-body-sm text-on-surface-variant">/5.0</span></div>
+                                <div class="font-label-sm text-label-sm text-on-secondary-container mt-1">Kepuasan Wali
+                                    &amp; Siswa</div>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-3.5 px-2">
+                            <div
+                                class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center text-primary shrink-0">
+                                <span class="material-symbols-outlined text-[20px]">schedule</span>
+                            </div>
+                            <div>
+                                <div class="font-headline-md text-headline-md text-on-surface leading-none">184<span
+                                        class="font-body-sm text-body-sm text-on-surface-variant"> Jam</span></div>
+                                <div class="font-label-sm text-label-sm text-on-secondary-container mt-1">Total Jam
+                                    Terbang Sesi</div>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-3.5 px-2">
+                            <div
+                                class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center text-primary shrink-0">
+                                <span class="material-symbols-outlined text-[20px]">groups</span>
+                            </div>
+                            <div>
+                                <div class="font-headline-md text-headline-md text-on-surface leading-none">24<span
+                                        class="font-body-sm text-body-sm text-on-surface-variant"> Siswa</span></div>
+                                <div class="font-label-sm text-label-sm text-on-secondary-container mt-1">Bimbingan
+                                    Aktif Bulan Ini</div>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-3.5 px-2">
+                            <div
+                                class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center text-primary shrink-0">
+                                <span class="material-symbols-outlined text-[20px]">check_circle</span>
+                            </div>
+                            <div>
+                                <div class="font-headline-md text-headline-md text-on-surface leading-none">100<span
+                                        class="font-body-sm text-body-sm text-on-surface-variant">%</span></div>
+                                <div class="font-label-sm text-label-sm text-on-secondary-container mt-1">Kehadiran
+                                    &amp; Ketepatan BAP</div>
+                            </div>
+                        </div>
+                    </div>
+                </header>
+                <!-- Editorial Segmented Tab Navigation -->
+                <nav aria-label="Portal Tabs" class="flex items-center gap-3 overflow-x-auto pb-2 scrollbar-none">
+                    <!-- Tab 01 Active -->
+                    <button
+                        class="inline-flex items-center gap-2 bg-primary text-on-primary font-label-md text-label-md px-5 py-3 rounded-full shadow-[0_2px_8px_rgba(0,0,0,0.08)] shrink-0"
+                        type="button">
+                        <span class="font-mono text-label-sm opacity-70">01.</span>
+                        <span>Profil Publik Saya</span>
+                    </button>
+                    <!-- Tab 02 With Badge -->
+                    <button
+                        class="inline-flex items-center gap-2.5 bg-surface-container-low hover:bg-surface-container text-on-surface-variant hover:text-on-surface font-label-md text-label-md px-5 py-3 rounded-full transition-colors shrink-0"
+                        type="button">
+                        <span class="font-mono text-label-sm opacity-50">02.</span>
+                        <span>Ketersediaan Waktu</span>
+                        <span
+                            class="bg-secondary-container text-on-secondary-fixed-variant font-label-sm text-[0.7rem] px-2.5 py-0.5 rounded-full uppercase tracking-wide">Menunggu
+                            Pemeriksaan</span>
+                    </button>
+                    <!-- Tab 03 With Numeric Badge -->
+                    <button
+                        class="inline-flex items-center gap-2.5 bg-surface-container-low hover:bg-surface-container text-on-surface-variant hover:text-on-surface font-label-md text-label-md px-5 py-3 rounded-full transition-colors shrink-0"
+                        type="button">
+                        <span class="font-mono text-label-sm opacity-50">03.</span>
+                        <span>Jadwal Tugas Resmi</span>
+                        <span
+                            class="w-5 h-5 rounded-full bg-surface-variant text-on-surface text-label-sm flex items-center justify-center font-bold">3</span>
+                    </button>
+                    <!-- Tab 04 -->
+                    <button
+                        class="inline-flex items-center gap-2 bg-surface-container-low hover:bg-surface-container text-on-surface-variant hover:text-on-surface font-label-md text-label-md px-5 py-3 rounded-full transition-colors shrink-0"
+                        type="button">
+                        <span class="font-mono text-label-sm opacity-50">04.</span>
+                        <span>Presensi &amp; Berita Acara (BAP)</span>
+                    </button>
+                </nav>
+                <!-- Main Tab Content: Editorial Form Layout -->
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+                    <!-- Primary Form Canvas (8 Columns) -->
+                    <form
+                        class="lg:col-span-8 space-y-8 bg-surface-container-lowest rounded-2xl p-6 sm:p-10 shadow-[0_2px_16px_rgba(0,0,0,0.03)]"
+                        id="tutor-profile-form" onsubmit="event.preventDefault(); submitProfileNotice();">
+                        <!-- SECTION 1: Avatar Selection -->
+                        <fieldset class="space-y-5">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <legend class="font-headline-md text-headline-md text-on-surface">Foto &amp; Avatar
+                                        Kurator</legend>
+                                    <p class="font-body-sm text-body-sm text-on-surface-variant mt-1">Pilih potret
+                                        studio resmi standar Lentera Belajar atau tautkan foto terkurasi mandiri.</p>
+                                </div>
+                                <span class="font-mono text-label-sm text-on-secondary-container">LANGKAH 01/04</span>
+                            </div>
+                            <!-- Avatar Preset Selection Strip -->
+                            <div class="space-y-3 pt-2">
+                                <span class="font-label-sm text-label-sm text-on-surface-variant block">Pilihan Koleksi
+                                    Studio Resmi:</span>
+                                <div class="grid grid-cols-3 sm:grid-cols-6 gap-3.5" id="avatar-presets-grid">
+                                    <!-- Preset 1 (Active by Default) -->
+                                    <button
+                                        class="avatar-preset-btn group relative rounded-xl overflow-hidden aspect-square bg-surface-container shadow-sm p-0.5 bg-primary transition-all"
+                                        onclick="selectPresetAvatar(0, this)" type="button">
+                                        <img class="w-full h-full object-cover rounded-[10px]"
+                                            data-alt="Square crop editorial studio headshot of professional young Asian woman tutor with gentle smile, dressed in navy linen shirt with natural bright lighting"
+                                            src="https://lh3.googleusercontent.com/aida-public/AB6AXuC_m5DP1BIO_Q-qsuUAqTmcv4kueJcNR4SQNqhdQLR8ELgHzxRrIqLEsixkl0IA2UHjbmIdqsnZQVdekL5AaC5RbhI_cUixhbrpECjOdxXwld1yoMP3fl4xbaROETACVuNH7ZexZDz3HNqshlEd2xFtmVlL_yhUVePiNdB-PngGIJR5zAH67beOUo7gAjwoFUfsbiDOykw28YYfJlc1sFtygyj2PvO-bw2MJ-mD1-N4" />
+                                        <span
+                                            class="preset-check absolute inset-0 bg-primary/20 backdrop-blur-[1px] flex items-center justify-center text-on-primary">
+                                            <span class="material-symbols-outlined text-[20px]">check</span>
+                                        </span>
+                                    </button>
+                                    <!-- Preset 2 -->
+                                    <button
+                                        class="avatar-preset-btn group relative rounded-xl overflow-hidden aspect-square bg-surface-container shadow-sm p-0.5 hover:bg-surface-variant transition-all"
+                                        onclick="selectPresetAvatar(1, this)" type="button">
+                                        <img class="w-full h-full object-cover rounded-[10px]"
+                                            data-alt="Editorial portrait headshot of a friendly Southeast Asian male science teacher wearing round spectacles and charcoal crewneck against stone gray studio background"
+                                            src="https://lh3.googleusercontent.com/aida-public/AB6AXuDaWuJy7vu8MeGSV-L8ziXfK_UDEk247NvvuiFDoO6ALIf64haRtliwMGFuUcHVzVl0WdZKWgnatPxjJ5pAQl-h0aEJ3Mb37oH55PB3tl-sdC7RP7QUMxwXTvmdmZn3Qg187ngOKnDYQNU-XRl5inGThJRgKnhr6XgTMLRDOrb60laahQ0cXMBz4bpb6-9roqxpt3aA8hh4GKkjT-vt0cuTfZQ127YXlwlscaPA-8ww" />
+                                        <span
+                                            class="preset-check hidden absolute inset-0 bg-primary/20 backdrop-blur-[1px] flex items-center justify-center text-on-primary">
+                                            <span class="material-symbols-outlined text-[20px]">check</span>
+                                        </span>
+                                    </button>
+                                    <!-- Preset 3 -->
+                                    <button
+                                        class="avatar-preset-btn group relative rounded-xl overflow-hidden aspect-square bg-surface-container shadow-sm p-0.5 hover:bg-surface-variant transition-all"
+                                        onclick="selectPresetAvatar(2, this)" type="button">
+                                        <img class="w-full h-full object-cover rounded-[10px]"
+                                            data-alt="Warm natural light portrait of a smiling female tutor with curly brown hair wearing a cream tailored jacket against warm paper beige background"
+                                            src="https://lh3.googleusercontent.com/aida-public/AB6AXuDDiEJGUyyuR30LiC8Rl6agVELH3qpsOPoTIWZTgo_IrWaLL2Y9G5VpPUfSuOlGpl2OYri7aPQX13G8xyCik3FHuv8-h6fjBav1Bv6emuNVzrAnQM0_FrdTeFOdXNIuLx8a66NZAesWSeoC2EnhwaV2x-qiHDQEd-oajcyTQUz9z0O6AQP_muN1rr0GigMz6_rvOFJIqqK-hKJBgvI7jHTuh5wb3HNgn1EDqcocR32J" />
+                                        <span
+                                            class="preset-check hidden absolute inset-0 bg-primary/20 backdrop-blur-[1px] flex items-center justify-center text-on-primary">
+                                            <span class="material-symbols-outlined text-[20px]">check</span>
+                                        </span>
+                                    </button>
+                                    <!-- Preset 4 -->
+                                    <button
+                                        class="avatar-preset-btn group relative rounded-xl overflow-hidden aspect-square bg-surface-container shadow-sm p-0.5 hover:bg-surface-variant transition-all"
+                                        onclick="selectPresetAvatar(3, this)" type="button">
+                                        <img class="w-full h-full object-cover rounded-[10px]"
+                                            data-alt="Refined portrait photo of an Indonesian male academic instructor smiling calmly in olive linen shirt with gentle editorial studio illumination"
+                                            src="https://lh3.googleusercontent.com/aida-public/AB6AXuA3fwfN42rUPz7L2HAvSBbL_LRO_Jv1wpi7EAarU2emDcptT2GvztEkFQM8hWb-sgN9hGC64XdKC5PV9TgHTTAuzzykstOlhRSXyXYepZwBhgH-dMtMGWbbf_bLk_J0yoY0UNmopJIi2nHXiGVkNecHITpOggRhNDDyeFNcmVxGBenbj3UT52NIp5lOrKYCFC1uGKzT2DD-1tHcbvkHdFEe_hROnrcW08EcjCGIWAUg" />
+                                        <span
+                                            class="preset-check hidden absolute inset-0 bg-primary/20 backdrop-blur-[1px] flex items-center justify-center text-on-primary">
+                                            <span class="material-symbols-outlined text-[20px]">check</span>
+                                        </span>
+                                    </button>
+                                    <!-- Preset 5 -->
+                                    <button
+                                        class="avatar-preset-btn group relative rounded-xl overflow-hidden aspect-square bg-surface-container shadow-sm p-0.5 hover:bg-surface-variant transition-all"
+                                        onclick="selectPresetAvatar(4, this)" type="button">
+                                        <img class="w-full h-full object-cover rounded-[10px]"
+                                            data-alt="Soft editorial studio headshot of an Asian female educator with hair tied in neat bun wearing casual striped shirt with sincere engaged expression"
+                                            src="https://lh3.googleusercontent.com/aida-public/AB6AXuDwUEa5yq3-JBJJf8ATEEq02ZSgWi1LB5k3woETx36D7-ARZXzIo2hHFlXOghS0PqJUBhA_G1ZCj4syFKGz_epMMD4TC53FjE-rrWrAP95LbMXSzI2P2Rq1mgU1UVFJuwfJFQqXDehIjrFyJy519jXnL2JJ5yP6Loapn4mGcz9e_pVi_jyUdw233WBUfYBTysM6LdW9Y9dO11T46jpHRB9VPXYA4-TvBSk78k6fn9Wz" />
+                                        <span
+                                            class="preset-check hidden absolute inset-0 bg-primary/20 backdrop-blur-[1px] flex items-center justify-center text-on-primary">
+                                            <span class="material-symbols-outlined text-[20px]">check</span>
+                                        </span>
+                                    </button>
+                                    <!-- Preset 6 -->
+                                    <button
+                                        class="avatar-preset-btn group relative rounded-xl overflow-hidden aspect-square bg-surface-container shadow-sm p-0.5 hover:bg-surface-variant transition-all"
+                                        onclick="selectPresetAvatar(5, this)" type="button">
+                                        <img class="w-full h-full object-cover rounded-[10px]"
+                                            data-alt="High key studio portrait of a charismatic male biology lecturer wearing a dark blazer over white tee smiling cordially into camera"
+                                            src="https://lh3.googleusercontent.com/aida-public/AB6AXuCHB51zhe7ysp42hrFuGrCikXhhJO5DN2gO8JqKp2yu12nNSMQjZmRglPQkjFjSKmhPGQ-tFodkfG-0yooYJBUkolpC1XulfmLDefheJeqKIRUwrYezHu6AwMmUND4OGzfxk2L9FHjQptypRRe0z-h4D5gf8xqpcUGrGVe_7t4ik20-JGh9I7mjTqVMj2xpHNplKu6S6fDlOVxHPj3zIi6DjM51tFaqYP7h5HOAgclN" />
+                                        <span
+                                            class="preset-check hidden absolute inset-0 bg-primary/20 backdrop-blur-[1px] flex items-center justify-center text-on-primary">
+                                            <span class="material-symbols-outlined text-[20px]">check</span>
+                                        </span>
+                                    </button>
+                                </div>
+                            </div>
+                            <!-- Direct URL Field Input (As seen in Screenshot Image 3) -->
+                            <div class="space-y-1.5 pt-2">
+                                <label
+                                    class="font-label-sm text-label-sm text-on-surface-variant flex items-center justify-between"
+                                    for="avatar-url-input">
+                                    <span>Tautan URL Sumber Foto Mandiri</span>
+                                    <span class="text-on-secondary-container">Mendukung format JPG/PNG/WebP</span>
+                                </label>
+                                <div
+                                    class="flex items-center gap-2 bg-surface-container-low rounded-xl px-4 py-2.5 focus-within:bg-surface-container transition-colors shadow-inner">
+                                    <span
+                                        class="material-symbols-outlined text-on-surface-variant text-[20px]">link</span>
+                                    <input
+                                        class="w-full bg-transparent font-body-sm text-body-sm text-on-surface focus:outline-none placeholder:text-on-surface-variant/60"
+                                        id="avatar-url-input" placeholder="https://..." type="text"
+                                        value="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=500&amp;auto=format&amp;fit=crop&amp;q=80" />
+                                    <button
+                                        class="text-on-surface hover:text-primary font-label-sm text-label-sm px-2 py-1 rounded hover:bg-surface-container-high transition-colors shrink-0"
+                                        onclick="refreshAvatarInput()" type="button">
+                                        Terapkan
+                                    </button>
+                                </div>
+                            </div>
+                        </fieldset>
+                        <!-- Divider -->
+                        <div class="h-px w-full bg-surface-container"></div>
+                        <!-- SECTION 2: Academic Background & Alma Mater -->
+                        <fieldset class="space-y-4">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <legend class="font-headline-md text-headline-md text-on-surface">Latar Belakang
+                                        Pendidikan &amp; Gelar</legend>
+                                    <p class="font-body-sm text-body-sm text-on-surface-variant mt-1">Dicantumkan pada
+                                        kartu ringkas tutor dan kurikulum silabus wali siswa.</p>
+                                </div>
+                                <span class="font-mono text-label-sm text-on-secondary-container">LANGKAH 02/04</span>
+                            </div>
+                            <div class="space-y-2 pt-1">
+                                <label class="font-label-sm text-label-sm text-on-surface-variant"
+                                    for="education-background">Gelar, Program Studi, &amp; Almamater Utama</label>
+                                <div
+                                    class="bg-surface-container-low rounded-xl px-4 py-3 focus-within:bg-surface-container transition-colors">
+                                    <input
+                                        class="w-full bg-transparent font-body-md text-body-md text-on-surface focus:outline-none placeholder:text-on-surface-variant/60"
+                                        id="education-background" placeholder="Contoh: S1 Pendidikan Fisika UI • S2 ITB"
+                                        type="text"
+                                        value="S2 Magister Kimia ITB (Cumlaude) • S1 Pendidikan Kimia Universitas Indonesia" />
+                                </div>
+                                <p class="font-body-sm text-body-sm text-on-secondary-container">Gunakan tanda titik
+                                    peluru (•) untuk memisahkan jenjang pendidikan berurutan.</p>
+                            </div>
+                            <!-- Tags Keahlian / Bidang Spesialisasi -->
+                            <div class="space-y-2 pt-2">
+                                <label class="font-label-sm text-label-sm text-on-surface-variant">Fokus Materi &amp;
+                                    Silabus yang Diberikan</label>
+                                <div class="flex flex-wrap items-center gap-2" id="tags-container">
+                                    <span
+                                        class="inline-flex items-center gap-1.5 bg-surface-container px-3 py-1.5 rounded-full font-label-sm text-label-sm text-on-surface">
+                                        Kimia Organik &amp; Stoikiometri SMA
+                                        <button class="text-on-surface-variant hover:text-on-surface"
+                                            onclick="this.parentElement.remove()" type="button"><span
+                                                class="material-symbols-outlined text-[16px]">close</span></button>
+                                    </span>
+                                    <span
+                                        class="inline-flex items-center gap-1.5 bg-surface-container px-3 py-1.5 rounded-full font-label-sm text-label-sm text-on-surface">
+                                        Penalaran Sains UTBK-SNBT
+                                        <button class="text-on-surface-variant hover:text-on-surface"
+                                            onclick="this.parentElement.remove()" type="button"><span
+                                                class="material-symbols-outlined text-[16px]">close</span></button>
+                                    </span>
+                                    <span
+                                        class="inline-flex items-center gap-1.5 bg-surface-container px-3 py-1.5 rounded-full font-label-sm text-label-sm text-on-surface">
+                                        Persiapan OSN Kimia Kabupaten/Provinsi
+                                        <button class="text-on-surface-variant hover:text-on-surface"
+                                            onclick="this.parentElement.remove()" type="button"><span
+                                                class="material-symbols-outlined text-[16px]">close</span></button>
+                                    </span>
+                                    <span
+                                        class="inline-flex items-center gap-1.5 bg-surface-container px-3 py-1.5 rounded-full font-label-sm text-label-sm text-on-surface">
+                                        Biologi Sel &amp; Genetika Kedokteran
+                                        <button class="text-on-surface-variant hover:text-on-surface"
+                                            onclick="this.parentElement.remove()" type="button"><span
+                                                class="material-symbols-outlined text-[16px]">close</span></button>
+                                    </span>
+                                    <button
+                                        class="inline-flex items-center gap-1 bg-surface-variant hover:bg-outline-variant/50 text-on-surface-variant px-3 py-1.5 rounded-full font-label-sm text-label-sm transition-colors"
+                                        onclick="addCustomTag()" type="button">
+                                        <span class="material-symbols-outlined text-[16px]">add</span> Tambah Tag
+                                    </button>
+                                </div>
+                            </div>
+                        </fieldset>
+                        <!-- Divider -->
+                        <div class="h-px w-full bg-surface-container"></div>
+                        <!-- SECTION 3: Editorial Bio / Public Description -->
+                        <fieldset class="space-y-4">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <legend class="font-headline-md text-headline-md text-on-surface">Deskripsi
+                                        Pengantar Mengajar</legend>
+                                    <p class="font-body-sm text-body-sm text-on-surface-variant mt-1">Tampil secara utuh
+                                        di Katalog Publik Pengajar Lentera Belajar.</p>
+                                </div>
+                                <span class="font-mono text-label-sm text-on-secondary-container">LANGKAH 03/04</span>
+                            </div>
+                            <!-- Editorial Rich Note Box -->
+                            <div class="space-y-2">
+                                <div class="flex items-center justify-between">
+                                    <label class="font-label-sm text-label-sm text-on-surface-variant"
+                                        for="teaching-bio">Narasi Pendekatan &amp; Filosofi Bimbingan</label>
+                                    <span class="font-label-sm text-label-sm text-on-secondary-container"
+                                        id="char-counter">314 / 600 Karakter</span>
+                                </div>
+                                <div
+                                    class="bg-surface-container-low rounded-xl p-4 focus-within:bg-surface-container transition-colors shadow-inner">
+                                    <textarea
+                                        class="w-full bg-transparent font-body-md text-body-md text-on-surface focus:outline-none resize-y placeholder:text-on-surface-variant/60 leading-relaxed"
+                                        id="teaching-bio" oninput="updateCharCount(this)"
+                                        placeholder="Tuliskan pengalaman, gaya bimbingan personal, serta pesan penyemangat bagi calon anak didik..."
+                                        rows="5">Berpengalaman lebih dari 8 tahun membimbing siswa menembus Fakultas Kedokteran dan PTN impian dengan metode visualisasi molekuler dan pembedahan nalar logika soal HOTS tanpa hafalan rumus mati. Saya meyakini bahwa setiap konsep sains selalu memiliki benang merah yang indah dan intuitif bila dipandu dengan ketenangan serta dialog terbuka.</textarea>
+                                </div>
+                                <!-- Suggestion / Guiding Tips -->
+                                <div class="bg-surface-container-high/60 rounded-xl p-3.5 flex items-start gap-3">
+                                    <span
+                                        class="material-symbols-outlined text-on-surface-variant text-[20px] shrink-0 mt-0.5">lightbulb</span>
+                                    <p class="font-body-sm text-body-sm text-on-surface-variant">
+                                        <strong>Saran Editorial:</strong> Hindari daftar nilai yang kaku. Sisipkan satu
+                                        kalimat tentang cara Anda mengatasi rasa cemas siswa terhadap soal-soal kimia
+                                        rumit untuk membangun ketenangan wali murid.
+                                    </p>
+                                </div>
+                            </div>
+                        </fieldset>
+                        <!-- Divider -->
+                        <div class="h-px w-full bg-surface-container"></div>
+                        <!-- SECTION 4: Contact & Preferences -->
+                        <fieldset class="space-y-4">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <legend class="font-headline-md text-headline-md text-on-surface">Preferensi &amp;
+                                        Moda Pembelajaran</legend>
+                                    <p class="font-body-sm text-body-sm text-on-surface-variant mt-1">Konfirmasi saluran
+                                        komunikasi cepat dan fleksibilitas lokasi belajar.</p>
+                                </div>
+                                <span class="font-mono text-label-sm text-on-secondary-container">LANGKAH 04/04</span>
+                            </div>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
+                                <div class="space-y-1.5">
+                                    <label class="font-label-sm text-label-sm text-on-surface-variant"
+                                        for="whatsapp-field">Nomor WhatsApp Resmi (Terhubung Sistem)</label>
+                                    <div
+                                        class="bg-surface-container-low rounded-xl px-4 py-2.5 flex items-center gap-2">
+                                        <span
+                                            class="font-body-sm text-body-sm text-on-secondary-container font-mono">+62</span>
+                                        <input
+                                            class="w-full bg-transparent font-body-md text-body-md text-on-surface focus:outline-none font-mono"
+                                            id="whatsapp-field" type="tel" value="82198765432" />
+                                    </div>
+                                </div>
+                                <div class="space-y-1.5">
+                                    <label class="font-label-sm text-label-sm text-on-surface-variant"
+                                        for="city-field">Domisili Home-Base Tutor</label>
+                                    <div
+                                        class="bg-surface-container-low rounded-xl px-4 py-2.5 flex items-center gap-2">
+                                        <span
+                                            class="material-symbols-outlined text-on-surface-variant text-[18px]">location_on</span>
+                                        <input
+                                            class="w-full bg-transparent font-body-md text-body-md text-on-surface focus:outline-none"
+                                            id="city-field" type="text"
+                                            value="Bandung &amp; Jakarta Selatan (Fleksibel)" />
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Modality Checkboxes -->
+                            <div class="space-y-2 pt-2">
+                                <span class="font-label-sm text-label-sm text-on-surface-variant block">Moda yang Aktif
+                                    Diterima Semester Ini:</span>
+                                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                                    <label
+                                        class="flex items-center gap-3 bg-surface-container-low p-3.5 rounded-xl cursor-pointer hover:bg-surface-container transition-colors">
+                                        <input checked=""
+                                            class="w-4 h-4 rounded text-primary accent-primary cursor-pointer"
+                                            type="checkbox" />
+                                        <div class="text-left">
+                                            <div class="font-label-md text-label-md text-on-surface">Privat 1-on-1</div>
+                                            <div class="font-body-sm text-[0.75rem] text-on-surface-variant">Rumah Siswa
+                                            </div>
+                                        </div>
+                                    </label>
+                                    <label
+                                        class="flex items-center gap-3 bg-surface-container-low p-3.5 rounded-xl cursor-pointer hover:bg-surface-container transition-colors">
+                                        <input checked=""
+                                            class="w-4 h-4 rounded text-primary accent-primary cursor-pointer"
+                                            type="checkbox" />
+                                        <div class="text-left">
+                                            <div class="font-label-md text-label-md text-on-surface">Studio Lentera
+                                            </div>
+                                            <div class="font-body-sm text-[0.75rem] text-on-surface-variant">Tatap Muka
+                                                Kelas</div>
+                                        </div>
+                                    </label>
+                                    <label
+                                        class="flex items-center gap-3 bg-surface-container-low p-3.5 rounded-xl cursor-pointer hover:bg-surface-container transition-colors">
+                                        <input checked=""
+                                            class="w-4 h-4 rounded text-primary accent-primary cursor-pointer"
+                                            type="checkbox" />
+                                        <div class="text-left">
+                                            <div class="font-label-md text-label-md text-on-surface">Daring Interaktif
+                                            </div>
+                                            <div class="font-body-sm text-[0.75rem] text-on-surface-variant">Virtual
+                                                Zoom/Miro</div>
+                                        </div>
+                                    </label>
+                                </div>
+                            </div>
+                        </fieldset>
+                        <!-- Form Submission Footer -->
+                        <div class="pt-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+                            <p class="font-body-sm text-body-sm text-on-secondary-container order-2 sm:order-1">
+                                Terakhir diselaraskan: <strong>Hari ini, 10:42 WIB</strong>
+                            </p>
+                            <div class="flex items-center gap-3 w-full sm:w-auto order-1 sm:order-2">
+                                <button
+                                    class="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-surface-container hover:bg-surface-variant text-on-surface font-label-md text-label-md px-6 py-3 rounded-full transition-colors"
+                                    onclick="previewPublicCard()" type="button">
+                                    Pratinjau di Katalog
+                                </button>
+                                <button
+                                    class="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-primary text-on-primary font-label-md text-label-md px-7 py-3 rounded-full hover:bg-on-surface-variant transition-colors shadow-[0_4px_16px_rgba(0,0,0,0.15)]"
+                                    type="submit">
+                                    Simpan Profil Saya
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                    <!-- Sidebar / Live Preview & Schedule Snapshot (4 Columns) -->
+                    <aside class="lg:col-span-4 space-y-6">
+                        <!-- Live Card Preview Sticky Container -->
+                        <div
+                            class="bg-surface-container-low rounded-2xl p-6 shadow-[0_2px_12px_rgba(0,0,0,0.03)] space-y-5">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-2">
+                                    <span class="w-2 h-2 rounded-full bg-primary"></span>
+                                    <h2 class="font-label-md text-label-md text-on-surface uppercase tracking-wider">
+                                        Pratinjau Kartu Publik</h2>
+                                </div>
+                                <span class="font-label-sm text-label-sm text-on-surface-variant">Tampilan
+                                    Katalog</span>
+                            </div>
+                            <!-- The Bespoke Studio Team Portrait Card (Styled as in Image 4 Inspiration) -->
+                            <div
+                                class="relative w-full aspect-[3/4] rounded-[24px] overflow-hidden bg-surface-variant shadow-[0_12px_32px_-8px_rgba(0,0,0,0.12)]">
+                                <img class="w-full h-full object-cover"
+                                    data-alt="Editorial catalog portrait of Indonesian chemistry tutor Siti Rahmawati looking confident and friendly with gentle lighting, warm cream background, dressed in minimal black clothing"
+                                    id="sidebar-live-portrait"
+                                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuBKNGUFL8RA13USCoFxHnNdiJrvDG6TJxL3OmBXivYgVjP9KPKCxb11Yu1lH2yppKPf-C48bty1uq75b5mff_FpZGkGBRoQQ2_Wp-Qwu6r_xBbnTQCFoTvDEL52riL7D9ZDEriIR-_w1HQJjP4KRBY8Kie5JSt5V9eyF4_3eWrTOFovunYML5oZ81LxaphUiISyWIst30W6gQAxLakfpaawhoKjG6_LQk9jX4585ECK" />
+                                <!-- Top Floating Pill: Discipline Tag -->
+                                <div
+                                    class="absolute top-3.5 left-3.5 right-3.5 flex items-center justify-between pointer-events-none">
+                                    <span
+                                        class="bg-surface/90 backdrop-blur-md font-label-sm text-[0.72rem] text-on-surface px-3 py-1 rounded-full shadow-sm">
+                                        Kimia • Biologi
+                                    </span>
+                                    <span
+                                        class="bg-surface/90 backdrop-blur-md font-label-sm text-[0.72rem] text-on-surface px-2.5 py-1 rounded-full shadow-sm flex items-center gap-1">
+                                        <span class="material-symbols-outlined text-[13px] text-primary"
+                                            style="font-variation-settings: 'FILL' 1;">star</span> 4.98
+                                    </span>
+                                </div>
+                                <!-- Signature Floating Frosted Badge Inset (From Image 4 inspiration) -->
+                                <div
+                                    class="absolute inset-x-3.5 bottom-3.5 bg-surface/95 backdrop-blur-md rounded-2xl p-4 shadow-[0_8px_24px_-6px_rgba(18,18,18,0.14)] text-center transition-all">
+                                    <h3 class="font-label-md text-label-md text-on-surface font-semibold tracking-tight"
+                                        id="sidebar-preview-name">Siti Rahmawati, M.Si.</h3>
+                                    <p class="font-body-sm text-[0.8rem] text-on-surface-variant mt-0.5"
+                                        id="sidebar-preview-role">Tutor Senior Sains &amp; UTBK-SNBT</p>
+                                    <!-- Subtle micro quote preview -->
+                                    <p class="font-body-sm text-[0.75rem] text-on-secondary-container italic mt-2 line-clamp-2"
+                                        id="sidebar-preview-quote">
+                                        "Pembedahan nalar logika sains HOTS tanpa hafalan rumus mati..."
+                                    </p>
+                                </div>
+                            </div>
+                            <p class="font-body-sm text-[0.8rem] text-on-surface-variant text-center">
+                                Kartu ini tampil bagi ribuan calon siswa yang mencari tutor sains di katalog Lentera
+                                Belajar.
+                            </p>
+                        </div>
+                        <!-- Mini Calendar / Sesi Mendatang Widget -->
+                        <div
+                            class="bg-surface-container-lowest rounded-2xl p-6 shadow-[0_2px_12px_rgba(0,0,0,0.03)] space-y-4">
+                            <div class="flex items-center justify-between">
+                                <h3 class="font-label-md text-label-md text-on-surface flex items-center gap-2">
+                                    <span class="material-symbols-outlined text-[18px]">calendar_today</span>
+                                    Sesi Resmi Hari Ini
+                                </h3>
+                                <span
+                                    class="bg-surface-container font-label-sm text-label-sm px-2 py-0.5 rounded text-on-surface">3
+                                    Sesi</span>
+                            </div>
+                            <div class="space-y-3">
+                                <!-- Sesi 1 -->
+                                <div
+                                    class="p-3 rounded-xl bg-surface-container-low hover:bg-surface-container transition-colors space-y-1">
+                                    <div class="flex items-center justify-between">
+                                        <span class="font-label-sm text-label-sm text-on-surface font-semibold">14:00 -
+                                            15:30 WIB</span>
+                                        <span
+                                            class="font-label-sm text-[0.7rem] bg-surface text-on-surface px-2 py-0.5 rounded-full">Privat
+                                            Tatap Muka</span>
+                                    </div>
+                                    <div class="font-body-sm text-body-sm text-on-surface">Ananda Raditya (SMA Taruna
+                                        Nusantara)</div>
+                                    <div class="font-body-sm text-[0.75rem] text-on-surface-variant">Topik: Termokimia
+                                        Lanjutan &amp; Hukum Hess</div>
+                                </div>
+                                <!-- Sesi 2 -->
+                                <div
+                                    class="p-3 rounded-xl bg-surface-container-low hover:bg-surface-container transition-colors space-y-1">
+                                    <div class="flex items-center justify-between">
+                                        <span class="font-label-sm text-label-sm text-on-surface font-semibold">16:30 -
+                                            18:00 WIB</span>
+                                        <span
+                                            class="font-label-sm text-[0.7rem] bg-secondary-container text-on-secondary-fixed-variant px-2 py-0.5 rounded-full">Studio
+                                            Lentera</span>
+                                    </div>
+                                    <div class="font-body-sm text-body-sm text-on-surface">Kelas Intensif SNBT Medika (4
+                                        Siswa)</div>
+                                    <div class="font-body-sm text-[0.75rem] text-on-surface-variant">Topik: Biokimia
+                                        Enzim &amp; Metabolisme Sel</div>
+                                </div>
+                                <!-- Sesi 3 -->
+                                <div
+                                    class="p-3 rounded-xl bg-surface-container-low hover:bg-surface-container transition-colors space-y-1">
+                                    <div class="flex items-center justify-between">
+                                        <span class="font-label-sm text-label-sm text-on-surface font-semibold">19:30 -
+                                            21:00 WIB</span>
+                                        <span
+                                            class="font-label-sm text-[0.7rem] bg-surface-container-highest text-on-surface px-2 py-0.5 rounded-full">Daring
+                                            Zoom</span>
+                                    </div>
+                                    <div class="font-body-sm text-body-sm text-on-surface">Syifa K. (Persiapan OSN
+                                        Kimia)</div>
+                                    <div class="font-body-sm text-[0.75rem] text-on-surface-variant">Topik: Kinetika
+                                        Reaksi &amp; Mekanisme Katalis</div>
+                                </div>
+                            </div>
+                            <a class="block text-center font-label-sm text-label-sm text-on-surface hover:underline pt-1"
+                                href="#">
+                                Buka Lembar Presensi Lengkap (BAP) →
+                            </a>
+                        </div>
+                        <!-- Tutor Guidance Box -->
+                        <div class="bg-surface-container-high rounded-2xl p-6 space-y-3">
+                            <div class="flex items-center gap-2">
+                                <span class="material-symbols-outlined text-primary text-[20px]">auto_stories</span>
+                                <span class="font-label-md text-label-md text-on-surface">Panduan Kuratorial
+                                    Lentera</span>
+                            </div>
+                            <p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed">
+                                Perubahan data profil publik ditinjau dalam waktu maksimal 2x24 jam oleh Tim Akademik
+                                untuk memastikan standarisasi kurasi profil tetap berkelas.
+                            </p>
+                            <a class="inline-flex items-center gap-1 font-label-sm text-label-sm text-on-surface underline hover:opacity-80"
+                                href="#">
+                                Baca Standar Etika &amp; Kurasi Pengajar
+                            </a>
+                        </div>
+                    </aside>
+                </div>
+            </section>
+            <!-- Interactive JavaScript -->
+            <script>
+                function selectPresetAvatar(index, btnElement) {
+                    // Clear active style on all presets
+                    const allButtons = document.querySelectorAll('.avatar-preset-btn');
+                    allButtons.forEach(btn => {
+                        btn.classList.remove('bg-primary');
+                        btn.classList.add('hover:bg-surface-variant');
+                        const check = btn.querySelector('.preset-check');
+                        if (check) check.classList.add('hidden');
+                    });
+
+                    // Highlight selected
+                    btnElement.classList.add('bg-primary');
+                    btnElement.classList.remove('hover:bg-surface-variant');
+                    const activeCheck = btnElement.querySelector('.preset-check');
+                    if (activeCheck) activeCheck.classList.remove('hidden');
+
+                    // Update URL input placeholder or value
+                    const urlInput = document.getElementById('avatar-url-input');
+                    const sampleUrls = [
+                        'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=500&auto=format&fit=crop&q=80',
+                        'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=500&auto=format&fit=crop&q=80',
+                        'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=500&auto=format&fit=crop&q=80',
+                        'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=500&auto=format&fit=crop&q=80',
+                        'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=500&auto=format&fit=crop&q=80',
+                        'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=500&auto=format&fit=crop&q=80'
+                    ];
+                    if (urlInput && sampleUrls[index]) {
+                        urlInput.value = sampleUrls[index];
+                    }
+                }
+
+                function refreshAvatarInput() {
+                    const urlInput = document.getElementById('avatar-url-input');
+                    if (urlInput && urlInput.value) {
+                        showToast('Tautan foto berhasil diperbarui');
+                    }
+                }
+
+                function updateCharCount(textarea) {
+                    const counter = document.getElementById('char-counter');
+                    const previewQuote = document.getElementById('sidebar-preview-quote');
+                    if (counter) {
+                        counter.textContent = textarea.value.length + ' / 600 Karakter';
+                    }
+                    if (previewQuote && textarea.value) {
+                        previewQuote.textContent = '"' + textarea.value.substring(0, 75) + '..."';
+                    }
+                }
+
+                function addCustomTag() {
+                    const tagName = prompt('Masukkan topik spesialisasi atau kurikulum baru:');
+                    if (tagName && tagName.trim()) {
+                        const container = document.getElementById('tags-container');
+                        const addBtn = container.querySelector('button:last-child');
+                        const span = document.createElement('span');
+                        span.className = 'inline-flex items-center gap-1.5 bg-surface-container px-3 py-1.5 rounded-full font-label-sm text-label-sm text-on-surface animate-fadeIn';
+                        span.innerHTML = tagName.trim() + ' <button type="button" class="text-on-surface-variant hover:text-on-surface" onclick="this.parentElement.remove()"><span class="material-symbols-outlined text-[16px]">close</span></button>';
+                        container.insertBefore(span, addBtn);
+                    }
+                }
+
+                function submitProfileNotice() {
+                    showToast('Profil kurator Anda berhasil disimpan & diselaraskan.');
+                }
+
+                function previewPublicCard() {
+                    const card = document.getElementById('sidebar-live-portrait');
+                    if (card) {
+                        card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        card.parentElement.classList.add('ring-4', 'ring-primary/20');
+                        setTimeout(() => card.parentElement.classList.remove('ring-4', 'ring-primary/20'), 1500);
+                    }
+                }
+
+                function showToast(message) {
+                    const existing = document.getElementById('editorial-toast');
+                    if (existing) existing.remove();
+
+                    const toast = document.createElement('div');
+                    toast.id = 'editorial-toast';
+                    toast.className = 'fixed bottom-6 right-6 z-50 bg-primary text-on-primary font-label-md text-label-md px-5 py-3 rounded-full shadow-2xl flex items-center gap-2 transition-all transform duration-300';
+                    toast.innerHTML = '<span class="material-symbols-outlined text-[18px]">done</span><span>' + message + '</span>';
+                    document.body.appendChild(toast);
+
+                    setTimeout(() => {
+                        toast.style.opacity = '0';
+                        toast.style.transform = 'translateY(10px)';
+                        setTimeout(() => toast.remove(), 300);
+                    }, 3000);
+                }
+            </script>
+        </div>
+    </main>
+    <footer class="w-full bg-surface-container-low">
+        <div class="max-w-7xl mx-auto px-6 lg:px-12 pt-16 pb-12">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-8 pb-12">
+                <div class="space-y-3">
+                    <div class="flex items-center gap-2"><span
+                            class="material-symbols-outlined text-primary text-[20px]">flare</span><span
+                            class="font-headline-md text-headline-md tracking-tight text-on-surface">Lentera
+                            Belajar</span></div>
+                    <p class="font-body-sm text-body-sm text-on-surface-variant max-w-sm">Pendidikan kuratorial dan
+                        bimbingan terpadu yang dirancang dengan ketenangan, ketepatan, dan kehangatan manusiawi.</p>
+                </div>
+                <nav class="flex flex-wrap items-center gap-x-8 gap-y-3"
+                    data-active-classes="text-on-surface font-semibold"><a
+                        class="font-label-sm text-label-sm text-on-surface-variant hover:text-on-surface transition-colors"
+                        data-path="beranda" href="#">Beranda</a><a
+                        class="font-label-sm text-label-sm text-on-surface-variant hover:text-on-surface transition-colors"
+                        data-path="pengajar" href="#">Pengajar</a><a
+                        class="font-label-sm text-label-sm text-on-surface-variant hover:text-on-surface transition-colors"
+                        data-path="program" href="#">Program</a><a
+                        class="font-label-sm text-label-sm text-on-surface-variant hover:text-on-surface transition-colors"
+                        data-path="biaya" href="#">Biaya</a><a
+                        class="font-label-sm text-label-sm text-on-surface-variant hover:text-on-surface transition-colors"
+                        data-path="filosofi" href="#">Filosofi</a><a
+                        class="font-label-sm text-label-sm text-on-surface-variant hover:text-on-surface transition-colors"
+                        data-path="tentang-kami" href="#">Tentang Kami</a><a
+                        class="font-label-sm text-label-sm text-on-surface-variant hover:text-on-surface transition-colors"
+                        data-path="kebijakan-privasi" href="#">Kebijakan Privasi</a><a
+                        class="font-label-sm text-label-sm text-on-surface-variant hover:text-on-surface transition-colors"
+                        data-path="syarat-ketentuan" href="#">Syarat &amp; Ketentuan</a></nav>
+            </div>
+            <div class="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <p class="font-label-sm text-label-sm text-on-secondary-container">© 2025 Lentera Belajar. Hak cipta
+                    dilindungi undang-undang.</p>
+                <div class="flex items-center gap-6"><span
+                        class="font-label-sm text-label-sm text-on-secondary-container">Jakarta • Yogyakarta •
+                        Bandung</span></div>
+            </div>
+        </div>
+    </footer>
+</body>
+
+</html>

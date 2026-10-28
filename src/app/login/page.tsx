@@ -60,136 +60,169 @@ export default function HalamanLogin() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col justify-center py-12 sm:px-6 lg:px-8 font-sans">
-      <div className="sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="text-center">
-          <Link href="/" className="inline-block">
-            <span className="w-10 h-10 rounded-xl bg-slate-900 text-white inline-flex items-center justify-center font-bold text-base shadow-xs mb-3">
-              L
+    <div className="min-h-screen bg-[#faf9f7] text-[#1a1c1b] flex flex-col justify-between selection:bg-[#e3e2e0] selection:text-[#1a1c1b]">
+      {/* Top Navbar Header */}
+      <header className="w-full bg-[#faf9f7]/80 backdrop-blur-md border-b border-[#e3e2e0]/60">
+        <div className="h-20 max-w-7xl mx-auto px-6 lg:px-12 flex items-center justify-between">
+          <Link href="/" className="flex items-center gap-2.5 transition-opacity hover:opacity-80">
+            <span className="material-symbols-outlined text-black text-[22px]">flare</span>
+            <span className="font-serif text-[1.4rem] tracking-tight text-[#1a1c1b] select-none">
+              Lentera Belajar
             </span>
           </Link>
-          <h2 className="text-xl font-bold text-slate-900 tracking-tight">
-            Masuk ke Lentera Belajar
-          </h2>
-          <p className="mt-1 text-xs text-slate-500">
-            Pilih jenis akun untuk mengelola atau memperbarui data
-          </p>
+          <Link
+            href="/"
+            className="text-[0.875rem] font-medium text-[#444748] hover:text-black transition-colors flex items-center gap-1.5"
+          >
+            <span className="material-symbols-outlined text-[18px]">arrow_back</span>
+            Kembali ke Beranda
+          </Link>
         </div>
-      </div>
+      </header>
 
-      <div className="mt-6 sm:mx-auto sm:w-full sm:max-w-md px-4">
-        <div className="bg-white py-6 px-5 sm:px-8 shadow-xs border border-slate-200 rounded-2xl">
-          {/* Tab Pilihan Peran */}
-          <div className="flex border border-slate-200 rounded-xl p-1 bg-slate-50 mb-5">
-            <button
-              type="button"
-              onClick={() => {
-                setRole("koordinator");
-                setError("");
-              }}
-              className={`flex-1 py-2 text-xs font-semibold rounded-lg transition-colors ${
-                role === "koordinator"
-                  ? "bg-white text-teal-800 shadow-xs"
-                  : "text-slate-600 hover:text-slate-900"
-              }`}
-            >
-              Pengelola / Koordinator
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                setRole("tutor");
-                setError("");
-              }}
-              className={`flex-1 py-2 text-xs font-semibold rounded-lg transition-colors ${
-                role === "tutor"
-                  ? "bg-white text-teal-800 shadow-xs"
-                  : "text-slate-600 hover:text-slate-900"
-              }`}
-            >
-              Tutor Pengajar
-            </button>
+      {/* Main Login Card */}
+      <main className="flex-1 flex items-center justify-center px-6 py-12">
+        <div className="w-full max-w-md">
+          <div className="text-center mb-8">
+            <span className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#efeeec] text-[0.75rem] font-semibold text-[#444748] uppercase tracking-wider mb-3">
+              Portal Akses Internal
+            </span>
+            <h1 className="font-serif text-[2.25rem] text-[#1a1c1b] tracking-tight">
+              Selamat Datang
+            </h1>
+            <p className="mt-2 text-[0.875rem] text-[#444748]">
+              Pilih peran Anda untuk mengakses panel kerja dan sinkronisasi data operasional.
+            </p>
           </div>
 
-          {error && (
-            <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-lg text-xs font-medium">
-              {error}
+          <div className="bg-white border border-[#e3e2e0] rounded-2xl p-7 shadow-[0_2px_12px_rgba(0,0,0,0.03)]">
+            {/* Segmented Role Switcher */}
+            <div className="flex bg-[#efeeec] p-1 rounded-full mb-6">
+              <button
+                type="button"
+                onClick={() => {
+                  setRole("koordinator");
+                  setError("");
+                }}
+                className={`flex-1 py-2 rounded-full text-[0.8125rem] font-semibold transition-all ${
+                  role === "koordinator"
+                    ? "bg-black text-white shadow-sm"
+                    : "text-[#444748] hover:text-[#1a1c1b]"
+                }`}
+              >
+                Koordinator
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setRole("tutor");
+                  setError("");
+                }}
+                className={`flex-1 py-2 rounded-full text-[0.8125rem] font-semibold transition-all ${
+                  role === "tutor"
+                    ? "bg-black text-white shadow-sm"
+                    : "text-[#444748] hover:text-[#1a1c1b]"
+                }`}
+              >
+                Tutor Pengajar
+              </button>
             </div>
-          )}
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            {role === "koordinator" ? (
-              <>
-                <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">
-                    Username
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="admin"
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
-                    className="w-full px-3 py-2 text-xs border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-600 bg-slate-50 focus:bg-white"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">
-                    Password
-                  </label>
-                  <input
-                    type="password"
-                    required
-                    placeholder="admin123"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="w-full px-3 py-2 text-xs border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-600 bg-slate-50 focus:bg-white"
-                  />
-                  <p className="text-[11px] text-slate-400 mt-1">
-                    Akun bawaan: username <strong>admin</strong>, password <strong>admin123</strong>
-                  </p>
-                </div>
-              </>
-            ) : (
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">
-                  Nomor WhatsApp Terdaftar
-                </label>
-                <input
-                  type="tel"
-                  required
-                  placeholder="Contoh: 081234567890"
-                  value={nomorWa}
-                  onChange={(e) => setNomorWa(e.target.value)}
-                  className="w-full px-3 py-2 text-xs border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-600 bg-slate-50 focus:bg-white font-mono"
-                />
-                <p className="text-[11px] text-slate-400 mt-1">
-                  Masukkan nomor WhatsApp yang sudah didaftarkan oleh koordinator
-                </p>
+            {error && (
+              <div className="mb-5 p-3.5 bg-red-50/80 border border-red-200 text-[#ba1a1a] rounded-xl text-[0.8125rem] flex items-start gap-2">
+                <span className="material-symbols-outlined text-[18px] shrink-0 mt-0.5">error</span>
+                <span>{error}</span>
               </div>
             )}
 
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full py-2.5 px-4 bg-teal-700 hover:bg-teal-800 text-white rounded-lg text-xs font-semibold shadow-xs transition-colors disabled:opacity-50"
-            >
-              {loading ? "Memverifikasi..." : "Masuk"}
-            </button>
-          </form>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              {role === "koordinator" ? (
+                <>
+                  <div>
+                    <label className="block text-[0.8125rem] font-medium text-[#1a1c1b] mb-1.5">
+                      Username
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="admin"
+                      value={username}
+                      onChange={(e) => setUsername(e.target.value)}
+                      className="w-full px-3.5 py-2.5 text-[0.875rem] bg-[#faf9f7] border border-[#e3e2e0] rounded-xl focus:outline-none focus:border-black focus:bg-white transition-colors"
+                    />
+                  </div>
 
-          <div className="mt-5 pt-4 border-t border-slate-100 text-center">
-            <Link
-              href="/"
-              className="text-xs text-slate-500 hover:text-teal-700 transition-colors"
-            >
-              Kembali ke Katalog Publik
-            </Link>
+                  <div>
+                    <label className="block text-[0.8125rem] font-medium text-[#1a1c1b] mb-1.5">
+                      Password
+                    </label>
+                    <input
+                      type="password"
+                      required
+                      placeholder="admin123"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      className="w-full px-3.5 py-2.5 text-[0.875rem] bg-[#faf9f7] border border-[#e3e2e0] rounded-xl focus:outline-none focus:border-black focus:bg-white transition-colors"
+                    />
+                    <p className="text-[0.72rem] text-[#67645f] mt-1.5">
+                      Kredensial bawaan: <strong className="text-black">admin</strong> / <strong className="text-black">admin123</strong>
+                    </p>
+                  </div>
+                </>
+              ) : (
+                <div>
+                  <label className="block text-[0.8125rem] font-medium text-[#1a1c1b] mb-1.5">
+                    Nomor WhatsApp Terdaftar
+                  </label>
+                  <input
+                    type="tel"
+                    required
+                    placeholder="Contoh: 081234567890"
+                    value={nomorWa}
+                    onChange={(e) => setNomorWa(e.target.value)}
+                    className="w-full px-3.5 py-2.5 text-[0.875rem] bg-[#faf9f7] border border-[#e3e2e0] rounded-xl focus:outline-none focus:border-black focus:bg-white transition-colors font-mono"
+                  />
+                  <p className="text-[0.72rem] text-[#67645f] mt-1.5">
+                    Gunakan nomor WhatsApp yang telah diverifikasi oleh koordinator bimbel.
+                  </p>
+                </div>
+              )}
+
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full py-3 px-5 bg-black hover:bg-neutral-800 text-white rounded-full text-[0.875rem] font-medium transition-all shadow-sm disabled:opacity-50 flex items-center justify-center gap-2 mt-2"
+              >
+                {loading ? (
+                  <>
+                    <span className="material-symbols-outlined text-[18px] animate-spin">progress_activity</span>
+                    <span>Memverifikasi...</span>
+                  </>
+                ) : (
+                  <>
+                    <span>Masuk ke Akun</span>
+                    <span className="material-symbols-outlined text-[18px]">arrow_forward</span>
+                  </>
+                )}
+              </button>
+            </form>
+
+            <div className="mt-6 pt-5 border-t border-[#efeeec] text-center">
+              <Link
+                href="/tutor"
+                className="text-[0.8125rem] text-[#67645f] hover:text-black transition-colors"
+              >
+                Masuk langsung sebagai Demo Tutor →
+              </Link>
+            </div>
           </div>
         </div>
-      </div>
+      </main>
+
+      {/* Footer */}
+      <footer className="w-full py-6 text-center text-[0.75rem] text-[#67645f] border-t border-[#e3e2e0]/60">
+        © 2025 - 2026 Lentera Belajar. Sistem Manajemen & Koordinasi Pengajar Bimbel.
+      </footer>
     </div>
   );
 }
-
