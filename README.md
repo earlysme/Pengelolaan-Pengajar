@@ -34,3 +34,26 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+## Login & Aktivasi Akun Tutor
+
+Environment (`.env.local`, tidak di-commit):
+
+```
+MONGODB_URI=...
+SESSION_SECRET=string-acak-minimal-16-karakter   # wajib di production
+ADMIN_USERNAME=...                               # wajib di production
+ADMIN_PASSWORD=...                               # wajib di production
+```
+
+Di development, jika `ADMIN_USERNAME`/`ADMIN_PASSWORD` kosong, dipakai `admin` / `admin123`.
+
+Alur akun tutor:
+
+1. Koordinator menambah tutor (nama + nomor WhatsApp) di panel koordinator.
+2. Klik **Undang** pada baris tutor → sistem membuat link sekali pakai (berlaku 72 jam) → **Kirim via WhatsApp**.
+3. Tutor membuka link `/aktivasi?token=...`, mengisi email dan password, lalu langsung masuk.
+4. Login berikutnya: email + password di `/login`.
+
+Tutor lama / hasil seed belum punya password: klik **Undang** untuk masing-masing.
+Lupa password: koordinator klik **Reset akses** untuk membuat link baru.

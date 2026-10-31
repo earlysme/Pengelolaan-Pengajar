@@ -31,6 +31,68 @@ const PRESET_AVATARS = [
 
 const DAFTAR_HARI = ["Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu", "Minggu"];
 
+export interface JadwalSlot {
+  id: string;
+  hari: string;
+  jamMulai: string;
+  jamSelesai: string;
+  keterangan: string;
+}
+
+let slotCounter = 0;
+function createSlotId(hari: string): string {
+  slotCounter += 1;
+  return `slot-${hari.toLowerCase()}-${slotCounter}`;
+}
+
+const parseJadwalToSlots = (rawList?: string[]): JadwalSlot[] => {
+  if (!rawList || rawList.length === 0) {
+    return [
+      { id: createSlotId("Senin"), hari: "Senin", jamMulai: "16:00", jamSelesai: "18:00", keterangan: "Intensif" },
+      { id: createSlotId("Rabu"), hari: "Rabu", jamMulai: "16:00", jamSelesai: "18:00", keterangan: "Reguler" },
+      { id: createSlotId("Jumat"), hari: "Jumat", jamMulai: "16:00", jamSelesai: "18:00", keterangan: "Klinik Soal" },
+    ];
+  }
+
+  return rawList.map((str, index) => {
+    const colonIdx = str.indexOf(":");
+    if (colonIdx === -1) {
+      const h = DAFTAR_HARI.find((d) => str.toLowerCase().includes(d.toLowerCase())) || str.trim();
+      return {
+        id: createSlotId(h || `day-${index}`),
+        hari: h,
+        jamMulai: "16:00",
+        jamSelesai: "18:00",
+        keterangan: "Reguler",
+      };
+    }
+
+    const hari = str.slice(0, colonIdx).trim();
+    const rest = str.slice(colonIdx + 1).trim();
+    const timeMatch = rest.match(/(\d{1,2}:\d{2})\s*-\s*(\d{1,2}:\d{2})/);
+    const jamMulai = timeMatch ? timeMatch[1] : "16:00";
+    const jamSelesai = timeMatch ? timeMatch[2] : "18:00";
+    const ketMatch = rest.match(/\((.*?)\)/);
+    const keterangan = ketMatch ? ketMatch[1] : "";
+
+    return {
+      id: createSlotId(hari),
+      hari,
+      jamMulai,
+      jamSelesai,
+      keterangan,
+    };
+  });
+};
+
+const formatSlotToString = (slot: JadwalSlot): string => {
+  if (!slot.jamMulai || !slot.jamSelesai) {
+    return slot.keterangan ? `${slot.hari}: Belum atur jam (${slot.keterangan})` : `${slot.hari}: Belum atur jam`;
+  }
+  const jam = `${slot.jamMulai} - ${slot.jamSelesai} WIB`;
+  return slot.keterangan ? `${slot.hari}: ${jam} (${slot.keterangan})` : `${slot.hari}: ${jam}`;
+};
+
 export default function AreaTutor() {
   const router = useRouter();
   const [currentTutor, setCurrentTutor] = useState<PengajarData | null>(null);
@@ -49,10 +111,26 @@ export default function AreaTutor() {
   ]);
   const [domisili, setDomisili] = useState("Bandung & Jakarta Selatan (Fleksibel)");
   const [nomorWa, setNomorWa] = useState("");
-  const [hariTersedia, setHariTersedia] = useState<string[]>(["Senin", "Rabu", "Jumat"]);
+  const [jadwalSlots, setJadwalSlots] = useState<JadwalSlot[]>([]);
 
   const [savingProfil, setSavingProfil] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
+
+  // State Modal Ubah Password dengan OTP
+  const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
+  const [otpChannel, setOtpChannel] = useState<"whatsapp" | "email">("whatsapp");
+  const [otpStep, setOtpStep] = useState<"request" | "verify">("request");
+  const [otpInput, setOtpInput] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [otpLoading, setOtpLoading] = useState(false);
+  const [otpError, setOtpError] = useState("");
+  const [otpSentData, setOtpSentData] = useState<{ target?: string; waUrl?: string; devOtp?: string } | null>(null);
+
+  // Daftar hari unik dari slot yang aktif
+  const hariTersedia = Array.from(new Set(jadwalSlots.map((s) => s.hari)));
 
   // Melacak status apakah ada perubahan data (sedang mengedit)
   const [initialData, setInitialData] = useState<{
@@ -61,55 +139,27 @@ export default function AreaTutor() {
     pendidikan: string;
     domisili: string;
     nomorWa: string;
-    hariTersedia: string[];
+    jadwalSlots: JadwalSlot[];
     tags: string[];
   } | null>(null);
 
   const hasChanges = Boolean(
     initialData &&
-      (foto !== initialData.foto ||
-        deskripsi !== initialData.deskripsi ||
-        pendidikan !== initialData.pendidikan ||
-        domisili !== initialData.domisili ||
-        nomorWa !== initialData.nomorWa ||
-        JSON.stringify(hariTersedia) !== JSON.stringify(initialData.hariTersedia) ||
-        JSON.stringify(tags) !== JSON.stringify(initialData.tags))
+    (foto !== initialData.foto ||
+      deskripsi !== initialData.deskripsi ||
+      pendidikan !== initialData.pendidikan ||
+      domisili !== initialData.domisili ||
+      nomorWa !== initialData.nomorWa ||
+      JSON.stringify(jadwalSlots) !== JSON.stringify(initialData.jadwalSlots) ||
+      JSON.stringify(tags) !== JSON.stringify(initialData.tags))
   );
-
-  useEffect(() => {
-    fetchMyProfile();
-  }, []);
-
-  const fetchMyProfile = async () => {
-    try {
-      setLoading(true);
-      const res = await fetch("/api/pengajar");
-      const json = await res.json();
-      if (json.success && json.data.length > 0) {
-        // Ambil tutor yang sedang login dari localStorage
-        const savedTutorId = localStorage.getItem("tutorId");
-        let active = json.data[0];
-
-        if (savedTutorId) {
-          const found = json.data.find((t: PengajarData) => t._id === savedTutorId);
-          if (found) active = found;
-        }
-
-        populateTutor(active);
-      }
-    } catch {
-      // Ignore
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const populateTutor = (t: PengajarData) => {
     setCurrentTutor(t);
     setFoto(t.foto || PRESET_AVATARS[0]);
     setDeskripsi(
       t.deskripsi ||
-        "Berpengalaman lebih dari 8 tahun membimbing siswa menembus Fakultas Kedokteran dan PTN impian dengan metode visualisasi konsep dan pembedahan nalar logika soal HOTS tanpa hafalan rumus mati."
+      "Berpengalaman lebih dari 8 tahun membimbing siswa menembus Fakultas Kedokteran dan PTN impian dengan metode visualisasi konsep dan pembedahan nalar logika soal HOTS tanpa hafalan rumus mati."
     );
     setPendidikan(
       t.pendidikan || "S2 Magister Kimia ITB (Cumlaude) • S1 Pendidikan Kimia Universitas Indonesia"
@@ -117,15 +167,9 @@ export default function AreaTutor() {
     setNomorWa(t.nomorTelepon ? t.nomorTelepon.replace(/^(\+62|62|0)/, "") : "");
     setDomisili(t.alamat || "Bandung & Jakarta Selatan (Fleksibel)");
 
-    // Ekstrak hari ketersediaan dari data tutor
-    let initialHari: string[] = ["Senin", "Rabu", "Jumat"];
-    if (t.jadwalTersedia && t.jadwalTersedia.length > 0) {
-      const parsedDays = DAFTAR_HARI.filter((hari) =>
-        t.jadwalTersedia?.some((j) => j.toLowerCase().includes(hari.toLowerCase()))
-      );
-      initialHari = parsedDays.length > 0 ? parsedDays : ["Senin", "Rabu", "Jumat"];
-    }
-    setHariTersedia(initialHari);
+    // Ekstrak slot ketersediaan dari data tutor
+    const initialSlots = parseJadwalToSlots(t.jadwalTersedia);
+    setJadwalSlots(initialSlots);
 
     const initialFoto = t.foto || PRESET_AVATARS[0];
     const initialDesk =
@@ -142,196 +186,369 @@ export default function AreaTutor() {
       pendidikan: initialPend,
       domisili: initialDom,
       nomorWa: initialWa,
-      hariTersedia: initialHari,
+      jadwalSlots: initialSlots,
       tags: [...tags],
     });
   };
 
-  const showToast = (msg: string) => {
-    setToastMessage(msg);
-    setTimeout(() => {
-      setToastMessage("");
-    }, 3500);
-  };
-
-  // Handler Unggah Foto dari Perangkat
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    if (!file.type.startsWith("image/")) {
-      showToast("Pilih file gambar valid (JPG, PNG, atau WebP).");
-      return;
-    }
-
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      const rawUrl = event.target?.result as string;
-      const img = new Image();
-      img.onload = () => {
-        const canvas = document.createElement("canvas");
-        let width = img.width;
-        let height = img.height;
-        const MAX_SIZE = 800;
-
-        if (width > height) {
-          if (width > MAX_SIZE) {
-            height = Math.round((height * MAX_SIZE) / width);
-            width = MAX_SIZE;
-          }
-        } else {
-          if (height > MAX_SIZE) {
-            width = Math.round((width * MAX_SIZE) / height);
-            height = MAX_SIZE;
-          }
-        }
-
-        canvas.width = width;
-        canvas.height = height;
-        const ctx = canvas.getContext("2d");
-        if (ctx) {
-          ctx.drawImage(img, 0, 0, width, height);
-          const compressed = canvas.toDataURL("image/jpeg", 0.88);
-          setFoto(compressed);
-          setSelectedPresetIndex(-1);
-          showToast("Foto berhasil dimuat dari perangkat.");
-        }
-      };
-      img.src = rawUrl;
-    };
-    reader.readAsDataURL(file);
-  };
-
-  // Toggle pilihan hari ketersediaan
-  const toggleHari = (hari: string) => {
-    if (hariTersedia.includes(hari)) {
-      setHariTersedia(hariTersedia.filter((h) => h !== hari));
-    } else {
-      const updated = [...hariTersedia, hari];
-      updated.sort((a, b) => DAFTAR_HARI.indexOf(a) - DAFTAR_HARI.indexOf(b));
-      setHariTersedia(updated);
-    }
-  };
-
-  // Simpan Profil & Ketersediaan Hari
-  const handleSaveProfile = async (e?: React.FormEvent) => {
-    if (e) e.preventDefault();
-    if (!currentTutor) return;
-
+  const fetchMyProfile = async () => {
     try {
-      setSavingProfil(true);
-      const res = await fetch(`/api/pengajar/${currentTutor._id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          foto,
-          deskripsi,
-          pendidikan,
-          alamat: domisili,
-          nomorTelepon: nomorWa.startsWith("0") ? nomorWa : `0${nomorWa}`,
-          jadwalTersedia: hariTersedia,
-        }),
-      });
-      const json = await res.json();
-      if (json.success) {
-        showToast("Profil dan ketersediaan hari mengajar berhasil diperbarui.");
-        setInitialData({
-          foto,
-          deskripsi,
-          pendidikan,
-          domisili,
-          nomorWa,
-          hariTersedia,
-          tags,
-        });
-        setCurrentTutor((prev) =>
-          prev
-            ? {
-                ...prev,
-                foto,
-                deskripsi,
-                pendidikan,
-                alamat: domisili,
-                nomorTelepon: nomorWa.startsWith("0") ? nomorWa : `0${nomorWa}`,
-                jadwalTersedia: hariTersedia,
-              }
-            : null
-        );
-      } else {
-        showToast("Gagal menyimpan profil.");
+      setLoading(true);
+      // Identitas diambil dari cookie sesi server, bukan dari localStorage.
+      const me = await fetch("/api/auth/me");
+      const meJson = await me.json();
+      if (!me.ok || meJson.data?.role !== "tutor") {
+        router.push("/login");
+        return;
       }
+
+      const res = await fetch(`/api/pengajar/${meJson.data.id}`);
+      const json = await res.json();
+      if (json.success) populateTutor(json.data);
     } catch {
-      showToast("Kendala koneksi.");
+      // Ignore
     } finally {
-      setSavingProfil(false);
+      setLoading(false);
     }
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem("userRole");
-    localStorage.removeItem("userName");
-    localStorage.removeItem("tutorId");
-    router.push("/login");
-  };
+  useEffect(() => {
+    fetchMyProfile();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-  const handleAddTag = () => {
-    const tagName = prompt("Masukkan topik spesialisasi atau kurikulum baru:");
-    if (tagName && tagName.trim()) {
-      setTags([...tags, tagName.trim()]);
+const showToast = (msg: string) => {
+  setToastMessage(msg);
+  setTimeout(() => {
+    setToastMessage("");
+  }, 3500);
+};
+
+// Handler Unggah Foto dari Perangkat
+const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const file = e.target.files?.[0];
+  if (!file) return;
+
+  if (!file.type.startsWith("image/")) {
+    showToast("Pilih file gambar valid (JPG, PNG, atau WebP).");
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.onload = (event) => {
+    const rawUrl = event.target?.result as string;
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement("canvas");
+      let width = img.width;
+      let height = img.height;
+      const MAX_SIZE = 800;
+
+      if (width > height) {
+        if (width > MAX_SIZE) {
+          height = Math.round((height * MAX_SIZE) / width);
+          width = MAX_SIZE;
+        }
+      } else {
+        if (height > MAX_SIZE) {
+          width = Math.round((width * MAX_SIZE) / height);
+          height = MAX_SIZE;
+        }
+      }
+
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext("2d");
+      if (ctx) {
+        ctx.drawImage(img, 0, 0, width, height);
+        const compressed = canvas.toDataURL("image/jpeg", 0.88);
+        setFoto(compressed);
+        setSelectedPresetIndex(-1);
+        showToast("Foto berhasil dimuat dari perangkat.");
+      }
+    };
+    img.src = rawUrl;
+  };
+  reader.readAsDataURL(file);
+};
+
+// Toggle pilihan hari ketersediaan
+const toggleHari = (hari: string) => {
+  const exists = jadwalSlots.some((s) => s.hari === hari);
+  if (exists) {
+    setJadwalSlots(jadwalSlots.filter((s) => s.hari !== hari));
+  } else {
+    // Ketika dicentang, slot waktu dimulai kosong agar tutor mengisi jam mereka sendiri
+    const newSlot: JadwalSlot = {
+      id: createSlotId(hari),
+      hari,
+      jamMulai: "",
+      jamSelesai: "",
+      keterangan: "Reguler",
+    };
+    const updated = [...jadwalSlots, newSlot];
+    updated.sort((a, b) => DAFTAR_HARI.indexOf(a.hari) - DAFTAR_HARI.indexOf(b.hari));
+    setJadwalSlots(updated);
+  }
+};
+
+// Tambah slot jam baru pada hari tertentu
+const addSlotForHari = (hari: string) => {
+  const newSlot: JadwalSlot = {
+    id: createSlotId(hari),
+    hari,
+    jamMulai: "",
+    jamSelesai: "",
+    keterangan: "",
+  };
+  const updated = [...jadwalSlots, newSlot];
+  updated.sort((a, b) => DAFTAR_HARI.indexOf(a.hari) - DAFTAR_HARI.indexOf(b.hari));
+  setJadwalSlots(updated);
+};
+
+// Ubah nilai pada slot tertentu
+const updateSlot = (id: string, field: keyof JadwalSlot, val: string) => {
+  setJadwalSlots(
+    jadwalSlots.map((s) => (s.id === id ? { ...s, [field]: val } : s))
+  );
+};
+
+// Hapus satu slot jam tertentu
+const removeSlot = (id: string) => {
+  setJadwalSlots(jadwalSlots.filter((s) => s.id !== id));
+};
+
+// Handler OTP Ubah Password
+const handleRequestOtp = async () => {
+  setOtpError("");
+  setOtpLoading(true);
+  try {
+    const res = await fetch("/api/tutor/otp/send", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ channel: otpChannel }),
+    });
+    const json = await res.json();
+    if (json.success) {
+      setOtpSentData(json);
+      setOtpStep("verify");
+      showToast("Kode OTP verifikasi berhasil dibuat.");
+    } else {
+      setOtpError(json.error || "Gagal mengirim kode OTP.");
     }
-  };
+  } catch {
+    setOtpError("Terjadi kendala koneksi.");
+  } finally {
+    setOtpLoading(false);
+  }
+};
 
-  const handleRemoveTag = (index: number) => {
-    setTags(tags.filter((_, i) => i !== index));
-  };
+const handleVerifyOtpAndChangePassword = async (e: React.FormEvent) => {
+  e.preventDefault();
+  setOtpError("");
 
-  const previewPublicCard = () => {
-    const card = document.getElementById("sidebar-live-portrait");
-    if (card) {
-      card.scrollIntoView({ behavior: "smooth", block: "center" });
-      card.parentElement?.classList.add("ring-4", "ring-black/20");
-      setTimeout(() => card.parentElement?.classList.remove("ring-4", "ring-black/20"), 1500);
+  if (newPassword !== confirmPassword) {
+    setOtpError("Konfirmasi password baru tidak cocok.");
+    return;
+  }
+
+  if (newPassword.length < 8) {
+    setOtpError("Password baru minimal 8 karakter.");
+    return;
+  }
+
+  setOtpLoading(true);
+  try {
+    const res = await fetch("/api/tutor/otp/verify", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ otp: otpInput, password: newPassword }),
+    });
+    const json = await res.json();
+    if (json.success) {
+      showToast("Password Anda berhasil diperbarui!");
+      setIsPasswordModalOpen(false);
+      setOtpStep("request");
+      setOtpInput("");
+      setNewPassword("");
+      setConfirmPassword("");
+      setOtpSentData(null);
+    } else {
+      setOtpError(json.error || "Gagal memperbarui password.");
     }
-  };
+  } catch {
+    setOtpError("Terjadi kendala koneksi.");
+  } finally {
+    setOtpLoading(false);
+  }
+};
 
-  return (
-    <div className="bg-[#faf9f7] font-sans text-[#1a1c1b] min-h-screen selection:bg-[#e3e2e0] selection:text-[#1a1c1b]">
-      {/* Top Header Khusus Role Tutor */}
-      <header className="fixed top-0 w-full z-50 bg-[#faf9f7]/85 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)]">
-        <div className="h-20 max-w-7xl mx-auto px-6 lg:px-12 flex items-center justify-between gap-6">
-          <div className="flex items-center gap-3">
-            <Link href="/" className="flex items-center gap-2.5 transition-opacity hover:opacity-80">
-              <span className="material-symbols-outlined text-black text-[22px]">flare</span>
-              <span className="font-serif text-[1.75rem] tracking-tight text-[#1a1c1b] select-none">
-                Lentera Belajar
+// Simpan Profil & Ketersediaan Hari & Jam
+const handleSaveProfile = async (e?: React.FormEvent) => {
+  if (e) e.preventDefault();
+  if (!currentTutor) return;
+
+  const incomplete = jadwalSlots.some((s) => !s.jamMulai || !s.jamSelesai);
+  if (incomplete) {
+    showToast("Lengkapi jam mulai dan jam selesai untuk semua hari yang Anda pilih.");
+    return;
+  }
+
+  try {
+    setSavingProfil(true);
+    const serializedJadwal = jadwalSlots
+      .filter((s) => s.jamMulai && s.jamSelesai)
+      .map(formatSlotToString);
+
+    const res = await fetch(`/api/pengajar/${currentTutor._id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        foto,
+        deskripsi,
+        pendidikan,
+        alamat: domisili,
+        nomorTelepon: nomorWa.startsWith("0") ? nomorWa : `0${nomorWa}`,
+        jadwalTersedia: serializedJadwal,
+      }),
+    });
+    const json = await res.json();
+    if (json.success) {
+      showToast("Profil dan jam ketersediaan mengajar berhasil disimpan.");
+      setInitialData({
+        foto,
+        deskripsi,
+        pendidikan,
+        domisili,
+        nomorWa,
+        jadwalSlots: [...jadwalSlots],
+        tags,
+      });
+      setCurrentTutor((prev) =>
+        prev
+          ? {
+            ...prev,
+            foto,
+            deskripsi,
+            pendidikan,
+            alamat: domisili,
+            nomorTelepon: nomorWa.startsWith("0") ? nomorWa : `0${nomorWa}`,
+            jadwalTersedia: serializedJadwal,
+          }
+          : null
+      );
+    } else {
+      showToast("Gagal menyimpan profil.");
+    }
+  } catch {
+    showToast("Kendala koneksi.");
+  } finally {
+    setSavingProfil(false);
+  }
+};
+
+const handleLogout = async () => {
+  await fetch("/api/auth/logout", { method: "POST" });
+  router.push("/login");
+};
+
+const handleAddTag = () => {
+  const tagName = prompt("Masukkan topik spesialisasi atau kurikulum baru:");
+  if (tagName && tagName.trim()) {
+    setTags([...tags, tagName.trim()]);
+  }
+};
+
+const handleRemoveTag = (index: number) => {
+  setTags(tags.filter((_, i) => i !== index));
+};
+
+const previewPublicCard = () => {
+  const card = document.getElementById("sidebar-live-portrait");
+  if (card) {
+    card.scrollIntoView({ behavior: "smooth", block: "center" });
+    card.parentElement?.classList.add("ring-4", "ring-black/20");
+    setTimeout(() => card.parentElement?.classList.remove("ring-4", "ring-black/20"), 1500);
+  }
+};
+
+return (
+  <div className="bg-[#faf8f5] font-sans text-[#172421] min-h-screen selection:bg-[#F2D5A8] selection:text-[#173F3A]">
+    {/* Top Header Khusus Role Tutor */}
+    <header className="fixed top-0 w-full z-50 bg-[#faf8f5]/85 backdrop-blur-xl shadow-[0_1px_8px_rgba(23,63,58,0.06)] border-b border-[#173F3A]/10">
+      <div className="h-20 max-w-7xl mx-auto px-6 lg:px-12 flex items-center justify-between gap-6">
+        <div className="flex items-center gap-3">
+          <Link href="/" className="flex items-center gap-3 transition-opacity hover:opacity-85">
+            <img src="/logo.svg" alt="Gen Plasma" className="w-9 h-9 object-contain" />
+            <div className="flex flex-col">
+              <span className="font-serif text-[1.4rem] leading-none tracking-tight text-[#173F3A] select-none font-bold">
+                Gen Plasma
               </span>
-            </Link>
-            <span className="text-[#c4c7c7] hidden sm:inline">•</span>
-            <span className="text-[0.75rem] font-semibold text-[#444748] uppercase tracking-wider hidden sm:inline bg-[#efeeec] px-3 py-1 rounded-full">
-              Portal Tutor
-            </span>
-          </div>
+              <span className="text-[0.65rem] tracking-wider uppercase text-[#B74E2C] font-semibold">
+                Alur Selaras
+              </span>
+            </div>
+          </Link>
+          <span className="text-[#173F3A]/30 hidden sm:inline">•</span>
+          <span className="text-[0.75rem] font-semibold text-[#173F3A] uppercase tracking-wider hidden sm:inline bg-[#F2D5A8]/60 px-3 py-1 rounded-full border border-[#D88A32]/30">
+            Portal Tutor
+          </span>
+        </div>
 
-          <div className="flex items-center gap-4">
-            <Link
-              href="/"
-              className="text-[0.875rem] font-medium text-[#444748] hover:text-[#1a1c1b] transition-colors flex items-center gap-1.5 px-3 py-1.5 rounded-full hover:bg-[#efeeec]"
-            >
-              <span className="material-symbols-outlined text-[18px]">arrow_back</span>
-              <span>Katalog Publik</span>
-            </Link>
+        <div className="flex items-center gap-3">
+          <Link
+            href="/"
+            className="text-[0.875rem] font-medium text-[#444748] hover:text-[#173F3A] transition-colors flex items-center gap-1.5 px-3.5 py-1.5 rounded-full hover:bg-[#F2D5A8]/40"
+          >
+            <span className="material-symbols-outlined text-[18px]">arrow_back</span>
+            <span>Katalog Publik</span>
+          </Link>
+          <button
+            type="button"
+            onClick={() => {
+              setOtpStep("request");
+              setOtpError("");
+              setIsPasswordModalOpen(true);
+            }}
+            className="text-[0.8125rem] font-semibold text-[#173F3A] bg-[#F2D5A8]/50 hover:bg-[#F2D5A8] border border-[#D88A32]/30 transition-colors flex items-center gap-1.5 px-3.5 py-1.5 rounded-full"
+            title="Ubah kata sandi akun via OTP"
+          >
+            <span className="material-symbols-outlined text-[16px]">lock_reset</span>
+            <span className="hidden sm:inline">Ubah Password</span>
+          </button>
+          <button
+            type="button"
+            onClick={handleLogout}
+            className="text-[0.8125rem] font-medium text-[#ba1a1a] hover:bg-red-50 transition-colors flex items-center gap-1 px-3 py-1.5 rounded-full border border-red-200"
+            title="Keluar dari akun tutor"
+          >
+            <span className="material-symbols-outlined text-[16px]">logout</span>
+            <span className="hidden sm:inline">Keluar</span>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    {/* Main Container */}
+    <main className="w-full pt-20 bg-[#faf8f5]">
+      {loading && !currentTutor ? (
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <div className="flex flex-col items-center gap-3 text-center">
+            <span className="material-symbols-outlined text-[36px] text-[#173F3A] animate-spin">
+              progress_activity
+            </span>
+            <p className="text-[0.875rem] text-[#444748] font-medium">
+              Memuat data profil tutor...
+            </p>
           </div>
         </div>
-      </header>
-
-      {/* Main Container */}
-      <main className="w-full pt-20 bg-[#faf9f7]">
+      ) : (
         <div className="flex flex-col w-full">
           {/* Main Teacher Portal Wrapper */}
           <section className="max-w-7xl mx-auto px-6 lg:px-12 py-10 w-full space-y-8">
             {/* Header & Profile Identity Bento Banner */}
-            <header className="bg-[#f4f3f1] rounded-2xl p-6 lg:p-10 shadow-[0_4px_24px_-4px_rgba(0,0,0,0.04)] relative overflow-hidden">
-              <div className="absolute -right-24 -top-24 w-96 h-96 rounded-full bg-[#e7e2db]/40 blur-3xl pointer-events-none"></div>
+            <header className="bg-white border border-[#173F3A]/15 rounded-2xl p-6 lg:p-10 shadow-[0_4px_24px_-4px_rgba(23,63,58,0.06)] relative overflow-hidden">
+              <div className="absolute -right-24 -top-24 w-96 h-96 rounded-full bg-[#F2D5A8]/30 blur-3xl pointer-events-none"></div>
               <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-8">
                 {/* Left: Portrait Thumbnail + Identity */}
                 <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6">
@@ -397,7 +614,7 @@ export default function AreaTutor() {
                 <div className="flex items-center gap-3 w-full sm:w-auto">
                   <Link
                     href="/"
-                    className="inline-flex items-center justify-center gap-2 bg-[#faf9f7] text-[#1a1c1b] text-[0.875rem] font-semibold px-4 py-2.5 rounded-full hover:bg-[#e3e2e0] transition-colors shadow-[0_2px_6px_rgba(0,0,0,0.04)]"
+                    className="inline-flex items-center justify-center gap-2 bg-[#faf8f5] text-[#173F3A] text-[0.875rem] font-semibold px-4 py-2.5 rounded-full hover:bg-[#F2D5A8]/50 border border-[#173F3A]/15 transition-colors shadow-xs"
                   >
                     <span className="material-symbols-outlined text-[18px]">visibility</span>
                     Lihat Publik
@@ -407,7 +624,7 @@ export default function AreaTutor() {
                       type="button"
                       disabled={savingProfil}
                       onClick={() => handleSaveProfile()}
-                      className="inline-flex items-center justify-center gap-2 bg-black text-white text-[0.875rem] font-semibold px-5 py-2.5 rounded-full hover:bg-[#444748] transition-all shadow-[0_4px_12px_rgba(0,0,0,0.12)] disabled:opacity-50 animate-in fade-in zoom-in-95 duration-200"
+                      className="inline-flex items-center justify-center gap-2 bg-[#173F3A] text-white text-[0.875rem] font-semibold px-5 py-2.5 rounded-full hover:bg-[#112F2B] transition-all shadow-[0_4px_12px_rgba(23,63,58,0.2)] disabled:opacity-50 animate-in fade-in zoom-in-95 duration-200"
                     >
                       <span className="material-symbols-outlined text-[18px]">save</span>
                       {savingProfil ? "Menyimpan..." : "Simpan Profil"}
@@ -546,9 +763,8 @@ export default function AreaTutor() {
                               setFoto(url);
                               setSelectedPresetIndex(idx);
                             }}
-                            className={`group relative rounded-xl overflow-hidden aspect-square bg-[#efeeec] shadow-xs p-0.5 transition-all ${
-                              isSelected ? "bg-black" : "hover:bg-[#e3e2e0]"
-                            }`}
+                            className={`group relative rounded-xl overflow-hidden aspect-square bg-[#efeeec] shadow-xs p-0.5 transition-all ${isSelected ? "bg-black" : "hover:bg-[#e3e2e0]"
+                              }`}
                           >
                             <img
                               src={url}
@@ -592,22 +808,26 @@ export default function AreaTutor() {
 
                 <div className="h-px w-full bg-[#efeeec]"></div>
 
-                {/* SECTION 2: HARI KETERSEDIAAN MENGAJAR (FOKUS HANYA HARI SAJA) */}
-                <fieldset className="space-y-4">
+                {/* SECTION 2: HARI & JAM KETERSEDIAAN MENGAJAR */}
+                <fieldset className="space-y-5">
                   <div className="flex items-center justify-between">
                     <div>
-                      <legend className="font-serif text-[1.5rem] text-[#1a1c1b]">
-                        Hari Ketersediaan Mengajar
+                      <legend className="font-serif text-[1.5rem] text-[#173F3A] font-bold">
+                        Hari &amp; Jam Ketersediaan Mengajar
                       </legend>
                       <p className="text-[0.8125rem] text-[#444748] mt-1">
-                        Pilih hari apa saja Anda siap membimbing siswa. Informasi ini tampil langsung di katalog publik.
+                        Tentukan hari dan jam Anda siap membimbing. Jam ini akan langsung tampil di kartu katalog publik dan modal penjadwalan siswa.
                       </p>
                     </div>
-                    <span className="font-mono text-[0.75rem] text-[#67645f]">BAGIAN 02/05</span>
+                    <span className="font-mono text-[0.75rem] text-[#B74E2C] font-semibold">BAGIAN 02/05</span>
                   </div>
 
-                  <div className="space-y-2 pt-1">
-                    <div className="flex flex-wrap gap-1.5">
+                  {/* Pemilihan Hari */}
+                  <div className="space-y-3 pt-1">
+                    <span className="text-[0.75rem] text-[#444748] font-semibold block">
+                      1. Pilih Hari Aktif Mengajar:
+                    </span>
+                    <div className="flex flex-wrap gap-2">
                       {DAFTAR_HARI.map((hari) => {
                         const isSelected = hariTersedia.includes(hari);
                         return (
@@ -615,16 +835,14 @@ export default function AreaTutor() {
                             key={hari}
                             type="button"
                             onClick={() => toggleHari(hari)}
-                            className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[0.75rem] font-medium transition-all ${
-                              isSelected
-                                ? "bg-black text-white shadow-xs"
-                                : "bg-[#f4f3f1] text-[#444748] hover:bg-[#e9e8e6] border border-[#e3e2e0]"
-                            }`}
+                            className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-[0.8125rem] font-semibold transition-all ${isSelected
+                              ? "bg-[#173F3A] text-white shadow-xs"
+                              : "bg-[#faf8f5] text-[#444748] hover:bg-[#F2D5A8]/50 border border-[#173F3A]/15"
+                              }`}
                           >
                             <span
-                              className={`material-symbols-outlined text-[14px] ${
-                                isSelected ? "text-white" : "text-[#747878]"
-                              }`}
+                              className={`material-symbols-outlined text-[15px] ${isSelected ? "text-[#F2D5A8]" : "text-[#747878]"
+                                }`}
                             >
                               {isSelected ? "check" : "calendar_today"}
                             </span>
@@ -633,18 +851,159 @@ export default function AreaTutor() {
                         );
                       })}
                     </div>
+                  </div>
 
-                    <p className="text-[0.75rem] text-[#67645f] pt-1">
-                      {hariTersedia.length > 0 ? (
-                        <>
-                          Hari terpilih: <strong className="text-black">{hariTersedia.join(", ")}</strong>
-                        </>
-                      ) : (
-                        <span className="text-amber-700">
-                          Belum ada hari yang dipilih. Klik salah satu hari di atas.
-                        </span>
-                      )}
-                    </p>
+                  {/* Pengaturan Jam per Hari */}
+                  <div className="space-y-3 pt-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[0.75rem] text-[#444748] font-semibold block">
+                        2. Atur Jam &amp; Sesi untuk Hari Terpilih:
+                      </span>
+                      <span className="text-[0.72rem] text-[#67645f]">
+                        Total {jadwalSlots.length} sesi mengajar
+                      </span>
+                    </div>
+
+                    {hariTersedia.length === 0 ? (
+                      <div className="p-4 bg-amber-50/70 border border-amber-200/80 rounded-2xl text-[0.8125rem] text-amber-900 flex items-center gap-2.5">
+                        <span className="material-symbols-outlined text-amber-700 text-[20px]">info</span>
+                        <span>Silakan klik minimal satu hari di atas untuk mengatur jam mengajar Anda.</span>
+                      </div>
+                    ) : (
+                      <div className="space-y-3">
+                        {hariTersedia.map((hari) => {
+                          const slotsHari = jadwalSlots.filter((s) => s.hari === hari);
+                          return (
+                            <div
+                              key={hari}
+                              className="p-4 bg-[#faf8f5] border border-[#173F3A]/15 rounded-2xl space-y-3"
+                            >
+                              <div className="flex items-center justify-between border-b border-[#173F3A]/10 pb-2.5">
+                                <div className="flex items-center gap-2">
+                                  <span className="w-2.5 h-2.5 rounded-full bg-[#B74E2C]"></span>
+                                  <span className="font-serif text-[1.125rem] font-bold text-[#173F3A]">
+                                    {hari}
+                                  </span>
+                                  <span className="text-[0.72rem] font-semibold px-2 py-0.5 rounded-full bg-[#F2D5A8]/60 text-[#173F3A]">
+                                    {slotsHari.length} sesi
+                                  </span>
+                                </div>
+                                <button
+                                  type="button"
+                                  onClick={() => addSlotForHari(hari)}
+                                  className="inline-flex items-center gap-1 text-[0.75rem] font-semibold text-[#B74E2C] hover:text-[#9c3e20] bg-white px-3 py-1 rounded-full border border-[#B74E2C]/30 shadow-xs transition-colors"
+                                >
+                                  <span className="material-symbols-outlined text-[15px]">add</span>
+                                  Tambah Jam Lagi
+                                </button>
+                              </div>
+
+                              <div className="space-y-3">
+                                {slotsHari.map((slot, sIdx) => {
+                                  const isFilled = Boolean(slot.jamMulai && slot.jamSelesai);
+                                  return (
+                                    <div
+                                      key={slot.id}
+                                      className="p-4 bg-white rounded-2xl border-2 border-[#173F3A]/15 hover:border-[#173F3A]/30 transition-all shadow-xs space-y-3"
+                                    >
+                                      <div className="flex items-center justify-between border-b border-[#173F3A]/10 pb-2">
+                                        <div className="flex items-center gap-2">
+                                          <span className="w-6 h-6 rounded-full bg-[#173F3A] text-white text-[0.75rem] font-bold flex items-center justify-center">
+                                            {sIdx + 1}
+                                          </span>
+                                          <span className="text-[0.875rem] font-bold text-[#173F3A]">
+                                            Sesi Mengajar ke-{sIdx + 1} ({hari})
+                                          </span>
+                                        </div>
+
+                                        <button
+                                          type="button"
+                                          onClick={() => removeSlot(slot.id)}
+                                          title="Hapus sesi ini"
+                                          className="inline-flex items-center gap-1 text-[0.75rem] font-medium text-rose-600 hover:text-rose-800 hover:bg-rose-50 px-2.5 py-1 rounded-full transition-colors"
+                                        >
+                                          <span className="material-symbols-outlined text-[16px]">delete</span>
+                                          <span>Hapus Sesi</span>
+                                        </button>
+                                      </div>
+
+                                      {/* Baris Input Form Jam & Keterangan */}
+                                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                                        {/* Jam Mulai */}
+                                        <div className="space-y-1">
+                                          <label className="block text-[0.75rem] font-semibold text-[#444748] flex items-center gap-1">
+                                            <span className="material-symbols-outlined text-[16px] text-[#173F3A]">schedule</span>
+                                            <span>Jam Mulai</span>
+                                            <span className="text-rose-500">*</span>
+                                          </label>
+                                          <input
+                                            type="time"
+                                            value={slot.jamMulai}
+                                            onChange={(e) => updateSlot(slot.id, "jamMulai", e.target.value)}
+                                            className="w-full px-3.5 py-2.5 text-[0.875rem] font-bold text-[#173F3A] bg-[#faf8f5] border-2 border-[#173F3A]/20 focus:border-[#173F3A] focus:bg-white rounded-xl focus:outline-none transition-colors"
+                                          />
+                                        </div>
+
+                                        {/* Jam Selesai */}
+                                        <div className="space-y-1">
+                                          <label className="block text-[0.75rem] font-semibold text-[#444748] flex items-center gap-1">
+                                            <span className="material-symbols-outlined text-[16px] text-[#173F3A]">update</span>
+                                            <span>Jam Selesai</span>
+                                            <span className="text-rose-500">*</span>
+                                          </label>
+                                          <input
+                                            type="time"
+                                            value={slot.jamSelesai}
+                                            onChange={(e) => updateSlot(slot.id, "jamSelesai", e.target.value)}
+                                            className="w-full px-3.5 py-2.5 text-[0.875rem] font-bold text-[#173F3A] bg-[#faf8f5] border-2 border-[#173F3A]/20 focus:border-[#173F3A] focus:bg-white rounded-xl focus:outline-none transition-colors"
+                                          />
+                                        </div>
+
+                                        {/* Keterangan Kelas */}
+                                        <div className="space-y-1">
+                                          <label className="block text-[0.75rem] font-semibold text-[#444748] flex items-center gap-1">
+                                            <span className="material-symbols-outlined text-[16px] text-[#B74E2C]">label</span>
+                                            <span>Jenis / Keterangan Sesi</span>
+                                          </label>
+                                          <input
+                                            type="text"
+                                            value={slot.keterangan}
+                                            onChange={(e) => updateSlot(slot.id, "keterangan", e.target.value)}
+                                            placeholder="Contoh: Reguler, Privat, Klinik Soal"
+                                            className="w-full px-3.5 py-2.5 text-[0.8125rem] text-[#173F3A] bg-[#faf8f5] border border-[#173F3A]/20 focus:border-[#173F3A] focus:bg-white rounded-xl focus:outline-none transition-colors placeholder:text-[#67645f]/60"
+                                          />
+                                        </div>
+                                      </div>
+
+                                      {/* Status Indikator Sesi */}
+                                      <div className="pt-2 border-t border-[#173F3A]/10 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-[0.75rem]">
+                                        {isFilled ? (
+                                          <div className="flex items-center gap-1.5 text-emerald-700">
+                                            <span className="material-symbols-outlined text-[16px]">check_circle</span>
+                                            <span className="font-semibold">
+                                              Sesi aktif: {slot.jamMulai} - {slot.jamSelesai} WIB {slot.keterangan ? `(${slot.keterangan})` : ""}
+                                            </span>
+                                          </div>
+                                        ) : (
+                                          <div className="flex items-center gap-1.5 text-amber-700">
+                                            <span className="material-symbols-outlined text-[16px]">edit_calendar</span>
+                                            <span>Silakan atur jam mulai dan jam selesai untuk sesi ini</span>
+                                          </div>
+                                        )}
+
+                                        <span className="font-mono text-[0.72rem] text-[#173F3A] bg-[#F2D5A8]/50 px-2.5 py-0.5 rounded-full font-semibold self-start sm:self-auto">
+                                          {formatSlotToString(slot)}
+                                        </span>
+                                      </div>
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
                   </div>
                 </fieldset>
 
@@ -805,6 +1164,38 @@ export default function AreaTutor() {
                   </div>
                 </fieldset>
 
+                <div className="h-px w-full bg-[#efeeec]"></div>
+
+                {/* SECTION 6: KEAMANAN AKUN & UBAH PASSWORD */}
+                <div className="p-5 bg-[#faf8f5] border border-[#173F3A]/15 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                  <div className="flex items-center gap-3">
+                    <span className="w-10 h-10 rounded-full bg-[#F2D5A8] flex items-center justify-center text-[#173F3A] shrink-0">
+                      <span className="material-symbols-outlined text-[20px]">lock_reset</span>
+                    </span>
+                    <div>
+                      <h4 className="font-serif text-[1rem] font-bold text-[#173F3A]">
+                        Keamanan &amp; Kata Sandi Akun
+                      </h4>
+                      <p className="text-[0.75rem] text-[#444748]">
+                        Ubah password login Anda kapan saja dengan verifikasi kode OTP via WhatsApp atau Email.
+                      </p>
+                    </div>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setOtpStep("request");
+                      setOtpError("");
+                      setIsPasswordModalOpen(true);
+                    }}
+                    className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#173F3A] hover:bg-[#112F2B] text-white text-[0.8125rem] font-semibold rounded-full transition-all shadow-xs shrink-0"
+                  >
+                    <span className="material-symbols-outlined text-[16px]">key</span>
+                    <span>Ubah Password via OTP</span>
+                  </button>
+                </div>
+
                 {/* Form Submission Footer */}
                 <div className="pt-6 flex flex-col sm:flex-row items-center justify-between gap-4">
                   <p className="text-[0.8125rem] text-[#67645f] order-2 sm:order-1">
@@ -831,7 +1222,7 @@ export default function AreaTutor() {
                       <button
                         type="submit"
                         disabled={savingProfil}
-                        className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-black text-white text-[0.875rem] font-semibold px-7 py-3 rounded-full hover:bg-[#444748] transition-all shadow-[0_4px_16px_rgba(0,0,0,0.15)] disabled:opacity-50 animate-in fade-in duration-200"
+                        className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-[#173F3A] text-white text-[0.875rem] font-semibold px-7 py-3 rounded-full hover:bg-[#112F2B] transition-all shadow-[0_4px_16px_rgba(23,63,58,0.2)] disabled:opacity-50 animate-in fade-in duration-200"
                       >
                         {savingProfil ? "Menyimpan..." : "Simpan Profil Saya"}
                       </button>
@@ -843,18 +1234,18 @@ export default function AreaTutor() {
               {/* Sidebar / Live Preview (4 Columns) */}
               <aside className="lg:col-span-4 space-y-6">
                 {/* Live Card Preview */}
-                <div className="bg-[#f4f3f1] rounded-2xl p-6 shadow-[0_2px_12px_rgba(0,0,0,0.03)] space-y-5">
+                <div className="bg-white rounded-2xl p-6 border border-[#173F3A]/15 shadow-[0_2px_12px_rgba(23,63,58,0.04)] space-y-5">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <span className="w-2 h-2 rounded-full bg-black"></span>
-                      <h2 className="text-[0.875rem] font-semibold text-[#1a1c1b] uppercase tracking-wider">
+                      <span className="w-2 h-2 rounded-full bg-[#173F3A]"></span>
+                      <h2 className="text-[0.875rem] font-semibold text-[#173F3A] uppercase tracking-wider">
                         Pratinjau Kartu Publik
                       </h2>
                     </div>
                     <span className="text-[0.75rem] text-[#444748]">Katalog</span>
                   </div>
 
-                  <div className="relative w-full aspect-[3/4] rounded-[24px] overflow-hidden bg-[#e3e2e0] shadow-[0_12px_32px_-8px_rgba(0,0,0,0.12)]">
+                  <div className="relative w-full aspect-[3/4] rounded-[24px] overflow-hidden bg-[#faf8f5] shadow-[0_12px_32px_-8px_rgba(23,63,58,0.15)]">
                     <img
                       id="sidebar-live-portrait"
                       src={foto}
@@ -863,12 +1254,12 @@ export default function AreaTutor() {
                     />
 
                     <div className="absolute top-3.5 left-3.5 right-3.5 flex items-center justify-between pointer-events-none">
-                      <span className="bg-[#faf9f7]/90 backdrop-blur-md text-[#1a1c1b] text-[0.6875rem] font-bold px-3 py-1 rounded-full uppercase tracking-wider shadow-xs">
+                      <span className="bg-[#faf8f5]/90 backdrop-blur-md text-[#173F3A] text-[0.6875rem] font-bold px-3 py-1 rounded-full uppercase tracking-wider shadow-xs border border-[#173F3A]/10">
                         {currentTutor?.mataPelajaran[0] || "Kimia"}
                       </span>
-                      <span className="bg-[#faf9f7]/90 backdrop-blur-md text-[#1a1c1b] text-[0.6875rem] font-bold px-2.5 py-1 rounded-full flex items-center gap-1 shadow-xs">
+                      <span className="bg-[#faf8f5]/90 backdrop-blur-md text-[#173F3A] text-[0.6875rem] font-bold px-2.5 py-1 rounded-full flex items-center gap-1 shadow-xs border border-[#D88A32]/30">
                         <span
-                          className="material-symbols-outlined text-[13px] text-amber-600"
+                          className="material-symbols-outlined text-[13px] text-[#D88A32]"
                           style={{ fontVariationSettings: "'FILL' 1" }}
                         >
                           star
@@ -877,8 +1268,8 @@ export default function AreaTutor() {
                       </span>
                     </div>
 
-                    <div className="absolute bottom-3 left-3 right-3 bg-white/95 backdrop-blur-md rounded-xl p-3.5 shadow-lg space-y-1">
-                      <h3 className="font-serif text-[1.125rem] text-[#1a1c1b] leading-tight">
+                    <div className="absolute bottom-3 left-3 right-3 bg-white/95 backdrop-blur-md rounded-xl p-3.5 shadow-lg space-y-1 border border-[#173F3A]/10">
+                      <h3 className="font-serif text-[1.125rem] text-[#173F3A] font-bold leading-tight">
                         {currentTutor?.nama || "Siti Rahmawati, M.Si."}
                       </h3>
                       <p className="text-[0.6875rem] text-[#444748] truncate">
@@ -887,34 +1278,44 @@ export default function AreaTutor() {
                     </div>
                   </div>
 
-                  {/* Ketersediaan Hari Ringkas pada Pratinjau */}
-                  <div className="bg-white rounded-xl p-4 border border-[#e3e2e0] space-y-2">
-                    <span className="text-[0.6875rem] font-bold uppercase tracking-wider text-[#67645f] block">
-                      Hari Tersedia Mengajar
-                    </span>
-                    <div className="flex flex-wrap gap-1.5">
-                      {hariTersedia.length > 0 ? (
-                        hariTersedia.map((h) => (
-                          <span
-                            key={h}
-                            className="bg-[#efeeec] text-[#1a1c1b] text-[0.75rem] font-semibold px-2.5 py-1 rounded-full flex items-center gap-1"
+                  {/* Ketersediaan Hari & Jam Ringkas pada Pratinjau */}
+                  <div className="bg-[#faf8f5] rounded-xl p-4 border border-[#173F3A]/15 space-y-2.5">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[0.6875rem] font-bold uppercase tracking-wider text-[#173F3A] block">
+                        Jadwal &amp; Jam Mengajar Publik
+                      </span>
+                      <span className="text-[0.7rem] text-[#B74E2C] font-semibold">
+                        {jadwalSlots.length} Sesi
+                      </span>
+                    </div>
+                    <div className="flex flex-col gap-1.5 max-h-48 overflow-y-auto pr-1">
+                      {jadwalSlots.length > 0 ? (
+                        jadwalSlots.map((s) => (
+                          <div
+                            key={s.id}
+                            className="bg-white text-[#173F3A] text-[0.72rem] font-medium px-2.5 py-1.5 rounded-lg border border-[#173F3A]/10 flex items-center justify-between gap-1 shadow-2xs"
                           >
-                            <span className="w-1.5 h-1.5 rounded-full bg-black"></span>
-                            {h}
-                          </span>
+                            <span className="font-semibold">{s.hari}:</span>
+                            <span className="font-mono text-[0.7rem]">{s.jamMulai}-{s.jamSelesai}</span>
+                            {s.keterangan && (
+                              <span className="text-[0.65rem] bg-[#F2D5A8]/70 text-[#173F3A] px-1.5 py-0.5 rounded font-semibold">
+                                {s.keterangan}
+                              </span>
+                            )}
+                          </div>
                         ))
                       ) : (
                         <span className="text-[0.75rem] text-[#67645f] italic">
-                          Belum memilih hari ketersediaan
+                          Belum memilih hari &amp; jam ketersediaan
                         </span>
                       )}
                     </div>
                   </div>
 
                   {/* WhatsApp Hubungi */}
-                  <div className="bg-[#faf9f7] rounded-xl p-3.5 border border-[#e3e2e0] flex items-center justify-between text-[0.8125rem]">
+                  <div className="bg-[#faf8f5] rounded-xl p-3.5 border border-[#173F3A]/15 flex items-center justify-between text-[0.8125rem]">
                     <span className="text-[#67645f]">Konsultasi Siswa:</span>
-                    <span className="font-semibold text-[#1a1c1b] flex items-center gap-1">
+                    <span className="font-semibold text-[#173F3A] flex items-center gap-1">
                       <span className="material-symbols-outlined text-[16px] text-emerald-700">chat</span>
                       WhatsApp Langsung
                     </span>
@@ -924,27 +1325,279 @@ export default function AreaTutor() {
             </div>
           </section>
         </div>
-      </main>
-
-      {/* Floating Toast Notice */}
-      {toastMessage && (
-        <div className="fixed bottom-6 right-6 z-50 bg-black text-white text-[0.875rem] font-semibold px-5 py-3 rounded-full shadow-2xl flex items-center gap-2 animate-in fade-in slide-in-from-bottom-2 duration-300">
-          <span className="material-symbols-outlined text-[18px]">done</span>
-          <span>{toastMessage}</span>
-        </div>
       )}
+    </main>
 
-      {/* Footer */}
-      <footer className="w-full bg-[#f4f3f1] border-t border-[#e3e2e0]/60 mt-16">
-        <div className="max-w-7xl mx-auto px-6 lg:px-12 py-10 flex flex-col sm:flex-row items-center justify-between gap-4 text-[0.75rem] text-[#67645f]">
-          <div className="flex items-center gap-2">
-            <span className="material-symbols-outlined text-black text-[20px]">flare</span>
-            <span className="font-serif text-[1.25rem] text-[#1a1c1b]">Lentera Belajar</span>
-            <span className="ml-2 text-[#444748]">• Area Mandiri Pengajar</span>
+    {/* Modal Ubah Password dengan OTP */}
+    {isPasswordModalOpen && (
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-xs animate-in fade-in duration-200">
+        <div className="bg-white rounded-2xl border border-[#173F3A]/20 max-w-md w-full p-6 sm:p-8 shadow-2xl space-y-6">
+          <div className="flex items-center justify-between border-b border-[#173F3A]/10 pb-4">
+            <div className="flex items-center gap-2.5">
+              <span className="w-9 h-9 rounded-full bg-[#F2D5A8] flex items-center justify-center text-[#173F3A]">
+                <span className="material-symbols-outlined text-[20px]">lock_reset</span>
+              </span>
+              <div>
+                <h3 className="font-serif text-[1.25rem] font-bold text-[#173F3A]">
+                  Ubah Password Akun
+                </h3>
+                <p className="text-[0.75rem] text-[#67645f]">
+                  Verifikasi identitas via kode OTP demi keamanan
+                </p>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => {
+                setIsPasswordModalOpen(false);
+                setOtpStep("request");
+                setOtpError("");
+              }}
+              className="w-8 h-8 rounded-full hover:bg-neutral-100 flex items-center justify-center text-[#444748]"
+            >
+              <span className="material-symbols-outlined text-[20px]">close</span>
+            </button>
           </div>
-          <p>© 2025 - 2026 Lentera Belajar. Hak cipta dilindungi undang-undang.</p>
+
+          {otpError && (
+            <div className="p-3 bg-rose-50 border border-rose-200 text-rose-800 rounded-xl text-[0.8125rem]">
+              {otpError}
+            </div>
+          )}
+
+          {otpStep === "request" ? (
+            <div className="space-y-5">
+              <p className="text-[0.8125rem] text-[#444748] leading-relaxed">
+                Pilih saluran untuk menerima 6 digit kode OTP verifikasi kata sandi:
+              </p>
+
+              <div className="space-y-2.5">
+                <label
+                  className={`flex items-center justify-between p-3.5 rounded-xl border-2 cursor-pointer transition-all ${
+                    otpChannel === "whatsapp"
+                      ? "border-[#173F3A] bg-[#173F3A]/5"
+                      : "border-[#173F3A]/15 bg-white hover:bg-[#faf8f5]"
+                  }`}
+                >
+                  <div className="flex items-center gap-3">
+                    <input
+                      type="radio"
+                      name="otpChannel"
+                      checked={otpChannel === "whatsapp"}
+                      onChange={() => setOtpChannel("whatsapp")}
+                      className="accent-[#173F3A]"
+                    />
+                    <div>
+                      <div className="text-[0.875rem] font-bold text-[#173F3A] flex items-center gap-1.5">
+                        <span>WhatsApp</span>
+                        <span className="text-[0.7rem] bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full font-normal">
+                          Rekomendasi
+                        </span>
+                      </div>
+                      <div className="text-[0.75rem] text-[#67645f]">
+                        Kirim ke {nomorWa ? `0${nomorWa.replace(/^0+/, "")}` : "Nomor WhatsApp Anda"}
+                      </div>
+                    </div>
+                  </div>
+                  <span className="material-symbols-outlined text-emerald-600">chat</span>
+                </label>
+
+                <label
+                  className={`flex items-center justify-between p-3.5 rounded-xl border-2 cursor-pointer transition-all ${
+                    otpChannel === "email"
+                      ? "border-[#173F3A] bg-[#173F3A]/5"
+                      : "border-[#173F3A]/15 bg-white hover:bg-[#faf8f5]"
+                  }`}
+                >
+                  <div className="flex items-center gap-3">
+                    <input
+                      type="radio"
+                      name="otpChannel"
+                      checked={otpChannel === "email"}
+                      onChange={() => setOtpChannel("email")}
+                      className="accent-[#173F3A]"
+                    />
+                    <div>
+                      <div className="text-[0.875rem] font-bold text-[#173F3A]">Email</div>
+                      <div className="text-[0.75rem] text-[#67645f]">
+                        {currentTutor?.email || "Alamat email terdaftar"}
+                      </div>
+                    </div>
+                  </div>
+                  <span className="material-symbols-outlined text-[#B74E2C]">mail</span>
+                </label>
+              </div>
+
+              <div className="pt-2">
+                <button
+                  type="button"
+                  onClick={handleRequestOtp}
+                  disabled={otpLoading}
+                  className="w-full py-3 px-5 bg-[#173F3A] hover:bg-[#12312d] text-white rounded-full text-[0.875rem] font-semibold transition-all shadow-sm disabled:opacity-50 flex items-center justify-center gap-2"
+                >
+                  {otpLoading ? (
+                    <>
+                      <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                      <span>Mengirim Kode OTP...</span>
+                    </>
+                  ) : (
+                    <>
+                      <span className="material-symbols-outlined text-[18px]">send</span>
+                      <span>Kirim Kode OTP Verifikasi</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          ) : (
+            <form onSubmit={handleVerifyOtpAndChangePassword} className="space-y-4">
+              <div className="p-3.5 bg-amber-50/80 border border-amber-200/80 rounded-xl space-y-2">
+                <div className="flex items-center justify-between text-[0.8125rem] text-amber-900 font-medium">
+                  <span>OTP dikirim ke {otpSentData?.target || "kontak Anda"}</span>
+                  <button
+                    type="button"
+                    onClick={() => setOtpStep("request")}
+                    className="text-[0.75rem] underline font-semibold text-[#173F3A]"
+                  >
+                    Ganti Saluran
+                  </button>
+                </div>
+
+                {otpSentData?.waUrl && (
+                  <div className="pt-1">
+                    <a
+                      href={otpSentData.waUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-flex items-center gap-1.5 text-[0.75rem] font-bold text-white bg-emerald-600 hover:bg-emerald-700 px-3 py-1.5 rounded-full transition-colors"
+                    >
+                      <span className="material-symbols-outlined text-[15px]">chat</span>
+                      <span>Buka WhatsApp &amp; Salin OTP</span>
+                    </a>
+                  </div>
+                )}
+
+                {otpSentData?.devOtp && (
+                  <div className="text-[0.75rem] text-emerald-800 bg-emerald-50 px-2.5 py-1 rounded border border-emerald-200 font-mono">
+                    Kode OTP: <strong>{otpSentData.devOtp}</strong> (Berlaku 10 menit)
+                  </div>
+                )}
+              </div>
+
+              <div>
+                <label className="block text-[0.8125rem] font-medium text-[#172421] mb-1.5">
+                  Masukkan 6 Digit Kode OTP
+                </label>
+                <input
+                  type="text"
+                  required
+                  maxLength={6}
+                  placeholder="Contoh: 123456"
+                  value={otpInput}
+                  onChange={(e) => setOtpInput(e.target.value.replace(/\D/g, ""))}
+                  className="w-full px-4 py-2.5 text-[1.125rem] font-mono tracking-widest text-center bg-[#faf8f5] border-2 border-[#173F3A]/20 rounded-xl text-[#173F3A] focus:outline-none focus:border-[#173F3A] focus:bg-white"
+                />
+              </div>
+
+              <div>
+                <label className="block text-[0.8125rem] font-medium text-[#172421] mb-1.5">
+                  Password Baru
+                </label>
+                <div className="relative">
+                  <input
+                    type={showNewPassword ? "text" : "password"}
+                    required
+                    minLength={8}
+                    placeholder="Minimal 8 karakter"
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    className="w-full pl-3.5 pr-11 py-2.5 text-[0.875rem] bg-[#faf8f5] border border-[#173F3A]/20 rounded-xl focus:outline-none focus:border-[#173F3A] focus:bg-white"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowNewPassword(!showNewPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-[#67645f] hover:text-[#173F3A] p-1 flex items-center justify-center transition-colors"
+                    title={showNewPassword ? "Sembunyikan password" : "Lihat password"}
+                  >
+                    <span className="material-symbols-outlined text-[18px]">
+                      {showNewPassword ? "visibility_off" : "visibility"}
+                    </span>
+                  </button>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-[0.8125rem] font-medium text-[#172421] mb-1.5">
+                  Konfirmasi Password Baru
+                </label>
+                <div className="relative">
+                  <input
+                    type={showConfirmPassword ? "text" : "password"}
+                    required
+                    minLength={8}
+                    placeholder="Ulangi password baru Anda"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    className="w-full pl-3.5 pr-11 py-2.5 text-[0.875rem] bg-[#faf8f5] border border-[#173F3A]/20 rounded-xl focus:outline-none focus:border-[#173F3A] focus:bg-white"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-[#67645f] hover:text-[#173F3A] p-1 flex items-center justify-center transition-colors"
+                    title={showConfirmPassword ? "Sembunyikan password" : "Lihat password"}
+                  >
+                    <span className="material-symbols-outlined text-[18px]">
+                      {showConfirmPassword ? "visibility_off" : "visibility"}
+                    </span>
+                  </button>
+                </div>
+              </div>
+
+              <div className="pt-2 flex items-center justify-end gap-2.5">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsPasswordModalOpen(false);
+                    setOtpStep("request");
+                  }}
+                  className="px-4 py-2 rounded-full text-[0.8125rem] font-medium text-[#444748] hover:bg-neutral-100"
+                >
+                  Batal
+                </button>
+                <button
+                  type="submit"
+                  disabled={otpLoading}
+                  className="px-5 py-2.5 bg-[#173F3A] hover:bg-[#12312d] text-white rounded-full text-[0.8125rem] font-semibold transition-all shadow-sm disabled:opacity-50"
+                >
+                  {otpLoading ? "Memverifikasi..." : "Verifikasi & Simpan Password"}
+                </button>
+              </div>
+            </form>
+          )}
         </div>
-      </footer>
-    </div>
+      </div>
+    )}
+
+    {/* Floating Toast Notice */}
+    {toastMessage && (
+      <div className="fixed bottom-6 right-6 z-50 bg-[#173F3A] text-white text-[0.875rem] font-semibold px-5 py-3 rounded-full shadow-2xl flex items-center gap-2 animate-in fade-in slide-in-from-bottom-2 duration-300">
+        <span className="material-symbols-outlined text-[18px]">done</span>
+        <span>{toastMessage}</span>
+      </div>
+    )}
+
+    {/* Footer */}
+    <footer className="w-full bg-[#f2efe9] border-t border-[#173F3A]/10 mt-16">
+      <div className="max-w-7xl mx-auto px-6 lg:px-12 py-10 flex flex-col sm:flex-row items-center justify-between gap-4 text-[0.75rem] text-[#67645f]">
+        <div className="flex items-center gap-2.5">
+          <img src="/logo.svg" alt="Gen Plasma" className="w-6 h-6 object-contain" />
+          <span className="font-serif text-[1.25rem] text-[#173F3A] font-bold">Gen Plasma</span>
+          <span className="text-[#B74E2C] font-semibold">• Alur Selaras</span>
+          <span className="ml-2 text-[#444748]">• Area Mandiri Pengajar</span>
+        </div>
+        <p>© 2025 - 2026 Gen Plasma — Alur Selaras. Hak cipta dilindungi undang-undang.</p>
+      </div>
+    </footer>
+  </div>
   );
 }

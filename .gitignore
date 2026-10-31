@@ -32,6 +32,12 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+env.download
+
+# root reference assets
+/Logo-Gen-Plasma.pdf
+/gen-plasma-alur-selaras.png
+/gen-plasma-alur-selaras.svg
 
 # vercel
 .vercel

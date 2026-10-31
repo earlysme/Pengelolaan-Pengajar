@@ -174,7 +174,17 @@ export default function HalamanKatalog() {
         const json = await res.json();
         if (json.success && Array.isArray(json.data) && json.data.length > 0) {
           // Gabungkan atau gunakan pengajar dari database dengan mapping visual
-          const dbMapped: TutorItem[] = json.data.map((p: any, idx: number) => {
+          interface DBPengajarItem {
+            _id: string;
+            nama: string;
+            pendidikan?: string;
+            mataPelajaran?: string[];
+            foto?: string;
+            nomorTelepon?: string;
+            deskripsi?: string;
+            jadwalTersedia?: string[];
+          }
+          const dbMapped: TutorItem[] = (json.data as DBPengajarItem[]).map((p, idx) => {
             const fallback = MASTER_TUTORS[idx % MASTER_TUTORS.length];
             return {
               _id: p._id,
@@ -225,29 +235,34 @@ export default function HalamanKatalog() {
       {/* Header Sticky */}
       <header className="fixed top-0 w-full z-50 bg-[#faf9f7]/85 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)]">
         <div className="h-20 max-w-7xl mx-auto px-6 lg:px-12 flex items-center justify-between gap-6">
-          <Link href="/" className="flex items-center gap-2.5 transition-opacity hover:opacity-80">
-            <span className="material-symbols-outlined text-black text-[22px]">flare</span>
-            <span className="font-serif text-[1.75rem] tracking-tight text-[#1a1c1b] select-none">
-              Lentera Belajar
-            </span>
+          <Link href="/" className="flex items-center gap-3 transition-opacity hover:opacity-85">
+            <img src="/logo.svg" alt="Gen Plasma" className="w-9 h-9 object-contain" />
+            <div className="flex flex-col">
+              <span className="font-serif text-[1.4rem] leading-none tracking-tight text-[#173F3A] select-none font-bold">
+                Gen Plasma
+              </span>
+              <span className="text-[0.68rem] tracking-wider uppercase text-[#B74E2C] font-semibold">
+                Alur Selaras
+              </span>
+            </div>
           </Link>
 
           <nav className="hidden lg:flex items-center gap-8">
             <Link
               href="/"
-              className="text-[0.875rem] font-semibold text-[#1a1c1b] border-b-2 border-black py-1"
+              className="text-[0.875rem] font-semibold text-[#173F3A] border-b-2 border-[#173F3A] py-1"
             >
               Pengajar
             </Link>
             <Link
               href="/koordinator"
-              className="text-[0.875rem] text-[#444748] hover:text-[#1a1c1b] transition-colors py-1"
+              className="text-[0.875rem] text-[#444748] hover:text-[#173F3A] transition-colors py-1 font-medium"
             >
               Koordinator
             </Link>
             <Link
               href="/tutor"
-              className="text-[0.875rem] text-[#444748] hover:text-[#1a1c1b] transition-colors py-1"
+              className="text-[0.875rem] text-[#444748] hover:text-[#173F3A] transition-colors py-1 font-medium"
             >
               Area Tutor
             </Link>
@@ -256,21 +271,21 @@ export default function HalamanKatalog() {
           <div className="flex items-center gap-5">
             <Link
               href="/login"
-              className="text-[0.875rem] font-medium text-[#444748] hover:text-[#1a1c1b] transition-colors px-2 py-1"
+              className="text-[0.875rem] font-medium text-[#444748] hover:text-[#173F3A] transition-colors px-2 py-1"
             >
               Masuk
             </Link>
             <a
-              href="https://wa.me/6281377889900?text=Halo%20Lentera%20Belajar%2C%20saya%20ingin%20konsultasi%20pemilihan%20pengajar"
+              href="https://wa.me/6281377889900?text=Halo%20Gen%20Plasma%2C%20saya%20ingin%20konsultasi%20pemilihan%20pengajar"
               target="_blank"
               rel="noreferrer"
-              className="inline-flex items-center justify-center bg-black text-white text-[0.875rem] font-semibold px-5 py-2.5 rounded-full hover:bg-[#444748] transition-colors shadow-[0_2px_8px_rgba(0,0,0,0.06)]"
+              className="inline-flex items-center justify-center bg-[#B74E2C] text-white text-[0.875rem] font-semibold px-5 py-2.5 rounded-full hover:bg-[#9c3e20] transition-colors shadow-[0_2px_8px_rgba(183,78,44,0.25)]"
             >
               Konsultasi Gratis
             </a>
             <Link
               href="/login"
-              className="w-8 h-8 rounded-full bg-black flex items-center justify-center shrink-0"
+              className="w-8 h-8 rounded-full bg-[#173F3A] flex items-center justify-center shrink-0 hover:opacity-90 transition-opacity"
               title="Portal Masuk"
             >
               <span className="material-symbols-outlined text-white text-[18px]">person</span>
@@ -285,15 +300,15 @@ export default function HalamanKatalog() {
           {/* Top Editorial Header & Filters Section */}
           <section className="w-full max-w-7xl mx-auto px-6 lg:px-12 pt-16 pb-12 flex flex-col items-center text-center">
             {/* Overline Metric Pill */}
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#e9e8e6] text-[#444748] text-[0.75rem] font-medium shadow-xs mb-6">
-              <span className="inline-block w-1.5 h-1.5 rounded-full bg-black animate-pulse"></span>
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#F2D5A8]/50 text-[#173F3A] text-[0.75rem] font-semibold border border-[#D88A32]/30 shadow-xs mb-6">
+              <span className="inline-block w-2 h-2 rounded-full bg-[#B74E2C] animate-pulse"></span>
               <span>Kurasi Pengajar Terakreditasi 2025</span>
             </div>
 
             {/* Editorial Headline */}
-            <h1 className="font-serif text-[2.5rem] sm:text-[3.25rem] lg:text-[4rem] text-[#1a1c1b] max-w-4xl tracking-tight leading-[1.1] mb-5">
+            <h1 className="font-serif text-[2.5rem] sm:text-[3.25rem] lg:text-[4rem] text-[#173F3A] max-w-4xl tracking-tight leading-[1.1] mb-5 font-bold">
               Kenali pengajar yang membuat{" "}
-              <span className="italic font-normal">keajaiban belajar</span> terjadi
+              <span className="italic font-normal text-[#B74E2C]">keajaiban belajar</span> terjadi
             </h1>
 
             {/* Subtitle */}
@@ -304,7 +319,7 @@ export default function HalamanKatalog() {
 
             {/* Segmented Filter Bar */}
             <div className="w-full flex items-center justify-center overflow-x-auto no-scrollbar py-2">
-              <div className="inline-flex items-center gap-1.5 p-1.5 rounded-full bg-[#e9e8e6]/80 shadow-xs backdrop-blur-md max-w-full">
+              <div className="inline-flex items-center gap-1.5 p-1.5 rounded-full bg-[#eae6df] shadow-xs backdrop-blur-md max-w-full">
                 {FILTER_ITEMS.map((item) => {
                   const isActive = activeFilter === item.id;
                   return (
@@ -314,8 +329,8 @@ export default function HalamanKatalog() {
                       onClick={() => setActiveFilter(item.id)}
                       className={`px-4 py-2 rounded-full text-[0.875rem] transition-all duration-200 shrink-0 ${
                         isActive
-                          ? "bg-white text-[#1a1c1b] shadow-xs font-semibold"
-                          : "text-[#444748] hover:text-[#1a1c1b] font-medium"
+                          ? "bg-[#173F3A] text-white shadow-xs font-semibold"
+                          : "text-[#444748] hover:text-[#173F3A] font-medium"
                       }`}
                     >
                       {item.label}
@@ -344,14 +359,14 @@ export default function HalamanKatalog() {
                     />
 
                     {/* Star Rating Badge Top Right */}
-                    <div className="absolute top-3.5 right-3.5 bg-white/90 backdrop-blur-md px-2.5 py-1 rounded-full flex items-center gap-1 shadow-xs">
+                    <div className="absolute top-3.5 right-3.5 bg-white/95 backdrop-blur-md px-2.5 py-1 rounded-full flex items-center gap-1 shadow-xs border border-[#D88A32]/20">
                       <span
-                        className="material-symbols-outlined text-black text-[15px]"
+                        className="material-symbols-outlined text-[#D88A32] text-[15px]"
                         style={{ fontVariationSettings: "'FILL' 1" }}
                       >
                         star
                       </span>
-                      <span className="text-[0.75rem] text-[#1a1c1b] font-semibold">
+                      <span className="text-[0.75rem] text-[#173F3A] font-bold">
                         {tutor.rating.toFixed(2)}
                       </span>
                     </div>
@@ -510,15 +525,20 @@ export default function HalamanKatalog() {
       </main>
 
       {/* Footer */}
-      <footer className="w-full bg-[#f4f3f1] border-t border-[#e3e2e0]/60">
+      <footer className="w-full bg-[#f2efe9] border-t border-[#173F3A]/10">
         <div className="max-w-7xl mx-auto px-6 lg:px-12 pt-16 pb-12">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-8 pb-12 border-b border-[#e3e2e0]">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-8 pb-12 border-b border-[#173F3A]/15">
             <div className="space-y-3">
-              <div className="flex items-center gap-2">
-                <span className="material-symbols-outlined text-black text-[20px]">flare</span>
-                <span className="font-serif text-[1.75rem] tracking-tight text-[#1a1c1b]">
-                  Lentera Belajar
-                </span>
+              <div className="flex items-center gap-3">
+                <img src="/logo.svg" alt="Gen Plasma" className="w-8 h-8 object-contain" />
+                <div className="flex flex-col">
+                  <span className="font-serif text-[1.5rem] leading-none tracking-tight text-[#173F3A] font-bold">
+                    Gen Plasma
+                  </span>
+                  <span className="text-[0.65rem] tracking-wider uppercase text-[#B74E2C] font-semibold">
+                    Alur Selaras
+                  </span>
+                </div>
               </div>
               <p className="text-[0.8125rem] text-[#444748] max-w-sm leading-relaxed">
                 Pendidikan kuratorial dan bimbingan terpadu yang dirancang dengan ketenangan,
@@ -527,23 +547,23 @@ export default function HalamanKatalog() {
             </div>
 
             <nav className="flex flex-wrap items-center gap-x-8 gap-y-3 text-[0.75rem] text-[#444748]">
-              <Link href="/" className="text-[#1a1c1b] font-semibold">
+              <Link href="/" className="text-[#173F3A] font-semibold">
                 Pengajar
               </Link>
-              <Link href="/koordinator" className="hover:text-[#1a1c1b] transition-colors">
+              <Link href="/koordinator" className="hover:text-[#173F3A] transition-colors">
                 Panel Koordinator
               </Link>
-              <Link href="/tutor" className="hover:text-[#1a1c1b] transition-colors">
+              <Link href="/tutor" className="hover:text-[#173F3A] transition-colors">
                 Area Mandiri Tutor
               </Link>
-              <Link href="/login" className="hover:text-[#1a1c1b] transition-colors">
+              <Link href="/login" className="hover:text-[#173F3A] transition-colors">
                 Portal Masuk
               </Link>
             </nav>
           </div>
 
           <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-[0.75rem] text-[#67645f]">
-            <p>© 2025 - 2026 Lentera Belajar. Hak cipta dilindungi undang-undang.</p>
+            <p>© 2025 - 2026 Gen Plasma — Alur Selaras. Hak cipta dilindungi undang-undang.</p>
             <div className="flex items-center gap-6">
               <span>Jakarta • Yogyakarta • Bandung</span>
             </div>
@@ -554,9 +574,9 @@ export default function HalamanKatalog() {
       {/* Detail / Jadwal Modal */}
       {modalTutor && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-xs animate-in fade-in duration-200">
-          <div className="bg-white rounded-3xl border border-[#e3e2e0] shadow-2xl w-full max-w-lg overflow-hidden flex flex-col max-h-[90vh]">
+          <div className="bg-white rounded-3xl border border-[#173F3A]/15 shadow-2xl w-full max-w-lg overflow-hidden flex flex-col max-h-[90vh]">
             {/* Modal Header */}
-            <div className="relative p-6 bg-[#faf9f7] border-b border-[#e3e2e0] flex items-center gap-4">
+            <div className="relative p-6 bg-[#faf8f5] border-b border-[#173F3A]/10 flex items-center gap-4">
               <img
                 src={modalTutor.foto}
                 alt={modalTutor.nama}
@@ -564,13 +584,13 @@ export default function HalamanKatalog() {
               />
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-1.5 mb-1">
-                  <span className="material-symbols-outlined text-black text-[16px]" style={{ fontVariationSettings: "'FILL' 1" }}>
+                  <span className="material-symbols-outlined text-[#D88A32] text-[16px]" style={{ fontVariationSettings: "'FILL' 1" }}>
                     star
                   </span>
-                  <span className="text-[0.75rem] font-bold text-[#1a1c1b]">{modalTutor.rating.toFixed(2)}</span>
+                  <span className="text-[0.75rem] font-bold text-[#173F3A]">{modalTutor.rating.toFixed(2)}</span>
                   <span className="text-[0.75rem] text-[#67645f]">• {modalTutor.almamater}</span>
                 </div>
-                <h3 className="font-serif text-[1.35rem] font-bold text-[#1a1c1b] leading-tight truncate">
+                <h3 className="font-serif text-[1.35rem] font-bold text-[#173F3A] leading-tight truncate">
                   {modalTutor.nama}
                 </h3>
                 <p className="text-[0.8125rem] text-[#444748] mt-0.5">{modalTutor.jabatan}</p>
@@ -579,7 +599,7 @@ export default function HalamanKatalog() {
               <button
                 type="button"
                 onClick={() => setModalTutor(null)}
-                className="w-8 h-8 rounded-full bg-white flex items-center justify-center text-[#444748] hover:text-black shadow-xs font-bold text-sm"
+                className="w-8 h-8 rounded-full bg-white flex items-center justify-center text-[#444748] hover:text-[#173F3A] shadow-xs font-bold text-sm"
               >
                 ✕
               </button>
@@ -592,7 +612,7 @@ export default function HalamanKatalog() {
                   <span className="text-[0.6875rem] font-bold uppercase tracking-wider text-[#67645f] block mb-1">
                     Profil Akademik &amp; Pendekatan
                   </span>
-                  <p className="text-[#1a1c1b] bg-[#f4f3f1] p-3.5 rounded-2xl leading-relaxed italic">
+                  <p className="text-[#173F3A] bg-[#faf8f5] border border-[#173F3A]/10 p-3.5 rounded-2xl leading-relaxed italic">
                     &quot;{modalTutor.deskripsi}&quot;
                   </p>
                 </div>
@@ -600,20 +620,20 @@ export default function HalamanKatalog() {
 
               <div>
                 <span className="text-[0.6875rem] font-bold uppercase tracking-wider text-[#67645f] block mb-1.5">
-                  Hari Ketersediaan Mengajar
+                  Hari &amp; Jam Ketersediaan Mengajar
                 </span>
                 <div className="flex flex-wrap gap-2">
                   {(modalTutor.jadwal && modalTutor.jadwal.length > 0
                     ? modalTutor.jadwal
-                    : ["Senin", "Rabu", "Jumat"]
+                    : ["Senin: 16:00 - 18:00 WIB", "Rabu: 16:00 - 18:00 WIB", "Jumat: 16:00 - 18:00 WIB"]
                   ).map((slot, idx) => (
                     <div
                       key={idx}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#faf9f7] rounded-full border border-[#e3e2e0] text-[0.8125rem]"
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#F2D5A8]/40 rounded-full border border-[#D88A32]/30 text-[0.8125rem]"
                     >
-                      <span className="w-1.5 h-1.5 rounded-full bg-black"></span>
-                      <span className="font-semibold text-[#1a1c1b]">{slot}</span>
-                      <span className="text-[0.6875rem] text-emerald-800 font-medium ml-1">
+                      <span className="w-1.5 h-1.5 rounded-full bg-[#B74E2C]"></span>
+                      <span className="font-semibold text-[#173F3A]">{slot}</span>
+                      <span className="text-[0.6875rem] text-[#173F3A] font-medium ml-1">
                         Tersedia
                       </span>
                     </div>
@@ -621,28 +641,28 @@ export default function HalamanKatalog() {
                 </div>
               </div>
 
-              <div className="p-3 bg-[#faf9f7] rounded-xl border border-[#e3e2e0] flex items-center justify-between text-[0.75rem]">
+              <div className="p-3 bg-[#faf8f5] rounded-xl border border-[#173F3A]/10 flex items-center justify-between text-[0.75rem]">
                 <span className="text-[#67645f]">Konsultasi Penjadwalan:</span>
-                <span className="font-semibold text-[#1a1c1b]">WhatsApp Langsung</span>
+                <span className="font-semibold text-[#173F3A]">WhatsApp Langsung</span>
               </div>
             </div>
 
             {/* Modal Footer */}
-            <div className="p-4 bg-[#f4f3f1] border-t border-[#e3e2e0] flex items-center justify-end gap-2">
+            <div className="p-4 bg-[#f2efe9] border-t border-[#173F3A]/10 flex items-center justify-end gap-2">
               <button
                 type="button"
                 onClick={() => setModalTutor(null)}
-                className="px-4 py-2 text-[0.8125rem] font-semibold text-[#444748] hover:bg-[#e3e2e0] rounded-full transition-colors"
+                className="px-4 py-2 text-[0.8125rem] font-semibold text-[#444748] hover:bg-[#eae6df] rounded-full transition-colors"
               >
                 Tutup
               </button>
               <a
                 href={`https://wa.me/${modalTutor.nomorTelepon.replace(/^0/, "62").replace(/[^0-9]/g, "")}?text=${encodeURIComponent(
-                  `Halo ${modalTutor.nama}, saya melihat profil Anda di Lentera Belajar dan ingin berkonsultasi mengenai bimbingan belajar.`
+                  `Halo ${modalTutor.nama}, saya melihat profil Anda di Gen Plasma dan ingin berkonsultasi mengenai bimbingan belajar.`
                 )}`}
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex items-center gap-2 bg-black text-white text-[0.8125rem] font-semibold px-5 py-2.5 rounded-full hover:bg-[#444748] transition-colors shadow-xs"
+                className="inline-flex items-center gap-2 bg-[#173F3A] hover:bg-[#112F2B] text-white text-[0.8125rem] font-semibold px-5 py-2.5 rounded-full transition-colors shadow-xs"
               >
                 <span>Atur Jadwal via WhatsApp</span>
                 <span className="material-symbols-outlined text-[16px]">arrow_forward</span>

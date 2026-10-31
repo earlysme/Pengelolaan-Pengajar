@@ -19,6 +19,13 @@ export interface IPengajar extends Document {
   kelasAktif?: { namaKelas: string; jumlahSiswa: number }[]; // Kelas yang sedang aktif
   dokumenStatus?: string; // Lengkap, Belum Lengkap, dsb.
   catatanInternal?: string; // Catatan khusus koordinator
+  // --- Autentikasi (tidak pernah dikirim ke client: select:false) ---
+  passwordHash?: string;
+  aktivasiTokenHash?: string; // hash token undangan sekali pakai
+  aktivasiKadaluarsa?: Date;
+  akunDiaktifkanPada?: Date;
+  otpCodeHash?: string;
+  otpKadaluarsa?: Date;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -84,11 +91,7 @@ const PengajarSchema: Schema<IPengajar> = new Schema(
     },
     jadwalTersedia: {
       type: [String],
-      default: [
-        "Senin: 16:00 - 18:00 (Reguler)",
-        "Rabu: 18:30 - 20:30 (Intensif)",
-        "Sabtu: 09:00 - 12:00 (Slot Kosong)",
-      ],
+      default: [],
     },
     kelasAktif: {
       type: [
@@ -110,6 +113,12 @@ const PengajarSchema: Schema<IPengajar> = new Schema(
       type: String,
       trim: true,
     },
+    passwordHash: { type: String, select: false },
+    aktivasiTokenHash: { type: String, select: false },
+    aktivasiKadaluarsa: { type: Date, select: false },
+    akunDiaktifkanPada: { type: Date },
+    otpCodeHash: { type: String, select: false },
+    otpKadaluarsa: { type: Date, select: false },
   },
   {
     timestamps: true,
