@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 320" role="img" aria-labelledby="title">
+  <title id="title">Gen Plasma — Alur Selaras</title>
+  <circle cx="160" cy="160" r="132" fill="#F2D5A8"/>
+  <path d="M68 169c0-65 40-110 100-116 39-4 75 14 94 43" fill="none" stroke="#173F3A" stroke-width="27" stroke-linecap="round"/>
+  <path d="M252 151c0 65-40 110-100 116-39 4-75-14-94-43" fill="none" stroke="#B74E2C" stroke-width="27" stroke-linecap="round"/>
+  <path d="M102 204c30-37 68-66 116-88" fill="none" stroke="#D88A32" stroke-width="10" stroke-linecap="round"/>
+  <circle cx="102" cy="204" r="9" fill="#D88A32"/>
+  <circle cx="218" cy="116" r="9" fill="#D88A32"/>
+</svg>

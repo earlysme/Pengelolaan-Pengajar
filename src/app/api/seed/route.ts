@@ -4,9 +4,13 @@ import Pengajar from "@/models/Pengajar";
 import Ketersediaan from "@/models/Ketersediaan";
 import Jadwal from "@/models/Jadwal";
 import Sesi from "@/models/Sesi";
+import { requireKoordinator } from "@/lib/auth";
 
 export async function POST() {
   try {
+    if (!(await requireKoordinator())) {
+      return NextResponse.json({ success: false, error: "Akses khusus koordinator." }, { status: 401 });
+    }
     await connectDB();
 
     // Hapus data lama agar reset bersih

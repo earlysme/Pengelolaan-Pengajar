@@ -23,6 +23,7 @@ interface PengajarData {
   jadwalTersedia?: string[];
   dokumenStatus?: string;
   catatanInternal?: string;
+  akunDiaktifkanPada?: string;
 }
 
 interface KetersediaanData {
@@ -96,7 +97,6 @@ const DAFTAR_MAPEL = [
 ];
 
 const DAFTAR_JENJANG = ["SD", "SMP", "SMA", "UTBK/Kedinasan"];
-const DAFTAR_KELAS = ["Reguler", "Privat", "Semi-Privat", "Online"];
 const DAFTAR_HARI = ["Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu", "Minggu"];
 
 export default function PanelKoordinator() {
@@ -127,6 +127,14 @@ export default function PanelKoordinator() {
   const [formPendidikan, setFormPendidikan] = useState("");
   const [submittingPengajar, setSubmittingPengajar] = useState(false);
   const [errorPengajar, setErrorPengajar] = useState("");
+  const [undangan, setUndangan] = useState<{
+    nama: string;
+    link: string;
+    waUrl: string;
+    berlakuHingga: string;
+  } | null>(null);
+  const [undanganLoadingId, setUndanganLoadingId] = useState<string | null>(null);
+  const [linkTersalin, setLinkTersalin] = useState(false);
 
   // Modul 2: State Ketersediaan
   const [ketersediaanList, setKetersediaanList] = useState<KetersediaanData[]>([]);
@@ -193,8 +201,43 @@ export default function PanelKoordinator() {
   };
 
   useEffect(() => {
-    fetchAllData();
+    // Halaman ini khusus koordinator: cek sesi server dulu.
+    fetch("/api/auth/me")
+      .then((r) => r.json())
+      .then((json) => {
+        if (json.success && json.data?.role === "koordinator") fetchAllData();
+        else router.push("/login");
+      })
+      .catch(() => router.push("/login"));
   }, []);
+
+  const handleBuatUndangan = async (p: PengajarData) => {
+    try {
+      setUndanganLoadingId(p._id);
+      const res = await fetch(`/api/pengajar/${p._id}/undangan`, { method: "POST" });
+      const json = await res.json();
+      if (json.success) {
+        setLinkTersalin(false);
+        setUndangan({ nama: p.nama, ...json.data });
+      } else {
+        alert(json.error || "Gagal membuat undangan.");
+      }
+    } catch {
+      alert("Koneksi gagal.");
+    } finally {
+      setUndanganLoadingId(null);
+    }
+  };
+
+  const handleSalinLink = async () => {
+    if (!undangan) return;
+    try {
+      await navigator.clipboard.writeText(undangan.link);
+      setLinkTersalin(true);
+    } catch {
+      alert("Gagal menyalin. Salin manual dari kolom link.");
+    }
+  };
 
   // --- Handlers Modul 1 (Pengajar) ---
   const handleOpenAddPengajar = () => {
@@ -239,6 +282,10 @@ export default function PanelKoordinator() {
     }
     if (formMapel.length === 0) {
       setErrorPengajar("Pilih minimal 1 mata pelajaran.");
+      return;
+    }
+    if (formJenjang.length === 0) {
+      setErrorPengajar("Pilih minimal 1 jenjang bimbingan.");
       return;
     }
 
@@ -447,9 +494,8 @@ export default function PanelKoordinator() {
     }
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem("userRole");
-    localStorage.removeItem("userName");
+  const handleLogout = async () => {
+    await fetch("/api/auth/logout", { method: "POST" });
     router.push("/");
   };
 
@@ -486,19 +532,24 @@ export default function PanelKoordinator() {
   const pendingVerifikasi = sesiList.filter((s) => s.statusVerifikasi === "Menunggu Verifikasi").length;
 
   return (
-    <div className="bg-[#faf9f7] font-sans text-[#1a1c1b] min-h-screen selection:bg-[#e7e2db] selection:text-[#1a1c1b]">
+    <div className="bg-[#faf8f5] font-sans text-[#172421] min-h-screen selection:bg-[#F2D5A8] selection:text-[#173F3A]">
       {/* Top Navbar Sederhana & Bersih */}
-      <header className="fixed top-0 w-full z-50 bg-[#faf9f7]/85 backdrop-blur-xl border-b border-[#e3e2e0]/60 shadow-[0_1px_8px_rgba(0,0,0,0.02)]">
+      <header className="fixed top-0 w-full z-50 bg-[#faf8f5]/85 backdrop-blur-xl border-b border-[#173F3A]/10 shadow-[0_1px_8px_rgba(23,63,58,0.04)]">
         <div className="h-16 max-w-7xl mx-auto px-6 lg:px-12 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <Link href="/" className="flex items-center gap-2.5 transition-opacity hover:opacity-80">
-              <span className="material-symbols-outlined text-black text-[22px]">local_library</span>
-              <span className="font-serif text-[1.35rem] tracking-tight text-[#1a1c1b] select-none">
-                Lentera Belajar
-              </span>
+            <Link href="/" className="flex items-center gap-2.5 transition-opacity hover:opacity-85">
+              <img src="/logo.svg" alt="Gen Plasma" className="w-8 h-8 object-contain" />
+              <div className="flex flex-col">
+                <span className="font-serif text-[1.25rem] leading-none tracking-tight text-[#173F3A] select-none font-bold">
+                  Gen Plasma
+                </span>
+                <span className="text-[0.62rem] tracking-wider uppercase text-[#B74E2C] font-semibold">
+                  Alur Selaras
+                </span>
+              </div>
             </Link>
-            <span className="text-[#c4c7c7] hidden sm:inline">•</span>
-            <span className="text-[0.75rem] font-semibold text-[#444748] uppercase tracking-wider hidden sm:inline bg-[#efeeec] px-3 py-1 rounded-full">
+            <span className="text-[#173F3A]/20 hidden sm:inline">•</span>
+            <span className="text-[0.75rem] font-semibold text-[#173F3A] uppercase tracking-wider hidden sm:inline bg-[#F2D5A8]/50 px-3 py-1 rounded-full border border-[#D88A32]/30">
               Panel Koordinator
             </span>
           </div>
@@ -555,6 +606,21 @@ export default function PanelKoordinator() {
       <main className="w-full bg-[#faf9f7] min-h-[calc(100vh-140px)] pt-16">
         <div className="max-w-7xl mx-auto px-6 lg:px-12 py-10">
           <div className="flex flex-col w-full">
+            {dbError && (
+              <div className="mb-6 p-4 rounded-2xl bg-rose-50 border border-rose-200 text-rose-800 flex items-center justify-between">
+                <div className="flex items-center gap-2.5">
+                  <span className="material-symbols-outlined text-[20px] text-rose-600">error</span>
+                  <span className="text-[0.875rem] font-medium">{dbError}</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={fetchAllData}
+                  className="text-[0.8125rem] font-semibold underline hover:text-rose-950 px-2 py-1"
+                >
+                  Muat Ulang
+                </button>
+              </div>
+            )}
             {/* Editorial Page Intro Header */}
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8">
               <div className="space-y-1.5 max-w-2xl">
@@ -593,8 +659,8 @@ export default function PanelKoordinator() {
             </div>
 
             {/* Operational Flow Segmented Nav (Tabs 01 - 06) */}
-            <div className="w-full overflow-x-auto pb-2 mb-8 no-scrollbar">
-              <div className="inline-flex items-center p-1.5 bg-[#f4f3f1] rounded-full shadow-xs gap-1 min-w-max border border-[#e3e2e0]/60">
+            <div className="w-full overflow-x-auto pb-2 mb-8">
+              <div className="inline-flex xl:flex items-center p-1.5 bg-[#f4f3f1] rounded-full shadow-xs gap-1 min-w-max xl:min-w-0 xl:w-full border border-[#e3e2e0]/60">
                 {(
                   [
                     ["pengajar", "01. Database Tutor", `${pengajarList.length}`],
@@ -609,26 +675,26 @@ export default function PanelKoordinator() {
                     key={key}
                     type="button"
                     onClick={() => setActiveTab(key)}
-                    className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-[0.875rem] font-semibold transition-all ${activeTab === key
+                    className={`flex-1 inline-flex items-center justify-center gap-1.5 px-3 xl:px-3 py-2 rounded-full text-[0.8125rem] font-semibold transition-all whitespace-nowrap ${activeTab === key
                       ? "bg-black text-white shadow-xs"
                       : "text-[#444748] hover:text-black hover:bg-white/50"
                       }`}
                   >
                     <span>{label}</span>
                     {badge === "live" ? (
-                      <span className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-[#efeeec] text-[#444748] text-[0.75rem]">
+                      <span className="flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-[#efeeec] text-[#444748] text-[0.7rem]">
                         <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-pulse"></span>
                         Live
                       </span>
                     ) : badge === "review" ? (
                       pendingVerifikasi > 0 && (
-                        <span className="px-2 py-0.5 rounded-full bg-amber-100 text-amber-900 text-[0.75rem]">
+                        <span className="px-1.5 py-0.5 rounded-full bg-amber-100 text-amber-900 text-[0.7rem]">
                           {pendingVerifikasi} Review
                         </span>
                       )
                     ) : badge ? (
                       <span
-                        className={`px-2 py-0.5 rounded-full text-[0.75rem] ${activeTab === key ? "bg-[#333] text-white" : "bg-[#e3e2e0] text-black"
+                        className={`px-1.5 py-0.5 rounded-full text-[0.7rem] ${activeTab === key ? "bg-[#333] text-white" : "bg-[#e3e2e0] text-black"
                           }`}
                       >
                         {badge}
@@ -832,6 +898,14 @@ export default function PanelKoordinator() {
                                         {p.nomorTelepon}
                                       </a>
                                     </div>
+                                    <span
+                                      className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[0.6875rem] font-medium border ${p.akunDiaktifkanPada
+                                          ? "bg-emerald-50 text-emerald-800 border-emerald-200"
+                                          : "bg-amber-50 text-amber-800 border-amber-200"
+                                        }`}
+                                    >
+                                      {p.akunDiaktifkanPada ? "Akun aktif" : "Belum aktivasi"}
+                                    </span>
                                     {p.pendidikan && (
                                       <p className="text-[0.75rem] text-[#444748] truncate max-w-xs">{p.pendidikan}</p>
                                     )}
@@ -873,7 +947,9 @@ export default function PanelKoordinator() {
                                       </span>
                                     ))
                                   ) : (
-                                    <span className="text-[0.75rem] text-[#747878] italic">Belum diisi</span>
+                                    <span className="text-[0.75rem] text-[#8e9191] italic">
+                                      Belum diatur tutor
+                                    </span>
                                   )}
                                 </div>
                               </td>
@@ -899,10 +975,24 @@ export default function PanelKoordinator() {
                                 <div className="inline-flex items-center justify-end gap-1.5">
                                   <button
                                     type="button"
-                                    onClick={() => handleOpenEditPengajar(p)}
-                                    className="px-3 py-1 rounded-full bg-[#efeeec] hover:bg-[#e3e2e0] text-[#1a1c1b] text-[0.75rem] font-medium transition-colors"
+                                    onClick={() => handleBuatUndangan(p)}
+                                    disabled={undanganLoadingId === p._id}
+                                    className="px-3 py-1 rounded-full bg-[#efeeec] hover:bg-[#e3e2e0] text-[#1a1c1b] text-[0.75rem] font-medium transition-colors disabled:opacity-50"
+                                    title="Buat link undangan untuk atur email & password"
                                   >
-                                    Edit
+                                    {undanganLoadingId === p._id
+                                      ? "..."
+                                      : p.akunDiaktifkanPada
+                                        ? "Reset akses"
+                                        : "Undang"}
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={() => handleOpenEditPengajar(p)}
+                                    className="p-1 rounded-full hover:bg-[#efeeec] text-[#444748] hover:text-black transition-colors"
+                                    title="Sunting data profil pengajar"
+                                  >
+                                    <span className="material-symbols-outlined text-[18px]">edit</span>
                                   </button>
                                   <button
                                     type="button"
@@ -1430,6 +1520,57 @@ export default function PanelKoordinator() {
       </main>
 
       {/* Modal Tambah / Edit Tutor */}
+      {undangan && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
+          <div className="w-full max-w-lg bg-white rounded-2xl border border-[#e3e2e0] p-6 shadow-xl space-y-4">
+            <div>
+              <h3 className="font-serif text-[1.5rem] text-[#1a1c1b]">Undangan untuk {undangan.nama}</h3>
+              <p className="text-[0.8125rem] text-[#444748] mt-1">
+                Link ini sekali pakai, berlaku sampai{" "}
+                {new Date(undangan.berlakuHingga).toLocaleString("id-ID", {
+                  dateStyle: "medium",
+                  timeStyle: "short",
+                })}
+                . Membuat undangan baru membatalkan link sebelumnya. Kirim hanya ke nomor WhatsApp tutor yang
+                bersangkutan.
+              </p>
+            </div>
+
+            <input
+              readOnly
+              value={undangan.link}
+              onFocus={(e) => e.currentTarget.select()}
+              className="w-full px-3.5 py-2.5 text-[0.75rem] font-mono bg-[#faf9f7] border border-[#e3e2e0] rounded-xl"
+            />
+
+            <div className="flex flex-wrap gap-2 justify-end">
+              <button
+                type="button"
+                onClick={handleSalinLink}
+                className="px-4 py-2 rounded-full bg-[#efeeec] hover:bg-[#e3e2e0] text-[0.8125rem] font-medium"
+              >
+                {linkTersalin ? "Tersalin ✓" : "Salin link"}
+              </button>
+              <a
+                href={undangan.waUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="px-4 py-2 rounded-full bg-black hover:bg-neutral-800 text-white text-[0.8125rem] font-medium"
+              >
+                Kirim via WhatsApp
+              </a>
+              <button
+                type="button"
+                onClick={() => setUndangan(null)}
+                className="px-4 py-2 rounded-full text-[0.8125rem] font-medium text-[#444748] hover:text-black"
+              >
+                Tutup
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {isPengajarModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-xs animate-in fade-in duration-200">
           <div className="bg-white rounded-2xl border border-[#e3e2e0] max-w-lg w-full p-6 sm:p-8 shadow-2xl space-y-6 max-h-[90vh] overflow-y-auto">
@@ -1539,6 +1680,37 @@ export default function PanelKoordinator() {
                           }`}
                       >
                         {m}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-[0.8125rem] font-medium text-[#1a1c1b] mb-1.5">
+                  Jenjang Bimbingan (Bisa pilih lebih dari 1)
+                </label>
+                <div className="flex flex-wrap gap-1.5 pt-1">
+                  {DAFTAR_JENJANG.map((j) => {
+                    const selected = formJenjang.includes(j);
+                    return (
+                      <button
+                        key={j}
+                        type="button"
+                        onClick={() => {
+                          setFormJenjang((prev) =>
+                            selected ? prev.filter((item) => item !== j) : [...prev, j]
+                          );
+                        }}
+                        className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[0.75rem] font-medium transition-colors ${selected
+                          ? "bg-black text-white shadow-xs"
+                          : "bg-[#f4f3f1] text-[#444748] hover:bg-[#efeeec] border border-[#e3e2e0]"
+                          }`}
+                      >
+                        <span className="material-symbols-outlined text-[14px]">
+                          {selected ? "check" : "add"}
+                        </span>
+                        <span>{j}</span>
                       </button>
                     );
                   })}
@@ -1725,14 +1897,15 @@ export default function PanelKoordinator() {
       )}
 
       {/* Footer */}
-      <footer className="w-full bg-[#f4f3f1] border-t border-[#e3e2e0]/60 mt-16">
+      <footer className="w-full bg-[#f2efe9] border-t border-[#173F3A]/10 mt-16">
         <div className="max-w-7xl mx-auto px-6 lg:px-12 py-10 flex flex-col sm:flex-row items-center justify-between gap-4 text-[0.75rem] text-[#67645f]">
-          <div className="flex items-center gap-2">
-            <span className="material-symbols-outlined text-black text-[20px]">local_library</span>
-            <span className="font-serif text-[1.25rem] text-[#1a1c1b]">Lentera Belajar</span>
+          <div className="flex items-center gap-2.5">
+            <img src="/logo.svg" alt="Gen Plasma" className="w-6 h-6 object-contain" />
+            <span className="font-serif text-[1.25rem] text-[#173F3A] font-bold">Gen Plasma</span>
+            <span className="text-[#B74E2C] font-semibold">• Alur Selaras</span>
             <span className="ml-2 text-[#444748]">• Tata Kelola &amp; Pembinaan Pengajar</span>
           </div>
-          <p>© 2025 - 2026 Lentera Belajar. Hak cipta dilindungi undang-undang.</p>
+          <p>© 2025 - 2026 Gen Plasma — Alur Selaras. Hak cipta dilindungi undang-undang.</p>
         </div>
       </footer>
     </div>

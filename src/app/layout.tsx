@@ -19,9 +19,13 @@ const newsreader = Newsreader({
 });
 
 export const metadata: Metadata = {
-  title: "Lentera Belajar - Direktori & Sistem Informasi Pengajar",
+  title: "Gen Plasma - Direktori & Sistem Informasi Pengajar",
   description:
-    "Kurasi pengajar terakreditasi lulusan almamater terkemuka, peraih medali olimpiade, dan mentor berdedikasi untuk mendampingi potensi akademik siswa.",
+    "Gen Plasma: Alur Selaras - Bimbingan belajar terpercaya dengan pengajar berkualitas, kurikulum terpadu, dan pendampingan akademik terbaik.",
+  icons: {
+    icon: "/logo.svg",
+    apple: "/logo.png",
+  },
 };
 
 export default function RootLayout({
@@ -35,12 +39,13 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} ${newsreader.variable} h-full antialiased`}
     >
       <head>
+        <link rel="icon" href="/logo.svg" type="image/svg+xml" />
         <link
           rel="stylesheet"
           href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap"
         />
       </head>
-      <body className="min-h-full flex flex-col font-sans bg-[#faf9f7] text-[#1a1c1b]">
+      <body className="min-h-full flex flex-col font-sans bg-[#faf8f5] text-[#172421]">
         {children}
       </body>
     </html>

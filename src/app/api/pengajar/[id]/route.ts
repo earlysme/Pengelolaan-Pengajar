@@ -1,6 +1,10 @@
 import { NextResponse } from "next/server";
 import connectDB from "@/lib/mongodb";
 import Pengajar from "@/models/Pengajar";
+import { getSession } from "@/lib/auth";
+
+// Field yang boleh diubah tutor untuk profilnya sendiri
+const FIELD_TUTOR = ["foto", "deskripsi", "pendidikan", "alamat", "nomorTelepon", "jadwalTersedia"];
 
 // GET: Mengambil detail satu pengajar
 export async function GET(
@@ -32,9 +36,26 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    await connectDB();
     const { id } = await params;
-    const body = await request.json();
+    const session = await getSession();
+    const isKoordinator = session?.role === "koordinator";
+    const isDiriSendiri = session?.role === "tutor" && session.sub === id;
+    if (!isKoordinator && !isDiriSendiri) {
+      return NextResponse.json({ success: false, error: "Tidak punya akses." }, { status: 401 });
+    }
+
+    await connectDB();
+    let body = await request.json();
+
+    if (isKoordinator) {
+      // Field autentikasi tidak boleh di-set lewat API ini
+      delete body.passwordHash;
+      delete body.aktivasiTokenHash;
+      delete body.aktivasiKadaluarsa;
+      delete body.akunDiaktifkanPada;
+    } else {
+      body = Object.fromEntries(Object.entries(body).filter(([k]) => FIELD_TUTOR.includes(k)));
+    }
 
     const pengajar = await Pengajar.findByIdAndUpdate(id, body, {
       new: true,
@@ -61,6 +82,9 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    if ((await getSession())?.role !== "koordinator") {
+      return NextResponse.json({ success: false, error: "Akses khusus koordinator." }, { status: 401 });
+    }
     await connectDB();
     const { id } = await params;
     const pengajar = await Pengajar.findByIdAndDelete(id);
