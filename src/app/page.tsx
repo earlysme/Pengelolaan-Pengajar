@@ -8,6 +8,7 @@ interface TutorItem {
   nama: string;
   jabatan: string;
   mataPelajaran: string[];
+  jenjang?: string[];
   kategori: "mipa" | "bahasa" | "kedokteran" | "soshum" | "psikologi";
   almamater: string;
   pengalaman: string;
@@ -20,12 +21,33 @@ interface TutorItem {
   ctaText?: string;
 }
 
+const cleanImageUrl = (url?: string): string => {
+  if (!url) return "";
+  const trimmed = url.trim();
+  const gDriveIdMatch =
+    trimmed.match(/drive\.google\.com\/file\/d\/([a-zA-Z0-9_-]+)/) ||
+    trimmed.match(/drive\.google\.com\/(?:open|uc)\?.*id=([a-zA-Z0-9_-]+)/) ||
+    trimmed.match(/drive\.google\.com\/thumbnail\?.*id=([a-zA-Z0-9_-]+)/) ||
+    trimmed.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+
+  if (gDriveIdMatch && gDriveIdMatch[1]) {
+    return `https://lh3.googleusercontent.com/d/${gDriveIdMatch[1]}`;
+  }
+
+  if (trimmed.includes("dropbox.com")) {
+    return trimmed.replace(/[?&]dl=0/, "").concat(trimmed.includes("?") ? "&raw=1" : "?raw=1");
+  }
+
+  return trimmed;
+};
+
 const MASTER_TUTORS: TutorItem[] = [
   {
     _id: "tutor-1",
     nama: "Dr. Hendra Wijaya",
     jabatan: "Kepala Kurikulum & Fisika ITB",
     mataPelajaran: ["Fisika", "UTBK & SNBT"],
+    jenjang: ["SMA", "UTBK/Kedinasan"],
     kategori: "mipa",
     almamater: "Alumni ITB",
     pengalaman: "9 Thn",
@@ -42,6 +64,7 @@ const MASTER_TUTORS: TutorItem[] = [
     nama: "Dra. Ratna Kartika, M.Pd.",
     jabatan: "Master Tutor Kimia & UTBK UI",
     mataPelajaran: ["Kimia", "Sains"],
+    jenjang: ["SMA", "UTBK/Kedinasan"],
     kategori: "mipa",
     almamater: "Alumni UI",
     pengalaman: "11 Thn",
@@ -58,6 +81,7 @@ const MASTER_TUTORS: TutorItem[] = [
     nama: "Kevin Pratama, M.Mat.",
     jabatan: "Medalis Emas OSN Matematika",
     mataPelajaran: ["Matematika", "Kalkulus"],
+    jenjang: ["SMP", "SMA", "UTBK/Kedinasan"],
     kategori: "mipa",
     almamater: "Alumni ITB",
     pengalaman: "6 Thn",
@@ -74,6 +98,7 @@ const MASTER_TUTORS: TutorItem[] = [
     nama: "drg. Nadia Safira, S.KG.",
     jabatan: "Mentor Masuk Kedokteran FKG UI",
     mataPelajaran: ["Biologi", "Kedokteran Dasar"],
+    jenjang: ["SMA", "UTBK/Kedinasan"],
     kategori: "kedokteran",
     almamater: "FKG UI",
     pengalaman: "5 Thn",
@@ -90,6 +115,7 @@ const MASTER_TUTORS: TutorItem[] = [
     nama: "Sarah Elizabeth, M.A.",
     jabatan: "Master Bahasa Inggris & IELTS UGM",
     mataPelajaran: ["Bahasa Inggris", "IELTS"],
+    jenjang: ["SD", "SMP", "SMA", "UTBK/Kedinasan"],
     kategori: "bahasa",
     almamater: "Alumni UGM",
     pengalaman: "8 Thn",
@@ -106,6 +132,7 @@ const MASTER_TUTORS: TutorItem[] = [
     nama: "Rizky Ramadhan, S.E.",
     jabatan: "Ekonomi & SIMAK UI Spesialis",
     mataPelajaran: ["Ekonomi", "Soshum"],
+    jenjang: ["SMA", "UTBK/Kedinasan"],
     kategori: "soshum",
     almamater: "FEB UI",
     pengalaman: "7 Thn",
@@ -122,6 +149,7 @@ const MASTER_TUTORS: TutorItem[] = [
     nama: "Fadhila Anindita, M.Psi.",
     jabatan: "Psikolog Pendampingan Belajar",
     mataPelajaran: ["Konseling", "Psikologi"],
+    jenjang: ["SD", "SMP", "SMA"],
     kategori: "psikologi",
     almamater: "Psikologi UI",
     pengalaman: "6 Thn",
@@ -138,6 +166,7 @@ const MASTER_TUTORS: TutorItem[] = [
     nama: "Bagas Pratama, S.Si.",
     jabatan: "Biologi Terapan & Kedokteran Unair",
     mataPelajaran: ["Biologi", "Sains"],
+    jenjang: ["SMP", "SMA", "UTBK/Kedinasan"],
     kategori: "mipa",
     almamater: "Alumni Unair",
     pengalaman: "5 Thn",
@@ -170,27 +199,33 @@ export default function HalamanKatalog() {
     // Muat data dari database jika ada pengajar baru
     const loadFromDB = async () => {
       try {
-        const res = await fetch("/api/pengajar?status=Aktif");
+        const res = await fetch("/api/pengajar");
         const json = await res.json();
         if (json.success && Array.isArray(json.data) && json.data.length > 0) {
           // Gabungkan atau gunakan pengajar dari database dengan mapping visual
           interface DBPengajarItem {
             _id: string;
             nama: string;
+            status?: string;
             pendidikan?: string;
             mataPelajaran?: string[];
+            jenjang?: string[];
             foto?: string;
             nomorTelepon?: string;
             deskripsi?: string;
             jadwalTersedia?: string[];
           }
-          const dbMapped: TutorItem[] = (json.data as DBPengajarItem[]).map((p, idx) => {
+          const validTutors = (json.data as DBPengajarItem[]).filter((p) => p.status !== "Nonaktif");
+          if (validTutors.length === 0) return;
+
+          const dbMapped: TutorItem[] = validTutors.map((p, idx) => {
             const fallback = MASTER_TUTORS[idx % MASTER_TUTORS.length];
             return {
               _id: p._id,
               nama: p.nama,
               jabatan: p.pendidikan || fallback.jabatan,
               mataPelajaran: p.mataPelajaran || fallback.mataPelajaran,
+              jenjang: p.jenjang && p.jenjang.length > 0 ? p.jenjang : fallback.jenjang || ["SMA"],
               kategori: (p.mataPelajaran?.some((m: string) => /inggris|indonesia|bahasa/i.test(m))
                 ? "bahasa"
                 : p.mataPelajaran?.some((m: string) => /kedokteran|biologi/i.test(m))
@@ -201,7 +236,7 @@ export default function HalamanKatalog() {
               almamater: p.pendidikan ? p.pendidikan.split(" ")[0] + " • 5+ Thn" : fallback.almamater,
               pengalaman: "6 Thn",
               rating: 4.95,
-              foto: p.foto || fallback.foto,
+              foto: p.foto ? cleanImageUrl(p.foto) : fallback.foto,
               nomorTelepon: p.nomorTelepon || fallback.nomorTelepon,
               deskripsi: p.deskripsi || fallback.deskripsi,
               jadwal: p.jadwalTersedia || fallback.jadwal,
@@ -241,9 +276,6 @@ export default function HalamanKatalog() {
               <span className="font-serif text-[1.4rem] leading-none tracking-tight text-[#173F3A] select-none font-bold">
                 Gen Plasma
               </span>
-              <span className="text-[0.68rem] tracking-wider uppercase text-[#B74E2C] font-semibold">
-                Alur Selaras
-              </span>
             </div>
           </Link>
 
@@ -268,28 +300,24 @@ export default function HalamanKatalog() {
             </Link>
           </nav>
 
-          <div className="flex items-center gap-5">
+          <div className="flex items-center gap-4">
             <Link
               href="/login"
-              className="text-[0.875rem] font-medium text-[#444748] hover:text-[#173F3A] transition-colors px-2 py-1"
+              className="inline-flex items-center justify-center px-6 py-2.5 rounded-full bg-[#173F3A] hover:bg-[#112d2a] text-white text-[0.875rem] font-semibold transition-all duration-200 shadow-sm hover:shadow-md hover:scale-[1.02] active:scale-[0.98]"
             >
               Masuk
             </Link>
-            <a
-              href="https://wa.me/6281377889900?text=Halo%20Gen%20Plasma%2C%20saya%20ingin%20konsultasi%20pemilihan%20pengajar"
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex items-center justify-center bg-[#B74E2C] text-white text-[0.875rem] font-semibold px-5 py-2.5 rounded-full hover:bg-[#9c3e20] transition-colors shadow-[0_2px_8px_rgba(183,78,44,0.25)]"
-            >
-              Konsultasi Gratis
-            </a>
-            <Link
-              href="/login"
-              className="w-8 h-8 rounded-full bg-[#173F3A] flex items-center justify-center shrink-0 hover:opacity-90 transition-opacity"
-              title="Portal Masuk"
-            >
-              <span className="material-symbols-outlined text-white text-[18px]">person</span>
-            </Link>
+            {/* Konsultasi Gratis (di-hide sementara, siap diaktifkan kembali jika dibutuhkan) */}
+            {false && (
+              <a
+                href="https://wa.me/6281377889900?text=Halo%20Gen%20Plasma%2C%20saya%20ingin%20konsultasi%20pemilihan%20pengajar"
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center justify-center bg-[#B74E2C] text-white text-[0.875rem] font-semibold px-5 py-2.5 rounded-full hover:bg-[#9c3e20] transition-colors shadow-[0_2px_8px_rgba(183,78,44,0.25)]"
+              >
+                Konsultasi Gratis
+              </a>
+            )}
           </div>
         </div>
       </header>
@@ -353,8 +381,15 @@ export default function HalamanKatalog() {
                   {/* Photo Container 4/5 Aspect Ratio */}
                   <div className="relative w-full aspect-[4/5] bg-[#efeeec] overflow-hidden">
                     <img
-                      src={tutor.foto}
+                      src={cleanImageUrl(tutor.foto)}
                       alt={tutor.nama}
+                      referrerPolicy="no-referrer"
+                      onError={(e) => {
+                        const fallback = `https://ui-avatars.com/api/?name=${encodeURIComponent(tutor.nama)}&background=173F3A&color=ffffff&bold=true`;
+                        if (e.currentTarget.src !== fallback) {
+                          e.currentTarget.src = fallback;
+                        }
+                      }}
                       className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500 ease-out"
                     />
 
@@ -379,6 +414,18 @@ export default function HalamanKatalog() {
                       <p className="text-[0.8125rem] text-[#444748] truncate mt-0.5">
                         {tutor.jabatan}
                       </p>
+                      {tutor.jenjang && tutor.jenjang.length > 0 && (
+                        <div className="flex items-center justify-center gap-1 mt-2 flex-wrap">
+                          {tutor.jenjang.map((j) => (
+                            <span
+                              key={j}
+                              className="text-[0.68rem] font-semibold px-2 py-0.5 rounded-md bg-[#173F3A]/10 text-[#173F3A]"
+                            >
+                              {j}
+                            </span>
+                          ))}
+                        </div>
+                      )}
                     </div>
                   </div>
 
@@ -535,9 +582,6 @@ export default function HalamanKatalog() {
                   <span className="font-serif text-[1.5rem] leading-none tracking-tight text-[#173F3A] font-bold">
                     Gen Plasma
                   </span>
-                  <span className="text-[0.65rem] tracking-wider uppercase text-[#B74E2C] font-semibold">
-                    Alur Selaras
-                  </span>
                 </div>
               </div>
               <p className="text-[0.8125rem] text-[#444748] max-w-sm leading-relaxed">
@@ -563,7 +607,7 @@ export default function HalamanKatalog() {
           </div>
 
           <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-[0.75rem] text-[#67645f]">
-            <p>© 2025 - 2026 Gen Plasma — Alur Selaras. Hak cipta dilindungi undang-undang.</p>
+            <p>© 2025 - 2026 Gen Plasma. Hak cipta dilindungi undang-undang.</p>
             <div className="flex items-center gap-6">
               <span>Jakarta • Yogyakarta • Bandung</span>
             </div>
@@ -578,8 +622,15 @@ export default function HalamanKatalog() {
             {/* Modal Header */}
             <div className="relative p-6 bg-[#faf8f5] border-b border-[#173F3A]/10 flex items-center gap-4">
               <img
-                src={modalTutor.foto}
+                src={cleanImageUrl(modalTutor.foto)}
                 alt={modalTutor.nama}
+                referrerPolicy="no-referrer"
+                onError={(e) => {
+                  const fallback = `https://ui-avatars.com/api/?name=${encodeURIComponent(modalTutor.nama)}&background=173F3A&color=ffffff&bold=true`;
+                  if (e.currentTarget.src !== fallback) {
+                    e.currentTarget.src = fallback;
+                  }
+                }}
                 className="w-16 h-20 rounded-2xl object-cover shadow-sm"
               />
               <div className="flex-1 min-w-0">
@@ -594,6 +645,14 @@ export default function HalamanKatalog() {
                   {modalTutor.nama}
                 </h3>
                 <p className="text-[0.8125rem] text-[#444748] mt-0.5">{modalTutor.jabatan}</p>
+                {modalTutor.jenjang && modalTutor.jenjang.length > 0 && (
+                  <div className="mt-1 flex items-center gap-1">
+                    <span className="text-[0.6875rem] text-[#67645f]">Jenjang:</span>
+                    <span className="text-[0.6875rem] font-semibold text-[#173F3A] bg-[#F2D5A8]/50 px-2 py-0.5 rounded-full border border-[#D88A32]/20">
+                      {modalTutor.jenjang.join(", ")}
+                    </span>
+                  </div>
+                )}
               </div>
 
               <button
@@ -622,28 +681,23 @@ export default function HalamanKatalog() {
                 <span className="text-[0.6875rem] font-bold uppercase tracking-wider text-[#67645f] block mb-1.5">
                   Hari &amp; Jam Ketersediaan Mengajar
                 </span>
-                <div className="flex flex-wrap gap-2">
+                <div className="flex flex-wrap gap-1.5">
                   {(modalTutor.jadwal && modalTutor.jadwal.length > 0
                     ? modalTutor.jadwal
                     : ["Senin: 16:00 - 18:00 WIB", "Rabu: 16:00 - 18:00 WIB", "Jumat: 16:00 - 18:00 WIB"]
                   ).map((slot, idx) => (
                     <div
                       key={idx}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#F2D5A8]/40 rounded-full border border-[#D88A32]/30 text-[0.8125rem]"
+                      className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-[#F2D5A8]/35 rounded-full border border-[#D88A32]/25 text-[0.72rem]"
                     >
                       <span className="w-1.5 h-1.5 rounded-full bg-[#B74E2C]"></span>
                       <span className="font-semibold text-[#173F3A]">{slot}</span>
-                      <span className="text-[0.6875rem] text-[#173F3A] font-medium ml-1">
+                      <span className="text-[0.65rem] text-[#173F3A] font-medium ml-0.5">
                         Tersedia
                       </span>
                     </div>
                   ))}
                 </div>
-              </div>
-
-              <div className="p-3 bg-[#faf8f5] rounded-xl border border-[#173F3A]/10 flex items-center justify-between text-[0.75rem]">
-                <span className="text-[#67645f]">Konsultasi Penjadwalan:</span>
-                <span className="font-semibold text-[#173F3A]">WhatsApp Langsung</span>
               </div>
             </div>
 

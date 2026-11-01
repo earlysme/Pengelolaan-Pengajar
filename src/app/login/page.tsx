@@ -148,9 +148,6 @@ export default function HalamanLogin() {
               <span className="font-serif text-[1.35rem] leading-none tracking-tight text-[#173F3A] select-none font-bold">
                 Gen Plasma
               </span>
-              <span className="text-[0.68rem] tracking-wider uppercase text-[#B74E2C] font-semibold">
-                Alur Selaras
-              </span>
             </div>
           </Link>
           <Link
@@ -234,22 +231,9 @@ export default function HalamanLogin() {
                   </div>
 
                   <div>
-                    <div className="flex items-center justify-between mb-1.5">
-                      <label className="block text-[0.8125rem] font-medium text-[#172421]">
-                        Password
-                      </label>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          alert(
-                            "Akun Koordinator dikelola oleh Administrator sistem. Silakan periksa berkas .env.local (ADMIN_USERNAME & ADMIN_PASSWORD) untuk mengatur ulang password koordinator."
-                          );
-                        }}
-                        className="text-[0.75rem] font-semibold text-[#B74E2C] hover:underline transition-colors"
-                      >
-                        Lupa password?
-                      </button>
-                    </div>
+                    <label className="block text-[0.8125rem] font-medium text-[#172421] mb-1.5">
+                      Password
+                    </label>
                     <div className="relative">
                       <input
                         type={showPassword ? "text" : "password"}
@@ -268,6 +252,19 @@ export default function HalamanLogin() {
                         <span className="material-symbols-outlined text-[20px]">
                           {showPassword ? "visibility_off" : "visibility"}
                         </span>
+                      </button>
+                    </div>
+                    <div className="flex justify-end mt-1.5">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          alert(
+                            "Akun Koordinator dikelola oleh Administrator sistem. Silakan periksa berkas .env.local (ADMIN_USERNAME & ADMIN_PASSWORD) untuk mengatur ulang password koordinator."
+                          );
+                        }}
+                        className="text-[0.75rem] font-semibold text-[#B74E2C] hover:underline transition-colors"
+                      >
+                        Lupa password?
                       </button>
                     </div>
                   </div>
@@ -290,24 +287,9 @@ export default function HalamanLogin() {
                   </div>
 
                   <div>
-                    <div className="flex items-center justify-between mb-1.5">
-                      <label className="block text-[0.8125rem] font-medium text-[#172421]">
-                        Password
-                      </label>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setForgotIdentitas(email);
-                          setForgotStep("request");
-                          setForgotError("");
-                          setForgotSuccess("");
-                          setIsForgotModalOpen(true);
-                        }}
-                        className="text-[0.75rem] font-semibold text-[#B74E2C] hover:underline transition-colors"
-                      >
-                        Lupa password?
-                      </button>
-                    </div>
+                    <label className="block text-[0.8125rem] font-medium text-[#172421] mb-1.5">
+                      Password
+                    </label>
                     <div className="relative">
                       <input
                         type={showPassword ? "text" : "password"}
@@ -327,6 +309,21 @@ export default function HalamanLogin() {
                         <span className="material-symbols-outlined text-[20px]">
                           {showPassword ? "visibility_off" : "visibility"}
                         </span>
+                      </button>
+                    </div>
+                    <div className="flex justify-end mt-1.5">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setForgotIdentitas(email);
+                          setForgotStep("request");
+                          setForgotError("");
+                          setForgotSuccess("");
+                          setIsForgotModalOpen(true);
+                        }}
+                        className="text-[0.75rem] font-semibold text-[#B74E2C] hover:underline transition-colors"
+                      >
+                        Lupa password?
                       </button>
                     </div>
                     <p className="text-[0.72rem] text-[#67645f] mt-1.5">
@@ -611,7 +608,7 @@ export default function HalamanLogin() {
 
       {/* Footer */}
       <footer className="w-full py-6 text-center text-[0.75rem] text-[#173F3A]/70 border-t border-[#173F3A]/10">
-        © 2025 - 2026 Gen Plasma — Alur Selaras. Sistem Manajemen & Koordinasi Pengajar Bimbel.
+        © 2025 - 2026 Gen Plasma. Sistem Manajemen & Koordinasi Pengajar Bimbel.
       </footer>
     </div>
   );
