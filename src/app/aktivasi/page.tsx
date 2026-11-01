@@ -244,9 +244,6 @@ export default function HalamanAktivasi() {
               <span className="font-serif text-[1.35rem] leading-none tracking-tight text-[#173F3A] select-none font-bold">
                 Gen Plasma
               </span>
-              <span className="text-[0.68rem] tracking-wider uppercase text-[#B74E2C] font-semibold">
-                Alur Selaras
-              </span>
             </div>
           </Link>
 
@@ -273,10 +270,9 @@ export default function HalamanAktivasi() {
           <div className="flex items-center gap-2.5">
             <img src="/logo.svg" alt="Gen Plasma" className="w-6 h-6 object-contain" />
             <span className="font-serif text-[1.25rem] text-[#173F3A] font-bold">Gen Plasma</span>
-            <span className="text-[#B74E2C] font-semibold">• Alur Selaras</span>
             <span className="ml-2 text-[#444748]">• Aktivasi Mandiri Pengajar</span>
           </div>
-          <p>© 2025 - 2026 Gen Plasma — Alur Selaras. Hak cipta dilindungi undang-undang.</p>
+          <p>© 2025 - 2026 Gen Plasma. Hak cipta dilindungi undang-undang.</p>
         </div>
       </footer>
     </div>

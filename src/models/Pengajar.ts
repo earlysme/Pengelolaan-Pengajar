@@ -61,7 +61,7 @@ const PengajarSchema: Schema<IPengajar> = new Schema(
     foto: {
       type: String,
       trim: true,
-      default: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300&auto=format&fit=crop&q=80",
+      default: "",
     },
     deskripsi: {
       type: String,

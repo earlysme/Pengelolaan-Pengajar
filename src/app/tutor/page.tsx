@@ -42,7 +42,7 @@ export interface JadwalSlot {
 let slotCounter = 0;
 function createSlotId(hari: string): string {
   slotCounter += 1;
-  return `slot-${hari.toLowerCase()}-${slotCounter}`;
+  return `slot-${hari.toLowerCase()}-${Date.now()}-${slotCounter}-${Math.random().toString(36).substring(2, 6)}`;
 }
 
 const parseJadwalToSlots = (rawList?: string[]): JadwalSlot[] => {
@@ -85,6 +85,16 @@ const parseJadwalToSlots = (rawList?: string[]): JadwalSlot[] => {
   });
 };
 
+const PRESET_SESI_JADWAL = [
+  { label: "— Pilih Sesi Jadwal —", jamMulai: "", jamSelesai: "" },
+  { label: "Sesi 1 (Pagi: 08:00 - 10:00 WIB)", jamMulai: "08:00", jamSelesai: "10:00" },
+  { label: "Sesi 2 (Siang: 10:30 - 12:30 WIB)", jamMulai: "10:30", jamSelesai: "12:30" },
+  { label: "Sesi 3 (Sore A: 13:30 - 15:30 WIB)", jamMulai: "13:30", jamSelesai: "15:30" },
+  { label: "Sesi 4 (Sore B: 16:00 - 18:00 WIB)", jamMulai: "16:00", jamSelesai: "18:00" },
+  { label: "Sesi 5 (Malam: 18:30 - 20:30 WIB)", jamMulai: "18:30", jamSelesai: "20:30" },
+  { label: "Kustom Jam Manual", jamMulai: "", jamSelesai: "" },
+];
+
 const formatSlotToString = (slot: JadwalSlot): string => {
   if (!slot.jamMulai || !slot.jamSelesai) {
     return slot.keterangan ? `${slot.hari}: Belum atur jam (${slot.keterangan})` : `${slot.hari}: Belum atur jam`;
@@ -103,6 +113,7 @@ export default function AreaTutor() {
   const [selectedPresetIndex, setSelectedPresetIndex] = useState(0);
   const [deskripsi, setDeskripsi] = useState("");
   const [pendidikan, setPendidikan] = useState("");
+  const [tutorStatus, setTutorStatus] = useState<"Aktif" | "Cuti">("Aktif");
   const [tags, setTags] = useState<string[]>([
     "Kimia Organik & Stoikiometri SMA",
     "Penalaran Sains UTBK-SNBT",
@@ -116,18 +127,14 @@ export default function AreaTutor() {
   const [savingProfil, setSavingProfil] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
 
-  // State Modal Ubah Password dengan OTP
+  // State Modal Ubah Password Manual (Tanpa OTP)
   const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
-  const [otpChannel, setOtpChannel] = useState<"whatsapp" | "email">("whatsapp");
-  const [otpStep, setOtpStep] = useState<"request" | "verify">("request");
-  const [otpInput, setOtpInput] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [otpLoading, setOtpLoading] = useState(false);
-  const [otpError, setOtpError] = useState("");
-  const [otpSentData, setOtpSentData] = useState<{ target?: string; waUrl?: string; devOtp?: string } | null>(null);
+  const [passwordLoading, setPasswordLoading] = useState(false);
+  const [passwordError, setPasswordError] = useState("");
 
   // Daftar hari unik dari slot yang aktif
   const hariTersedia = Array.from(new Set(jadwalSlots.map((s) => s.hari)));
@@ -139,6 +146,7 @@ export default function AreaTutor() {
     pendidikan: string;
     domisili: string;
     nomorWa: string;
+    status: "Aktif" | "Cuti";
     jadwalSlots: JadwalSlot[];
     tags: string[];
   } | null>(null);
@@ -150,6 +158,7 @@ export default function AreaTutor() {
       pendidikan !== initialData.pendidikan ||
       domisili !== initialData.domisili ||
       nomorWa !== initialData.nomorWa ||
+      tutorStatus !== initialData.status ||
       JSON.stringify(jadwalSlots) !== JSON.stringify(initialData.jadwalSlots) ||
       JSON.stringify(tags) !== JSON.stringify(initialData.tags))
   );
@@ -157,6 +166,7 @@ export default function AreaTutor() {
   const populateTutor = (t: PengajarData) => {
     setCurrentTutor(t);
     setFoto(t.foto || PRESET_AVATARS[0]);
+    setTutorStatus(t.status === "Cuti" ? "Cuti" : "Aktif");
     setDeskripsi(
       t.deskripsi ||
       "Berpengalaman lebih dari 8 tahun membimbing siswa menembus Fakultas Kedokteran dan PTN impian dengan metode visualisasi konsep dan pembedahan nalar logika soal HOTS tanpa hafalan rumus mati."
@@ -186,6 +196,7 @@ export default function AreaTutor() {
       pendidikan: initialPend,
       domisili: initialDom,
       nomorWa: initialWa,
+      status: t.status === "Cuti" ? "Cuti" : "Aktif",
       jadwalSlots: initialSlots,
       tags: [...tags],
     });
@@ -272,13 +283,30 @@ const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
   reader.readAsDataURL(file);
 };
 
-// Toggle pilihan hari ketersediaan
-const toggleHari = (hari: string) => {
-  const exists = jadwalSlots.some((s) => s.hari === hari);
-  if (exists) {
-    setJadwalSlots(jadwalSlots.filter((s) => s.hari !== hari));
-  } else {
-    // Ketika dicentang, slot waktu dimulai kosong agar tutor mengisi jam mereka sendiri
+  // Toggle pilihan hari ketersediaan
+  const toggleHari = (hari: string) => {
+    setJadwalSlots((prev) => {
+      const exists = prev.some((s) => s.hari === hari);
+      if (exists) {
+        return prev.filter((s) => s.hari !== hari);
+      } else {
+        // Ketika dicentang, slot waktu dimulai kosong agar tutor mengisi jam mereka sendiri
+        const newSlot: JadwalSlot = {
+          id: createSlotId(hari),
+          hari,
+          jamMulai: "",
+          jamSelesai: "",
+          keterangan: "Reguler",
+        };
+        const updated = [...prev, newSlot];
+        updated.sort((a, b) => DAFTAR_HARI.indexOf(a.hari) - DAFTAR_HARI.indexOf(b.hari));
+        return updated;
+      }
+    });
+  };
+
+  // Tambah slot jam baru pada hari tertentu
+  const addSlotForHari = (hari: string) => {
     const newSlot: JadwalSlot = {
       id: createSlotId(hari),
       hari,
@@ -286,102 +314,94 @@ const toggleHari = (hari: string) => {
       jamSelesai: "",
       keterangan: "Reguler",
     };
-    const updated = [...jadwalSlots, newSlot];
-    updated.sort((a, b) => DAFTAR_HARI.indexOf(a.hari) - DAFTAR_HARI.indexOf(b.hari));
-    setJadwalSlots(updated);
-  }
-};
-
-// Tambah slot jam baru pada hari tertentu
-const addSlotForHari = (hari: string) => {
-  const newSlot: JadwalSlot = {
-    id: createSlotId(hari),
-    hari,
-    jamMulai: "",
-    jamSelesai: "",
-    keterangan: "",
+    setJadwalSlots((prev) => {
+      const updated = [...prev, newSlot];
+      updated.sort((a, b) => DAFTAR_HARI.indexOf(a.hari) - DAFTAR_HARI.indexOf(b.hari));
+      return updated;
+    });
   };
-  const updated = [...jadwalSlots, newSlot];
-  updated.sort((a, b) => DAFTAR_HARI.indexOf(a.hari) - DAFTAR_HARI.indexOf(b.hari));
-  setJadwalSlots(updated);
-};
 
-// Ubah nilai pada slot tertentu
-const updateSlot = (id: string, field: keyof JadwalSlot, val: string) => {
-  setJadwalSlots(
-    jadwalSlots.map((s) => (s.id === id ? { ...s, [field]: val } : s))
-  );
-};
+  // Ubah nilai pada slot tertentu
+  const updateSlot = (id: string, updates: Partial<JadwalSlot>) => {
+    setJadwalSlots((prev) =>
+      prev.map((s) => (s.id === id ? { ...s, ...updates } : s))
+    );
+  };
 
-// Hapus satu slot jam tertentu
-const removeSlot = (id: string) => {
-  setJadwalSlots(jadwalSlots.filter((s) => s.id !== id));
-};
+  // Hapus satu slot jam tertentu
+  const removeSlot = (id: string) => {
+    setJadwalSlots((prev) => prev.filter((s) => s.id !== id));
+  };
 
-// Handler OTP Ubah Password
-const handleRequestOtp = async () => {
-  setOtpError("");
-  setOtpLoading(true);
-  try {
-    const res = await fetch("/api/tutor/otp/send", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ channel: otpChannel }),
-    });
-    const json = await res.json();
-    if (json.success) {
-      setOtpSentData(json);
-      setOtpStep("verify");
-      showToast("Kode OTP verifikasi berhasil dibuat.");
-    } else {
-      setOtpError(json.error || "Gagal mengirim kode OTP.");
+  // Handler Ubah Password Manual (Tanpa OTP)
+  const handleManualChangePassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setPasswordError("");
+
+    if (newPassword !== confirmPassword) {
+      setPasswordError("Konfirmasi password baru tidak cocok.");
+      return;
     }
-  } catch {
-    setOtpError("Terjadi kendala koneksi.");
-  } finally {
-    setOtpLoading(false);
-  }
-};
 
-const handleVerifyOtpAndChangePassword = async (e: React.FormEvent) => {
-  e.preventDefault();
-  setOtpError("");
-
-  if (newPassword !== confirmPassword) {
-    setOtpError("Konfirmasi password baru tidak cocok.");
-    return;
-  }
-
-  if (newPassword.length < 8) {
-    setOtpError("Password baru minimal 8 karakter.");
-    return;
-  }
-
-  setOtpLoading(true);
-  try {
-    const res = await fetch("/api/tutor/otp/verify", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ otp: otpInput, password: newPassword }),
-    });
-    const json = await res.json();
-    if (json.success) {
-      showToast("Password Anda berhasil diperbarui!");
-      setIsPasswordModalOpen(false);
-      setOtpStep("request");
-      setOtpInput("");
-      setNewPassword("");
-      setConfirmPassword("");
-      setOtpSentData(null);
-    } else {
-      setOtpError(json.error || "Gagal memperbarui password.");
+    if (newPassword.length < 8) {
+      setPasswordError("Password baru minimal 8 karakter.");
+      return;
     }
-  } catch {
-    setOtpError("Terjadi kendala koneksi.");
-  } finally {
-    setOtpLoading(false);
-  }
-};
+
+    setPasswordLoading(true);
+    try {
+      const res = await fetch("/api/tutor/password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ password: newPassword }),
+      });
+      const json = await res.json();
+      if (json.success) {
+        showToast("Password akun Anda berhasil diperbarui!");
+        setIsPasswordModalOpen(false);
+        setNewPassword("");
+        setConfirmPassword("");
+      } else {
+        setPasswordError(json.error || "Gagal memperbarui password.");
+      }
+    } catch {
+      setPasswordError("Terjadi kendala koneksi.");
+    } finally {
+      setPasswordLoading(false);
+    }
+  };
+
+  // Handler Ubah Status Ketersediaan Otomatis (Langsung sync ke MongoDB & Koordinator)
+  const [updatingStatus, setUpdatingStatus] = useState(false);
+  const handleStatusChange = async (newStatus: "Aktif" | "Cuti") => {
+    setTutorStatus(newStatus);
+    if (!currentTutor) return;
+    try {
+      setUpdatingStatus(true);
+      const res = await fetch(`/api/pengajar/${currentTutor._id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: newStatus }),
+      });
+      const json = await res.json();
+      if (json.success) {
+        setCurrentTutor((prev) => (prev ? { ...prev, status: newStatus } : prev));
+        showToast(
+          newStatus === "Cuti"
+            ? "Status berhasil diubah ke 'Sedang Cuti'. Akun tetap aktif di panel koordinator."
+            : "Status berhasil diubah ke 'Aktif Mengajar'."
+        );
+      } else {
+        showToast(json.error || "Gagal memperbarui status.");
+        setTutorStatus(currentTutor.status === "Cuti" ? "Cuti" : "Aktif");
+      }
+    } catch {
+      showToast("Gagal memperbarui status ketersediaan.");
+      setTutorStatus(currentTutor.status === "Cuti" ? "Cuti" : "Aktif");
+    } finally {
+      setUpdatingStatus(false);
+    }
+  };
 
 // Simpan Profil & Ketersediaan Hari & Jam
 const handleSaveProfile = async (e?: React.FormEvent) => {
@@ -410,6 +430,7 @@ const handleSaveProfile = async (e?: React.FormEvent) => {
         alamat: domisili,
         nomorTelepon: nomorWa.startsWith("0") ? nomorWa : `0${nomorWa}`,
         jadwalTersedia: serializedJadwal,
+        status: tutorStatus,
       }),
     });
     const json = await res.json();
@@ -421,6 +442,7 @@ const handleSaveProfile = async (e?: React.FormEvent) => {
         pendidikan,
         domisili,
         nomorWa,
+        status: tutorStatus,
         jadwalSlots: [...jadwalSlots],
         tags,
       });
@@ -434,6 +456,7 @@ const handleSaveProfile = async (e?: React.FormEvent) => {
             alamat: domisili,
             nomorTelepon: nomorWa.startsWith("0") ? nomorWa : `0${nomorWa}`,
             jadwalTersedia: serializedJadwal,
+            status: tutorStatus,
           }
           : null
       );
@@ -484,38 +507,35 @@ return (
               <span className="font-serif text-[1.4rem] leading-none tracking-tight text-[#173F3A] select-none font-bold">
                 Gen Plasma
               </span>
-              <span className="text-[0.65rem] tracking-wider uppercase text-[#B74E2C] font-semibold">
-                Alur Selaras
-              </span>
             </div>
           </Link>
-          <span className="text-[#173F3A]/30 hidden sm:inline">•</span>
-          <span className="text-[0.75rem] font-semibold text-[#173F3A] uppercase tracking-wider hidden sm:inline bg-[#F2D5A8]/60 px-3 py-1 rounded-full border border-[#D88A32]/30">
-            Portal Tutor
-          </span>
         </div>
 
-        <div className="flex items-center gap-3">
-          <Link
-            href="/"
-            className="text-[0.875rem] font-medium text-[#444748] hover:text-[#173F3A] transition-colors flex items-center gap-1.5 px-3.5 py-1.5 rounded-full hover:bg-[#F2D5A8]/40"
-          >
-            <span className="material-symbols-outlined text-[18px]">arrow_back</span>
-            <span>Katalog Publik</span>
-          </Link>
+        <div className="flex items-center gap-2.5">
           <button
             type="button"
             onClick={() => {
-              setOtpStep("request");
-              setOtpError("");
-              setIsPasswordModalOpen(true);
+              document.getElementById("section-ketersediaan")?.scrollIntoView({ behavior: "smooth" });
             }}
-            className="text-[0.8125rem] font-semibold text-[#173F3A] bg-[#F2D5A8]/50 hover:bg-[#F2D5A8] border border-[#D88A32]/30 transition-colors flex items-center gap-1.5 px-3.5 py-1.5 rounded-full"
-            title="Ubah kata sandi akun via OTP"
+            className="text-[0.8125rem] font-semibold text-[#173F3A] hover:bg-[#F2D5A8]/50 px-3.5 py-1.5 rounded-full border border-[#173F3A]/20 transition-colors flex items-center gap-1.5"
+            title="Navigasi ke ketersediaan hari & sesi mengajar"
           >
-            <span className="material-symbols-outlined text-[16px]">lock_reset</span>
-            <span className="hidden sm:inline">Ubah Password</span>
+            <span className="material-symbols-outlined text-[17px]">event_available</span>
+            <span className="hidden sm:inline">Ketersediaan Mengajar</span>
           </button>
+
+          <button
+            type="button"
+            onClick={() => {
+              document.getElementById("section-profil-akun")?.scrollIntoView({ behavior: "smooth" });
+            }}
+            className="text-[0.8125rem] font-semibold text-[#173F3A] hover:bg-[#F2D5A8]/50 px-3.5 py-1.5 rounded-full border border-[#173F3A]/20 transition-colors flex items-center gap-1.5"
+            title="Navigasi ke latar belakang pendidikan, bio, kontak, & atur password"
+          >
+            <span className="material-symbols-outlined text-[17px]">manage_accounts</span>
+            <span className="hidden sm:inline">Profil &amp; Akun</span>
+          </button>
+
           <button
             type="button"
             onClick={handleLogout}
@@ -560,21 +580,12 @@ return (
                         className="w-full h-full object-cover"
                       />
                     </div>
-                    <span
-                      className="absolute -bottom-2 -right-2 bg-black text-white rounded-full p-1.5 shadow-xs"
-                      title="Tutor Terverifikasi"
-                    >
-                      <span className="material-symbols-outlined text-[16px] block">verified</span>
-                    </span>
                   </div>
 
                   <div className="space-y-1.5">
                     <div className="flex flex-wrap items-center gap-2.5">
                       <span className="bg-[#e3e2e0] text-[#1a1c1b] text-[0.75rem] font-semibold px-3 py-1 rounded-full uppercase tracking-wider">
                         Profil Mandiri Tutor
-                      </span>
-                      <span className="bg-[#faf9f7] text-[#444748] text-[0.75rem] px-3 py-1 rounded-full flex items-center gap-1.5 shadow-[0_1px_4px_rgba(0,0,0,0.04)]">
-                        <span className="w-2 h-2 rounded-full bg-[#1a1c1b]"></span> Akun Terverifikasi
                       </span>
                     </div>
 
@@ -684,15 +695,38 @@ return (
                 </div>
 
                 <div className="flex items-center gap-3.5 px-2">
-                  <div className="w-10 h-10 rounded-full bg-[#efeeec] flex items-center justify-center text-black shrink-0">
-                    <span className="material-symbols-outlined text-[20px]">verified</span>
+                  <div
+                    className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${
+                      tutorStatus === "Aktif"
+                        ? "bg-emerald-100 text-emerald-800"
+                        : "bg-amber-100 text-amber-800"
+                    }`}
+                  >
+                    <span className="material-symbols-outlined text-[20px]">
+                      {tutorStatus === "Aktif" ? "check_circle" : "pause_circle"}
+                    </span>
                   </div>
-                  <div>
-                    <div className="font-serif text-[1.5rem] text-[#1a1c1b] leading-none">
-                      Aktif
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-1">
+                      <select
+                        value={tutorStatus}
+                        disabled={updatingStatus}
+                        onChange={(e) => handleStatusChange(e.target.value as "Aktif" | "Cuti")}
+                        className={`text-[0.875rem] font-bold rounded-lg px-2 py-0.5 border cursor-pointer focus:outline-none transition-colors ${
+                          tutorStatus === "Aktif"
+                            ? "bg-emerald-50 text-emerald-800 border-emerald-300"
+                            : "bg-amber-50 text-amber-800 border-amber-300"
+                        } disabled:opacity-50`}
+                        title="Ubah status ketersediaan Anda"
+                      >
+                        <option value="Aktif">Aktif Mengajar</option>
+                        <option value="Cuti">Sedang Cuti</option>
+                      </select>
                     </div>
-                    <div className="text-[0.75rem] text-[#67645f] mt-1 font-medium">
-                      Status Mengajar
+                    <div className="text-[0.7rem] text-[#67645f] mt-1 font-medium truncate">
+                      {tutorStatus === "Aktif"
+                        ? "Aktif mengajar (Terdata di koordinator)"
+                        : "Sedang cuti (Akun tetap aktif di sistem)"}
                     </div>
                   </div>
                 </div>
@@ -809,7 +843,7 @@ return (
                 <div className="h-px w-full bg-[#efeeec]"></div>
 
                 {/* SECTION 2: HARI & JAM KETERSEDIAAN MENGAJAR */}
-                <fieldset className="space-y-5">
+                <fieldset id="section-ketersediaan" className="space-y-5 scroll-mt-24">
                   <div className="flex items-center justify-between">
                     <div>
                       <legend className="font-serif text-[1.5rem] text-[#173F3A] font-bold">
@@ -891,28 +925,28 @@ return (
                                 <button
                                   type="button"
                                   onClick={() => addSlotForHari(hari)}
-                                  className="inline-flex items-center gap-1 text-[0.75rem] font-semibold text-[#B74E2C] hover:text-[#9c3e20] bg-white px-3 py-1 rounded-full border border-[#B74E2C]/30 shadow-xs transition-colors"
+                                  title="Tambah Sesi Jam"
+                                  className="w-8 h-8 rounded-full border border-[#B74E2C]/30 bg-white text-[#B74E2C] hover:bg-[#B74E2C]/10 flex items-center justify-center transition-colors shadow-xs"
                                 >
-                                  <span className="material-symbols-outlined text-[15px]">add</span>
-                                  Tambah Jam Lagi
+                                  <span className="material-symbols-outlined text-[18px]">add</span>
                                 </button>
                               </div>
 
-                              <div className="space-y-3">
+                              <div className="space-y-2.5">
                                 {slotsHari.map((slot, sIdx) => {
                                   const isFilled = Boolean(slot.jamMulai && slot.jamSelesai);
                                   return (
                                     <div
                                       key={slot.id}
-                                      className="p-4 bg-white rounded-2xl border-2 border-[#173F3A]/15 hover:border-[#173F3A]/30 transition-all shadow-xs space-y-3"
+                                      className="p-3.5 bg-white rounded-xl border border-[#173F3A]/15 hover:border-[#173F3A]/30 transition-all shadow-xs space-y-2.5"
                                     >
-                                      <div className="flex items-center justify-between border-b border-[#173F3A]/10 pb-2">
+                                      <div className="flex items-center justify-between border-b border-[#173F3A]/10 pb-1.5">
                                         <div className="flex items-center gap-2">
-                                          <span className="w-6 h-6 rounded-full bg-[#173F3A] text-white text-[0.75rem] font-bold flex items-center justify-center">
+                                          <span className="w-5 h-5 rounded-full bg-[#173F3A] text-white text-[0.7rem] font-bold flex items-center justify-center">
                                             {sIdx + 1}
                                           </span>
-                                          <span className="text-[0.875rem] font-bold text-[#173F3A]">
-                                            Sesi Mengajar ke-{sIdx + 1} ({hari})
+                                          <span className="text-[0.8125rem] font-bold text-[#173F3A]">
+                                            Sesi ke-{sIdx + 1}
                                           </span>
                                         </div>
 
@@ -920,80 +954,86 @@ return (
                                           type="button"
                                           onClick={() => removeSlot(slot.id)}
                                           title="Hapus sesi ini"
-                                          className="inline-flex items-center gap-1 text-[0.75rem] font-medium text-rose-600 hover:text-rose-800 hover:bg-rose-50 px-2.5 py-1 rounded-full transition-colors"
+                                          className="w-7 h-7 rounded-full text-rose-600 hover:text-rose-800 hover:bg-rose-50 flex items-center justify-center transition-colors"
                                         >
-                                          <span className="material-symbols-outlined text-[16px]">delete</span>
-                                          <span>Hapus Sesi</span>
+                                          <span className="material-symbols-outlined text-[18px]">delete</span>
                                         </button>
                                       </div>
 
-                                      {/* Baris Input Form Jam & Keterangan */}
-                                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                                        {/* Jam Mulai */}
-                                        <div className="space-y-1">
-                                          <label className="block text-[0.75rem] font-semibold text-[#444748] flex items-center gap-1">
-                                            <span className="material-symbols-outlined text-[16px] text-[#173F3A]">schedule</span>
-                                            <span>Jam Mulai</span>
-                                            <span className="text-rose-500">*</span>
+                                      {/* Dropdown Sesi & Dropdown Program */}
+                                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                        <div>
+                                          <label className="block text-[0.72rem] font-semibold text-[#173F3A] mb-1.5 flex items-center gap-1">
+                                            <span className="material-symbols-outlined text-[15px]">schedule</span>
+                                            <span>Pilih Sesi Jadwal</span>
                                           </label>
-                                          <input
-                                            type="time"
-                                            value={slot.jamMulai}
-                                            onChange={(e) => updateSlot(slot.id, "jamMulai", e.target.value)}
-                                            className="w-full px-3.5 py-2.5 text-[0.875rem] font-bold text-[#173F3A] bg-[#faf8f5] border-2 border-[#173F3A]/20 focus:border-[#173F3A] focus:bg-white rounded-xl focus:outline-none transition-colors"
-                                          />
+                                          <select
+                                            value={
+                                              PRESET_SESI_JADWAL.find(
+                                                (p) => p.jamMulai === slot.jamMulai && p.jamSelesai === slot.jamSelesai
+                                              )?.label || (slot.jamMulai && slot.jamSelesai ? "custom" : "")
+                                            }
+                                            onChange={(e) => {
+                                              const val = e.target.value;
+                                              if (!val) {
+                                                updateSlot(slot.id, { jamMulai: "", jamSelesai: "" });
+                                                return;
+                                              }
+                                              const selected = PRESET_SESI_JADWAL.find((p) => p.label === val);
+                                              if (selected && selected.jamMulai && selected.jamSelesai) {
+                                                updateSlot(slot.id, {
+                                                  jamMulai: selected.jamMulai,
+                                                  jamSelesai: selected.jamSelesai,
+                                                });
+                                              }
+                                            }}
+                                            className="w-full px-3 py-2 text-[0.8125rem] font-medium text-[#173F3A] bg-[#faf8f5] border border-[#173F3A]/20 focus:border-[#173F3A] focus:bg-white rounded-xl focus:outline-none transition-colors"
+                                          >
+                                            <option value="">— Pilih Sesi Jadwal —</option>
+                                            {PRESET_SESI_JADWAL.filter((p) => p.jamMulai).map((p, pIdx) => (
+                                              <option key={pIdx} value={p.label}>
+                                                {p.label}
+                                              </option>
+                                            ))}
+                                            {slot.jamMulai && slot.jamSelesai && !PRESET_SESI_JADWAL.some((p) => p.jamMulai === slot.jamMulai && p.jamSelesai === slot.jamSelesai) && (
+                                              <option value="custom">
+                                                {slot.jamMulai} - {slot.jamSelesai} WIB (Tersimpan)
+                                              </option>
+                                            )}
+                                          </select>
                                         </div>
 
-                                        {/* Jam Selesai */}
-                                        <div className="space-y-1">
-                                          <label className="block text-[0.75rem] font-semibold text-[#444748] flex items-center gap-1">
-                                            <span className="material-symbols-outlined text-[16px] text-[#173F3A]">update</span>
-                                            <span>Jam Selesai</span>
-                                            <span className="text-rose-500">*</span>
+                                        <div>
+                                          <label className="block text-[0.72rem] font-semibold text-[#173F3A] mb-1.5 flex items-center gap-1">
+                                            <span className="material-symbols-outlined text-[15px]">school</span>
+                                            <span>Program</span>
                                           </label>
-                                          <input
-                                            type="time"
-                                            value={slot.jamSelesai}
-                                            onChange={(e) => updateSlot(slot.id, "jamSelesai", e.target.value)}
-                                            className="w-full px-3.5 py-2.5 text-[0.875rem] font-bold text-[#173F3A] bg-[#faf8f5] border-2 border-[#173F3A]/20 focus:border-[#173F3A] focus:bg-white rounded-xl focus:outline-none transition-colors"
-                                          />
-                                        </div>
-
-                                        {/* Keterangan Kelas */}
-                                        <div className="space-y-1">
-                                          <label className="block text-[0.75rem] font-semibold text-[#444748] flex items-center gap-1">
-                                            <span className="material-symbols-outlined text-[16px] text-[#B74E2C]">label</span>
-                                            <span>Jenis / Keterangan Sesi</span>
-                                          </label>
-                                          <input
-                                            type="text"
-                                            value={slot.keterangan}
-                                            onChange={(e) => updateSlot(slot.id, "keterangan", e.target.value)}
-                                            placeholder="Contoh: Reguler, Privat, Klinik Soal"
-                                            className="w-full px-3.5 py-2.5 text-[0.8125rem] text-[#173F3A] bg-[#faf8f5] border border-[#173F3A]/20 focus:border-[#173F3A] focus:bg-white rounded-xl focus:outline-none transition-colors placeholder:text-[#67645f]/60"
-                                          />
+                                          <select
+                                            value={slot.keterangan || "Reguler"}
+                                            onChange={(e) => updateSlot(slot.id, { keterangan: e.target.value })}
+                                            className="w-full px-3 py-2 text-[0.8125rem] font-medium text-[#173F3A] bg-[#faf8f5] border border-[#173F3A]/20 focus:border-[#173F3A] focus:bg-white rounded-xl focus:outline-none transition-colors"
+                                          >
+                                            <option value="Reguler">Reguler</option>
+                                            <option value="Private">Private</option>
+                                          </select>
                                         </div>
                                       </div>
 
                                       {/* Status Indikator Sesi */}
-                                      <div className="pt-2 border-t border-[#173F3A]/10 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-[0.75rem]">
+                                      <div className="pt-2 border-t border-[#173F3A]/10 flex items-center text-[0.75rem]">
                                         {isFilled ? (
-                                          <div className="flex items-center gap-1.5 text-emerald-700">
+                                          <div className="flex items-center gap-1.5 text-emerald-700 font-medium">
                                             <span className="material-symbols-outlined text-[16px]">check_circle</span>
-                                            <span className="font-semibold">
-                                              Sesi aktif: {slot.jamMulai} - {slot.jamSelesai} WIB {slot.keterangan ? `(${slot.keterangan})` : ""}
+                                            <span>
+                                              Aktif: {slot.jamMulai} - {slot.jamSelesai} WIB ({slot.keterangan || "Reguler"})
                                             </span>
                                           </div>
                                         ) : (
                                           <div className="flex items-center gap-1.5 text-amber-700">
-                                            <span className="material-symbols-outlined text-[16px]">edit_calendar</span>
-                                            <span>Silakan atur jam mulai dan jam selesai untuk sesi ini</span>
+                                            <span className="material-symbols-outlined text-[16px]">info</span>
+                                            <span>Pilih sesi jadwal di atas</span>
                                           </div>
                                         )}
-
-                                        <span className="font-mono text-[0.72rem] text-[#173F3A] bg-[#F2D5A8]/50 px-2.5 py-0.5 rounded-full font-semibold self-start sm:self-auto">
-                                          {formatSlotToString(slot)}
-                                        </span>
                                       </div>
                                     </div>
                                   );
@@ -1010,7 +1050,7 @@ return (
                 <div className="h-px w-full bg-[#efeeec]"></div>
 
                 {/* SECTION 3: Academic Background */}
-                <fieldset className="space-y-4">
+                <fieldset id="section-profil-akun" className="space-y-4 scroll-mt-24">
                   <div className="flex items-center justify-between">
                     <div>
                       <legend className="font-serif text-[1.5rem] text-[#1a1c1b]">
@@ -1167,7 +1207,7 @@ return (
                 <div className="h-px w-full bg-[#efeeec]"></div>
 
                 {/* SECTION 6: KEAMANAN AKUN & UBAH PASSWORD */}
-                <div className="p-5 bg-[#faf8f5] border border-[#173F3A]/15 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                <div id="section-password" className="p-5 bg-[#faf8f5] border border-[#173F3A]/15 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 scroll-mt-24">
                   <div className="flex items-center gap-3">
                     <span className="w-10 h-10 rounded-full bg-[#F2D5A8] flex items-center justify-center text-[#173F3A] shrink-0">
                       <span className="material-symbols-outlined text-[20px]">lock_reset</span>
@@ -1177,7 +1217,7 @@ return (
                         Keamanan &amp; Kata Sandi Akun
                       </h4>
                       <p className="text-[0.75rem] text-[#444748]">
-                        Ubah password login Anda kapan saja dengan verifikasi kode OTP via WhatsApp atau Email.
+                        Atur atau perbarui kata sandi login akun tutor Anda secara mandiri.
                       </p>
                     </div>
                   </div>
@@ -1185,14 +1225,15 @@ return (
                   <button
                     type="button"
                     onClick={() => {
-                      setOtpStep("request");
-                      setOtpError("");
+                      setPasswordError("");
+                      setNewPassword("");
+                      setConfirmPassword("");
                       setIsPasswordModalOpen(true);
                     }}
                     className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#173F3A] hover:bg-[#112F2B] text-white text-[0.8125rem] font-semibold rounded-full transition-all shadow-xs shrink-0"
                   >
                     <span className="material-symbols-outlined text-[16px]">key</span>
-                    <span>Ubah Password via OTP</span>
+                    <span>Ubah Password</span>
                   </button>
                 </div>
 
@@ -1311,15 +1352,6 @@ return (
                       )}
                     </div>
                   </div>
-
-                  {/* WhatsApp Hubungi */}
-                  <div className="bg-[#faf8f5] rounded-xl p-3.5 border border-[#173F3A]/15 flex items-center justify-between text-[0.8125rem]">
-                    <span className="text-[#67645f]">Konsultasi Siswa:</span>
-                    <span className="font-semibold text-[#173F3A] flex items-center gap-1">
-                      <span className="material-symbols-outlined text-[16px] text-emerald-700">chat</span>
-                      WhatsApp Langsung
-                    </span>
-                  </div>
                 </div>
               </aside>
             </div>
@@ -1328,10 +1360,10 @@ return (
       )}
     </main>
 
-    {/* Modal Ubah Password dengan OTP */}
+    {/* Modal Ubah Password Manual */}
     {isPasswordModalOpen && (
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-xs animate-in fade-in duration-200">
-        <div className="bg-white rounded-2xl border border-[#173F3A]/20 max-w-md w-full p-6 sm:p-8 shadow-2xl space-y-6">
+        <div className="bg-white rounded-2xl border border-[#173F3A]/20 max-w-md w-full p-6 sm:p-8 shadow-2xl space-y-5">
           <div className="flex items-center justify-between border-b border-[#173F3A]/10 pb-4">
             <div className="flex items-center gap-2.5">
               <span className="w-9 h-9 rounded-full bg-[#F2D5A8] flex items-center justify-center text-[#173F3A]">
@@ -1339,10 +1371,10 @@ return (
               </span>
               <div>
                 <h3 className="font-serif text-[1.25rem] font-bold text-[#173F3A]">
-                  Ubah Password Akun
+                  Ubah Kata Sandi
                 </h3>
                 <p className="text-[0.75rem] text-[#67645f]">
-                  Verifikasi identitas via kode OTP demi keamanan
+                  Atur kata sandi baru untuk akun tutor Anda
                 </p>
               </div>
             </div>
@@ -1350,8 +1382,7 @@ return (
               type="button"
               onClick={() => {
                 setIsPasswordModalOpen(false);
-                setOtpStep("request");
-                setOtpError("");
+                setPasswordError("");
               }}
               className="w-8 h-8 rounded-full hover:bg-neutral-100 flex items-center justify-center text-[#444748]"
             >
@@ -1359,221 +1390,87 @@ return (
             </button>
           </div>
 
-          {otpError && (
+          {passwordError && (
             <div className="p-3 bg-rose-50 border border-rose-200 text-rose-800 rounded-xl text-[0.8125rem]">
-              {otpError}
+              {passwordError}
             </div>
           )}
 
-          {otpStep === "request" ? (
-            <div className="space-y-5">
-              <p className="text-[0.8125rem] text-[#444748] leading-relaxed">
-                Pilih saluran untuk menerima 6 digit kode OTP verifikasi kata sandi:
-              </p>
-
-              <div className="space-y-2.5">
-                <label
-                  className={`flex items-center justify-between p-3.5 rounded-xl border-2 cursor-pointer transition-all ${
-                    otpChannel === "whatsapp"
-                      ? "border-[#173F3A] bg-[#173F3A]/5"
-                      : "border-[#173F3A]/15 bg-white hover:bg-[#faf8f5]"
-                  }`}
-                >
-                  <div className="flex items-center gap-3">
-                    <input
-                      type="radio"
-                      name="otpChannel"
-                      checked={otpChannel === "whatsapp"}
-                      onChange={() => setOtpChannel("whatsapp")}
-                      className="accent-[#173F3A]"
-                    />
-                    <div>
-                      <div className="text-[0.875rem] font-bold text-[#173F3A] flex items-center gap-1.5">
-                        <span>WhatsApp</span>
-                        <span className="text-[0.7rem] bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full font-normal">
-                          Rekomendasi
-                        </span>
-                      </div>
-                      <div className="text-[0.75rem] text-[#67645f]">
-                        Kirim ke {nomorWa ? `0${nomorWa.replace(/^0+/, "")}` : "Nomor WhatsApp Anda"}
-                      </div>
-                    </div>
-                  </div>
-                  <span className="material-symbols-outlined text-emerald-600">chat</span>
-                </label>
-
-                <label
-                  className={`flex items-center justify-between p-3.5 rounded-xl border-2 cursor-pointer transition-all ${
-                    otpChannel === "email"
-                      ? "border-[#173F3A] bg-[#173F3A]/5"
-                      : "border-[#173F3A]/15 bg-white hover:bg-[#faf8f5]"
-                  }`}
-                >
-                  <div className="flex items-center gap-3">
-                    <input
-                      type="radio"
-                      name="otpChannel"
-                      checked={otpChannel === "email"}
-                      onChange={() => setOtpChannel("email")}
-                      className="accent-[#173F3A]"
-                    />
-                    <div>
-                      <div className="text-[0.875rem] font-bold text-[#173F3A]">Email</div>
-                      <div className="text-[0.75rem] text-[#67645f]">
-                        {currentTutor?.email || "Alamat email terdaftar"}
-                      </div>
-                    </div>
-                  </div>
-                  <span className="material-symbols-outlined text-[#B74E2C]">mail</span>
-                </label>
-              </div>
-
-              <div className="pt-2">
-                <button
-                  type="button"
-                  onClick={handleRequestOtp}
-                  disabled={otpLoading}
-                  className="w-full py-3 px-5 bg-[#173F3A] hover:bg-[#12312d] text-white rounded-full text-[0.875rem] font-semibold transition-all shadow-sm disabled:opacity-50 flex items-center justify-center gap-2"
-                >
-                  {otpLoading ? (
-                    <>
-                      <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
-                      <span>Mengirim Kode OTP...</span>
-                    </>
-                  ) : (
-                    <>
-                      <span className="material-symbols-outlined text-[18px]">send</span>
-                      <span>Kirim Kode OTP Verifikasi</span>
-                    </>
-                  )}
-                </button>
-              </div>
-            </div>
-          ) : (
-            <form onSubmit={handleVerifyOtpAndChangePassword} className="space-y-4">
-              <div className="p-3.5 bg-amber-50/80 border border-amber-200/80 rounded-xl space-y-2">
-                <div className="flex items-center justify-between text-[0.8125rem] text-amber-900 font-medium">
-                  <span>OTP dikirim ke {otpSentData?.target || "kontak Anda"}</span>
-                  <button
-                    type="button"
-                    onClick={() => setOtpStep("request")}
-                    className="text-[0.75rem] underline font-semibold text-[#173F3A]"
-                  >
-                    Ganti Saluran
-                  </button>
-                </div>
-
-                {otpSentData?.waUrl && (
-                  <div className="pt-1">
-                    <a
-                      href={otpSentData.waUrl}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="inline-flex items-center gap-1.5 text-[0.75rem] font-bold text-white bg-emerald-600 hover:bg-emerald-700 px-3 py-1.5 rounded-full transition-colors"
-                    >
-                      <span className="material-symbols-outlined text-[15px]">chat</span>
-                      <span>Buka WhatsApp &amp; Salin OTP</span>
-                    </a>
-                  </div>
-                )}
-
-                {otpSentData?.devOtp && (
-                  <div className="text-[0.75rem] text-emerald-800 bg-emerald-50 px-2.5 py-1 rounded border border-emerald-200 font-mono">
-                    Kode OTP: <strong>{otpSentData.devOtp}</strong> (Berlaku 10 menit)
-                  </div>
-                )}
-              </div>
-
-              <div>
-                <label className="block text-[0.8125rem] font-medium text-[#172421] mb-1.5">
-                  Masukkan 6 Digit Kode OTP
-                </label>
+          <form onSubmit={handleManualChangePassword} className="space-y-4">
+            <div>
+              <label className="block text-[0.8125rem] font-medium text-[#172421] mb-1.5">
+                Password Baru
+              </label>
+              <div className="relative">
                 <input
-                  type="text"
+                  type={showNewPassword ? "text" : "password"}
                   required
-                  maxLength={6}
-                  placeholder="Contoh: 123456"
-                  value={otpInput}
-                  onChange={(e) => setOtpInput(e.target.value.replace(/\D/g, ""))}
-                  className="w-full px-4 py-2.5 text-[1.125rem] font-mono tracking-widest text-center bg-[#faf8f5] border-2 border-[#173F3A]/20 rounded-xl text-[#173F3A] focus:outline-none focus:border-[#173F3A] focus:bg-white"
+                  minLength={8}
+                  placeholder="Minimal 8 karakter"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  className="w-full pl-3.5 pr-11 py-2.5 text-[0.875rem] bg-[#faf8f5] border border-[#173F3A]/20 rounded-xl focus:outline-none focus:border-[#173F3A] focus:bg-white"
                 />
-              </div>
-
-              <div>
-                <label className="block text-[0.8125rem] font-medium text-[#172421] mb-1.5">
-                  Password Baru
-                </label>
-                <div className="relative">
-                  <input
-                    type={showNewPassword ? "text" : "password"}
-                    required
-                    minLength={8}
-                    placeholder="Minimal 8 karakter"
-                    value={newPassword}
-                    onChange={(e) => setNewPassword(e.target.value)}
-                    className="w-full pl-3.5 pr-11 py-2.5 text-[0.875rem] bg-[#faf8f5] border border-[#173F3A]/20 rounded-xl focus:outline-none focus:border-[#173F3A] focus:bg-white"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowNewPassword(!showNewPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-[#67645f] hover:text-[#173F3A] p-1 flex items-center justify-center transition-colors"
-                    title={showNewPassword ? "Sembunyikan password" : "Lihat password"}
-                  >
-                    <span className="material-symbols-outlined text-[18px]">
-                      {showNewPassword ? "visibility_off" : "visibility"}
-                    </span>
-                  </button>
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-[0.8125rem] font-medium text-[#172421] mb-1.5">
-                  Konfirmasi Password Baru
-                </label>
-                <div className="relative">
-                  <input
-                    type={showConfirmPassword ? "text" : "password"}
-                    required
-                    minLength={8}
-                    placeholder="Ulangi password baru Anda"
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    className="w-full pl-3.5 pr-11 py-2.5 text-[0.875rem] bg-[#faf8f5] border border-[#173F3A]/20 rounded-xl focus:outline-none focus:border-[#173F3A] focus:bg-white"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-[#67645f] hover:text-[#173F3A] p-1 flex items-center justify-center transition-colors"
-                    title={showConfirmPassword ? "Sembunyikan password" : "Lihat password"}
-                  >
-                    <span className="material-symbols-outlined text-[18px]">
-                      {showConfirmPassword ? "visibility_off" : "visibility"}
-                    </span>
-                  </button>
-                </div>
-              </div>
-
-              <div className="pt-2 flex items-center justify-end gap-2.5">
                 <button
                   type="button"
-                  onClick={() => {
-                    setIsPasswordModalOpen(false);
-                    setOtpStep("request");
-                  }}
-                  className="px-4 py-2 rounded-full text-[0.8125rem] font-medium text-[#444748] hover:bg-neutral-100"
+                  onClick={() => setShowNewPassword(!showNewPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[#67645f] hover:text-[#173F3A] p-1 flex items-center justify-center transition-colors"
+                  title={showNewPassword ? "Sembunyikan password" : "Lihat password"}
                 >
-                  Batal
-                </button>
-                <button
-                  type="submit"
-                  disabled={otpLoading}
-                  className="px-5 py-2.5 bg-[#173F3A] hover:bg-[#12312d] text-white rounded-full text-[0.8125rem] font-semibold transition-all shadow-sm disabled:opacity-50"
-                >
-                  {otpLoading ? "Memverifikasi..." : "Verifikasi & Simpan Password"}
+                  <span className="material-symbols-outlined text-[18px]">
+                    {showNewPassword ? "visibility_off" : "visibility"}
+                  </span>
                 </button>
               </div>
-            </form>
-          )}
+            </div>
+
+            <div>
+              <label className="block text-[0.8125rem] font-medium text-[#172421] mb-1.5">
+                Konfirmasi Password Baru
+              </label>
+              <div className="relative">
+                <input
+                  type={showConfirmPassword ? "text" : "password"}
+                  required
+                  minLength={8}
+                  placeholder="Ulangi password baru Anda"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  className="w-full pl-3.5 pr-11 py-2.5 text-[0.875rem] bg-[#faf8f5] border border-[#173F3A]/20 rounded-xl focus:outline-none focus:border-[#173F3A] focus:bg-white"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[#67645f] hover:text-[#173F3A] p-1 flex items-center justify-center transition-colors"
+                  title={showConfirmPassword ? "Sembunyikan password" : "Lihat password"}
+                >
+                  <span className="material-symbols-outlined text-[18px]">
+                    {showConfirmPassword ? "visibility_off" : "visibility"}
+                  </span>
+                </button>
+              </div>
+            </div>
+
+            <div className="pt-2 flex items-center justify-end gap-2.5">
+              <button
+                type="button"
+                onClick={() => {
+                  setIsPasswordModalOpen(false);
+                  setPasswordError("");
+                }}
+                className="px-4 py-2 rounded-full text-[0.8125rem] font-medium text-[#444748] hover:bg-neutral-100"
+              >
+                Batal
+              </button>
+              <button
+                type="submit"
+                disabled={passwordLoading}
+                className="px-5 py-2.5 bg-[#173F3A] hover:bg-[#12312d] text-white rounded-full text-[0.8125rem] font-semibold transition-all shadow-sm disabled:opacity-50"
+              >
+                {passwordLoading ? "Menyimpan..." : "Simpan Password Baru"}
+              </button>
+            </div>
+          </form>
         </div>
       </div>
     )}
@@ -1592,10 +1489,9 @@ return (
         <div className="flex items-center gap-2.5">
           <img src="/logo.svg" alt="Gen Plasma" className="w-6 h-6 object-contain" />
           <span className="font-serif text-[1.25rem] text-[#173F3A] font-bold">Gen Plasma</span>
-          <span className="text-[#B74E2C] font-semibold">• Alur Selaras</span>
           <span className="ml-2 text-[#444748]">• Area Mandiri Pengajar</span>
         </div>
-        <p>© 2025 - 2026 Gen Plasma — Alur Selaras. Hak cipta dilindungi undang-undang.</p>
+        <p>© 2025 - 2026 Gen Plasma. Hak cipta dilindungi undang-undang.</p>
       </div>
     </footer>
   </div>

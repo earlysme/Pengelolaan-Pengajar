@@ -21,7 +21,7 @@ const newsreader = Newsreader({
 export const metadata: Metadata = {
   title: "Gen Plasma - Direktori & Sistem Informasi Pengajar",
   description:
-    "Gen Plasma: Alur Selaras - Bimbingan belajar terpercaya dengan pengajar berkualitas, kurikulum terpadu, dan pendampingan akademik terbaik.",
+    "Gen Plasma - Bimbingan belajar terpercaya dengan pengajar berkualitas, kurikulum terpadu, dan pendampingan akademik terbaik.",
   icons: {
     icon: "/logo.svg",
     apple: "/logo.png",
