@@ -28,16 +28,26 @@ export async function POST(
     }
 
     const { token, tokenHash } = generateAktivasiToken();
+    const isReset = !!tutor.akunDiaktifkanPada;
+
     await Pengajar.updateOne(
       { _id: tutor._id },
-      { $set: { aktivasiTokenHash: tokenHash, aktivasiKadaluarsa: new Date(Date.now() + AKTIVASI_BERLAKU_MS) } }
+      {
+        $set: {
+          aktivasiTokenHash: tokenHash,
+          aktivasiKadaluarsa: new Date(Date.now() + AKTIVASI_BERLAKU_MS),
+          statusResetPassword: isReset,
+        },
+      }
     );
 
     const origin = new URL(request.url).origin;
     const link = `${origin}/aktivasi?token=${token}`;
-    const pesan =
-      `Halo ${tutor.nama}, akun tutor Lentera Belajar Anda sudah dibuat.\n\n` +
-      `Silakan atur email dan password Anda lewat link berikut (berlaku 72 jam, hanya untuk Anda):\n${link}`;
+    const pesan = isReset
+      ? `Halo ${tutor.nama}, permintaan reset akses/password akun Anda telah dibuat oleh koordinator.\n\n` +
+        `Silakan atur password baru Anda lewat link berikut (berlaku 72 jam):\n${link}`
+      : `Halo ${tutor.nama}, akun tutor Lentera Belajar Anda sudah dibuat.\n\n` +
+        `Silakan atur email dan password Anda lewat link berikut (berlaku 72 jam, hanya untuk Anda):\n${link}`;
 
     return NextResponse.json({
       success: true,
@@ -45,6 +55,7 @@ export async function POST(
         link,
         waUrl: `https://wa.me/${nomorWaInternasional(tutor.nomorTelepon)}?text=${encodeURIComponent(pesan)}`,
         berlakuHingga: new Date(Date.now() + AKTIVASI_BERLAKU_MS).toISOString(),
+        isResetPassword: isReset,
       },
     });
   } catch {

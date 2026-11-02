@@ -491,11 +491,9 @@ export default function HalamanKatalog() {
                         {tutor.jabatan}
                       </p>
                       <div className="flex items-center justify-center gap-1 mt-2 flex-wrap">
-                        {tutor.ipk && (
-                          <span className="text-[0.68rem] font-bold px-2 py-0.5 rounded-md bg-[#F2D5A8]/80 text-[#173F3A] border border-[#D88A32]/25">
-                            IPK {tutor.ipk}
-                          </span>
-                        )}
+                        <span className="text-[0.68rem] font-bold px-2 py-0.5 rounded-md bg-[#F2D5A8]/80 text-[#173F3A] border border-[#D88A32]/25">
+                          Total {tutor.jadwal?.length || 0} Sesi
+                        </span>
                         {tutor.jenjang && tutor.jenjang.map((j) => (
                           <span
                             key={j}

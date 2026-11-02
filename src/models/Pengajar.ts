@@ -25,6 +25,7 @@ export interface IPengajar extends Document {
   aktivasiTokenHash?: string; // hash token undangan sekali pakai
   aktivasiKadaluarsa?: Date;
   akunDiaktifkanPada?: Date;
+  statusResetPassword?: boolean;
   otpCodeHash?: string;
   otpKadaluarsa?: Date;
   createdAt: Date;
@@ -123,6 +124,7 @@ const PengajarSchema: Schema<IPengajar> = new Schema(
     aktivasiTokenHash: { type: String, select: false },
     aktivasiKadaluarsa: { type: Date, select: false },
     akunDiaktifkanPada: { type: Date },
+    statusResetPassword: { type: Boolean, default: false },
     otpCodeHash: { type: String, select: false },
     otpKadaluarsa: { type: Date, select: false },
   },

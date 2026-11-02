@@ -30,9 +30,15 @@ export async function GET(request: Request) {
         { status: 400 }
       );
     }
+    const isReset = Boolean(tutor.statusResetPassword || (tutor.akunDiaktifkanPada && tutor.passwordHash));
     return NextResponse.json({
       success: true,
-      data: { nama: tutor.nama, email: tutor.email || "", sudahPunyaPassword: !!tutor.passwordHash },
+      data: {
+        nama: tutor.nama,
+        email: tutor.email || "",
+        sudahPunyaPassword: !!tutor.passwordHash,
+        isResetPassword: isReset,
+      },
     });
   } catch {
     return NextResponse.json({ success: false, error: "Terjadi kesalahan server." }, { status: 500 });
@@ -45,12 +51,9 @@ export async function POST(request: Request) {
     await connectDB();
     const body = await request.json();
     const token = String(body?.token ?? "");
-    const email = String(body?.email ?? "").trim().toLowerCase();
+    let email = String(body?.email ?? "").trim().toLowerCase();
     const password = String(body?.password ?? "");
 
-    if (!EMAIL_REGEX.test(email)) {
-      return NextResponse.json({ success: false, error: "Format email tidak valid." }, { status: 400 });
-    }
     const pesanPassword = validatePasswordBaru(password);
     if (pesanPassword) {
       return NextResponse.json({ success: false, error: pesanPassword }, { status: 400 });
@@ -64,14 +67,24 @@ export async function POST(request: Request) {
       );
     }
 
-    const dipakai = await Pengajar.exists({ email, _id: { $ne: tutor._id } });
-    if (dipakai) {
-      return NextResponse.json({ success: false, error: "Email sudah dipakai akun lain." }, { status: 409 });
+    const isReset = Boolean(tutor.statusResetPassword || (tutor.akunDiaktifkanPada && tutor.passwordHash));
+
+    if (isReset && tutor.email) {
+      email = tutor.email.toLowerCase();
+    } else {
+      if (!EMAIL_REGEX.test(email)) {
+        return NextResponse.json({ success: false, error: "Format email tidak valid." }, { status: 400 });
+      }
+      const dipakai = await Pengajar.exists({ email, _id: { $ne: tutor._id } });
+      if (dipakai) {
+        return NextResponse.json({ success: false, error: "Email sudah dipakai akun lain." }, { status: 409 });
+      }
+      tutor.email = email;
     }
 
-    tutor.email = email;
     tutor.passwordHash = hashPassword(password);
-    tutor.akunDiaktifkanPada = new Date();
+    tutor.statusResetPassword = false;
+    tutor.akunDiaktifkanPada = tutor.akunDiaktifkanPada || new Date();
     tutor.aktivasiTokenHash = undefined; // token hangus setelah dipakai
     tutor.aktivasiKadaluarsa = undefined;
     await tutor.save();

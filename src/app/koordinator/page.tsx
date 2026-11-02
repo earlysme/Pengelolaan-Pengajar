@@ -82,6 +82,7 @@ interface PengajarData {
   dokumenStatus?: string;
   catatanInternal?: string;
   akunDiaktifkanPada?: string;
+  statusResetPassword?: boolean;
 }
 
 interface KetersediaanData {
@@ -368,6 +369,7 @@ export default function PanelKoordinator() {
       if (json.success) {
         setLinkTersalin(false);
         setUndangan({ nama: p.nama, ...json.data });
+        fetchAllData();
       } else {
         alert(json.error || "Gagal membuat undangan.");
       }
@@ -650,7 +652,15 @@ export default function PanelKoordinator() {
 
   // Filtered views
   const filteredPengajar = pengajarList.filter((p) => {
-    if (statusFilter !== "Semua" && p.status !== statusFilter) return false;
+    if (statusFilter !== "Semua") {
+      if (statusFilter === "Belum Aktivasi") {
+        if (p.akunDiaktifkanPada) return false;
+      } else if (statusFilter === "Reset Password") {
+        if (!p.statusResetPassword) return false;
+      } else if (p.status !== statusFilter) {
+        return false;
+      }
+    }
     if (jenjangFilter !== "Semua" && !p.jenjang.includes(jenjangFilter)) return false;
     if (searchPengajar.trim()) {
       const q = searchPengajar.toLowerCase();
@@ -906,6 +916,8 @@ export default function PanelKoordinator() {
                         <option value="Semua">Semua Status</option>
                         <option value="Aktif">Aktif</option>
                         <option value="Cuti">Cuti</option>
+                        <option value="Belum Aktivasi">Belum Aktivasi</option>
+                        <option value="Reset Password">Reset Password</option>
                         <option value="Nonaktif">Nonaktif</option>
                       </select>
                       <span className="material-symbols-outlined absolute right-2.5 top-1/2 -translate-y-1/2 text-[#747878] pointer-events-none text-[18px]">
@@ -943,15 +955,14 @@ export default function PanelKoordinator() {
                           <th className="py-4 px-4 font-semibold">Mata Pelajaran</th>
                           <th className="py-4 px-4 font-semibold">Jenjang &amp; Kelas</th>
                           <th className="py-4 px-4 font-semibold">Ketersediaan Hari</th>
-                          <th className="py-4 px-4 font-semibold">Status Mengajar</th>
-                          <th className="py-4 px-4 font-semibold text-center">Status Akses / Akun</th>
+                          <th className="py-4 px-4 font-semibold text-center">Status</th>
                           <th className="py-4 pl-4 pr-6 text-right font-semibold">Aksi</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-[#efeeec] text-[0.875rem]">
                         {loading ? (
                           <tr>
-                            <td colSpan={7} className="py-12 text-center text-[#67645f]">
+                            <td colSpan={6} className="py-12 text-center text-[#67645f]">
                               <span className="material-symbols-outlined text-[28px] animate-spin block mb-2">
                                 progress_activity
                               </span>
@@ -960,7 +971,7 @@ export default function PanelKoordinator() {
                           </tr>
                         ) : filteredPengajar.length === 0 ? (
                           <tr>
-                            <td colSpan={7} className="py-12 text-center text-[#67645f]">
+                            <td colSpan={6} className="py-12 text-center text-[#67645f]">
                               Tidak ada pengajar yang sesuai dengan kriteria pencarian.
                             </td>
                           </tr>
@@ -1054,55 +1065,74 @@ export default function PanelKoordinator() {
                                   </div>
                                 </td>
 
-                                <td className="py-4 px-4 align-top">
-                                  <span
-                                    className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[0.75rem] font-semibold ${
-                                      p.status === "Aktif"
-                                        ? "bg-emerald-50 text-emerald-800 border border-emerald-200"
-                                        : p.status === "Cuti"
-                                        ? "bg-amber-50 text-amber-800 border border-amber-200"
-                                        : "bg-neutral-100 text-neutral-600 border border-neutral-300"
-                                    }`}
-                                  >
-                                    <span
-                                      className={`w-1.5 h-1.5 rounded-full ${
-                                        p.status === "Aktif" ? "bg-emerald-600" : p.status === "Cuti" ? "bg-amber-500" : "bg-neutral-400"
-                                      }`}
-                                    ></span>
-                                    {p.status}
-                                  </span>
-                                </td>
-
-                                {/* Kolom Khusus Status Akses / Undangan */}
+                                {/* Kolom Tunggal Status */}
                                 <td className="py-4 px-4 align-top text-center">
                                   <div className="flex flex-col items-center gap-1.5">
-                                    <span
-                                      className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[0.6875rem] font-medium border ${
-                                        p.akunDiaktifkanPada
-                                          ? "bg-emerald-50 text-emerald-800 border-emerald-200"
-                                          : "bg-amber-50 text-amber-800 border-amber-200"
-                                      }`}
-                                    >
-                                      <span
-                                        className={`w-1.5 h-1.5 rounded-full ${
-                                          p.akunDiaktifkanPada ? "bg-emerald-600" : "bg-amber-500"
-                                        }`}
-                                      ></span>
-                                      {p.akunDiaktifkanPada ? "Akun Aktif" : "Belum Aktivasi"}
-                                    </span>
-                                    <button
-                                      type="button"
-                                      onClick={() => handleBuatUndangan(p)}
-                                      disabled={undanganLoadingId === p._id}
-                                      className="px-3 py-1 rounded-full bg-[#173F3A] hover:bg-[#112F2B] text-white text-[0.72rem] font-semibold transition-all shadow-xs disabled:opacity-50"
-                                      title="Buat link undangan untuk login"
-                                    >
-                                      {undanganLoadingId === p._id
-                                        ? "..."
-                                        : p.akunDiaktifkanPada
-                                        ? "Reset Akses"
-                                        : "Kirim Undangan"}
-                                    </button>
+                                    {!p.akunDiaktifkanPada ? (
+                                      <>
+                                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[0.75rem] font-semibold bg-amber-50 text-amber-800 border border-amber-200">
+                                          <span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
+                                          Belum Aktivasi
+                                        </span>
+                                        <button
+                                          type="button"
+                                          onClick={() => handleBuatUndangan(p)}
+                                          disabled={undanganLoadingId === p._id}
+                                          className="px-3 py-1 rounded-full bg-[#173F3A] hover:bg-[#112F2B] text-white text-[0.72rem] font-semibold transition-all shadow-xs disabled:opacity-50"
+                                          title="Buat link undangan untuk login"
+                                        >
+                                          {undanganLoadingId === p._id ? "..." : "Kirim Undangan"}
+                                        </button>
+                                      </>
+                                    ) : p.statusResetPassword ? (
+                                      <>
+                                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[0.75rem] font-semibold bg-orange-50 text-orange-800 border border-orange-200">
+                                          <span className="w-1.5 h-1.5 rounded-full bg-orange-500"></span>
+                                          Reset Password
+                                        </span>
+                                        <button
+                                          type="button"
+                                          onClick={() => handleBuatUndangan(p)}
+                                          disabled={undanganLoadingId === p._id}
+                                          className="text-[0.7rem] text-orange-700 hover:text-orange-900 underline transition-colors font-medium"
+                                          title="Kirim ulang link reset password"
+                                        >
+                                          {undanganLoadingId === p._id ? "..." : "Kirim Ulang Link"}
+                                        </button>
+                                      </>
+                                    ) : (
+                                      <>
+                                        <span
+                                          className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[0.75rem] font-semibold ${
+                                            p.status === "Aktif"
+                                              ? "bg-emerald-50 text-emerald-800 border border-emerald-200"
+                                              : p.status === "Cuti"
+                                              ? "bg-amber-50 text-amber-800 border border-amber-200"
+                                              : "bg-neutral-100 text-neutral-600 border border-neutral-300"
+                                          }`}
+                                        >
+                                          <span
+                                            className={`w-1.5 h-1.5 rounded-full ${
+                                              p.status === "Aktif"
+                                                ? "bg-emerald-600"
+                                                : p.status === "Cuti"
+                                                ? "bg-amber-500"
+                                                : "bg-neutral-400"
+                                            }`}
+                                          ></span>
+                                          {p.status}
+                                        </span>
+                                        <button
+                                          type="button"
+                                          onClick={() => handleBuatUndangan(p)}
+                                          disabled={undanganLoadingId === p._id}
+                                          className="text-[0.7rem] text-[#67645f] hover:text-[#173F3A] underline transition-colors"
+                                          title="Reset akses login tutor"
+                                        >
+                                          {undanganLoadingId === p._id ? "..." : "Reset Akses"}
+                                        </button>
+                                      </>
+                                    )}
                                   </div>
                                 </td>
 
