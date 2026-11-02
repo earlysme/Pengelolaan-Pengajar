@@ -3,7 +3,6 @@ import connectDB from "@/lib/mongodb";
 import Pengajar from "@/models/Pengajar";
 import { requireKoordinator } from "@/lib/auth";
 
-export const dynamic = "force-dynamic";
 
 // GET: Mengambil semua data pengajar dengan pencarian & filter
 export async function GET(request: Request) {

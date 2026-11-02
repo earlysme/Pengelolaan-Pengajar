@@ -8,7 +8,6 @@ import {
   requireKoordinator,
 } from "@/lib/auth";
 
-export const dynamic = "force-dynamic";
 
 // POST: koordinator membuat link undangan aktivasi akun untuk satu tutor.
 // Token lama otomatis tidak berlaku lagi. Token asli hanya dikembalikan di respons ini,
