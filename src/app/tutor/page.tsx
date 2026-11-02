@@ -202,29 +202,36 @@ export default function AreaTutor() {
     });
   };
 
-  const fetchMyProfile = async () => {
+  const fetchMyProfile = async (): Promise<PengajarData | null> => {
     try {
-      setLoading(true);
       // Identitas diambil dari cookie sesi server, bukan dari localStorage.
       const me = await fetch("/api/auth/me");
       const meJson = await me.json();
       if (!me.ok || meJson.data?.role !== "tutor") {
         router.push("/login");
-        return;
+        return null;
       }
 
       const res = await fetch(`/api/pengajar/${meJson.data.id}`);
       const json = await res.json();
-      if (json.success) populateTutor(json.data);
+      return json.success ? (json.data as PengajarData) : null;
     } catch {
-      // Ignore
-    } finally {
-      setLoading(false);
+      return null;
     }
   };
 
   useEffect(() => {
-    fetchMyProfile();
+    let cancelled = false;
+    void fetchMyProfile()
+      .then((tutor) => {
+        if (!cancelled && tutor) populateTutor(tutor);
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
