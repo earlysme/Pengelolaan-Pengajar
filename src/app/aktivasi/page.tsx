@@ -239,9 +239,9 @@ export default function HalamanAktivasi() {
       <header className="w-full bg-[#faf8f5]/85 backdrop-blur-md border-b border-[#173F3A]/10">
         <div className="h-20 max-w-7xl mx-auto px-6 lg:px-12 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-3 transition-opacity hover:opacity-85">
-            <img src="/logo.svg" alt="Gen Plasma" className="w-9 h-9 object-contain" />
-            <div className="flex flex-col">
-              <span className="font-serif text-[1.35rem] leading-none tracking-tight text-[#173F3A] select-none font-bold">
+            <img src="/logo.svg" alt="Gen Plasma" className="w-9 h-9 object-contain shrink-0" />
+            <div className="flex flex-col justify-center">
+              <span className="font-serif text-[1.35rem] leading-none tracking-tight text-[#173F3A] select-none font-bold -translate-y-[2px]">
                 Gen Plasma
               </span>
             </div>

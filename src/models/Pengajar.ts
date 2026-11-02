@@ -11,6 +11,7 @@ export interface IPengajar extends Document {
   foto?: string; // URL foto profil atau avatar
   deskripsi?: string; // Bio / deskripsi diri tutor untuk publik
   pendidikan?: string; // Almamater / latar belakang pendidikan
+  ipk?: string; // Indeks Prestasi Kumulatif tutor (contoh: 3.85)
   status: StatusPengajar;
   mataPelajaran: string[];
   jenjang: string[]; // SD, SMP, SMA, UTBK/Kedinasan
@@ -71,6 +72,11 @@ const PengajarSchema: Schema<IPengajar> = new Schema(
     pendidikan: {
       type: String,
       trim: true,
+    },
+    ipk: {
+      type: String,
+      trim: true,
+      default: "",
     },
     status: {
       type: String,

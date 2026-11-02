@@ -687,9 +687,9 @@ export default function PanelKoordinator() {
         <div className="h-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 flex items-center justify-between gap-4">
           <div className="flex items-center gap-3 shrink-0">
             <Link href="/" className="flex items-center gap-2.5 transition-opacity hover:opacity-85">
-              <img src="/logo.svg" alt="Gen Plasma" className="w-8 h-8 object-contain" />
-              <div className="flex flex-col">
-                <span className="font-serif text-[1.25rem] leading-none tracking-tight text-[#173F3A] select-none font-bold">
+              <img src="/logo.svg" alt="Gen Plasma" className="w-8 h-8 object-contain shrink-0" />
+              <div className="flex flex-col justify-center">
+                <span className="font-serif text-[1.25rem] leading-none tracking-tight text-[#173F3A] select-none font-bold -translate-y-[1.5px]">
                   Gen Plasma
                 </span>
               </div>

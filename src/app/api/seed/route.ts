@@ -43,7 +43,7 @@ export async function POST() {
           { namaKelas: "Kelas 10 Reguler Sains", jumlahSiswa: 14 },
         ],
         dokumenStatus: "Lengkap",
-        catatanInternal: "Tutor unggulan, rating evaluasi siswa 4.9/5.0.",
+        catatanInternal: "Tutor unggulan dengan evaluasi mengajar sangat baik.",
       },
       {
         nama: "Kak Siti Rahmawati",
