@@ -4,7 +4,7 @@ import Pengajar from "@/models/Pengajar";
 import { getSession } from "@/lib/auth";
 
 // Field yang boleh diubah tutor untuk profilnya sendiri
-const FIELD_TUTOR = ["foto", "deskripsi", "pendidikan", "alamat", "nomorTelepon", "jadwalTersedia", "status"];
+const FIELD_TUTOR = ["foto", "deskripsi", "pendidikan", "ipk", "alamat", "nomorTelepon", "jadwalTersedia", "status"];
 
 // GET: Mengambil detail satu pengajar
 export async function GET(

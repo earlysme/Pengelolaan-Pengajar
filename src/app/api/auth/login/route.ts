@@ -75,6 +75,11 @@ export async function POST(request: Request) {
       );
     }
 
+    if (!tutor.akunDiaktifkanPada) {
+      tutor.akunDiaktifkanPada = new Date();
+      await tutor.save();
+    }
+
     resetGagal(kunci);
     await setSessionCookie({ role: "tutor", sub: String(tutor._id), nama: tutor.nama });
     return NextResponse.json({

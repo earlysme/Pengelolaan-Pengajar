@@ -11,6 +11,7 @@ function FormAktivasi() {
   const [status, setStatus] = useState<"memeriksa" | "valid" | "invalid">(() =>
     !token ? "invalid" : "memeriksa"
   );
+  const [isResetPassword, setIsResetPassword] = useState(false);
   const [nama, setNama] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -33,6 +34,7 @@ function FormAktivasi() {
         if (json.success) {
           setNama(json.data.nama);
           setEmail(json.data.email || "");
+          setIsResetPassword(Boolean(json.data.isResetPassword));
           setStatus("valid");
         } else {
           setError(json.error || "Link aktivasi sudah kedaluwarsa atau tidak valid.");
@@ -92,18 +94,22 @@ function FormAktivasi() {
     <div className="w-full max-w-md">
       <div className="text-center mb-8">
         <span className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#F2D5A8]/60 text-[0.75rem] font-semibold text-[#173F3A] uppercase tracking-wider mb-3 border border-[#D88A32]/30">
-          Aktivasi Akun Tutor
+          {isResetPassword ? "Reset Password Tutor" : "Aktivasi Akun Tutor"}
         </span>
         <h1 className="font-serif text-[2.25rem] text-[#173F3A] tracking-tight font-bold">
-          {status === "valid" ? `Halo, ${nama}` : "Aktivasi Akun"}
+          {status === "valid" ? `Halo, ${nama}` : isResetPassword ? "Reset Password" : "Aktivasi Akun"}
         </h1>
         {status === "valid" ? (
           <p className="mt-2 text-[0.875rem] text-[#444748]">
-            Atur email dan password pribadi Anda untuk mulai mengakses portal mandiri tutor.
+            {isResetPassword
+              ? "Silakan masukkan password baru untuk akun Anda guna mengakses portal mandiri tutor."
+              : "Atur email dan password pribadi Anda untuk mulai mengakses portal mandiri tutor."}
           </p>
         ) : (
           <p className="mt-2 text-[0.875rem] text-[#444748]">
-            Verifikasi tautan undangan aktivasi akun Anda.
+            {isResetPassword
+              ? "Verifikasi tautan reset password akun Anda."
+              : "Verifikasi tautan undangan aktivasi akun Anda."}
           </p>
         )}
       </div>
@@ -142,23 +148,32 @@ function FormAktivasi() {
               </div>
             )}
 
-            <div>
-              <label className="block text-[0.8125rem] font-medium text-[#172421] mb-1.5">
-                Alamat Email Login
-              </label>
-              <input
-                type="email"
-                required
-                autoComplete="email"
-                placeholder="nama@email.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className={inputClass}
-              />
-              <p className="text-[0.72rem] text-[#67645f] mt-1.5">
-                Email ini akan digunakan sebagai identitas akun untuk login berikutnya.
-              </p>
-            </div>
+            {isResetPassword ? (
+              email && (
+                <div className="p-3 bg-[#faf8f5] border border-[#173F3A]/10 rounded-xl flex items-center justify-between text-[0.8125rem]">
+                  <span className="text-[#67645f]">Akun Tutor:</span>
+                  <span className="font-semibold text-[#173F3A]">{email}</span>
+                </div>
+              )
+            ) : (
+              <div>
+                <label className="block text-[0.8125rem] font-medium text-[#172421] mb-1.5">
+                  Alamat Email Login
+                </label>
+                <input
+                  type="email"
+                  required
+                  autoComplete="email"
+                  placeholder="nama@email.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className={inputClass}
+                />
+                <p className="text-[0.72rem] text-[#67645f] mt-1.5">
+                  Email ini akan digunakan sebagai identitas akun untuk login berikutnya.
+                </p>
+              </div>
+            )}
 
             <div>
               <label className="block text-[0.8125rem] font-medium text-[#172421] mb-1.5">
@@ -223,7 +238,11 @@ function FormAktivasi() {
               disabled={loading}
               className="w-full py-3 px-5 bg-[#173F3A] hover:bg-[#12312d] text-white rounded-full text-[0.875rem] font-semibold transition-all shadow-sm disabled:opacity-50 mt-4 active:scale-[0.99]"
             >
-              {loading ? "Menyimpan & Mengaktifkan..." : "Aktifkan Akun & Masuk"}
+              {loading
+                ? "Menyimpan Password..."
+                : isResetPassword
+                ? "Simpan Password Baru"
+                : "Aktifkan Akun & Masuk"}
             </button>
           </form>
         )}
@@ -239,9 +258,9 @@ export default function HalamanAktivasi() {
       <header className="w-full bg-[#faf8f5]/85 backdrop-blur-md border-b border-[#173F3A]/10">
         <div className="h-20 max-w-7xl mx-auto px-6 lg:px-12 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-3 transition-opacity hover:opacity-85">
-            <img src="/logo.svg" alt="Gen Plasma" className="w-9 h-9 object-contain" />
-            <div className="flex flex-col">
-              <span className="font-serif text-[1.35rem] leading-none tracking-tight text-[#173F3A] select-none font-bold">
+            <img src="/logo.svg" alt="Gen Plasma" className="w-9 h-9 object-contain shrink-0" />
+            <div className="flex flex-col justify-center">
+              <span className="font-serif text-[1.35rem] leading-none tracking-tight text-[#173F3A] select-none font-bold -translate-y-[2px]">
                 Gen Plasma
               </span>
             </div>

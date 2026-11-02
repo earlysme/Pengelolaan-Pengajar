@@ -11,6 +11,7 @@ export interface IPengajar extends Document {
   foto?: string; // URL foto profil atau avatar
   deskripsi?: string; // Bio / deskripsi diri tutor untuk publik
   pendidikan?: string; // Almamater / latar belakang pendidikan
+  ipk?: string; // Indeks Prestasi Kumulatif tutor (contoh: 3.85)
   status: StatusPengajar;
   mataPelajaran: string[];
   jenjang: string[]; // SD, SMP, SMA, UTBK/Kedinasan
@@ -24,6 +25,7 @@ export interface IPengajar extends Document {
   aktivasiTokenHash?: string; // hash token undangan sekali pakai
   aktivasiKadaluarsa?: Date;
   akunDiaktifkanPada?: Date;
+  statusResetPassword?: boolean;
   otpCodeHash?: string;
   otpKadaluarsa?: Date;
   createdAt: Date;
@@ -72,6 +74,11 @@ const PengajarSchema: Schema<IPengajar> = new Schema(
       type: String,
       trim: true,
     },
+    ipk: {
+      type: String,
+      trim: true,
+      default: "",
+    },
     status: {
       type: String,
       enum: ["Aktif", "Cuti", "Nonaktif"],
@@ -117,6 +124,7 @@ const PengajarSchema: Schema<IPengajar> = new Schema(
     aktivasiTokenHash: { type: String, select: false },
     aktivasiKadaluarsa: { type: Date, select: false },
     akunDiaktifkanPada: { type: Date },
+    statusResetPassword: { type: Boolean, default: false },
     otpCodeHash: { type: String, select: false },
     otpKadaluarsa: { type: Date, select: false },
   },

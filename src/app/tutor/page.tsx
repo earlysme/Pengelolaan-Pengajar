@@ -13,6 +13,7 @@ interface PengajarData {
   foto?: string;
   deskripsi?: string;
   pendidikan?: string;
+  ipk?: string;
   mataPelajaran: string[];
   jenjang: string[];
   status: string;
@@ -113,6 +114,7 @@ export default function AreaTutor() {
   const [selectedPresetIndex, setSelectedPresetIndex] = useState(0);
   const [deskripsi, setDeskripsi] = useState("");
   const [pendidikan, setPendidikan] = useState("");
+  const [ipk, setIpk] = useState("");
   const [tutorStatus, setTutorStatus] = useState<"Aktif" | "Cuti">("Aktif");
   const [tags, setTags] = useState<string[]>([
     "Kimia Organik & Stoikiometri SMA",
@@ -129,12 +131,15 @@ export default function AreaTutor() {
 
   // State Modal Ubah Password Manual (Tanpa OTP)
   const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [newPassword, setNewPassword] = useState("");
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [passwordLoading, setPasswordLoading] = useState(false);
   const [passwordError, setPasswordError] = useState("");
+  const [showForgotInfo, setShowForgotInfo] = useState(false);
 
   // Daftar hari unik dari slot yang aktif
   const hariTersedia = Array.from(new Set(jadwalSlots.map((s) => s.hari)));
@@ -144,6 +149,7 @@ export default function AreaTutor() {
     foto: string;
     deskripsi: string;
     pendidikan: string;
+    ipk: string;
     domisili: string;
     nomorWa: string;
     status: "Aktif" | "Cuti";
@@ -156,6 +162,7 @@ export default function AreaTutor() {
     (foto !== initialData.foto ||
       deskripsi !== initialData.deskripsi ||
       pendidikan !== initialData.pendidikan ||
+      ipk !== initialData.ipk ||
       domisili !== initialData.domisili ||
       nomorWa !== initialData.nomorWa ||
       tutorStatus !== initialData.status ||
@@ -174,6 +181,7 @@ export default function AreaTutor() {
     setPendidikan(
       t.pendidikan || "S2 Magister Kimia ITB (Cumlaude) • S1 Pendidikan Kimia Universitas Indonesia"
     );
+    setIpk(t.ipk || "");
     setNomorWa(t.nomorTelepon ? t.nomorTelepon.replace(/^(\+62|62|0)/, "") : "");
     setDomisili(t.alamat || "Bandung & Jakarta Selatan (Fleksibel)");
 
@@ -187,6 +195,7 @@ export default function AreaTutor() {
       "Berpengalaman lebih dari 8 tahun membimbing siswa menembus Fakultas Kedokteran dan PTN impian dengan metode visualisasi konsep dan pembedahan nalar logika soal HOTS tanpa hafalan rumus mati.";
     const initialPend =
       t.pendidikan || "S2 Magister Kimia ITB (Cumlaude) • S1 Pendidikan Kimia Universitas Indonesia";
+    const initialIpk = t.ipk || "";
     const initialWa = t.nomorTelepon ? t.nomorTelepon.replace(/^(\+62|62|0)/, "") : "";
     const initialDom = t.alamat || "Bandung & Jakarta Selatan (Fleksibel)";
 
@@ -194,6 +203,7 @@ export default function AreaTutor() {
       foto: initialFoto,
       deskripsi: initialDesk,
       pendidikan: initialPend,
+      ipk: initialIpk,
       domisili: initialDom,
       nomorWa: initialWa,
       status: t.status === "Cuti" ? "Cuti" : "Aktif",
@@ -235,60 +245,60 @@ export default function AreaTutor() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-const showToast = (msg: string) => {
-  setToastMessage(msg);
-  setTimeout(() => {
-    setToastMessage("");
-  }, 3500);
-};
-
-// Handler Unggah Foto dari Perangkat
-const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-  const file = e.target.files?.[0];
-  if (!file) return;
-
-  if (!file.type.startsWith("image/")) {
-    showToast("Pilih file gambar valid (JPG, PNG, atau WebP).");
-    return;
-  }
-
-  const reader = new FileReader();
-  reader.onload = (event) => {
-    const rawUrl = event.target?.result as string;
-    const img = new Image();
-    img.onload = () => {
-      const canvas = document.createElement("canvas");
-      let width = img.width;
-      let height = img.height;
-      const MAX_SIZE = 800;
-
-      if (width > height) {
-        if (width > MAX_SIZE) {
-          height = Math.round((height * MAX_SIZE) / width);
-          width = MAX_SIZE;
-        }
-      } else {
-        if (height > MAX_SIZE) {
-          width = Math.round((width * MAX_SIZE) / height);
-          height = MAX_SIZE;
-        }
-      }
-
-      canvas.width = width;
-      canvas.height = height;
-      const ctx = canvas.getContext("2d");
-      if (ctx) {
-        ctx.drawImage(img, 0, 0, width, height);
-        const compressed = canvas.toDataURL("image/jpeg", 0.88);
-        setFoto(compressed);
-        setSelectedPresetIndex(-1);
-        showToast("Foto berhasil dimuat dari perangkat.");
-      }
-    };
-    img.src = rawUrl;
+  const showToast = (msg: string) => {
+    setToastMessage(msg);
+    setTimeout(() => {
+      setToastMessage("");
+    }, 3500);
   };
-  reader.readAsDataURL(file);
-};
+
+  // Handler Unggah Foto dari Perangkat
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      showToast("Pilih file gambar valid (JPG, PNG, atau WebP).");
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const rawUrl = event.target?.result as string;
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        let width = img.width;
+        let height = img.height;
+        const MAX_SIZE = 800;
+
+        if (width > height) {
+          if (width > MAX_SIZE) {
+            height = Math.round((height * MAX_SIZE) / width);
+            width = MAX_SIZE;
+          }
+        } else {
+          if (height > MAX_SIZE) {
+            width = Math.round((width * MAX_SIZE) / height);
+            height = MAX_SIZE;
+          }
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext("2d");
+        if (ctx) {
+          ctx.drawImage(img, 0, 0, width, height);
+          const compressed = canvas.toDataURL("image/jpeg", 0.88);
+          setFoto(compressed);
+          setSelectedPresetIndex(-1);
+          showToast("Foto berhasil dimuat dari perangkat.");
+        }
+      };
+      img.src = rawUrl;
+    };
+    reader.readAsDataURL(file);
+  };
 
   // Toggle pilihan hari ketersediaan
   const toggleHari = (hari: string) => {
@@ -345,8 +355,8 @@ const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     e.preventDefault();
     setPasswordError("");
 
-    if (newPassword !== confirmPassword) {
-      setPasswordError("Konfirmasi password baru tidak cocok.");
+    if (!currentPassword) {
+      setPasswordError("Password saat ini wajib diisi.");
       return;
     }
 
@@ -355,19 +365,31 @@ const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
       return;
     }
 
+    if (newPassword !== confirmPassword) {
+      setPasswordError("Konfirmasi password baru tidak cocok.");
+      return;
+    }
+
+    if (currentPassword === newPassword) {
+      setPasswordError("Password baru tidak boleh sama dengan password saat ini.");
+      return;
+    }
+
     setPasswordLoading(true);
     try {
       const res = await fetch("/api/tutor/password", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ password: newPassword }),
+        body: JSON.stringify({ currentPassword, newPassword }),
       });
       const json = await res.json();
       if (json.success) {
         showToast("Password akun Anda berhasil diperbarui!");
         setIsPasswordModalOpen(false);
+        setCurrentPassword("");
         setNewPassword("");
         setConfirmPassword("");
+        setShowForgotInfo(false);
       } else {
         setPasswordError(json.error || "Gagal memperbarui password.");
       }
@@ -410,1097 +432,1185 @@ const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     }
   };
 
-// Simpan Profil & Ketersediaan Hari & Jam
-const handleSaveProfile = async (e?: React.FormEvent) => {
-  if (e) e.preventDefault();
-  if (!currentTutor) return;
+  // Simpan Profil & Ketersediaan Hari & Jam
+  const handleSaveProfile = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    if (!currentTutor) return;
 
-  const incomplete = jadwalSlots.some((s) => !s.jamMulai || !s.jamSelesai);
-  if (incomplete) {
-    showToast("Lengkapi jam mulai dan jam selesai untuk semua hari yang Anda pilih.");
-    return;
-  }
-
-  try {
-    setSavingProfil(true);
-    const serializedJadwal = jadwalSlots
-      .filter((s) => s.jamMulai && s.jamSelesai)
-      .map(formatSlotToString);
-
-    const res = await fetch(`/api/pengajar/${currentTutor._id}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        foto,
-        deskripsi,
-        pendidikan,
-        alamat: domisili,
-        nomorTelepon: nomorWa.startsWith("0") ? nomorWa : `0${nomorWa}`,
-        jadwalTersedia: serializedJadwal,
-        status: tutorStatus,
-      }),
-    });
-    const json = await res.json();
-    if (json.success) {
-      showToast("Profil dan jam ketersediaan mengajar berhasil disimpan.");
-      setInitialData({
-        foto,
-        deskripsi,
-        pendidikan,
-        domisili,
-        nomorWa,
-        status: tutorStatus,
-        jadwalSlots: [...jadwalSlots],
-        tags,
-      });
-      setCurrentTutor((prev) =>
-        prev
-          ? {
-            ...prev,
-            foto,
-            deskripsi,
-            pendidikan,
-            alamat: domisili,
-            nomorTelepon: nomorWa.startsWith("0") ? nomorWa : `0${nomorWa}`,
-            jadwalTersedia: serializedJadwal,
-            status: tutorStatus,
-          }
-          : null
-      );
-    } else {
-      showToast("Gagal menyimpan profil.");
+    const incomplete = jadwalSlots.some((s) => !s.jamMulai || !s.jamSelesai);
+    if (incomplete) {
+      showToast("Lengkapi jam mulai dan jam selesai untuk semua hari yang Anda pilih.");
+      return;
     }
-  } catch {
-    showToast("Kendala koneksi.");
-  } finally {
-    setSavingProfil(false);
-  }
-};
 
-const handleLogout = async () => {
-  await fetch("/api/auth/logout", { method: "POST" });
-  router.push("/login");
-};
+    try {
+      setSavingProfil(true);
+      const serializedJadwal = jadwalSlots
+        .filter((s) => s.jamMulai && s.jamSelesai)
+        .map(formatSlotToString);
 
-const handleAddTag = () => {
-  const tagName = prompt("Masukkan topik spesialisasi atau kurikulum baru:");
-  if (tagName && tagName.trim()) {
-    setTags([...tags, tagName.trim()]);
-  }
-};
+      const res = await fetch(`/api/pengajar/${currentTutor._id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          foto,
+          deskripsi,
+          pendidikan,
+          ipk,
+          alamat: domisili,
+          nomorTelepon: nomorWa.startsWith("0") ? nomorWa : `0${nomorWa}`,
+          jadwalTersedia: serializedJadwal,
+          status: tutorStatus,
+        }),
+      });
+      const json = await res.json();
+      if (json.success) {
+        showToast("Profil dan jam ketersediaan mengajar berhasil disimpan.");
+        setInitialData({
+          foto,
+          deskripsi,
+          pendidikan,
+          ipk,
+          domisili,
+          nomorWa,
+          status: tutorStatus,
+          jadwalSlots: [...jadwalSlots],
+          tags,
+        });
+        setCurrentTutor((prev) =>
+          prev
+            ? {
+              ...prev,
+              foto,
+              deskripsi,
+              pendidikan,
+              ipk,
+              alamat: domisili,
+              nomorTelepon: nomorWa.startsWith("0") ? nomorWa : `0${nomorWa}`,
+              jadwalTersedia: serializedJadwal,
+              status: tutorStatus,
+            }
+            : null
+        );
+      } else {
+        showToast("Gagal menyimpan profil.");
+      }
+    } catch {
+      showToast("Kendala koneksi.");
+    } finally {
+      setSavingProfil(false);
+    }
+  };
 
-const handleRemoveTag = (index: number) => {
-  setTags(tags.filter((_, i) => i !== index));
-};
+  const handleLogout = async () => {
+    await fetch("/api/auth/logout", { method: "POST" });
+    router.push("/login");
+  };
 
-const previewPublicCard = () => {
-  const card = document.getElementById("sidebar-live-portrait");
-  if (card) {
-    card.scrollIntoView({ behavior: "smooth", block: "center" });
-    card.parentElement?.classList.add("ring-4", "ring-black/20");
-    setTimeout(() => card.parentElement?.classList.remove("ring-4", "ring-black/20"), 1500);
-  }
-};
+  const handleAddTag = () => {
+    const tagName = prompt("Masukkan topik spesialisasi atau kurikulum baru:");
+    if (tagName && tagName.trim()) {
+      setTags([...tags, tagName.trim()]);
+    }
+  };
 
-return (
-  <div className="bg-[#faf8f5] font-sans text-[#172421] min-h-screen selection:bg-[#F2D5A8] selection:text-[#173F3A]">
-    {/* Top Header Khusus Role Tutor */}
-    <header className="fixed top-0 w-full z-50 bg-[#faf8f5]/85 backdrop-blur-xl shadow-[0_1px_8px_rgba(23,63,58,0.06)] border-b border-[#173F3A]/10">
-      <div className="h-20 max-w-7xl mx-auto px-6 lg:px-12 flex items-center justify-between gap-6">
-        <div className="flex items-center gap-3">
-          <Link href="/" className="flex items-center gap-3 transition-opacity hover:opacity-85">
-            <img src="/logo.svg" alt="Gen Plasma" className="w-9 h-9 object-contain" />
-            <div className="flex flex-col">
-              <span className="font-serif text-[1.4rem] leading-none tracking-tight text-[#173F3A] select-none font-bold">
-                Gen Plasma
-              </span>
-            </div>
-          </Link>
-        </div>
+  const handleRemoveTag = (index: number) => {
+    setTags(tags.filter((_, i) => i !== index));
+  };
 
-        <div className="flex items-center gap-2.5">
-          <button
-            type="button"
-            onClick={() => {
-              document.getElementById("section-ketersediaan")?.scrollIntoView({ behavior: "smooth" });
-            }}
-            className="text-[0.8125rem] font-semibold text-[#173F3A] hover:bg-[#F2D5A8]/50 px-3.5 py-1.5 rounded-full border border-[#173F3A]/20 transition-colors flex items-center gap-1.5"
-            title="Navigasi ke ketersediaan hari & sesi mengajar"
-          >
-            <span className="material-symbols-outlined text-[17px]">event_available</span>
-            <span className="hidden sm:inline">Ketersediaan Mengajar</span>
-          </button>
+  const previewPublicCard = () => {
+    const card = document.getElementById("sidebar-live-portrait");
+    if (card) {
+      card.scrollIntoView({ behavior: "smooth", block: "center" });
+      card.parentElement?.classList.add("ring-4", "ring-black/20");
+      setTimeout(() => card.parentElement?.classList.remove("ring-4", "ring-black/20"), 1500);
+    }
+  };
 
-          <button
-            type="button"
-            onClick={() => {
-              document.getElementById("section-profil-akun")?.scrollIntoView({ behavior: "smooth" });
-            }}
-            className="text-[0.8125rem] font-semibold text-[#173F3A] hover:bg-[#F2D5A8]/50 px-3.5 py-1.5 rounded-full border border-[#173F3A]/20 transition-colors flex items-center gap-1.5"
-            title="Navigasi ke latar belakang pendidikan, bio, kontak, & atur password"
-          >
-            <span className="material-symbols-outlined text-[17px]">manage_accounts</span>
-            <span className="hidden sm:inline">Profil &amp; Akun</span>
-          </button>
+  return (
+    <div className="bg-[#faf8f5] font-sans text-[#172421] min-h-screen selection:bg-[#F2D5A8] selection:text-[#173F3A]">
+      {/* Top Header Khusus Role Tutor */}
+      <header className="fixed top-0 w-full z-50 bg-[#faf8f5]/85 backdrop-blur-xl shadow-[0_1px_8px_rgba(23,63,58,0.06)] border-b border-[#173F3A]/10">
+        <div className="h-20 max-w-7xl mx-auto px-6 lg:px-12 flex items-center justify-between gap-6">
+          <div className="flex items-center gap-3">
+            <Link href="/" className="flex items-center gap-3 transition-opacity hover:opacity-85">
+              <img src="/logo.svg" alt="Gen Plasma" className="w-9 h-9 object-contain shrink-0" />
+              <div className="flex flex-col justify-center">
+                <span className="font-serif text-[1.4rem] leading-none tracking-tight text-[#173F3A] select-none font-bold -translate-y-[2px]">
+                  Gen Plasma
+                </span>
+              </div>
+            </Link>
+          </div>
 
-          <button
-            type="button"
-            onClick={handleLogout}
-            className="text-[0.8125rem] font-medium text-[#ba1a1a] hover:bg-red-50 transition-colors flex items-center gap-1 px-3 py-1.5 rounded-full border border-red-200"
-            title="Keluar dari akun tutor"
-          >
-            <span className="material-symbols-outlined text-[16px]">logout</span>
-            <span className="hidden sm:inline">Keluar</span>
-          </button>
-        </div>
-      </div>
-    </header>
+          <div className="flex items-center gap-2.5">
+            <button
+              type="button"
+              onClick={() => {
+                document.getElementById("section-ketersediaan")?.scrollIntoView({ behavior: "smooth" });
+              }}
+              className="text-[0.8125rem] font-semibold text-[#173F3A] hover:bg-[#F2D5A8]/50 px-3.5 py-1.5 rounded-full border border-[#173F3A]/20 transition-colors flex items-center gap-1.5"
+              title="Navigasi ke ketersediaan hari & sesi mengajar"
+            >
+              <span className="material-symbols-outlined text-[17px]">event_available</span>
+              <span className="hidden sm:inline">Ketersediaan Mengajar</span>
+            </button>
 
-    {/* Main Container */}
-    <main className="w-full pt-20 bg-[#faf8f5]">
-      {loading && !currentTutor ? (
-        <div className="flex items-center justify-center min-h-[60vh]">
-          <div className="flex flex-col items-center gap-3 text-center">
-            <span className="material-symbols-outlined text-[36px] text-[#173F3A] animate-spin">
-              progress_activity
-            </span>
-            <p className="text-[0.875rem] text-[#444748] font-medium">
-              Memuat data profil tutor...
-            </p>
+            <button
+              type="button"
+              onClick={() => {
+                document.getElementById("section-profil-akun")?.scrollIntoView({ behavior: "smooth" });
+              }}
+              className="text-[0.8125rem] font-semibold text-[#173F3A] hover:bg-[#F2D5A8]/50 px-3.5 py-1.5 rounded-full border border-[#173F3A]/20 transition-colors flex items-center gap-1.5"
+              title="Navigasi ke latar belakang pendidikan, bio, kontak, & atur password"
+            >
+              <span className="material-symbols-outlined text-[17px]">manage_accounts</span>
+              <span className="hidden sm:inline">Profil &amp; Akun</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={handleLogout}
+              className="text-[0.8125rem] font-medium text-[#ba1a1a] hover:bg-red-50 transition-colors flex items-center gap-1 px-3 py-1.5 rounded-full border border-red-200"
+              title="Keluar dari akun tutor"
+            >
+              <span className="material-symbols-outlined text-[16px]">logout</span>
+              <span className="hidden sm:inline">Keluar</span>
+            </button>
           </div>
         </div>
-      ) : (
-        <div className="flex flex-col w-full">
-          {/* Main Teacher Portal Wrapper */}
-          <section className="max-w-7xl mx-auto px-6 lg:px-12 py-10 w-full space-y-8">
-            {/* Header & Profile Identity Bento Banner */}
-            <header className="bg-white border border-[#173F3A]/15 rounded-2xl p-6 lg:p-10 shadow-[0_4px_24px_-4px_rgba(23,63,58,0.06)] relative overflow-hidden">
-              <div className="absolute -right-24 -top-24 w-96 h-96 rounded-full bg-[#F2D5A8]/30 blur-3xl pointer-events-none"></div>
-              <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-8">
-                {/* Left: Portrait Thumbnail + Identity */}
-                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6">
-                  <div className="relative group shrink-0">
-                    <div className="w-24 h-24 lg:w-28 lg:h-28 rounded-2xl overflow-hidden bg-[#e3e2e0] shadow-[0_8px_20px_-6px_rgba(0,0,0,0.12)]">
-                      <img
-                        src={foto}
-                        alt={currentTutor?.nama || "Tutor"}
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                  </div>
+      </header>
 
-                  <div className="space-y-1.5">
-                    <div className="flex flex-wrap items-center gap-2.5">
-                      <span className="bg-[#e3e2e0] text-[#1a1c1b] text-[0.75rem] font-semibold px-3 py-1 rounded-full uppercase tracking-wider">
-                        Profil Mandiri Tutor
-                      </span>
-                    </div>
-
-                    <h1 className="font-serif text-[2.25rem] lg:text-[2.5rem] text-[#1a1c1b] tracking-tight leading-tight">
-                      {currentTutor?.nama || "Siti Rahmawati, M.Si."}
-                    </h1>
-
-                    <div className="flex flex-wrap items-center gap-y-1 gap-x-4 text-[0.8125rem] text-[#444748]">
-                      <span className="flex items-center gap-1.5 font-medium text-[#1a1c1b]">
-                        <span className="material-symbols-outlined text-[16px] text-[#444748]">
-                          biotech
-                        </span>
-                        {currentTutor?.mataPelajaran.join(", ") || "Kimia, Biologi"}
-                      </span>
-                      <span>•</span>
-                      <span className="flex items-center gap-1.5">
-                        <span className="material-symbols-outlined text-[16px] text-[#444748]">
-                          chat
-                        </span>
-                        WhatsApp:{" "}
-                        <span className="text-[#1a1c1b] font-mono">
-                          {currentTutor?.nomorTelepon || "082198765432"}
-                        </span>
-                      </span>
-                      <span>•</span>
-                      <span className="flex items-center gap-1.5 truncate max-w-xs">
-                        <span className="material-symbols-outlined text-[16px] text-[#444748]">
-                          school
-                        </span>
-                        {pendidikan.split("•")[0] || "S2 Kimia ITB"}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Right: Personal Status & Actions */}
-                <div className="flex items-center gap-3 w-full sm:w-auto">
-                  <Link
-                    href="/"
-                    className="inline-flex items-center justify-center gap-2 bg-[#faf8f5] text-[#173F3A] text-[0.875rem] font-semibold px-4 py-2.5 rounded-full hover:bg-[#F2D5A8]/50 border border-[#173F3A]/15 transition-colors shadow-xs"
-                  >
-                    <span className="material-symbols-outlined text-[18px]">visibility</span>
-                    Lihat Publik
-                  </Link>
-                  {hasChanges && (
-                    <button
-                      type="button"
-                      disabled={savingProfil}
-                      onClick={() => handleSaveProfile()}
-                      className="inline-flex items-center justify-center gap-2 bg-[#173F3A] text-white text-[0.875rem] font-semibold px-5 py-2.5 rounded-full hover:bg-[#112F2B] transition-all shadow-[0_4px_12px_rgba(23,63,58,0.2)] disabled:opacity-50 animate-in fade-in zoom-in-95 duration-200"
-                    >
-                      <span className="material-symbols-outlined text-[18px]">save</span>
-                      {savingProfil ? "Menyimpan..." : "Simpan Profil"}
-                    </button>
-                  )}
-                </div>
-              </div>
-
-              {/* Performance Metrics Ribbon */}
-              <div className="mt-8 pt-6 grid grid-cols-2 md:grid-cols-4 gap-4 bg-[#faf9f7]/70 rounded-xl p-4 lg:p-5 backdrop-blur-xs">
-                <div className="flex items-center gap-3.5 px-2">
-                  <div className="w-10 h-10 rounded-full bg-[#efeeec] flex items-center justify-center text-black shrink-0">
-                    <span
-                      className="material-symbols-outlined text-[20px]"
-                      style={{ fontVariationSettings: "'FILL' 1" }}
-                    >
-                      star
-                    </span>
-                  </div>
-                  <div>
-                    <div className="font-serif text-[1.5rem] text-[#1a1c1b] leading-none">
-                      4.98<span className="text-[0.8125rem] text-[#444748]">/5.0</span>
-                    </div>
-                    <div className="text-[0.75rem] text-[#67645f] mt-1 font-medium">
-                      Kepuasan Siswa
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-3.5 px-2">
-                  <div className="w-10 h-10 rounded-full bg-[#efeeec] flex items-center justify-center text-black shrink-0">
-                    <span className="material-symbols-outlined text-[20px]">calendar_month</span>
-                  </div>
-                  <div>
-                    <div className="font-serif text-[1.5rem] text-[#1a1c1b] leading-none">
-                      {hariTersedia.length}
-                      <span className="text-[0.8125rem] text-[#444748]"> Hari</span>
-                    </div>
-                    <div className="text-[0.75rem] text-[#67645f] mt-1 font-medium">
-                      Ketersediaan Mingguan
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-3.5 px-2">
-                  <div className="w-10 h-10 rounded-full bg-[#efeeec] flex items-center justify-center text-black shrink-0">
-                    <span className="material-symbols-outlined text-[20px]">groups</span>
-                  </div>
-                  <div>
-                    <div className="font-serif text-[1.5rem] text-[#1a1c1b] leading-none">
-                      24<span className="text-[0.8125rem] text-[#444748]"> Siswa</span>
-                    </div>
-                    <div className="text-[0.75rem] text-[#67645f] mt-1 font-medium">
-                      Bimbingan Aktif
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-3.5 px-2">
-                  <div
-                    className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${
-                      tutorStatus === "Aktif"
-                        ? "bg-emerald-100 text-emerald-800"
-                        : "bg-amber-100 text-amber-800"
-                    }`}
-                  >
-                    <span className="material-symbols-outlined text-[20px]">
-                      {tutorStatus === "Aktif" ? "check_circle" : "pause_circle"}
-                    </span>
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-1">
-                      <select
-                        value={tutorStatus}
-                        disabled={updatingStatus}
-                        onChange={(e) => handleStatusChange(e.target.value as "Aktif" | "Cuti")}
-                        className={`text-[0.875rem] font-bold rounded-lg px-2 py-0.5 border cursor-pointer focus:outline-none transition-colors ${
-                          tutorStatus === "Aktif"
-                            ? "bg-emerald-50 text-emerald-800 border-emerald-300"
-                            : "bg-amber-50 text-amber-800 border-amber-300"
-                        } disabled:opacity-50`}
-                        title="Ubah status ketersediaan Anda"
-                      >
-                        <option value="Aktif">Aktif Mengajar</option>
-                        <option value="Cuti">Sedang Cuti</option>
-                      </select>
-                    </div>
-                    <div className="text-[0.7rem] text-[#67645f] mt-1 font-medium truncate">
-                      {tutorStatus === "Aktif"
-                        ? "Aktif mengajar (Terdata di koordinator)"
-                        : "Sedang cuti (Akun tetap aktif di sistem)"}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </header>
-
-            {/* EDITORIAL PROFIL PUBLIK CANVAS */}
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-              {/* Primary Form Canvas (8 Columns) */}
-              <form
-                onSubmit={handleSaveProfile}
-                className="lg:col-span-8 space-y-8 bg-white rounded-2xl p-6 sm:p-10 shadow-[0_2px_16px_rgba(0,0,0,0.03)]"
-              >
-                {/* SECTION 1: Avatar Selection */}
-                <fieldset className="space-y-5">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <legend className="font-serif text-[1.5rem] text-[#1a1c1b]">
-                        Foto &amp; Avatar Kurator
-                      </legend>
-                      <p className="text-[0.8125rem] text-[#444748] mt-1">
-                        Unggah foto asli Anda langsung dari perangkat atau pilih potret studio kurasi.
-                      </p>
-                    </div>
-                    <span className="font-mono text-[0.75rem] text-[#67645f]">BAGIAN 01/05</span>
-                  </div>
-
-                  {/* Opsi Unggah File Langsung dari Komputer / HP */}
-                  <div className="p-4 sm:p-5 bg-[#f4f3f1] rounded-2xl border-2 border-dashed border-[#e3e2e0] hover:border-black/50 transition-colors flex flex-col sm:flex-row items-center justify-between gap-4">
-                    <div className="flex items-center gap-3.5 w-full sm:w-auto">
-                      <div className="w-12 h-12 rounded-xl bg-white shadow-xs flex items-center justify-center text-black shrink-0">
-                        <span className="material-symbols-outlined text-[26px]">add_a_photo</span>
-                      </div>
-                      <div>
-                        <span className="text-[0.875rem] font-semibold text-[#1a1c1b] block">
-                          Unggah Foto Asli dari Perangkat
-                        </span>
-                        <span className="text-[0.75rem] text-[#67645f]">
-                          Pilih file JPG, PNG, atau WebP dari laptop / smartphone Anda
-                        </span>
-                      </div>
-                    </div>
-                    <label className="cursor-pointer shrink-0 inline-flex items-center gap-2 bg-black hover:bg-neutral-800 text-white text-[0.8125rem] font-semibold px-5 py-2.5 rounded-full shadow-xs transition-all w-full sm:w-auto justify-center">
-                      <span className="material-symbols-outlined text-[18px]">upload</span>
-                      <span>Pilih File Gambar</span>
-                      <input
-                        type="file"
-                        accept="image/png, image/jpeg, image/jpg, image/webp"
-                        className="hidden"
-                        onChange={handleFileUpload}
-                      />
-                    </label>
-                  </div>
-
-                  {/* Koleksi Studio Resmi */}
-                  <div className="space-y-3 pt-2">
-                    <span className="text-[0.75rem] text-[#444748] font-semibold block">
-                      Atau Pilih dari Koleksi Potret Studio Resmi:
-                    </span>
-                    <div className="grid grid-cols-3 sm:grid-cols-6 gap-3.5">
-                      {PRESET_AVATARS.map((url, idx) => {
-                        const isSelected = foto === url || selectedPresetIndex === idx;
-                        return (
-                          <button
-                            key={idx}
-                            type="button"
-                            onClick={() => {
-                              setFoto(url);
-                              setSelectedPresetIndex(idx);
-                            }}
-                            className={`group relative rounded-xl overflow-hidden aspect-square bg-[#efeeec] shadow-xs p-0.5 transition-all ${isSelected ? "bg-black" : "hover:bg-[#e3e2e0]"
-                              }`}
-                          >
-                            <img
-                              src={url}
-                              alt={`Preset ${idx + 1}`}
-                              className="w-full h-full object-cover rounded-[10px]"
-                            />
-                            {isSelected && (
-                              <span className="absolute inset-0 bg-black/20 backdrop-blur-[1px] flex items-center justify-center text-white">
-                                <span className="material-symbols-outlined text-[20px]">check</span>
-                              </span>
-                            )}
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </div>
-
-                  {/* Tautan URL Mandiri */}
-                  <div className="space-y-1.5 pt-2">
-                    <label className="text-[0.75rem] text-[#444748] flex items-center justify-between">
-                      <span>Atau Masukkan Tautan URL Sumber Foto Mandiri</span>
-                      <span className="text-[#67645f]">Mendukung format JPG/PNG/WebP</span>
-                    </label>
-                    <div className="flex items-center gap-2 bg-[#f4f3f1] rounded-xl px-4 py-2.5 focus-within:bg-[#efeeec] transition-colors">
-                      <span className="material-symbols-outlined text-[#444748] text-[20px]">
-                        link
-                      </span>
-                      <input
-                        type="text"
-                        value={foto}
-                        onChange={(e) => {
-                          setFoto(e.target.value);
-                          setSelectedPresetIndex(-1);
-                        }}
-                        placeholder="https://..."
-                        className="w-full bg-transparent text-[0.8125rem] text-[#1a1c1b] focus:outline-none placeholder:text-[#444748]/60"
-                      />
-                    </div>
-                  </div>
-                </fieldset>
-
-                <div className="h-px w-full bg-[#efeeec]"></div>
-
-                {/* SECTION 2: HARI & JAM KETERSEDIAAN MENGAJAR */}
-                <fieldset id="section-ketersediaan" className="space-y-5 scroll-mt-24">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <legend className="font-serif text-[1.5rem] text-[#173F3A] font-bold">
-                        Hari &amp; Jam Ketersediaan Mengajar
-                      </legend>
-                      <p className="text-[0.8125rem] text-[#444748] mt-1">
-                        Tentukan hari dan jam Anda siap membimbing. Jam ini akan langsung tampil di kartu katalog publik dan modal penjadwalan siswa.
-                      </p>
-                    </div>
-                    <span className="font-mono text-[0.75rem] text-[#B74E2C] font-semibold">BAGIAN 02/05</span>
-                  </div>
-
-                  {/* Pemilihan Hari */}
-                  <div className="space-y-3 pt-1">
-                    <span className="text-[0.75rem] text-[#444748] font-semibold block">
-                      1. Pilih Hari Aktif Mengajar:
-                    </span>
-                    <div className="flex flex-wrap gap-2">
-                      {DAFTAR_HARI.map((hari) => {
-                        const isSelected = hariTersedia.includes(hari);
-                        return (
-                          <button
-                            key={hari}
-                            type="button"
-                            onClick={() => toggleHari(hari)}
-                            className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-[0.8125rem] font-semibold transition-all ${isSelected
-                              ? "bg-[#173F3A] text-white shadow-xs"
-                              : "bg-[#faf8f5] text-[#444748] hover:bg-[#F2D5A8]/50 border border-[#173F3A]/15"
-                              }`}
-                          >
-                            <span
-                              className={`material-symbols-outlined text-[15px] ${isSelected ? "text-[#F2D5A8]" : "text-[#747878]"
-                                }`}
-                            >
-                              {isSelected ? "check" : "calendar_today"}
-                            </span>
-                            <span>{hari}</span>
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </div>
-
-                  {/* Pengaturan Jam per Hari */}
-                  <div className="space-y-3 pt-3">
-                    <div className="flex items-center justify-between">
-                      <span className="text-[0.75rem] text-[#444748] font-semibold block">
-                        2. Atur Jam &amp; Sesi untuk Hari Terpilih:
-                      </span>
-                      <span className="text-[0.72rem] text-[#67645f]">
-                        Total {jadwalSlots.length} sesi mengajar
-                      </span>
-                    </div>
-
-                    {hariTersedia.length === 0 ? (
-                      <div className="p-4 bg-amber-50/70 border border-amber-200/80 rounded-2xl text-[0.8125rem] text-amber-900 flex items-center gap-2.5">
-                        <span className="material-symbols-outlined text-amber-700 text-[20px]">info</span>
-                        <span>Silakan klik minimal satu hari di atas untuk mengatur jam mengajar Anda.</span>
-                      </div>
-                    ) : (
-                      <div className="space-y-3">
-                        {hariTersedia.map((hari) => {
-                          const slotsHari = jadwalSlots.filter((s) => s.hari === hari);
-                          return (
-                            <div
-                              key={hari}
-                              className="p-4 bg-[#faf8f5] border border-[#173F3A]/15 rounded-2xl space-y-3"
-                            >
-                              <div className="flex items-center justify-between border-b border-[#173F3A]/10 pb-2.5">
-                                <div className="flex items-center gap-2">
-                                  <span className="w-2.5 h-2.5 rounded-full bg-[#B74E2C]"></span>
-                                  <span className="font-serif text-[1.125rem] font-bold text-[#173F3A]">
-                                    {hari}
-                                  </span>
-                                  <span className="text-[0.72rem] font-semibold px-2 py-0.5 rounded-full bg-[#F2D5A8]/60 text-[#173F3A]">
-                                    {slotsHari.length} sesi
-                                  </span>
-                                </div>
-                                <button
-                                  type="button"
-                                  onClick={() => addSlotForHari(hari)}
-                                  title="Tambah Sesi Jam"
-                                  className="w-8 h-8 rounded-full border border-[#B74E2C]/30 bg-white text-[#B74E2C] hover:bg-[#B74E2C]/10 flex items-center justify-center transition-colors shadow-xs"
-                                >
-                                  <span className="material-symbols-outlined text-[18px]">add</span>
-                                </button>
-                              </div>
-
-                              <div className="space-y-2.5">
-                                {slotsHari.map((slot, sIdx) => {
-                                  const isFilled = Boolean(slot.jamMulai && slot.jamSelesai);
-                                  return (
-                                    <div
-                                      key={slot.id}
-                                      className="p-3.5 bg-white rounded-xl border border-[#173F3A]/15 hover:border-[#173F3A]/30 transition-all shadow-xs space-y-2.5"
-                                    >
-                                      <div className="flex items-center justify-between border-b border-[#173F3A]/10 pb-1.5">
-                                        <div className="flex items-center gap-2">
-                                          <span className="w-5 h-5 rounded-full bg-[#173F3A] text-white text-[0.7rem] font-bold flex items-center justify-center">
-                                            {sIdx + 1}
-                                          </span>
-                                          <span className="text-[0.8125rem] font-bold text-[#173F3A]">
-                                            Sesi ke-{sIdx + 1}
-                                          </span>
-                                        </div>
-
-                                        <button
-                                          type="button"
-                                          onClick={() => removeSlot(slot.id)}
-                                          title="Hapus sesi ini"
-                                          className="w-7 h-7 rounded-full text-rose-600 hover:text-rose-800 hover:bg-rose-50 flex items-center justify-center transition-colors"
-                                        >
-                                          <span className="material-symbols-outlined text-[18px]">delete</span>
-                                        </button>
-                                      </div>
-
-                                      {/* Dropdown Sesi & Dropdown Program */}
-                                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                        <div>
-                                          <label className="block text-[0.72rem] font-semibold text-[#173F3A] mb-1.5 flex items-center gap-1">
-                                            <span className="material-symbols-outlined text-[15px]">schedule</span>
-                                            <span>Pilih Sesi Jadwal</span>
-                                          </label>
-                                          <select
-                                            value={
-                                              PRESET_SESI_JADWAL.find(
-                                                (p) => p.jamMulai === slot.jamMulai && p.jamSelesai === slot.jamSelesai
-                                              )?.label || (slot.jamMulai && slot.jamSelesai ? "custom" : "")
-                                            }
-                                            onChange={(e) => {
-                                              const val = e.target.value;
-                                              if (!val) {
-                                                updateSlot(slot.id, { jamMulai: "", jamSelesai: "" });
-                                                return;
-                                              }
-                                              const selected = PRESET_SESI_JADWAL.find((p) => p.label === val);
-                                              if (selected && selected.jamMulai && selected.jamSelesai) {
-                                                updateSlot(slot.id, {
-                                                  jamMulai: selected.jamMulai,
-                                                  jamSelesai: selected.jamSelesai,
-                                                });
-                                              }
-                                            }}
-                                            className="w-full px-3 py-2 text-[0.8125rem] font-medium text-[#173F3A] bg-[#faf8f5] border border-[#173F3A]/20 focus:border-[#173F3A] focus:bg-white rounded-xl focus:outline-none transition-colors"
-                                          >
-                                            <option value="">— Pilih Sesi Jadwal —</option>
-                                            {PRESET_SESI_JADWAL.filter((p) => p.jamMulai).map((p, pIdx) => (
-                                              <option key={pIdx} value={p.label}>
-                                                {p.label}
-                                              </option>
-                                            ))}
-                                            {slot.jamMulai && slot.jamSelesai && !PRESET_SESI_JADWAL.some((p) => p.jamMulai === slot.jamMulai && p.jamSelesai === slot.jamSelesai) && (
-                                              <option value="custom">
-                                                {slot.jamMulai} - {slot.jamSelesai} WIB (Tersimpan)
-                                              </option>
-                                            )}
-                                          </select>
-                                        </div>
-
-                                        <div>
-                                          <label className="block text-[0.72rem] font-semibold text-[#173F3A] mb-1.5 flex items-center gap-1">
-                                            <span className="material-symbols-outlined text-[15px]">school</span>
-                                            <span>Program</span>
-                                          </label>
-                                          <select
-                                            value={slot.keterangan || "Reguler"}
-                                            onChange={(e) => updateSlot(slot.id, { keterangan: e.target.value })}
-                                            className="w-full px-3 py-2 text-[0.8125rem] font-medium text-[#173F3A] bg-[#faf8f5] border border-[#173F3A]/20 focus:border-[#173F3A] focus:bg-white rounded-xl focus:outline-none transition-colors"
-                                          >
-                                            <option value="Reguler">Reguler</option>
-                                            <option value="Private">Private</option>
-                                          </select>
-                                        </div>
-                                      </div>
-
-                                      {/* Status Indikator Sesi */}
-                                      <div className="pt-2 border-t border-[#173F3A]/10 flex items-center text-[0.75rem]">
-                                        {isFilled ? (
-                                          <div className="flex items-center gap-1.5 text-emerald-700 font-medium">
-                                            <span className="material-symbols-outlined text-[16px]">check_circle</span>
-                                            <span>
-                                              Aktif: {slot.jamMulai} - {slot.jamSelesai} WIB ({slot.keterangan || "Reguler"})
-                                            </span>
-                                          </div>
-                                        ) : (
-                                          <div className="flex items-center gap-1.5 text-amber-700">
-                                            <span className="material-symbols-outlined text-[16px]">info</span>
-                                            <span>Pilih sesi jadwal di atas</span>
-                                          </div>
-                                        )}
-                                      </div>
-                                    </div>
-                                  );
-                                })}
-                              </div>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    )}
-                  </div>
-                </fieldset>
-
-                <div className="h-px w-full bg-[#efeeec]"></div>
-
-                {/* SECTION 3: Academic Background */}
-                <fieldset id="section-profil-akun" className="space-y-4 scroll-mt-24">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <legend className="font-serif text-[1.5rem] text-[#1a1c1b]">
-                        Latar Belakang Pendidikan &amp; Gelar
-                      </legend>
-                      <p className="text-[0.8125rem] text-[#444748] mt-1">
-                        Dicantumkan pada kartu ringkas tutor dan kurikulum silabus wali siswa.
-                      </p>
-                    </div>
-                    <span className="font-mono text-[0.75rem] text-[#67645f]">BAGIAN 03/05</span>
-                  </div>
-
-                  <div className="space-y-2 pt-1">
-                    <label className="text-[0.75rem] text-[#444748]">
-                      Gelar, Program Studi, &amp; Almamater Utama
-                    </label>
-                    <div className="bg-[#f4f3f1] rounded-xl px-4 py-3 focus-within:bg-[#efeeec] transition-colors">
-                      <input
-                        type="text"
-                        value={pendidikan}
-                        onChange={(e) => setPendidikan(e.target.value)}
-                        placeholder="Contoh: S1 Pendidikan Fisika UI • S2 ITB"
-                        className="w-full bg-transparent text-[0.9375rem] text-[#1a1c1b] focus:outline-none"
-                      />
-                    </div>
-                    <p className="text-[0.8125rem] text-[#67645f]">
-                      Gunakan tanda titik peluru (•) untuk memisahkan jenjang pendidikan berurutan.
-                    </p>
-                  </div>
-
-                  {/* Tags Keahlian */}
-                  <div className="space-y-2 pt-2">
-                    <label className="text-[0.75rem] text-[#444748]">
-                      Fokus Materi &amp; Silabus yang Diberikan
-                    </label>
-                    <div className="flex flex-wrap items-center gap-2">
-                      {tags.map((tag, idx) => (
-                        <span
-                          key={idx}
-                          className="inline-flex items-center gap-1.5 bg-[#efeeec] px-3 py-1.5 rounded-full text-[0.875rem] text-[#1a1c1b]"
-                        >
-                          <span>{tag}</span>
-                          <button
-                            type="button"
-                            onClick={() => handleRemoveTag(idx)}
-                            className="text-[#444748] hover:text-[#1a1c1b]"
-                          >
-                            <span className="material-symbols-outlined text-[16px]">close</span>
-                          </button>
-                        </span>
-                      ))}
-                      <button
-                        type="button"
-                        onClick={handleAddTag}
-                        className="inline-flex items-center gap-1 bg-[#e3e2e0] hover:bg-[#c4c7c7]/50 text-[#444748] px-3 py-1.5 rounded-full text-[0.875rem] transition-colors"
-                      >
-                        <span className="material-symbols-outlined text-[16px]">add</span> Tambah Tag
-                      </button>
-                    </div>
-                  </div>
-                </fieldset>
-
-                <div className="h-px w-full bg-[#efeeec]"></div>
-
-                {/* SECTION 4: Public Bio */}
-                <fieldset className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <legend className="font-serif text-[1.5rem] text-[#1a1c1b]">
-                        Deskripsi Pengantar Mengajar
-                      </legend>
-                      <p className="text-[0.8125rem] text-[#444748] mt-1">
-                        Tampil secara utuh di Katalog Publik Pengajar Lentera Belajar.
-                      </p>
-                    </div>
-                    <span className="font-mono text-[0.75rem] text-[#67645f]">BAGIAN 04/05</span>
-                  </div>
-
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between text-[0.75rem]">
-                      <span className="text-[#444748]">Narasi Pendekatan &amp; Filosofi Bimbingan</span>
-                      <span className="text-[#67645f]">{deskripsi.length} / 600 Karakter</span>
-                    </div>
-                    <div className="bg-[#f4f3f1] rounded-xl p-4 focus-within:bg-[#efeeec] transition-colors">
-                      <textarea
-                        rows={5}
-                        value={deskripsi}
-                        onChange={(e) => setDeskripsi(e.target.value)}
-                        placeholder="Tuliskan pengalaman, gaya bimbingan personal, serta pesan penyemangat bagi calon anak didik..."
-                        className="w-full bg-transparent text-[0.9375rem] text-[#1a1c1b] focus:outline-none resize-y leading-relaxed"
-                      />
-                    </div>
-
-                    <div className="bg-[#e9e8e6]/60 rounded-xl p-3.5 flex items-start gap-3">
-                      <span className="material-symbols-outlined text-[#444748] text-[20px] shrink-0 mt-0.5">
-                        lightbulb
-                      </span>
-                      <p className="text-[0.8125rem] text-[#444748] leading-relaxed">
-                        <strong>Saran Editorial:</strong> Tuliskan dengan gaya bertutur hangat. Ceritakan bagaimana Anda mendampingi siswa yang kesulitan memahami konsep dasar.
-                      </p>
-                    </div>
-                  </div>
-                </fieldset>
-
-                <div className="h-px w-full bg-[#efeeec]"></div>
-
-                {/* SECTION 5: Contact & Preferences */}
-                <fieldset className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <legend className="font-serif text-[1.5rem] text-[#1a1c1b]">
-                        Kontak &amp; Domisili Bimbingan
-                      </legend>
-                      <p className="text-[0.8125rem] text-[#444748] mt-1">
-                        Saluran komunikasi langsung dan kota jangkauan mengajar.
-                      </p>
-                    </div>
-                    <span className="font-mono text-[0.75rem] text-[#67645f]">BAGIAN 05/05</span>
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
-                    <div className="space-y-1.5">
-                      <label className="text-[0.75rem] text-[#444748]">
-                        Nomor WhatsApp Resmi
-                      </label>
-                      <div className="bg-[#f4f3f1] rounded-xl px-4 py-2.5 flex items-center gap-2">
-                        <span className="text-[0.8125rem] text-[#67645f] font-mono">+62</span>
-                        <input
-                          type="tel"
-                          value={nomorWa}
-                          onChange={(e) => setNomorWa(e.target.value)}
-                          className="w-full bg-transparent text-[0.9375rem] text-[#1a1c1b] focus:outline-none font-mono"
+      {/* Main Container */}
+      <main className="w-full pt-20 bg-[#faf8f5]">
+        {loading && !currentTutor ? (
+          <div className="flex items-center justify-center min-h-[60vh]">
+            <div className="flex flex-col items-center gap-3 text-center">
+              <span className="material-symbols-outlined text-[36px] text-[#173F3A] animate-spin">
+                progress_activity
+              </span>
+              <p className="text-[0.875rem] text-[#444748] font-medium">
+                Memuat data profil tutor...
+              </p>
+            </div>
+          </div>
+        ) : (
+          <div className="flex flex-col w-full">
+            {/* Main Teacher Portal Wrapper */}
+            <section className="max-w-7xl mx-auto px-6 lg:px-12 py-10 w-full space-y-8">
+              {/* Header & Profile Identity Bento Banner */}
+              <header className="bg-white border border-[#173F3A]/15 rounded-2xl p-6 lg:p-10 shadow-[0_4px_24px_-4px_rgba(23,63,58,0.06)] relative overflow-hidden">
+                <div className="absolute -right-24 -top-24 w-96 h-96 rounded-full bg-[#F2D5A8]/30 blur-3xl pointer-events-none"></div>
+                <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-8">
+                  {/* Left: Portrait Thumbnail + Identity */}
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6">
+                    <div className="relative group shrink-0">
+                      <div className="w-24 h-24 lg:w-28 lg:h-28 rounded-2xl overflow-hidden bg-[#e3e2e0] shadow-[0_8px_20px_-6px_rgba(0,0,0,0.12)]">
+                        <img
+                          src={foto}
+                          alt={currentTutor?.nama || "Tutor"}
+                          className="w-full h-full object-cover"
                         />
                       </div>
                     </div>
 
                     <div className="space-y-1.5">
-                      <label className="text-[0.75rem] text-[#444748]">Domisili Home-Base Tutor</label>
-                      <div className="bg-[#f4f3f1] rounded-xl px-4 py-2.5 flex items-center gap-2">
-                        <span className="material-symbols-outlined text-[#444748] text-[18px]">
-                          location_on
+                      <div className="flex flex-wrap items-center gap-2.5">
+                        <span className="bg-[#e3e2e0] text-[#1a1c1b] text-[0.75rem] font-semibold px-3 py-1 rounded-full uppercase tracking-wider">
+                          Profil Mandiri Tutor
+                        </span>
+                      </div>
+
+                      <h1 className="font-serif text-[2.25rem] lg:text-[2.5rem] text-[#1a1c1b] tracking-tight leading-tight">
+                        {currentTutor?.nama || "Siti Rahmawati, M.Si."}
+                      </h1>
+
+                      <div className="flex flex-wrap items-center gap-y-1 gap-x-4 text-[0.8125rem] text-[#444748]">
+                        <span className="flex items-center gap-1.5 font-medium text-[#1a1c1b]">
+                          <span className="material-symbols-outlined text-[16px] text-[#444748]">
+                            biotech
+                          </span>
+                          {currentTutor?.mataPelajaran.join(", ") || "Kimia, Biologi"}
+                        </span>
+                        <span>•</span>
+                        <span className="flex items-center gap-1.5">
+                          <span className="material-symbols-outlined text-[16px] text-[#444748]">
+                            chat
+                          </span>
+                          WhatsApp:{" "}
+                          <span className="text-[#1a1c1b] font-mono">
+                            {currentTutor?.nomorTelepon || "082198765432"}
+                          </span>
+                        </span>
+                        <span>•</span>
+                        <span className="flex items-center gap-1.5 truncate max-w-xs">
+                          <span className="material-symbols-outlined text-[16px] text-[#444748]">
+                            school
+                          </span>
+                          {pendidikan.split("•")[0] || "S2 Kimia ITB"}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Right: Personal Status & Actions */}
+                  <div className="flex items-center gap-3 w-full sm:w-auto">
+                    <Link
+                      href="/"
+                      className="inline-flex items-center justify-center gap-2 bg-[#faf8f5] text-[#173F3A] text-[0.875rem] font-semibold px-4 py-2.5 rounded-full hover:bg-[#F2D5A8]/50 border border-[#173F3A]/15 transition-colors shadow-xs"
+                    >
+                      <span className="material-symbols-outlined text-[18px]">visibility</span>
+                      Lihat Publik
+                    </Link>
+                    {hasChanges && (
+                      <button
+                        type="button"
+                        disabled={savingProfil}
+                        onClick={() => handleSaveProfile()}
+                        className="inline-flex items-center justify-center gap-2 bg-[#173F3A] text-white text-[0.875rem] font-semibold px-5 py-2.5 rounded-full hover:bg-[#112F2B] transition-all shadow-[0_4px_12px_rgba(23,63,58,0.2)] disabled:opacity-50 animate-in fade-in zoom-in-95 duration-200"
+                      >
+                        <span className="material-symbols-outlined text-[18px]">save</span>
+                        {savingProfil ? "Menyimpan..." : "Simpan Profil"}
+                      </button>
+                    )}
+                  </div>
+                </div>
+
+                {/* Performance Metrics Ribbon */}
+                <div className="mt-8 pt-6 grid grid-cols-2 md:grid-cols-4 gap-4 bg-[#faf9f7]/70 rounded-xl p-4 lg:p-5 backdrop-blur-xs">
+                  <div className="flex items-center gap-3.5 px-2">
+                    <div className="w-10 h-10 rounded-full bg-[#efeeec] flex items-center justify-center text-black shrink-0">
+                      <span className="material-symbols-outlined text-[20px]">
+                        {ipk ? "school" : "verified"}
+                      </span>
+                    </div>
+                    <div>
+                      <div className="font-serif text-[1.5rem] text-[#1a1c1b] leading-none">
+                        {ipk ? ipk : "Aktif"}
+                      </div>
+                      <div className="text-[0.75rem] text-[#67645f] mt-1 font-medium">
+                        {ipk ? "IPK Akademik" : "Status Pengajar"}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-3.5 px-2">
+                    <div className="w-10 h-10 rounded-full bg-[#efeeec] flex items-center justify-center text-black shrink-0">
+                      <span className="material-symbols-outlined text-[20px]">calendar_month</span>
+                    </div>
+                    <div>
+                      <div className="font-serif text-[1.5rem] text-[#1a1c1b] leading-none">
+                        {hariTersedia.length}
+                        <span className="text-[0.8125rem] text-[#444748]"> Hari</span>
+                      </div>
+                      <div className="text-[0.75rem] text-[#67645f] mt-1 font-medium">
+                        Ketersediaan Mingguan
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-3.5 px-2">
+                    <div className="w-10 h-10 rounded-full bg-[#efeeec] flex items-center justify-center text-black shrink-0">
+                      <span className="material-symbols-outlined text-[20px]">groups</span>
+                    </div>
+                    <div>
+                      <div className="font-serif text-[1.5rem] text-[#1a1c1b] leading-none">
+                        24<span className="text-[0.8125rem] text-[#444748]"> Siswa</span>
+                      </div>
+                      <div className="text-[0.75rem] text-[#67645f] mt-1 font-medium">
+                        Bimbingan Aktif
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-3.5 px-2">
+                    <div
+                      className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${tutorStatus === "Aktif"
+                        ? "bg-emerald-100 text-emerald-800"
+                        : "bg-amber-100 text-amber-800"
+                        }`}
+                    >
+                      <span className="material-symbols-outlined text-[20px]">
+                        {tutorStatus === "Aktif" ? "check_circle" : "pause_circle"}
+                      </span>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-1">
+                        <select
+                          value={tutorStatus}
+                          disabled={updatingStatus}
+                          onChange={(e) => handleStatusChange(e.target.value as "Aktif" | "Cuti")}
+                          className={`text-[0.875rem] font-bold rounded-lg px-2 py-0.5 border cursor-pointer focus:outline-none transition-colors ${tutorStatus === "Aktif"
+                            ? "bg-emerald-50 text-emerald-800 border-emerald-300"
+                            : "bg-amber-50 text-amber-800 border-amber-300"
+                            } disabled:opacity-50`}
+                          title="Ubah status ketersediaan Anda"
+                        >
+                          <option value="Aktif">Aktif Mengajar</option>
+                          <option value="Cuti">Sedang Cuti</option>
+                        </select>
+                      </div>
+                      <div className="text-[0.7rem] text-[#67645f] mt-1 font-medium truncate">
+                        {tutorStatus === "Aktif"
+                          ? "Aktif mengajar (Terdata di koordinator)"
+                          : "Sedang cuti (Akun tetap aktif di sistem)"}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </header>
+
+              {/* EDITORIAL PROFIL PUBLIK CANVAS */}
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+                {/* Primary Form Canvas (8 Columns) */}
+                <form
+                  onSubmit={handleSaveProfile}
+                  className="lg:col-span-8 space-y-8 bg-white rounded-2xl p-6 sm:p-10 shadow-[0_2px_16px_rgba(0,0,0,0.03)]"
+                >
+                  {/* SECTION 1: Avatar Selection */}
+                  <fieldset className="space-y-5">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <legend className="font-serif text-[1.5rem] text-[#1a1c1b]">
+                          Foto &amp; Avatar Kurator
+                        </legend>
+                        <p className="text-[0.8125rem] text-[#444748] mt-1">
+                          Unggah foto asli Anda langsung dari perangkat atau pilih potret studio kurasi.
+                        </p>
+                      </div>
+                      <span className="font-mono text-[0.75rem] text-[#67645f]">BAGIAN 01/05</span>
+                    </div>
+
+                    {/* Opsi Unggah File Langsung dari Komputer / HP */}
+                    <div className="p-4 sm:p-5 bg-[#f4f3f1] rounded-2xl border-2 border-dashed border-[#e3e2e0] hover:border-black/50 transition-colors flex flex-col sm:flex-row items-center justify-between gap-4">
+                      <div className="flex items-center gap-3.5 w-full sm:w-auto">
+                        <div className="w-12 h-12 rounded-xl bg-white shadow-xs flex items-center justify-center text-black shrink-0">
+                          <span className="material-symbols-outlined text-[26px]">add_a_photo</span>
+                        </div>
+                        <div>
+                          <span className="text-[0.875rem] font-semibold text-[#1a1c1b] block">
+                            Unggah Foto Asli dari Perangkat
+                          </span>
+                          <span className="text-[0.75rem] text-[#67645f]">
+                            Pilih file JPG, PNG, atau WebP dari laptop / smartphone Anda
+                          </span>
+                        </div>
+                      </div>
+                      <label className="cursor-pointer shrink-0 inline-flex items-center gap-2 bg-black hover:bg-neutral-800 text-white text-[0.8125rem] font-semibold px-5 py-2.5 rounded-full shadow-xs transition-all w-full sm:w-auto justify-center">
+                        <span className="material-symbols-outlined text-[18px]">upload</span>
+                        <span>Pilih File Gambar</span>
+                        <input
+                          type="file"
+                          accept="image/png, image/jpeg, image/jpg, image/webp"
+                          className="hidden"
+                          onChange={handleFileUpload}
+                        />
+                      </label>
+                    </div>
+
+                    {/* Koleksi Studio Resmi */}
+                    <div className="space-y-3 pt-2">
+                      <span className="text-[0.75rem] text-[#444748] font-semibold block">
+                        Atau Pilih dari Koleksi Potret Studio Resmi:
+                      </span>
+                      <div className="grid grid-cols-3 sm:grid-cols-6 gap-3.5">
+                        {PRESET_AVATARS.map((url, idx) => {
+                          const isSelected = foto === url || selectedPresetIndex === idx;
+                          return (
+                            <button
+                              key={idx}
+                              type="button"
+                              onClick={() => {
+                                setFoto(url);
+                                setSelectedPresetIndex(idx);
+                              }}
+                              className={`group relative rounded-xl overflow-hidden aspect-square bg-[#efeeec] shadow-xs p-0.5 transition-all ${isSelected ? "bg-black" : "hover:bg-[#e3e2e0]"
+                                }`}
+                            >
+                              <img
+                                src={url}
+                                alt={`Preset ${idx + 1}`}
+                                className="w-full h-full object-cover rounded-[10px]"
+                              />
+                              {isSelected && (
+                                <span className="absolute inset-0 bg-black/20 backdrop-blur-[1px] flex items-center justify-center text-white">
+                                  <span className="material-symbols-outlined text-[20px]">check</span>
+                                </span>
+                              )}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    {/* Tautan URL Mandiri */}
+                    <div className="space-y-1.5 pt-2">
+                      <label className="text-[0.75rem] text-[#444748] flex items-center justify-between">
+                        <span>Atau Masukkan Tautan URL Sumber Foto Mandiri</span>
+                        <span className="text-[#67645f]">Mendukung format JPG/PNG/WebP</span>
+                      </label>
+                      <div className="flex items-center gap-2 bg-[#f4f3f1] rounded-xl px-4 py-2.5 focus-within:bg-[#efeeec] transition-colors">
+                        <span className="material-symbols-outlined text-[#444748] text-[20px]">
+                          link
                         </span>
                         <input
                           type="text"
-                          value={domisili}
-                          onChange={(e) => setDomisili(e.target.value)}
+                          value={foto}
+                          onChange={(e) => {
+                            setFoto(e.target.value);
+                            setSelectedPresetIndex(-1);
+                          }}
+                          placeholder="https://..."
+                          className="w-full bg-transparent text-[0.8125rem] text-[#1a1c1b] focus:outline-none placeholder:text-[#444748]/60"
+                        />
+                      </div>
+                    </div>
+                  </fieldset>
+
+                  <div className="h-px w-full bg-[#efeeec]"></div>
+
+                  {/* SECTION 2: HARI & JAM KETERSEDIAAN MENGAJAR */}
+                  <fieldset id="section-ketersediaan" className="space-y-5 scroll-mt-24">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <legend className="font-serif text-[1.5rem] text-[#173F3A] font-bold">
+                          Hari &amp; Jam Ketersediaan Mengajar
+                        </legend>
+                        <p className="text-[0.8125rem] text-[#444748] mt-1">
+                          Tentukan hari dan jam Anda siap membimbing. Jam ini akan langsung tampil di kartu katalog publik dan modal penjadwalan siswa.
+                        </p>
+                      </div>
+                      <span className="font-mono text-[0.75rem] text-[#B74E2C] font-semibold">BAGIAN 02/05</span>
+                    </div>
+
+                    {/* Pemilihan Hari */}
+                    <div className="space-y-3 pt-1">
+                      <span className="text-[0.75rem] text-[#444748] font-semibold block">
+                        1. Pilih Hari Aktif Mengajar:
+                      </span>
+                      <div className="flex flex-wrap gap-2">
+                        {DAFTAR_HARI.map((hari) => {
+                          const isSelected = hariTersedia.includes(hari);
+                          return (
+                            <button
+                              key={hari}
+                              type="button"
+                              onClick={() => toggleHari(hari)}
+                              className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-[0.8125rem] font-semibold transition-all ${isSelected
+                                ? "bg-[#173F3A] text-white shadow-xs"
+                                : "bg-[#faf8f5] text-[#444748] hover:bg-[#F2D5A8]/50 border border-[#173F3A]/15"
+                                }`}
+                            >
+                              <span
+                                className={`material-symbols-outlined text-[15px] ${isSelected ? "text-[#F2D5A8]" : "text-[#747878]"
+                                  }`}
+                              >
+                                {isSelected ? "check" : "calendar_today"}
+                              </span>
+                              <span>{hari}</span>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    {/* Pengaturan Jam per Hari */}
+                    <div className="space-y-3 pt-3">
+                      <div className="flex items-center justify-between">
+                        <span className="text-[0.75rem] text-[#444748] font-semibold block">
+                          2. Atur Jam &amp; Sesi untuk Hari Terpilih:
+                        </span>
+                        <span className="text-[0.72rem] text-[#67645f]">
+                          Total {jadwalSlots.length} sesi mengajar
+                        </span>
+                      </div>
+
+                      {hariTersedia.length === 0 ? (
+                        <div className="p-4 bg-amber-50/70 border border-amber-200/80 rounded-2xl text-[0.8125rem] text-amber-900 flex items-center gap-2.5">
+                          <span className="material-symbols-outlined text-amber-700 text-[20px]">info</span>
+                          <span>Silakan klik minimal satu hari di atas untuk mengatur jam mengajar Anda.</span>
+                        </div>
+                      ) : (
+                        <div className="space-y-3">
+                          {hariTersedia.map((hari) => {
+                            const slotsHari = jadwalSlots.filter((s) => s.hari === hari);
+                            return (
+                              <div
+                                key={hari}
+                                className="p-4 bg-[#faf8f5] border border-[#173F3A]/15 rounded-2xl space-y-3"
+                              >
+                                <div className="flex items-center justify-between border-b border-[#173F3A]/10 pb-2.5">
+                                  <div className="flex items-center gap-2">
+                                    <span className="w-2.5 h-2.5 rounded-full bg-[#B74E2C]"></span>
+                                    <span className="font-serif text-[1.125rem] font-bold text-[#173F3A]">
+                                      {hari}
+                                    </span>
+                                    <span className="text-[0.72rem] font-semibold px-2 py-0.5 rounded-full bg-[#F2D5A8]/60 text-[#173F3A]">
+                                      {slotsHari.length} sesi
+                                    </span>
+                                  </div>
+                                  <button
+                                    type="button"
+                                    onClick={() => addSlotForHari(hari)}
+                                    title="Tambah Sesi Jam"
+                                    className="w-8 h-8 rounded-full border border-[#B74E2C]/30 bg-white text-[#B74E2C] hover:bg-[#B74E2C]/10 flex items-center justify-center transition-colors shadow-xs"
+                                  >
+                                    <span className="material-symbols-outlined text-[18px]">add</span>
+                                  </button>
+                                </div>
+
+                                <div className="space-y-2.5">
+                                  {slotsHari.map((slot, sIdx) => {
+                                    const isFilled = Boolean(slot.jamMulai && slot.jamSelesai);
+                                    return (
+                                      <div
+                                        key={slot.id}
+                                        className="p-3.5 bg-white rounded-xl border border-[#173F3A]/15 hover:border-[#173F3A]/30 transition-all shadow-xs space-y-2.5"
+                                      >
+                                        <div className="flex items-center justify-between border-b border-[#173F3A]/10 pb-1.5">
+                                          <div className="flex items-center gap-2">
+                                            <span className="w-5 h-5 rounded-full bg-[#173F3A] text-white text-[0.7rem] font-bold flex items-center justify-center">
+                                              {sIdx + 1}
+                                            </span>
+                                            <span className="text-[0.8125rem] font-bold text-[#173F3A]">
+                                              Sesi ke-{sIdx + 1}
+                                            </span>
+                                          </div>
+
+                                          <button
+                                            type="button"
+                                            onClick={() => removeSlot(slot.id)}
+                                            title="Hapus sesi ini"
+                                            className="w-7 h-7 rounded-full text-rose-600 hover:text-rose-800 hover:bg-rose-50 flex items-center justify-center transition-colors"
+                                          >
+                                            <span className="material-symbols-outlined text-[18px]">delete</span>
+                                          </button>
+                                        </div>
+
+                                        {/* Dropdown Sesi & Dropdown Program */}
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                          <div>
+                                            <label className="block text-[0.72rem] font-semibold text-[#173F3A] mb-1.5 flex items-center gap-1">
+                                              <span className="material-symbols-outlined text-[15px]">schedule</span>
+                                              <span>Pilih Sesi Jadwal</span>
+                                            </label>
+                                            <select
+                                              value={
+                                                PRESET_SESI_JADWAL.find(
+                                                  (p) => p.jamMulai === slot.jamMulai && p.jamSelesai === slot.jamSelesai
+                                                )?.label || (slot.jamMulai && slot.jamSelesai ? "custom" : "")
+                                              }
+                                              onChange={(e) => {
+                                                const val = e.target.value;
+                                                if (!val) {
+                                                  updateSlot(slot.id, { jamMulai: "", jamSelesai: "" });
+                                                  return;
+                                                }
+                                                const selected = PRESET_SESI_JADWAL.find((p) => p.label === val);
+                                                if (selected && selected.jamMulai && selected.jamSelesai) {
+                                                  updateSlot(slot.id, {
+                                                    jamMulai: selected.jamMulai,
+                                                    jamSelesai: selected.jamSelesai,
+                                                  });
+                                                }
+                                              }}
+                                              className="w-full px-3 py-2 text-[0.8125rem] font-medium text-[#173F3A] bg-[#faf8f5] border border-[#173F3A]/20 focus:border-[#173F3A] focus:bg-white rounded-xl focus:outline-none transition-colors"
+                                            >
+                                              <option value="">— Pilih Sesi Jadwal —</option>
+                                              {PRESET_SESI_JADWAL.filter((p) => p.jamMulai).map((p, pIdx) => (
+                                                <option key={pIdx} value={p.label}>
+                                                  {p.label}
+                                                </option>
+                                              ))}
+                                              {slot.jamMulai && slot.jamSelesai && !PRESET_SESI_JADWAL.some((p) => p.jamMulai === slot.jamMulai && p.jamSelesai === slot.jamSelesai) && (
+                                                <option value="custom">
+                                                  {slot.jamMulai} - {slot.jamSelesai} WIB (Tersimpan)
+                                                </option>
+                                              )}
+                                            </select>
+                                          </div>
+
+                                          <div>
+                                            <label className="block text-[0.72rem] font-semibold text-[#173F3A] mb-1.5 flex items-center gap-1">
+                                              <span className="material-symbols-outlined text-[15px]">school</span>
+                                              <span>Program</span>
+                                            </label>
+                                            <select
+                                              value={slot.keterangan || "Reguler"}
+                                              onChange={(e) => updateSlot(slot.id, { keterangan: e.target.value })}
+                                              className="w-full px-3 py-2 text-[0.8125rem] font-medium text-[#173F3A] bg-[#faf8f5] border border-[#173F3A]/20 focus:border-[#173F3A] focus:bg-white rounded-xl focus:outline-none transition-colors"
+                                            >
+                                              <option value="Reguler">Reguler</option>
+                                              <option value="Private">Private</option>
+                                            </select>
+                                          </div>
+                                        </div>
+
+                                        {/* Status Indikator Sesi */}
+                                        <div className="pt-2 border-t border-[#173F3A]/10 flex items-center text-[0.75rem]">
+                                          {isFilled ? (
+                                            <div className="flex items-center gap-1.5 text-emerald-700 font-medium">
+                                              <span className="material-symbols-outlined text-[16px]">check_circle</span>
+                                              <span>
+                                                Aktif: {slot.jamMulai} - {slot.jamSelesai} WIB ({slot.keterangan || "Reguler"})
+                                              </span>
+                                            </div>
+                                          ) : (
+                                            <div className="flex items-center gap-1.5 text-amber-700">
+                                              <span className="material-symbols-outlined text-[16px]">info</span>
+                                              <span>Pilih sesi jadwal di atas</span>
+                                            </div>
+                                          )}
+                                        </div>
+                                      </div>
+                                    );
+                                  })}
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      )}
+                    </div>
+                  </fieldset>
+
+                  <div className="h-px w-full bg-[#efeeec]"></div>
+
+                  {/* SECTION 3: Academic Background */}
+                  <fieldset id="section-profil-akun" className="space-y-4 scroll-mt-24">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <legend className="font-serif text-[1.5rem] text-[#1a1c1b]">
+                          Latar Belakang Pendidikan &amp; Gelar
+                        </legend>
+                        <p className="text-[0.8125rem] text-[#444748] mt-1">
+                          Dicantumkan pada kartu ringkas tutor dan kurikulum silabus wali siswa.
+                        </p>
+                      </div>
+                      <span className="font-mono text-[0.75rem] text-[#67645f]">BAGIAN 03/05</span>
+                    </div>
+
+                    <div className="space-y-2 pt-1">
+                      <label className="text-[0.75rem] text-[#444748]">
+                        Gelar, Program Studi, &amp; Almamater Utama
+                      </label>
+                      <div className="bg-[#f4f3f1] rounded-xl px-4 py-3 focus-within:bg-[#efeeec] transition-colors">
+                        <input
+                          type="text"
+                          value={pendidikan}
+                          onChange={(e) => setPendidikan(e.target.value)}
+                          placeholder="Contoh: S1 Pendidikan Fisika UI • S2 ITB"
+                          className="w-full bg-transparent text-[0.9375rem] text-[#1a1c1b] focus:outline-none"
+                        />
+                      </div>
+                      <p className="text-[0.8125rem] text-[#67645f]">
+                        Gunakan tanda titik peluru (•) untuk memisahkan jenjang pendidikan berurutan.
+                      </p>
+                    </div>
+
+                    {/* Input Nilai IPK */}
+                    <div className="space-y-2 pt-1">
+                      <label className="text-[0.75rem] text-[#444748] flex items-center justify-between">
+                        <span className="font-semibold text-[#173F3A]">Nilai IPK (Indeks Prestasi Kumulatif)</span>
+                        <span className="text-[#67645f]">Ditampilkan di kartu publik &amp; profil (Opsional)</span>
+                      </label>
+                      <div className="bg-[#f4f3f1] rounded-xl px-4 py-3 focus-within:bg-[#efeeec] transition-colors max-w-xs">
+                        <input
+                          type="text"
+                          value={ipk}
+                          onChange={(e) => setIpk(e.target.value)}
+                          placeholder="Contoh: 3.85 / 4.00"
                           className="w-full bg-transparent text-[0.9375rem] text-[#1a1c1b] focus:outline-none"
                         />
                       </div>
                     </div>
-                  </div>
-                </fieldset>
 
-                <div className="h-px w-full bg-[#efeeec]"></div>
-
-                {/* SECTION 6: KEAMANAN AKUN & UBAH PASSWORD */}
-                <div id="section-password" className="p-5 bg-[#faf8f5] border border-[#173F3A]/15 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 scroll-mt-24">
-                  <div className="flex items-center gap-3">
-                    <span className="w-10 h-10 rounded-full bg-[#F2D5A8] flex items-center justify-center text-[#173F3A] shrink-0">
-                      <span className="material-symbols-outlined text-[20px]">lock_reset</span>
-                    </span>
-                    <div>
-                      <h4 className="font-serif text-[1rem] font-bold text-[#173F3A]">
-                        Keamanan &amp; Kata Sandi Akun
-                      </h4>
-                      <p className="text-[0.75rem] text-[#444748]">
-                        Atur atau perbarui kata sandi login akun tutor Anda secara mandiri.
-                      </p>
+                    {/* Tags Keahlian */}
+                    <div className="space-y-2 pt-2">
+                      <label className="text-[0.75rem] text-[#444748]">
+                        Fokus Materi &amp; Silabus yang Diberikan
+                      </label>
+                      <div className="flex flex-wrap items-center gap-2">
+                        {tags.map((tag, idx) => (
+                          <span
+                            key={idx}
+                            className="inline-flex items-center gap-1.5 bg-[#efeeec] px-3 py-1.5 rounded-full text-[0.875rem] text-[#1a1c1b]"
+                          >
+                            <span>{tag}</span>
+                            <button
+                              type="button"
+                              onClick={() => handleRemoveTag(idx)}
+                              className="text-[#444748] hover:text-[#1a1c1b]"
+                            >
+                              <span className="material-symbols-outlined text-[16px]">close</span>
+                            </button>
+                          </span>
+                        ))}
+                        <button
+                          type="button"
+                          onClick={handleAddTag}
+                          className="inline-flex items-center gap-1 bg-[#e3e2e0] hover:bg-[#c4c7c7]/50 text-[#444748] px-3 py-1.5 rounded-full text-[0.875rem] transition-colors"
+                        >
+                          <span className="material-symbols-outlined text-[16px]">add</span> Tambah Tag
+                        </button>
+                      </div>
                     </div>
-                  </div>
+                  </fieldset>
 
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setPasswordError("");
-                      setNewPassword("");
-                      setConfirmPassword("");
-                      setIsPasswordModalOpen(true);
-                    }}
-                    className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#173F3A] hover:bg-[#112F2B] text-white text-[0.8125rem] font-semibold rounded-full transition-all shadow-xs shrink-0"
-                  >
-                    <span className="material-symbols-outlined text-[16px]">key</span>
-                    <span>Ubah Password</span>
-                  </button>
-                </div>
+                  <div className="h-px w-full bg-[#efeeec]"></div>
 
-                {/* Form Submission Footer */}
-                <div className="pt-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-                  <p className="text-[0.8125rem] text-[#67645f] order-2 sm:order-1">
-                    {hasChanges ? (
-                      <span className="text-amber-800 font-medium flex items-center gap-1.5">
-                        <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
-                        Perubahan belum disimpan
+                  {/* SECTION 4: Public Bio */}
+                  <fieldset className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <legend className="font-serif text-[1.5rem] text-[#1a1c1b]">
+                          Deskripsi Pengantar Mengajar
+                        </legend>
+                        <p className="text-[0.8125rem] text-[#444748] mt-1">
+                          Tampil secara utuh di Katalog Publik Pengajar Lentera Belajar.
+                        </p>
+                      </div>
+                      <span className="font-mono text-[0.75rem] text-[#67645f]">BAGIAN 04/05</span>
+                    </div>
+
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between text-[0.75rem]">
+                        <span className="text-[#444748]">Narasi Pendekatan &amp; Filosofi Bimbingan</span>
+                        <span className="text-[#67645f]">{deskripsi.length} / 600 Karakter</span>
+                      </div>
+                      <div className="bg-[#f4f3f1] rounded-xl p-4 focus-within:bg-[#efeeec] transition-colors">
+                        <textarea
+                          rows={5}
+                          value={deskripsi}
+                          onChange={(e) => setDeskripsi(e.target.value)}
+                          placeholder="Tuliskan pengalaman, gaya bimbingan personal, serta pesan penyemangat bagi calon anak didik..."
+                          className="w-full bg-transparent text-[0.9375rem] text-[#1a1c1b] focus:outline-none resize-y leading-relaxed"
+                        />
+                      </div>
+
+                      <div className="bg-[#e9e8e6]/60 rounded-xl p-3.5 flex items-start gap-3">
+                        <span className="material-symbols-outlined text-[#444748] text-[20px] shrink-0 mt-0.5">
+                          lightbulb
+                        </span>
+                        <p className="text-[0.8125rem] text-[#444748] leading-relaxed">
+                          <strong>Saran Editorial:</strong> Tuliskan dengan gaya bertutur hangat. Ceritakan bagaimana Anda mendampingi siswa yang kesulitan memahami konsep dasar.
+                        </p>
+                      </div>
+                    </div>
+                  </fieldset>
+
+                  <div className="h-px w-full bg-[#efeeec]"></div>
+
+                  {/* SECTION 5: Contact & Preferences */}
+                  <fieldset className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <legend className="font-serif text-[1.5rem] text-[#1a1c1b]">
+                          Kontak &amp; Domisili Bimbingan
+                        </legend>
+                        <p className="text-[0.8125rem] text-[#444748] mt-1">
+                          Saluran komunikasi langsung dan kota jangkauan mengajar.
+                        </p>
+                      </div>
+                      <span className="font-mono text-[0.75rem] text-[#67645f]">BAGIAN 05/05</span>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
+                      <div className="space-y-1.5">
+                        <label className="text-[0.75rem] text-[#444748]">
+                          Nomor WhatsApp Resmi
+                        </label>
+                        <div className="bg-[#f4f3f1] rounded-xl px-4 py-2.5 flex items-center gap-2">
+                          <span className="text-[0.8125rem] text-[#67645f] font-mono">+62</span>
+                          <input
+                            type="tel"
+                            value={nomorWa}
+                            onChange={(e) => setNomorWa(e.target.value)}
+                            className="w-full bg-transparent text-[0.9375rem] text-[#1a1c1b] focus:outline-none font-mono"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="space-y-1.5">
+                        <label className="text-[0.75rem] text-[#444748]">Domisili Home-Base Tutor</label>
+                        <div className="bg-[#f4f3f1] rounded-xl px-4 py-2.5 flex items-center gap-2">
+                          <span className="material-symbols-outlined text-[#444748] text-[18px]">
+                            location_on
+                          </span>
+                          <input
+                            type="text"
+                            value={domisili}
+                            onChange={(e) => setDomisili(e.target.value)}
+                            className="w-full bg-transparent text-[0.9375rem] text-[#1a1c1b] focus:outline-none"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </fieldset>
+
+                  <div className="h-px w-full bg-[#efeeec]"></div>
+
+                  {/* SECTION 6: KEAMANAN AKUN & UBAH PASSWORD */}
+                  <div id="section-password" className="p-5 bg-[#faf8f5] border border-[#173F3A]/15 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 scroll-mt-24">
+                    <div className="flex items-center gap-3">
+                      <span className="w-10 h-10 rounded-full bg-[#F2D5A8] flex items-center justify-center text-[#173F3A] shrink-0">
+                        <span className="material-symbols-outlined text-[20px]">lock_reset</span>
                       </span>
-                    ) : (
-                      <span>
-                        Status: <strong className="text-black">Tersimpan di Cloud</strong>
-                      </span>
-                    )}
-                  </p>
-                  <div className="flex items-center gap-3 w-full sm:w-auto order-1 sm:order-2">
+                      <div>
+                        <h4 className="font-serif text-[1rem] font-bold text-[#173F3A]">
+                          Keamanan &amp; Kata Sandi Akun
+                        </h4>
+                        <p className="text-[0.75rem] text-[#444748]">
+                          Atur atau perbarui kata sandi login akun tutor Anda secara mandiri.
+                        </p>
+                      </div>
+                    </div>
+
                     <button
                       type="button"
-                      onClick={previewPublicCard}
-                      className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-[#efeeec] hover:bg-[#e3e2e0] text-[#1a1c1b] text-[0.875rem] font-semibold px-6 py-3 rounded-full transition-colors"
+                      onClick={() => {
+                        setPasswordError("");
+                        setNewPassword("");
+                        setConfirmPassword("");
+                        setIsPasswordModalOpen(true);
+                      }}
+                      className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#173F3A] hover:bg-[#112F2B] text-white text-[0.8125rem] font-semibold rounded-full transition-all shadow-xs shrink-0"
                     >
-                      Pratinjau Kartu
+                      <span className="material-symbols-outlined text-[16px]">key</span>
+                      <span>Ubah Password</span>
                     </button>
-                    {hasChanges && (
-                      <button
-                        type="submit"
-                        disabled={savingProfil}
-                        className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-[#173F3A] text-white text-[0.875rem] font-semibold px-7 py-3 rounded-full hover:bg-[#112F2B] transition-all shadow-[0_4px_16px_rgba(23,63,58,0.2)] disabled:opacity-50 animate-in fade-in duration-200"
-                      >
-                        {savingProfil ? "Menyimpan..." : "Simpan Profil Saya"}
-                      </button>
-                    )}
-                  </div>
-                </div>
-              </form>
-
-              {/* Sidebar / Live Preview (4 Columns) */}
-              <aside className="lg:col-span-4 space-y-6">
-                {/* Live Card Preview */}
-                <div className="bg-white rounded-2xl p-6 border border-[#173F3A]/15 shadow-[0_2px_12px_rgba(23,63,58,0.04)] space-y-5">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <span className="w-2 h-2 rounded-full bg-[#173F3A]"></span>
-                      <h2 className="text-[0.875rem] font-semibold text-[#173F3A] uppercase tracking-wider">
-                        Pratinjau Kartu Publik
-                      </h2>
-                    </div>
-                    <span className="text-[0.75rem] text-[#444748]">Katalog</span>
                   </div>
 
-                  <div className="relative w-full aspect-[3/4] rounded-[24px] overflow-hidden bg-[#faf8f5] shadow-[0_12px_32px_-8px_rgba(23,63,58,0.15)]">
-                    <img
-                      id="sidebar-live-portrait"
-                      src={foto}
-                      alt="Preview"
-                      className="w-full h-full object-cover"
-                    />
-
-                    <div className="absolute top-3.5 left-3.5 right-3.5 flex items-center justify-between pointer-events-none">
-                      <span className="bg-[#faf8f5]/90 backdrop-blur-md text-[#173F3A] text-[0.6875rem] font-bold px-3 py-1 rounded-full uppercase tracking-wider shadow-xs border border-[#173F3A]/10">
-                        {currentTutor?.mataPelajaran[0] || "Kimia"}
-                      </span>
-                      <span className="bg-[#faf8f5]/90 backdrop-blur-md text-[#173F3A] text-[0.6875rem] font-bold px-2.5 py-1 rounded-full flex items-center gap-1 shadow-xs border border-[#D88A32]/30">
-                        <span
-                          className="material-symbols-outlined text-[13px] text-[#D88A32]"
-                          style={{ fontVariationSettings: "'FILL' 1" }}
-                        >
-                          star
+                  {/* Form Submission Footer */}
+                  <div className="pt-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <p className="text-[0.8125rem] text-[#67645f] order-2 sm:order-1">
+                      {hasChanges ? (
+                        <span className="text-amber-800 font-medium flex items-center gap-1.5">
+                          <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
+                          Perubahan belum disimpan
                         </span>
-                        5.0
-                      </span>
-                    </div>
-
-                    <div className="absolute bottom-3 left-3 right-3 bg-white/95 backdrop-blur-md rounded-xl p-3.5 shadow-lg space-y-1 border border-[#173F3A]/10">
-                      <h3 className="font-serif text-[1.125rem] text-[#173F3A] font-bold leading-tight">
-                        {currentTutor?.nama || "Siti Rahmawati, M.Si."}
-                      </h3>
-                      <p className="text-[0.6875rem] text-[#444748] truncate">
-                        {pendidikan.split("•")[0] || "S2 Kimia ITB"}
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Ketersediaan Hari & Jam Ringkas pada Pratinjau */}
-                  <div className="bg-[#faf8f5] rounded-xl p-4 border border-[#173F3A]/15 space-y-2.5">
-                    <div className="flex items-center justify-between">
-                      <span className="text-[0.6875rem] font-bold uppercase tracking-wider text-[#173F3A] block">
-                        Jadwal &amp; Jam Mengajar Publik
-                      </span>
-                      <span className="text-[0.7rem] text-[#B74E2C] font-semibold">
-                        {jadwalSlots.length} Sesi
-                      </span>
-                    </div>
-                    <div className="flex flex-col gap-1.5 max-h-48 overflow-y-auto pr-1">
-                      {jadwalSlots.length > 0 ? (
-                        jadwalSlots.map((s) => (
-                          <div
-                            key={s.id}
-                            className="bg-white text-[#173F3A] text-[0.72rem] font-medium px-2.5 py-1.5 rounded-lg border border-[#173F3A]/10 flex items-center justify-between gap-1 shadow-2xs"
-                          >
-                            <span className="font-semibold">{s.hari}:</span>
-                            <span className="font-mono text-[0.7rem]">{s.jamMulai}-{s.jamSelesai}</span>
-                            {s.keterangan && (
-                              <span className="text-[0.65rem] bg-[#F2D5A8]/70 text-[#173F3A] px-1.5 py-0.5 rounded font-semibold">
-                                {s.keterangan}
-                              </span>
-                            )}
-                          </div>
-                        ))
                       ) : (
-                        <span className="text-[0.75rem] text-[#67645f] italic">
-                          Belum memilih hari &amp; jam ketersediaan
+                        <span>
+                          Status: <strong className="text-black">Tersimpan di Cloud</strong>
                         </span>
+                      )}
+                    </p>
+                    <div className="flex items-center gap-3 w-full sm:w-auto order-1 sm:order-2">
+                      <button
+                        type="button"
+                        onClick={previewPublicCard}
+                        className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-[#efeeec] hover:bg-[#e3e2e0] text-[#1a1c1b] text-[0.875rem] font-semibold px-6 py-3 rounded-full transition-colors"
+                      >
+                        Pratinjau Kartu
+                      </button>
+                      {hasChanges && (
+                        <button
+                          type="submit"
+                          disabled={savingProfil}
+                          className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-[#173F3A] text-white text-[0.875rem] font-semibold px-7 py-3 rounded-full hover:bg-[#112F2B] transition-all shadow-[0_4px_16px_rgba(23,63,58,0.2)] disabled:opacity-50 animate-in fade-in duration-200"
+                        >
+                          {savingProfil ? "Menyimpan..." : "Simpan Profil Saya"}
+                        </button>
                       )}
                     </div>
                   </div>
-                </div>
-              </aside>
-            </div>
-          </section>
-        </div>
-      )}
-    </main>
+                </form>
 
-    {/* Modal Ubah Password Manual */}
-    {isPasswordModalOpen && (
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-xs animate-in fade-in duration-200">
-        <div className="bg-white rounded-2xl border border-[#173F3A]/20 max-w-md w-full p-6 sm:p-8 shadow-2xl space-y-5">
-          <div className="flex items-center justify-between border-b border-[#173F3A]/10 pb-4">
-            <div className="flex items-center gap-2.5">
-              <span className="w-9 h-9 rounded-full bg-[#F2D5A8] flex items-center justify-center text-[#173F3A]">
-                <span className="material-symbols-outlined text-[20px]">lock_reset</span>
-              </span>
-              <div>
-                <h3 className="font-serif text-[1.25rem] font-bold text-[#173F3A]">
-                  Ubah Kata Sandi
-                </h3>
-                <p className="text-[0.75rem] text-[#67645f]">
-                  Atur kata sandi baru untuk akun tutor Anda
-                </p>
+                {/* Sidebar / Live Preview (4 Columns) */}
+                <aside className="lg:col-span-4 space-y-6">
+                  {/* Live Card Preview */}
+                  <div className="bg-white rounded-2xl p-6 border border-[#173F3A]/15 shadow-[0_2px_12px_rgba(23,63,58,0.04)] space-y-5">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <span className="w-2 h-2 rounded-full bg-[#173F3A]"></span>
+                        <h2 className="text-[0.875rem] font-semibold text-[#173F3A] uppercase tracking-wider">
+                          Pratinjau Kartu Publik
+                        </h2>
+                      </div>
+                      <span className="text-[0.75rem] text-[#444748]">Katalog</span>
+                    </div>
+
+                    <div className="relative w-full aspect-[3/4] rounded-[24px] overflow-hidden bg-[#faf8f5] shadow-[0_12px_32px_-8px_rgba(23,63,58,0.15)]">
+                      <img
+                        id="sidebar-live-portrait"
+                        src={foto}
+                        alt="Preview"
+                        className="w-full h-full object-cover"
+                      />
+
+                      <div className="absolute top-3.5 left-3.5 right-3.5 flex items-center justify-between pointer-events-none">
+                        <span className="bg-[#faf8f5]/90 backdrop-blur-md text-[#173F3A] text-[0.6875rem] font-bold px-3 py-1 rounded-full uppercase tracking-wider shadow-xs border border-[#173F3A]/10">
+                          {currentTutor?.mataPelajaran[0] || "Kimia"}
+                        </span>
+                        {ipk ? (
+                          <span className="bg-white/95 backdrop-blur-md text-[#173F3A] text-[0.6875rem] font-bold px-2.5 py-1 rounded-full flex items-center gap-1 shadow-xs border border-[#173F3A]/15">
+                            <span className="material-symbols-outlined text-[13px] text-[#B74E2C]">school</span>
+                            IPK {ipk}
+                          </span>
+                        ) : (
+                          <span className="bg-white/90 backdrop-blur-md text-[#173F3A] text-[0.6875rem] font-semibold px-2.5 py-1 rounded-full border border-[#173F3A]/10">
+                            Terverifikasi
+                          </span>
+                        )}
+                      </div>
+
+                      <div className="absolute bottom-3 left-3 right-3 bg-white/95 backdrop-blur-md rounded-xl p-3.5 shadow-lg space-y-1 border border-[#173F3A]/10">
+                        <h3 className="font-serif text-[1.125rem] text-[#173F3A] font-bold leading-tight">
+                          {currentTutor?.nama || "Siti Rahmawati, M.Si."}
+                        </h3>
+                        <p className="text-[0.6875rem] text-[#444748] truncate">
+                          {pendidikan.split("•")[0] || "S2 Kimia ITB"}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Ketersediaan Hari & Jam Ringkas pada Pratinjau */}
+                    <div className="bg-[#faf8f5] rounded-xl p-4 border border-[#173F3A]/15 space-y-2.5">
+                      <div className="flex items-center justify-between">
+                        <span className="text-[0.6875rem] font-bold uppercase tracking-wider text-[#173F3A] block">
+                          Jadwal &amp; Jam Mengajar Publik
+                        </span>
+                        <span className="text-[0.7rem] text-[#B74E2C] font-semibold">
+                          {jadwalSlots.length} Sesi
+                        </span>
+                      </div>
+                      <div className="flex flex-col gap-1.5 max-h-48 overflow-y-auto pr-1">
+                        {jadwalSlots.length > 0 ? (
+                          jadwalSlots.map((s) => (
+                            <div
+                              key={s.id}
+                              className="bg-white text-[#173F3A] text-[0.72rem] font-medium px-2.5 py-1.5 rounded-lg border border-[#173F3A]/10 flex items-center justify-between gap-1 shadow-2xs"
+                            >
+                              <span className="font-semibold">{s.hari}:</span>
+                              <span className="font-mono text-[0.7rem]">{s.jamMulai}-{s.jamSelesai}</span>
+                              {s.keterangan && (
+                                <span className="text-[0.65rem] bg-[#F2D5A8]/70 text-[#173F3A] px-1.5 py-0.5 rounded font-semibold">
+                                  {s.keterangan}
+                                </span>
+                              )}
+                            </div>
+                          ))
+                        ) : (
+                          <span className="text-[0.75rem] text-[#67645f] italic">
+                            Belum memilih hari &amp; jam ketersediaan
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </aside>
               </div>
-            </div>
-            <button
-              type="button"
-              onClick={() => {
-                setIsPasswordModalOpen(false);
-                setPasswordError("");
-              }}
-              className="w-8 h-8 rounded-full hover:bg-neutral-100 flex items-center justify-center text-[#444748]"
-            >
-              <span className="material-symbols-outlined text-[20px]">close</span>
-            </button>
+            </section>
           </div>
+        )}
+      </main>
 
-          {passwordError && (
-            <div className="p-3 bg-rose-50 border border-rose-200 text-rose-800 rounded-xl text-[0.8125rem]">
-              {passwordError}
-            </div>
-          )}
-
-          <form onSubmit={handleManualChangePassword} className="space-y-4">
-            <div>
-              <label className="block text-[0.8125rem] font-medium text-[#172421] mb-1.5">
-                Password Baru
-              </label>
-              <div className="relative">
-                <input
-                  type={showNewPassword ? "text" : "password"}
-                  required
-                  minLength={8}
-                  placeholder="Minimal 8 karakter"
-                  value={newPassword}
-                  onChange={(e) => setNewPassword(e.target.value)}
-                  className="w-full pl-3.5 pr-11 py-2.5 text-[0.875rem] bg-[#faf8f5] border border-[#173F3A]/20 rounded-xl focus:outline-none focus:border-[#173F3A] focus:bg-white"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowNewPassword(!showNewPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[#67645f] hover:text-[#173F3A] p-1 flex items-center justify-center transition-colors"
-                  title={showNewPassword ? "Sembunyikan password" : "Lihat password"}
-                >
-                  <span className="material-symbols-outlined text-[18px]">
-                    {showNewPassword ? "visibility_off" : "visibility"}
-                  </span>
-                </button>
+      {/* Modal Ubah Password Manual */}
+      {isPasswordModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-xs animate-in fade-in duration-200">
+          <div className="bg-white rounded-2xl border border-[#173F3A]/20 max-w-md w-full p-6 sm:p-8 shadow-2xl space-y-5">
+            <div className="flex items-center justify-between border-b border-[#173F3A]/10 pb-4">
+              <div className="flex items-center gap-2.5">
+                <span className="w-9 h-9 rounded-full bg-[#F2D5A8] flex items-center justify-center text-[#173F3A]">
+                  <span className="material-symbols-outlined text-[20px]">lock_reset</span>
+                </span>
+                <div>
+                  <h3 className="font-serif text-[1.25rem] font-bold text-[#173F3A]">
+                    Ubah Kata Sandi
+                  </h3>
+                  <p className="text-[0.75rem] text-[#67645f]">
+                    Atur kata sandi baru untuk akun tutor Anda
+                  </p>
+                </div>
               </div>
-            </div>
-
-            <div>
-              <label className="block text-[0.8125rem] font-medium text-[#172421] mb-1.5">
-                Konfirmasi Password Baru
-              </label>
-              <div className="relative">
-                <input
-                  type={showConfirmPassword ? "text" : "password"}
-                  required
-                  minLength={8}
-                  placeholder="Ulangi password baru Anda"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  className="w-full pl-3.5 pr-11 py-2.5 text-[0.875rem] bg-[#faf8f5] border border-[#173F3A]/20 rounded-xl focus:outline-none focus:border-[#173F3A] focus:bg-white"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[#67645f] hover:text-[#173F3A] p-1 flex items-center justify-center transition-colors"
-                  title={showConfirmPassword ? "Sembunyikan password" : "Lihat password"}
-                >
-                  <span className="material-symbols-outlined text-[18px]">
-                    {showConfirmPassword ? "visibility_off" : "visibility"}
-                  </span>
-                </button>
-              </div>
-            </div>
-
-            <div className="pt-2 flex items-center justify-end gap-2.5">
               <button
                 type="button"
                 onClick={() => {
                   setIsPasswordModalOpen(false);
                   setPasswordError("");
+                  setCurrentPassword("");
+                  setNewPassword("");
+                  setConfirmPassword("");
+                  setShowForgotInfo(false);
                 }}
-                className="px-4 py-2 rounded-full text-[0.8125rem] font-medium text-[#444748] hover:bg-neutral-100"
+                className="w-8 h-8 rounded-full hover:bg-neutral-100 flex items-center justify-center text-[#444748]"
               >
-                Batal
-              </button>
-              <button
-                type="submit"
-                disabled={passwordLoading}
-                className="px-5 py-2.5 bg-[#173F3A] hover:bg-[#12312d] text-white rounded-full text-[0.8125rem] font-semibold transition-all shadow-sm disabled:opacity-50"
-              >
-                {passwordLoading ? "Menyimpan..." : "Simpan Password Baru"}
+                <span className="material-symbols-outlined text-[20px]">close</span>
               </button>
             </div>
-          </form>
-        </div>
-      </div>
-    )}
 
-    {/* Floating Toast Notice */}
-    {toastMessage && (
-      <div className="fixed bottom-6 right-6 z-50 bg-[#173F3A] text-white text-[0.875rem] font-semibold px-5 py-3 rounded-full shadow-2xl flex items-center gap-2 animate-in fade-in slide-in-from-bottom-2 duration-300">
-        <span className="material-symbols-outlined text-[18px]">done</span>
-        <span>{toastMessage}</span>
-      </div>
-    )}
+            {passwordError && (
+              <div className="p-3 bg-rose-50 border border-rose-200 text-rose-800 rounded-xl text-[0.8125rem]">
+                {passwordError}
+              </div>
+            )}
 
-    {/* Footer */}
-    <footer className="w-full bg-[#f2efe9] border-t border-[#173F3A]/10 mt-16">
-      <div className="max-w-7xl mx-auto px-6 lg:px-12 py-10 flex flex-col sm:flex-row items-center justify-between gap-4 text-[0.75rem] text-[#67645f]">
-        <div className="flex items-center gap-2.5">
-          <img src="/logo.svg" alt="Gen Plasma" className="w-6 h-6 object-contain" />
-          <span className="font-serif text-[1.25rem] text-[#173F3A] font-bold">Gen Plasma</span>
-          <span className="ml-2 text-[#444748]">• Area Mandiri Pengajar</span>
+            <form onSubmit={handleManualChangePassword} className="space-y-4">
+              {/* Input 1: Password Saat Ini */}
+              <div>
+                <label className="block text-[0.8125rem] font-medium text-[#172421] mb-1.5">
+                  Password Saat Ini
+                </label>
+                <div className="relative">
+                  <input
+                    type={showCurrentPassword ? "text" : "password"}
+                    required
+                    placeholder="Masukkan password akun Anda saat ini"
+                    value={currentPassword}
+                    onChange={(e) => setCurrentPassword(e.target.value)}
+                    className="w-full pl-3.5 pr-11 py-2.5 text-[0.875rem] bg-[#faf8f5] border border-[#173F3A]/20 rounded-xl focus:outline-none focus:border-[#173F3A] focus:bg-white"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-[#67645f] hover:text-[#173F3A] p-1 flex items-center justify-center transition-colors"
+                    title={showCurrentPassword ? "Sembunyikan password" : "Lihat password"}
+                  >
+                    <span className="material-symbols-outlined text-[18px]">
+                      {showCurrentPassword ? "visibility_off" : "visibility"}
+                    </span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Input 2: Password Baru */}
+              <div>
+                <label className="block text-[0.8125rem] font-medium text-[#172421] mb-1.5">
+                  Password Baru
+                </label>
+                <div className="relative">
+                  <input
+                    type={showNewPassword ? "text" : "password"}
+                    required
+                    minLength={8}
+                    placeholder="Minimal 8 karakter"
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    className="w-full pl-3.5 pr-11 py-2.5 text-[0.875rem] bg-[#faf8f5] border border-[#173F3A]/20 rounded-xl focus:outline-none focus:border-[#173F3A] focus:bg-white"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowNewPassword(!showNewPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-[#67645f] hover:text-[#173F3A] p-1 flex items-center justify-center transition-colors"
+                    title={showNewPassword ? "Sembunyikan password" : "Lihat password"}
+                  >
+                    <span className="material-symbols-outlined text-[18px]">
+                      {showNewPassword ? "visibility_off" : "visibility"}
+                    </span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Input 3: Konfirmasi Password Baru */}
+              <div>
+                <label className="block text-[0.8125rem] font-medium text-[#172421] mb-1.5">
+                  Ulangi Password Baru
+                </label>
+                <div className="relative">
+                  <input
+                    type={showConfirmPassword ? "text" : "password"}
+                    required
+                    minLength={8}
+                    placeholder="Ulangi password baru Anda"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    className="w-full pl-3.5 pr-11 py-2.5 text-[0.875rem] bg-[#faf8f5] border border-[#173F3A]/20 rounded-xl focus:outline-none focus:border-[#173F3A] focus:bg-white"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-[#67645f] hover:text-[#173F3A] p-1 flex items-center justify-center transition-colors"
+                    title={showConfirmPassword ? "Sembunyikan password" : "Lihat password"}
+                  >
+                    <span className="material-symbols-outlined text-[18px]">
+                      {showConfirmPassword ? "visibility_off" : "visibility"}
+                    </span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Opsi Lupa Password di Bawah 3 Inputan */}
+              <div className="pt-0.5">
+                <button
+                  type="button"
+                  onClick={() => setShowForgotInfo(!showForgotInfo)}
+                  className="text-[0.8125rem] font-semibold text-[#173F3A] hover:underline flex items-center gap-1.5 transition-colors"
+                >
+                  <span className="material-symbols-outlined text-[17px]">help_outline</span>
+                  <span>Lupa Password?</span>
+                </button>
+
+                {showForgotInfo && (
+                  <div className="mt-2.5 p-3.5 bg-amber-50/90 border border-amber-200/80 rounded-xl text-[0.8125rem] text-amber-900 space-y-2 animate-in fade-in duration-200">
+                    <div className="flex items-start gap-2">
+                      <span className="material-symbols-outlined text-amber-700 text-[18px] shrink-0 mt-0.5">info</span>
+                      <div>
+                        <p className="font-semibold text-amber-950">Lupa password saat ini?</p>
+                        <p className="text-[0.75rem] text-amber-800 mt-0.5 leading-relaxed">
+                          Anda dapat menghubungi <strong>Koordinator</strong> untuk mengirimkan link aktivasi/reset baru via WhatsApp, atau logout dan gunakan menu <strong>Lupa Password (Reset OTP)</strong> di halaman Login.
+                        </p>
+                      </div>
+                    </div>
+                    <div className="pt-1 flex items-center gap-2">
+                      <a
+                        href="/login"
+                        className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-[#173F3A] hover:bg-[#12312d] text-white text-[0.75rem] font-medium transition-colors"
+                      >
+                        <span>Ke Halaman Login</span>
+                        <span className="material-symbols-outlined text-[14px]">arrow_forward</span>
+                      </a>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              <div className="pt-2 flex items-center justify-end gap-2.5">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsPasswordModalOpen(false);
+                    setPasswordError("");
+                    setCurrentPassword("");
+                    setNewPassword("");
+                    setConfirmPassword("");
+                    setShowForgotInfo(false);
+                  }}
+                  className="px-4 py-2 rounded-full text-[0.8125rem] font-medium text-[#444748] hover:bg-neutral-100"
+                >
+                  Batal
+                </button>
+                <button
+                  type="submit"
+                  disabled={passwordLoading}
+                  className="px-5 py-2.5 bg-[#173F3A] hover:bg-[#12312d] text-white rounded-full text-[0.8125rem] font-semibold transition-all shadow-sm disabled:opacity-50"
+                >
+                  {passwordLoading ? "Menyimpan..." : "Simpan Password Baru"}
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
-        <p>© 2025 - 2026 Gen Plasma. Hak cipta dilindungi undang-undang.</p>
-      </div>
-    </footer>
-  </div>
+      )}
+
+      {/* Floating Toast Notice */}
+      {toastMessage && (
+        <div className="fixed bottom-6 right-6 z-50 bg-[#173F3A] text-white text-[0.875rem] font-semibold px-5 py-3 rounded-full shadow-2xl flex items-center gap-2 animate-in fade-in slide-in-from-bottom-2 duration-300">
+          <span className="material-symbols-outlined text-[18px]">done</span>
+          <span>{toastMessage}</span>
+        </div>
+      )}
+
+      {/* Footer */}
+      <footer className="w-full bg-[#f2efe9] border-t border-[#173F3A]/10 mt-16">
+        <div className="max-w-7xl mx-auto px-6 lg:px-12 py-10 flex flex-col sm:flex-row items-center justify-between gap-4 text-[0.75rem] text-[#67645f]">
+          <div className="flex items-center gap-2.5">
+            <img src="/logo.svg" alt="Gen Plasma" className="w-6 h-6 object-contain" />
+            <span className="font-serif text-[1.25rem] text-[#173F3A] font-bold">Gen Plasma</span>
+            <span className="ml-2 text-[#444748]">• Area Mandiri Pengajar</span>
+          </div>
+          <p>© 2025 - 2026 Gen Plasma. Hak cipta dilindungi undang-undang.</p>
+        </div>
+      </footer>
+    </div>
   );
 }

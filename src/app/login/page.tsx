@@ -143,9 +143,9 @@ export default function HalamanLogin() {
       <header className="w-full bg-[#faf8f5]/85 backdrop-blur-md border-b border-[#173F3A]/10">
         <div className="h-20 max-w-7xl mx-auto px-6 lg:px-12 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-3 transition-opacity hover:opacity-85">
-            <img src="/logo.svg" alt="Gen Plasma" className="w-9 h-9 object-contain" />
-            <div className="flex flex-col">
-              <span className="font-serif text-[1.35rem] leading-none tracking-tight text-[#173F3A] select-none font-bold">
+            <img src="/logo.svg" alt="Gen Plasma" className="w-9 h-9 object-contain shrink-0" />
+            <div className="flex flex-col justify-center">
+              <span className="font-serif text-[1.35rem] leading-none tracking-tight text-[#173F3A] select-none font-bold -translate-y-[2px]">
                 Gen Plasma
               </span>
             </div>
@@ -185,8 +185,8 @@ export default function HalamanLogin() {
                   setError("");
                 }}
                 className={`flex-1 py-2 rounded-full text-[0.8125rem] font-semibold transition-all ${role === "koordinator"
-                    ? "bg-[#173F3A] text-white shadow-sm"
-                    : "text-[#444748] hover:text-[#173F3A]"
+                  ? "bg-[#173F3A] text-white shadow-sm"
+                  : "text-[#444748] hover:text-[#173F3A]"
                   }`}
               >
                 Koordinator
@@ -198,8 +198,8 @@ export default function HalamanLogin() {
                   setError("");
                 }}
                 className={`flex-1 py-2 rounded-full text-[0.8125rem] font-semibold transition-all ${role === "tutor"
-                    ? "bg-[#173F3A] text-white shadow-sm"
-                    : "text-[#444748] hover:text-[#173F3A]"
+                  ? "bg-[#173F3A] text-white shadow-sm"
+                  : "text-[#444748] hover:text-[#173F3A]"
                   }`}
               >
                 Tutor Pengajar
@@ -327,7 +327,7 @@ export default function HalamanLogin() {
                       </button>
                     </div>
                     <p className="text-[0.72rem] text-[#67645f] mt-1.5">
-                      Belum pernah membuat password? Hubungi koordinator untuk menerima link undangan aktivasi akun via WhatsApp.
+                      Belum mempunyai akun? Hubungi koordinator untuk menerima link undangan aktivasi akun via WhatsApp.
                     </p>
                   </div>
                 </>
@@ -421,8 +421,8 @@ export default function HalamanLogin() {
                   <div className="grid grid-cols-2 gap-2">
                     <label
                       className={`flex items-center justify-center gap-2 p-2.5 rounded-xl border-2 cursor-pointer text-[0.8125rem] font-semibold transition-all ${forgotChannel === "whatsapp"
-                          ? "border-[#173F3A] bg-[#173F3A]/5 text-[#173F3A]"
-                          : "border-[#173F3A]/15 bg-white text-[#444748]"
+                        ? "border-[#173F3A] bg-[#173F3A]/5 text-[#173F3A]"
+                        : "border-[#173F3A]/15 bg-white text-[#444748]"
                         }`}
                     >
                       <input
@@ -438,8 +438,8 @@ export default function HalamanLogin() {
 
                     <label
                       className={`flex items-center justify-center gap-2 p-2.5 rounded-xl border-2 cursor-pointer text-[0.8125rem] font-semibold transition-all ${forgotChannel === "email"
-                          ? "border-[#173F3A] bg-[#173F3A]/5 text-[#173F3A]"
-                          : "border-[#173F3A]/15 bg-white text-[#444748]"
+                        ? "border-[#173F3A] bg-[#173F3A]/5 text-[#173F3A]"
+                        : "border-[#173F3A]/15 bg-white text-[#444748]"
                         }`}
                     >
                       <input

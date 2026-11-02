@@ -11,6 +11,7 @@ interface TutorItem {
   jenjang?: string[];
   kategori: "mipa" | "bahasa" | "kedokteran" | "soshum" | "psikologi";
   almamater: string;
+  ipk?: string;
   pengalaman: string;
   rating: number;
   foto: string;
@@ -41,6 +42,65 @@ const cleanImageUrl = (url?: string): string => {
   return trimmed;
 };
 
+interface ParsedJadwalGroup {
+  hari: string;
+  slots: { jam: string; label?: string }[];
+}
+
+const parseJadwalList = (jadwal?: string[]): ParsedJadwalGroup[] => {
+  if (!jadwal || jadwal.length === 0) return [];
+  const map = new Map<string, { jam: string; label?: string }[]>();
+
+  for (const item of jadwal) {
+    if (!item) continue;
+    let hari = "Lainnya";
+    let sisa = item;
+    const colonIdx = item.indexOf(":");
+    if (colonIdx !== -1) {
+      hari = item.substring(0, colonIdx).trim();
+      sisa = item.substring(colonIdx + 1).trim();
+    } else {
+      const match = item.match(/^(Senin|Selasa|Rabu|Kamis|Jumat|Sabtu|Minggu)\s+(.*)/i);
+      if (match) {
+        hari = match[1];
+        sisa = match[2];
+      }
+    }
+
+    let label = "";
+    const parenMatch = sisa.match(/\((.*?)\)/);
+    if (parenMatch) {
+      label = parenMatch[1].trim();
+      sisa = sisa.replace(/\(.*?\)/, "").trim();
+    }
+
+    const jam = sisa.replace(/\s*WIB/i, "").trim();
+
+    if (!map.has(hari)) {
+      map.set(hari, []);
+    }
+    map.get(hari)!.push({ jam: jam || sisa, label });
+  }
+
+  const orderDays = ["Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu", "Minggu"];
+  const result: ParsedJadwalGroup[] = [];
+
+  for (const d of orderDays) {
+    for (const [key, slots] of map.entries()) {
+      if (key.toLowerCase() === d.toLowerCase()) {
+        result.push({ hari: key, slots });
+        map.delete(key);
+      }
+    }
+  }
+
+  for (const [key, slots] of map.entries()) {
+    result.push({ hari: key, slots });
+  }
+
+  return result;
+};
+
 const MASTER_TUTORS: TutorItem[] = [
   {
     _id: "tutor-1",
@@ -50,6 +110,7 @@ const MASTER_TUTORS: TutorItem[] = [
     jenjang: ["SMA", "UTBK/Kedinasan"],
     kategori: "mipa",
     almamater: "Alumni ITB",
+    ipk: "3.92",
     pengalaman: "9 Thn",
     rating: 4.98,
     foto: "https://lh3.googleusercontent.com/aida-public/AB6AXuCPSslSYYnfoV2BdHniraBvf-zFTY0_nnKDvhTyDKr-ePxazX-evrLx9wkLIMu0JmsGzBaNJV08G9BbP71H_bY_x70-6a470DOucz6qd81hdQe2fZkfE_9-kHxHKatJzcVMLQR_jtPJ2AlYAehZ1HU5QK2otmJ_KLN4NOpZfPAH9yhBkrG4P1PWOi7WdWCPGob4JPR1d0_-M5DebT8wLuTYErUmYzDEpBDERMac1Xm3",
@@ -67,6 +128,7 @@ const MASTER_TUTORS: TutorItem[] = [
     jenjang: ["SMA", "UTBK/Kedinasan"],
     kategori: "mipa",
     almamater: "Alumni UI",
+    ipk: "3.88",
     pengalaman: "11 Thn",
     rating: 5.0,
     foto: "https://lh3.googleusercontent.com/aida-public/AB6AXuBLORKz5cdb-b6Sr6iQlkZnWwaR4Wien9clgtQ_4naSaUQAyFF1M8VRzvd4ctrFL2I_zTWxbLy5l5Be2KsLfTDWB7RHoLTzkIehkUjMz5Pi-XHPSSRcgpn7QWLovBwA1xpaK90HqTOVA18yW6RiEP0Vg3HsYK5_eEp3N1eRwIlGmWLylsqJI97PY9sbsTThI-kln8L1bQqnIF1Tlm_hMUHIHdd59EEZ1WrVvP_G7ndK",
@@ -84,6 +146,7 @@ const MASTER_TUTORS: TutorItem[] = [
     jenjang: ["SMP", "SMA", "UTBK/Kedinasan"],
     kategori: "mipa",
     almamater: "Alumni ITB",
+    ipk: "3.95",
     pengalaman: "6 Thn",
     rating: 4.97,
     foto: "https://lh3.googleusercontent.com/aida-public/AB6AXuAMzpCwKO7dTXYJHybvMdaPcbeAiwkqw2shc9nkAkY6HpOuanEnWPOUAvIAZqtGdtb7zHGoEHTMjra-MHJ5KcgidGvYixdUooSScyKxPc9qPcXWSEhigbVrOlNyh0c2inmxj6Rxvv27wCjvjozEJkSZJzs2pD9AgnBax2xFI48VUkpQZX_OEGJA8hi0iOI26MjM7CA8Ytit4e4wnvcTv-SOUB5ZJXr-qzHXD7t6KY4M",
@@ -101,6 +164,7 @@ const MASTER_TUTORS: TutorItem[] = [
     jenjang: ["SMA", "UTBK/Kedinasan"],
     kategori: "kedokteran",
     almamater: "FKG UI",
+    ipk: "3.86",
     pengalaman: "5 Thn",
     rating: 4.99,
     foto: "https://lh3.googleusercontent.com/aida-public/AB6AXuAGuy447MXo2kjeNpyEMYzbakob825Ov0Mzr_AoHY7OF_8T2utmJMn4Yjvwfk2omND1BUp8TVfh9O2d8g659-O6PUbvZNDrvhzocBSnd0DD5jZHWL-CnCtwqqME0VF_r11X5NDgbQuqm4qxP7DZRjLsqNP7FbMY6OS_UvVOEbFwjvfqKL_RY5E6TBS8_nWBJa9WHSjPEsj6izlX_ClmQCkOwtDdw1skYZ1UtxK_qMWB",
@@ -118,6 +182,7 @@ const MASTER_TUTORS: TutorItem[] = [
     jenjang: ["SD", "SMP", "SMA", "UTBK/Kedinasan"],
     kategori: "bahasa",
     almamater: "Alumni UGM",
+    ipk: "3.84",
     pengalaman: "8 Thn",
     rating: 4.95,
     foto: "https://lh3.googleusercontent.com/aida-public/AB6AXuBm0XBC9ojBinLHY1otLK2OkdrHFXr8DYPkcDfiN6for5hQho4p_kjv-GxtOyjQBVExdKe1_bVh9cII47Ozvye8W3vaRgppWaqiDySMg6aPE2qhLTlMUcMQHZPJ1v1OsghQwrozQYswyytWJVFLm_JRBbYt7yYA-io24srTjjNKkRvfmqd3f_jFGiVhi6h7Stx8N8w0da3rpblGeYuqNeX_Sh3How3nw055w21s83M4",
@@ -135,6 +200,7 @@ const MASTER_TUTORS: TutorItem[] = [
     jenjang: ["SMA", "UTBK/Kedinasan"],
     kategori: "soshum",
     almamater: "FEB UI",
+    ipk: "3.90",
     pengalaman: "7 Thn",
     rating: 4.96,
     foto: "https://lh3.googleusercontent.com/aida-public/AB6AXuBihIIL8OHDv5plKshRoJYK1h8E6mH-_SV-pcRqOQizylclRjYdzHU87cfPChGSahQvPDlCpLka4EOTuC4DWpbiFiKZ9RkRcfYUg8hKjuSdoTmg-ZCPcA_T2rgwY5nfcOuqxFxovOejirXrJR814WfLGYzchJcohDJqXPDm-yEuF4r51O2OaooAa_VCbWqdjzoD3uZPTnUuWX8xTakgJ4K_HUvI3pTem2Gh3O34ORjU",
@@ -152,6 +218,7 @@ const MASTER_TUTORS: TutorItem[] = [
     jenjang: ["SD", "SMP", "SMA"],
     kategori: "psikologi",
     almamater: "Psikologi UI",
+    ipk: "3.89",
     pengalaman: "6 Thn",
     rating: 5.0,
     foto: "https://lh3.googleusercontent.com/aida-public/AB6AXuAbSN3hI6xayPEzaRiXUdNW04vN7yHtSBSJxZ24Eqlr-i45aDoRaA8iOQGwfJFlIloGvP14s49Hmj34_2oEx1k7MzTczima3IzGp2TVmCnzkVsZoqoNHUIQ5CKQiGj1XC7S5HvSohdATcS06cXqh7ZpQb1DjXEYx76_-aFsY_fUSxA8m50H9p_rMneLe9apXNB-HCW_i5txrO_sjdJPBnCltpCOe2RYxQyu1LShV4yo",
@@ -169,6 +236,7 @@ const MASTER_TUTORS: TutorItem[] = [
     jenjang: ["SMP", "SMA", "UTBK/Kedinasan"],
     kategori: "mipa",
     almamater: "Alumni Unair",
+    ipk: "3.85",
     pengalaman: "5 Thn",
     rating: 4.97,
     foto: "https://lh3.googleusercontent.com/aida-public/AB6AXuBCTi8bN5APIh7vXalz2gT3e_2KG33lMKwXWg5u5eOnPByHw7TZX6zncgYC40_uMA8lVBNJz0yJb3GtIko9yVzivDgRKt_sDlrHMbptxQBwi39PgnDtLd02jlWQeLwkVkikPNo7Abeih5aE5rM8vmkNam4XStknrWbB2IszE_s4C7j8VwzCAZ7PJxvxVGuBy3VmwPLkiFUwt1pmuWLZtWGbsA0PMem8zV0FCcpFUR8t",
@@ -192,6 +260,9 @@ const FILTER_ITEMS = [
 export default function HalamanKatalog() {
   const [activeFilter, setActiveFilter] = useState("all");
   const [modalTutor, setModalTutor] = useState<TutorItem | null>(null);
+  const parsedJadwalModal = useMemo(() => {
+    return parseJadwalList(modalTutor?.jadwal);
+  }, [modalTutor?.jadwal]);
   const [tutorList, setTutorList] = useState<TutorItem[]>(MASTER_TUTORS);
   const [loadMoreState, setLoadMoreState] = useState<"idle" | "loading" | "done">("idle");
 
@@ -208,6 +279,7 @@ export default function HalamanKatalog() {
             nama: string;
             status?: string;
             pendidikan?: string;
+            ipk?: string;
             mataPelajaran?: string[];
             jenjang?: string[];
             foto?: string;
@@ -229,11 +301,12 @@ export default function HalamanKatalog() {
               kategori: (p.mataPelajaran?.some((m: string) => /inggris|indonesia|bahasa/i.test(m))
                 ? "bahasa"
                 : p.mataPelajaran?.some((m: string) => /kedokteran|biologi/i.test(m))
-                ? "kedokteran"
-                : p.mataPelajaran?.some((m: string) => /ekonomi|sosiologi|sejarah/i.test(m))
-                ? "soshum"
-                : "mipa") as TutorItem["kategori"],
+                  ? "kedokteran"
+                  : p.mataPelajaran?.some((m: string) => /ekonomi|sosiologi|sejarah/i.test(m))
+                    ? "soshum"
+                    : "mipa") as TutorItem["kategori"],
               almamater: p.pendidikan ? p.pendidikan.split(" ")[0] + " • 5+ Thn" : fallback.almamater,
+              ipk: p.ipk || fallback.ipk || "",
               pengalaman: "6 Thn",
               rating: 4.95,
               foto: p.foto ? cleanImageUrl(p.foto) : fallback.foto,
@@ -271,33 +344,42 @@ export default function HalamanKatalog() {
       <header className="fixed top-0 w-full z-50 bg-[#faf9f7]/85 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)]">
         <div className="h-20 max-w-7xl mx-auto px-6 lg:px-12 flex items-center justify-between gap-6">
           <Link href="/" className="flex items-center gap-3 transition-opacity hover:opacity-85">
-            <img src="/logo.svg" alt="Gen Plasma" className="w-9 h-9 object-contain" />
-            <div className="flex flex-col">
-              <span className="font-serif text-[1.4rem] leading-none tracking-tight text-[#173F3A] select-none font-bold">
+            <img src="/logo.svg" alt="Gen Plasma" className="w-9 h-9 object-contain shrink-0" />
+            <div className="flex flex-col justify-center">
+              <span className="font-serif text-[1.4rem] leading-none tracking-tight text-[#173F3A] select-none font-bold translate-y-[1.5px]">
                 Gen Plasma
               </span>
             </div>
           </Link>
 
           <nav className="hidden lg:flex items-center gap-8">
-            <Link
-              href="/"
-              className="text-[0.875rem] font-semibold text-[#173F3A] border-b-2 border-[#173F3A] py-1"
+            <button
+              type="button"
+              onClick={() => {
+                document.getElementById("katalog")?.scrollIntoView({ behavior: "smooth" });
+              }}
+              className="text-[0.875rem] text-[#444748] hover:text-[#173F3A] transition-colors py-1 font-medium cursor-pointer"
             >
-              Pengajar
-            </Link>
-            <Link
-              href="/koordinator"
-              className="text-[0.875rem] text-[#444748] hover:text-[#173F3A] transition-colors py-1 font-medium"
+              Katalog Tutor
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                document.getElementById("keunggulan")?.scrollIntoView({ behavior: "smooth" });
+              }}
+              className="text-[0.875rem] text-[#444748] hover:text-[#173F3A] transition-colors py-1 font-medium cursor-pointer"
             >
-              Koordinator
-            </Link>
-            <Link
-              href="/tutor"
-              className="text-[0.875rem] text-[#444748] hover:text-[#173F3A] transition-colors py-1 font-medium"
+              Keunggulan
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                document.getElementById("konsultasi")?.scrollIntoView({ behavior: "smooth" });
+              }}
+              className="text-[0.875rem] text-[#444748] hover:text-[#173F3A] transition-colors py-1 font-medium cursor-pointer"
             >
-              Area Tutor
-            </Link>
+              Konsultasi
+            </button>
           </nav>
 
           <div className="flex items-center gap-4">
@@ -326,7 +408,7 @@ export default function HalamanKatalog() {
       <main className="w-full pt-20 bg-[#faf9f7]">
         <div className="flex flex-col w-full">
           {/* Top Editorial Header & Filters Section */}
-          <section className="w-full max-w-7xl mx-auto px-6 lg:px-12 pt-16 pb-12 flex flex-col items-center text-center">
+          <section id="katalog" className="w-full max-w-7xl mx-auto px-6 lg:px-12 pt-16 pb-12 flex flex-col items-center text-center scroll-mt-20">
             {/* Overline Metric Pill */}
             <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#F2D5A8]/50 text-[#173F3A] text-[0.75rem] font-semibold border border-[#D88A32]/30 shadow-xs mb-6">
               <span className="inline-block w-2 h-2 rounded-full bg-[#B74E2C] animate-pulse"></span>
@@ -355,11 +437,10 @@ export default function HalamanKatalog() {
                       key={item.id}
                       type="button"
                       onClick={() => setActiveFilter(item.id)}
-                      className={`px-4 py-2 rounded-full text-[0.875rem] transition-all duration-200 shrink-0 ${
-                        isActive
-                          ? "bg-[#173F3A] text-white shadow-xs font-semibold"
-                          : "text-[#444748] hover:text-[#173F3A] font-medium"
-                      }`}
+                      className={`px-4 py-2 rounded-full text-[0.875rem] transition-all duration-200 shrink-0 ${isActive
+                        ? "bg-[#173F3A] text-white shadow-xs font-semibold"
+                        : "text-[#444748] hover:text-[#173F3A] font-medium"
+                        }`}
                     >
                       {item.label}
                     </button>
@@ -393,18 +474,13 @@ export default function HalamanKatalog() {
                       className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500 ease-out"
                     />
 
-                    {/* Star Rating Badge Top Right */}
-                    <div className="absolute top-3.5 right-3.5 bg-white/95 backdrop-blur-md px-2.5 py-1 rounded-full flex items-center gap-1 shadow-xs border border-[#D88A32]/20">
-                      <span
-                        className="material-symbols-outlined text-[#D88A32] text-[15px]"
-                        style={{ fontVariationSettings: "'FILL' 1" }}
-                      >
-                        star
-                      </span>
-                      <span className="text-[0.75rem] text-[#173F3A] font-bold">
-                        {tutor.rating.toFixed(2)}
-                      </span>
-                    </div>
+                    {/* Top Right: IPK Badge */}
+                    {tutor.ipk && (
+                      <div className="absolute top-3.5 right-3.5 bg-white/95 backdrop-blur-md px-2.5 py-1 rounded-full flex items-center gap-1 shadow-xs border border-[#173F3A]/15 pointer-events-none">
+                        <span className="material-symbols-outlined text-[#B74E2C] text-[13px]">school</span>
+                        <span className="text-[0.72rem] font-bold text-[#173F3A]">IPK {tutor.ipk}</span>
+                      </div>
+                    )}
 
                     {/* Floating Pill Badge Nestled at Bottom */}
                     <div className="absolute inset-x-3 bottom-3 p-3 rounded-2xl bg-white/95 backdrop-blur-md shadow-md text-center transition-transform duration-300 group-hover:-translate-y-1">
@@ -414,18 +490,19 @@ export default function HalamanKatalog() {
                       <p className="text-[0.8125rem] text-[#444748] truncate mt-0.5">
                         {tutor.jabatan}
                       </p>
-                      {tutor.jenjang && tutor.jenjang.length > 0 && (
-                        <div className="flex items-center justify-center gap-1 mt-2 flex-wrap">
-                          {tutor.jenjang.map((j) => (
-                            <span
-                              key={j}
-                              className="text-[0.68rem] font-semibold px-2 py-0.5 rounded-md bg-[#173F3A]/10 text-[#173F3A]"
-                            >
-                              {j}
-                            </span>
-                          ))}
-                        </div>
-                      )}
+                      <div className="flex items-center justify-center gap-1 mt-2 flex-wrap">
+                        <span className="text-[0.68rem] font-bold px-2 py-0.5 rounded-md bg-[#F2D5A8]/80 text-[#173F3A] border border-[#D88A32]/25">
+                          Total {tutor.jadwal?.length || 0} Sesi
+                        </span>
+                        {tutor.jenjang && tutor.jenjang.map((j) => (
+                          <span
+                            key={j}
+                            className="text-[0.68rem] font-semibold px-2 py-0.5 rounded-md bg-[#173F3A]/10 text-[#173F3A]"
+                          >
+                            {j}
+                          </span>
+                        ))}
+                      </div>
                     </div>
                   </div>
 
@@ -484,7 +561,7 @@ export default function HalamanKatalog() {
           </section>
 
           {/* High-End Value Strip / Minimalist Reassurance */}
-          <section className="w-full bg-[#f4f3f1] py-12">
+          <section id="keunggulan" className="w-full bg-[#f4f3f1] py-12 scroll-mt-20">
             <div className="max-w-7xl mx-auto px-6 lg:px-12">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center md:text-left">
                 <div className="flex items-start gap-4 justify-center md:justify-start">
@@ -503,15 +580,14 @@ export default function HalamanKatalog() {
 
                 <div className="flex items-start gap-4 justify-center md:justify-start">
                   <div className="w-12 h-12 rounded-2xl bg-white flex items-center justify-center text-black shadow-xs shrink-0">
-                    <span className="material-symbols-outlined text-[24px]">star</span>
+                    <span className="material-symbols-outlined text-[24px]">menu_book</span>
                   </div>
                   <div className="space-y-1">
                     <h4 className="text-[0.875rem] text-[#1a1c1b] font-semibold">
-                      Rating Kepuasan 4.95 / 5.0
+                      Kurikulum Terpadu &amp; Terarah
                     </h4>
                     <p className="text-[0.8125rem] text-[#444748] leading-relaxed">
-                      Dinilai langsung oleh lebih dari 1.200 siswa dan orang tua dari seluruh
-                      Indonesia.
+                      Materi adaptif untuk kurikulum sekolah, persiapan UTBK-SNBT, hingga olimpiade akademik.
                     </p>
                   </div>
                 </div>
@@ -535,7 +611,7 @@ export default function HalamanKatalog() {
           </section>
 
           {/* Editorial Invitation Banner */}
-          <section className="w-full max-w-7xl mx-auto px-6 lg:px-12 py-16">
+          <section id="konsultasi" className="w-full max-w-7xl mx-auto px-6 lg:px-12 py-16 scroll-mt-20">
             <div className="relative overflow-hidden rounded-3xl bg-[#efeeec] p-8 lg:p-14 flex flex-col lg:flex-row items-center justify-between gap-8 shadow-xs">
               <div className="max-w-xl space-y-3 text-center lg:text-left">
                 <span className="text-[0.75rem] text-[#67645f] tracking-wider uppercase font-semibold">
@@ -577,9 +653,9 @@ export default function HalamanKatalog() {
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-8 pb-12 border-b border-[#173F3A]/15">
             <div className="space-y-3">
               <div className="flex items-center gap-3">
-                <img src="/logo.svg" alt="Gen Plasma" className="w-8 h-8 object-contain" />
-                <div className="flex flex-col">
-                  <span className="font-serif text-[1.5rem] leading-none tracking-tight text-[#173F3A] font-bold">
+                <img src="/logo.svg" alt="Gen Plasma" className="w-8 h-8 object-contain shrink-0" />
+                <div className="flex flex-col justify-center">
+                  <span className="font-serif text-[1.45rem] leading-none tracking-tight text-[#173F3A] font-bold translate-y-[1px]">
                     Gen Plasma
                   </span>
                 </div>
@@ -591,16 +667,34 @@ export default function HalamanKatalog() {
             </div>
 
             <nav className="flex flex-wrap items-center gap-x-8 gap-y-3 text-[0.75rem] text-[#444748]">
-              <Link href="/" className="text-[#173F3A] font-semibold">
-                Pengajar
-              </Link>
-              <Link href="/koordinator" className="hover:text-[#173F3A] transition-colors">
-                Panel Koordinator
-              </Link>
-              <Link href="/tutor" className="hover:text-[#173F3A] transition-colors">
-                Area Mandiri Tutor
-              </Link>
-              <Link href="/login" className="hover:text-[#173F3A] transition-colors">
+              <button
+                type="button"
+                onClick={() => {
+                  document.getElementById("katalog")?.scrollIntoView({ behavior: "smooth" });
+                }}
+                className="hover:text-[#173F3A] transition-colors cursor-pointer"
+              >
+                Katalog Tutor
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  document.getElementById("keunggulan")?.scrollIntoView({ behavior: "smooth" });
+                }}
+                className="hover:text-[#173F3A] transition-colors cursor-pointer"
+              >
+                Keunggulan
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  document.getElementById("konsultasi")?.scrollIntoView({ behavior: "smooth" });
+                }}
+                className="hover:text-[#173F3A] transition-colors cursor-pointer"
+              >
+                Konsultasi
+              </button>
+              <Link href="/login" className="text-[#173F3A] font-semibold hover:underline">
                 Portal Masuk
               </Link>
             </nav>
@@ -618,7 +712,7 @@ export default function HalamanKatalog() {
       {/* Detail / Jadwal Modal */}
       {modalTutor && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-xs animate-in fade-in duration-200">
-          <div className="bg-white rounded-3xl border border-[#173F3A]/15 shadow-2xl w-full max-w-lg overflow-hidden flex flex-col max-h-[90vh]">
+          <div className="bg-white rounded-3xl border border-[#173F3A]/15 shadow-2xl w-full max-w-2xl overflow-hidden flex flex-col max-h-[90vh] animate-in zoom-in-95 duration-200">
             {/* Modal Header */}
             <div className="relative p-6 bg-[#faf8f5] border-b border-[#173F3A]/10 flex items-center gap-4">
               <img
@@ -631,44 +725,49 @@ export default function HalamanKatalog() {
                     e.currentTarget.src = fallback;
                   }
                 }}
-                className="w-16 h-20 rounded-2xl object-cover shadow-sm"
+                className="w-16 h-20 rounded-2xl object-cover shadow-sm shrink-0"
               />
               <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-1.5 mb-1">
-                  <span className="material-symbols-outlined text-[#D88A32] text-[16px]" style={{ fontVariationSettings: "'FILL' 1" }}>
-                    star
-                  </span>
-                  <span className="text-[0.75rem] font-bold text-[#173F3A]">{modalTutor.rating.toFixed(2)}</span>
-                  <span className="text-[0.75rem] text-[#67645f]">• {modalTutor.almamater}</span>
+                <div className="flex items-center gap-1.5 mb-1 text-[#173F3A]">
+                  <span className="material-symbols-outlined text-[16px]">school</span>
+                  <span className="text-[0.75rem] font-medium text-[#444748]">{modalTutor.almamater}</span>
                 </div>
                 <h3 className="font-serif text-[1.35rem] font-bold text-[#173F3A] leading-tight truncate">
                   {modalTutor.nama}
                 </h3>
                 <p className="text-[0.8125rem] text-[#444748] mt-0.5">{modalTutor.jabatan}</p>
-                {modalTutor.jenjang && modalTutor.jenjang.length > 0 && (
-                  <div className="mt-1 flex items-center gap-1">
-                    <span className="text-[0.6875rem] text-[#67645f]">Jenjang:</span>
-                    <span className="text-[0.6875rem] font-semibold text-[#173F3A] bg-[#F2D5A8]/50 px-2 py-0.5 rounded-full border border-[#D88A32]/20">
-                      {modalTutor.jenjang.join(", ")}
+                <div className="mt-1 flex items-center gap-1.5 flex-wrap">
+                  {modalTutor.ipk && (
+                    <span className="text-[0.6875rem] font-bold text-[#173F3A] bg-[#F2D5A8]/80 px-2 py-0.5 rounded-full border border-[#D88A32]/25">
+                      IPK {modalTutor.ipk}
                     </span>
-                  </div>
-                )}
+                  )}
+                  {modalTutor.jenjang && modalTutor.jenjang.length > 0 && (
+                    <div className="flex items-center gap-1">
+                      <span className="text-[0.6875rem] text-[#67645f]">Jenjang:</span>
+                      <span className="text-[0.6875rem] font-semibold text-[#173F3A] bg-[#173F3A]/10 px-2 py-0.5 rounded-full border border-[#173F3A]/15">
+                        {modalTutor.jenjang.join(", ")}
+                      </span>
+                    </div>
+                  )}
+                </div>
               </div>
 
               <button
                 type="button"
                 onClick={() => setModalTutor(null)}
-                className="w-8 h-8 rounded-full bg-white flex items-center justify-center text-[#444748] hover:text-[#173F3A] shadow-xs font-bold text-sm"
+                className="w-8 h-8 rounded-full bg-white flex items-center justify-center text-[#444748] hover:text-[#173F3A] shadow-xs font-bold text-sm shrink-0"
               >
                 ✕
               </button>
             </div>
 
             {/* Modal Body */}
-            <div className="p-6 space-y-4 overflow-y-auto text-xs text-[#444748]">
+            <div className="p-6 space-y-5 overflow-y-auto max-h-[62vh] text-xs text-[#444748]">
               {modalTutor.deskripsi && (
                 <div>
-                  <span className="text-[0.6875rem] font-bold uppercase tracking-wider text-[#67645f] block mb-1">
+                  <span className="text-[0.6875rem] font-bold uppercase tracking-wider text-[#67645f] block mb-1.5 flex items-center gap-1.5">
+                    <span className="material-symbols-outlined text-[15px] text-[#173F3A]">person</span>
                     Profil Akademik &amp; Pendekatan
                   </span>
                   <p className="text-[#173F3A] bg-[#faf8f5] border border-[#173F3A]/10 p-3.5 rounded-2xl leading-relaxed italic">
@@ -677,27 +776,57 @@ export default function HalamanKatalog() {
                 </div>
               )}
 
-              <div>
-                <span className="text-[0.6875rem] font-bold uppercase tracking-wider text-[#67645f] block mb-1.5">
-                  Hari &amp; Jam Ketersediaan Mengajar
-                </span>
-                <div className="flex flex-wrap gap-1.5">
-                  {(modalTutor.jadwal && modalTutor.jadwal.length > 0
-                    ? modalTutor.jadwal
-                    : ["Senin: 16:00 - 18:00 WIB", "Rabu: 16:00 - 18:00 WIB", "Jumat: 16:00 - 18:00 WIB"]
-                  ).map((slot, idx) => (
-                    <div
-                      key={idx}
-                      className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-[#F2D5A8]/35 rounded-full border border-[#D88A32]/25 text-[0.72rem]"
-                    >
-                      <span className="w-1.5 h-1.5 rounded-full bg-[#B74E2C]"></span>
-                      <span className="font-semibold text-[#173F3A]">{slot}</span>
-                      <span className="text-[0.65rem] text-[#173F3A] font-medium ml-0.5">
-                        Tersedia
-                      </span>
-                    </div>
-                  ))}
+              <div className="space-y-2.5">
+                <div className="flex items-center justify-between">
+                  <span className="text-[0.6875rem] font-bold uppercase tracking-wider text-[#67645f] flex items-center gap-1.5">
+                    <span className="material-symbols-outlined text-[16px] text-[#173F3A]">calendar_month</span>
+                    Ketersediaan Jadwal Mengajar
+                  </span>
+                  <span className="text-[0.6875rem] font-semibold text-[#173F3A] bg-[#173F3A]/10 px-2.5 py-0.5 rounded-full border border-[#173F3A]/15">
+                    {modalTutor.jadwal?.length || 0} Sesi Terjadwal
+                  </span>
                 </div>
+
+                {parsedJadwalModal.length > 0 ? (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                    {parsedJadwalModal.map((group) => (
+                      <div
+                        key={group.hari}
+                        className="p-3 bg-[#faf8f5] rounded-2xl border border-[#173F3A]/10 flex flex-col gap-2 hover:border-[#173F3A]/25 transition-all"
+                      >
+                        <div className="flex items-center justify-between border-b border-[#173F3A]/5 pb-1.5">
+                          <span className="font-bold text-[#173F3A] text-[0.8125rem] flex items-center gap-1.5">
+                            <span className="w-2 h-2 rounded-full bg-[#173F3A]"></span>
+                            {group.hari}
+                          </span>
+                          <span className="text-[0.65rem] font-semibold text-[#173F3A]/70 bg-white px-2 py-0.5 rounded-full border border-[#173F3A]/10">
+                            {group.slots.length} Sesi
+                          </span>
+                        </div>
+
+                        <div className="flex flex-wrap gap-1.5">
+                          {group.slots.map((s, idx) => (
+                            <div
+                              key={idx}
+                              className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-white border border-[#173F3A]/15 rounded-xl text-[0.72rem] text-[#173F3A] shadow-2xs font-medium"
+                            >
+                              <span className="font-semibold">{s.jam}</span>
+                              {s.label && (
+                                <span className="text-[0.625rem] px-1.5 py-0.2 rounded-md bg-[#F2D5A8]/60 text-[#173F3A] border border-[#D88A32]/25 font-bold">
+                                  {s.label}
+                                </span>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="p-4 bg-[#faf8f5] rounded-2xl border border-[#173F3A]/10 text-center text-[#67645f]">
+                    Jadwal fleksibel (dapat dikoordinasikan langsung via WhatsApp).
+                  </div>
+                )}
               </div>
             </div>
 
