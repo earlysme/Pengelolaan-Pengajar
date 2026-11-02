@@ -241,7 +241,7 @@ export default function PanelKoordinator() {
       setLoading(true);
       setDbError("");
 
-      const resP = await fetch("/api/pengajar");
+      const resP = await fetch("/api/pengajar", { cache: "no-store" });
       const jsonP = await resP.json();
       if (jsonP.success) {
         setPengajarList(jsonP.data);
@@ -361,14 +361,35 @@ export default function PanelKoordinator() {
       .catch(() => router.push("/login"));
   }, []);
 
-  const handleBuatUndangan = async (p: PengajarData) => {
+  const handleBuatUndangan = async (p: PengajarData, action?: "reset" | "aktivasi") => {
     try {
       setUndanganLoadingId(p._id);
-      const res = await fetch(`/api/pengajar/${p._id}/undangan`, { method: "POST" });
+      const isResetAction = action === "reset" || Boolean(p.akunDiaktifkanPada || p.statusResetPassword);
+
+      const res = await fetch(`/api/pengajar/${p._id}/undangan`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: isResetAction ? "reset" : "aktivasi" }),
+      });
       const json = await res.json();
       if (json.success) {
         setLinkTersalin(false);
         setUndangan({ nama: p.nama, ...json.data });
+
+        // Update state lokal seketika agar badge status langsung berubah di layar
+        if (isResetAction) {
+          setPengajarList((prev) =>
+            prev.map((item) =>
+              item._id === p._id
+                ? {
+                    ...item,
+                    statusResetPassword: true,
+                    akunDiaktifkanPada: item.akunDiaktifkanPada || new Date().toISOString(),
+                  }
+                : item
+            )
+          );
+        }
         fetchAllData();
       } else {
         alert(json.error || "Gagal membuat undangan.");
@@ -1067,24 +1088,8 @@ export default function PanelKoordinator() {
 
                                 {/* Kolom Tunggal Status */}
                                 <td className="py-4 px-4 align-top text-center">
-                                  <div className="flex flex-col items-center gap-1.5">
-                                    {!p.akunDiaktifkanPada ? (
-                                      <>
-                                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[0.75rem] font-semibold bg-amber-50 text-amber-800 border border-amber-200">
-                                          <span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
-                                          Belum Aktivasi
-                                        </span>
-                                        <button
-                                          type="button"
-                                          onClick={() => handleBuatUndangan(p)}
-                                          disabled={undanganLoadingId === p._id}
-                                          className="px-3 py-1 rounded-full bg-[#173F3A] hover:bg-[#112F2B] text-white text-[0.72rem] font-semibold transition-all shadow-xs disabled:opacity-50"
-                                          title="Buat link undangan untuk login"
-                                        >
-                                          {undanganLoadingId === p._id ? "..." : "Kirim Undangan"}
-                                        </button>
-                                      </>
-                                    ) : p.statusResetPassword ? (
+                                  <div className="flex flex-col items-center gap-2">
+                                    {p.statusResetPassword ? (
                                       <>
                                         <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[0.75rem] font-semibold bg-orange-50 text-orange-800 border border-orange-200">
                                           <span className="w-1.5 h-1.5 rounded-full bg-orange-500"></span>
@@ -1092,12 +1097,30 @@ export default function PanelKoordinator() {
                                         </span>
                                         <button
                                           type="button"
-                                          onClick={() => handleBuatUndangan(p)}
+                                          onClick={() => handleBuatUndangan(p, "reset")}
                                           disabled={undanganLoadingId === p._id}
-                                          className="text-[0.7rem] text-orange-700 hover:text-orange-900 underline transition-colors font-medium"
+                                          className="px-3 py-1.5 rounded-xl bg-orange-100 hover:bg-orange-200 text-orange-900 border border-orange-300 text-[0.72rem] font-semibold transition-all shadow-2xs hover:shadow-xs disabled:opacity-50 inline-flex items-center gap-1 cursor-pointer active:scale-95"
                                           title="Kirim ulang link reset password"
                                         >
+                                          <span className="material-symbols-outlined text-[14px]">send</span>
                                           {undanganLoadingId === p._id ? "..." : "Kirim Ulang Link"}
+                                        </button>
+                                      </>
+                                    ) : !p.akunDiaktifkanPada ? (
+                                      <>
+                                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[0.75rem] font-semibold bg-amber-50 text-amber-800 border border-amber-200">
+                                          <span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
+                                          Belum Aktivasi
+                                        </span>
+                                        <button
+                                          type="button"
+                                          onClick={() => handleBuatUndangan(p, "aktivasi")}
+                                          disabled={undanganLoadingId === p._id}
+                                          className="px-3.5 py-1.5 rounded-xl bg-[#173F3A] hover:bg-[#112F2B] text-white text-[0.72rem] font-semibold transition-all shadow-xs disabled:opacity-50 inline-flex items-center gap-1 cursor-pointer active:scale-95"
+                                          title="Buat link undangan untuk login"
+                                        >
+                                          <span className="material-symbols-outlined text-[14px]">mail</span>
+                                          {undanganLoadingId === p._id ? "..." : "Kirim Undangan"}
                                         </button>
                                       </>
                                     ) : (
@@ -1124,12 +1147,13 @@ export default function PanelKoordinator() {
                                         </span>
                                         <button
                                           type="button"
-                                          onClick={() => handleBuatUndangan(p)}
+                                          onClick={() => handleBuatUndangan(p, "reset")}
                                           disabled={undanganLoadingId === p._id}
-                                          className="text-[0.7rem] text-[#67645f] hover:text-[#173F3A] underline transition-colors"
+                                          className="px-3 py-1.5 rounded-xl bg-white hover:bg-stone-50 text-[#173F3A] border border-[#173F3A]/25 text-[0.72rem] font-semibold transition-all shadow-2xs hover:shadow-xs disabled:opacity-50 inline-flex items-center gap-1.5 cursor-pointer active:scale-95"
                                           title="Reset akses login tutor"
                                         >
-                                          {undanganLoadingId === p._id ? "..." : "Reset Akses"}
+                                          <span className="material-symbols-outlined text-[15px] text-[#173F3A]">lock_reset</span>
+                                          <span>{undanganLoadingId === p._id ? "..." : "Reset Akses"}</span>
                                         </button>
                                       </>
                                     )}
