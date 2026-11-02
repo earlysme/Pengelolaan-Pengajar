@@ -217,8 +217,6 @@ export default function PanelKoordinator() {
   // Modul 4 & 5: State Sesi & Verifikasi
   const [sesiList, setSesiList] = useState<SesiData[]>([]);
   const [verifikasiFilter, setVerifikasiFilter] = useState("Semua");
-  const [verifikasiModalSesi, setVerifikasiModalSesi] = useState<SesiData | null>(null);
-  const [catatanRevisi, setCatatanRevisi] = useState("");
 
   // Modul 6: Rekap Honor
   const [honorStats, setHonorStats] = useState({
@@ -358,7 +356,7 @@ export default function PanelKoordinator() {
         else router.push("/login");
       })
       .catch(() => router.push("/login"));
-  }, []);
+  }, [router]);
 
   const handleBuatUndangan = async (p: PengajarData) => {
     try {
@@ -613,33 +611,12 @@ export default function PanelKoordinator() {
       });
       const json = await res.json();
       if (json.success) {
-        setVerifikasiModalSesi(null);
-        setCatatanRevisi("");
         fetchAllData();
       } else {
         alert(json.error || "Gagal memperbarui status verifikasi.");
       }
     } catch {
       alert("Kendala koneksi.");
-    }
-  };
-
-  // --- Seed Data Helper ---
-  const handleSeedAll = async () => {
-    try {
-      setLoading(true);
-      const res = await fetch("/api/seed", { method: "POST" });
-      const json = await res.json();
-      if (json.success) {
-        alert(json.message);
-      } else {
-        alert(json.error || "Gagal seed data.");
-      }
-      fetchAllData();
-    } catch {
-      alert("Koneksi gagal.");
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -677,8 +654,6 @@ export default function PanelKoordinator() {
     }
     return true;
   });
-
-  const pendingVerifikasi = sesiList.filter((s) => s.statusVerifikasi === "Menunggu Verifikasi").length;
 
   return (
     <div className="bg-[#faf8f5] font-sans text-[#172421] min-h-screen selection:bg-[#F2D5A8] selection:text-[#173F3A]">
