@@ -106,8 +106,8 @@ const MASTER_TUTORS: TutorItem[] = [
     _id: "tutor-1",
     nama: "Dr. Hendra Wijaya",
     jabatan: "Kepala Kurikulum & Fisika ITB",
-    mataPelajaran: ["Fisika", "UTBK & SNBT"],
-    jenjang: ["SMA", "UTBK/Kedinasan"],
+    mataPelajaran: ["Fisika", "Sains Terapan"],
+    jenjang: ["SMA", "Kedinasan"],
     kategori: "mipa",
     almamater: "Alumni ITB",
     ipk: "3.92",
@@ -123,9 +123,9 @@ const MASTER_TUTORS: TutorItem[] = [
   {
     _id: "tutor-2",
     nama: "Dra. Ratna Kartika, M.Pd.",
-    jabatan: "Master Tutor Kimia & UTBK UI",
+    jabatan: "Master Tutor Kimia UI",
     mataPelajaran: ["Kimia", "Sains"],
-    jenjang: ["SMA", "UTBK/Kedinasan"],
+    jenjang: ["SMA", "Kedinasan"],
     kategori: "mipa",
     almamater: "Alumni UI",
     ipk: "3.88",
@@ -143,7 +143,7 @@ const MASTER_TUTORS: TutorItem[] = [
     nama: "Kevin Pratama, M.Mat.",
     jabatan: "Medalis Emas OSN Matematika",
     mataPelajaran: ["Matematika", "Kalkulus"],
-    jenjang: ["SMP", "SMA", "UTBK/Kedinasan"],
+    jenjang: ["SMP", "SMA", "Kedinasan"],
     kategori: "mipa",
     almamater: "Alumni ITB",
     ipk: "3.95",
@@ -151,7 +151,7 @@ const MASTER_TUTORS: TutorItem[] = [
     rating: 4.97,
     foto: "https://lh3.googleusercontent.com/aida-public/AB6AXuAMzpCwKO7dTXYJHybvMdaPcbeAiwkqw2shc9nkAkY6HpOuanEnWPOUAvIAZqtGdtb7zHGoEHTMjra-MHJ5KcgidGvYixdUooSScyKxPc9qPcXWSEhigbVrOlNyh0c2inmxj6Rxvv27wCjvjozEJkSZJzs2pD9AgnBax2xFI48VUkpQZX_OEGJA8hi0iOI26MjM7CA8Ytit4e4wnvcTv-SOUB5ZJXr-qzHXD7t6KY4M",
     nomorTelepon: "081299887766",
-    deskripsi: "Spesialis logika matematika, aljabar linear, dan strategi penalaran cepat tes UTBK SNBT.",
+    deskripsi: "Spesialis logika matematika, aljabar linear, dan strategi penalaran analitis.",
     jadwal: ["Rabu: 18:30 - 20:30 WIB", "Sabtu: 09:00 - 11:30 WIB"],
     iconType: "school",
     ctaText: "Jadwal",
@@ -161,7 +161,7 @@ const MASTER_TUTORS: TutorItem[] = [
     nama: "drg. Nadia Safira, S.KG.",
     jabatan: "Mentor Masuk Kedokteran FKG UI",
     mataPelajaran: ["Biologi", "Kedokteran Dasar"],
-    jenjang: ["SMA", "UTBK/Kedinasan"],
+    jenjang: ["SMA", "Kedinasan"],
     kategori: "kedokteran",
     almamater: "FKG UI",
     ipk: "3.86",
@@ -179,7 +179,7 @@ const MASTER_TUTORS: TutorItem[] = [
     nama: "Sarah Elizabeth, M.A.",
     jabatan: "Master Bahasa Inggris & IELTS UGM",
     mataPelajaran: ["Bahasa Inggris", "IELTS"],
-    jenjang: ["SD", "SMP", "SMA", "UTBK/Kedinasan"],
+    jenjang: ["SD", "SMP", "SMA", "Kedinasan"],
     kategori: "bahasa",
     almamater: "Alumni UGM",
     ipk: "3.84",
@@ -197,7 +197,7 @@ const MASTER_TUTORS: TutorItem[] = [
     nama: "Rizky Ramadhan, S.E.",
     jabatan: "Ekonomi & SIMAK UI Spesialis",
     mataPelajaran: ["Ekonomi", "Soshum"],
-    jenjang: ["SMA", "UTBK/Kedinasan"],
+    jenjang: ["SMA", "Kedinasan"],
     kategori: "soshum",
     almamater: "FEB UI",
     ipk: "3.90",
@@ -233,7 +233,7 @@ const MASTER_TUTORS: TutorItem[] = [
     nama: "Bagas Pratama, S.Si.",
     jabatan: "Biologi Terapan & Kedokteran Unair",
     mataPelajaran: ["Biologi", "Sains"],
-    jenjang: ["SMP", "SMA", "UTBK/Kedinasan"],
+    jenjang: ["SMP", "SMA", "Kedinasan"],
     kategori: "mipa",
     almamater: "Alumni Unair",
     ipk: "3.85",
@@ -250,7 +250,7 @@ const MASTER_TUTORS: TutorItem[] = [
 
 const FILTER_ITEMS = [
   { id: "all", label: "Semua Pengajar" },
-  { id: "mipa", label: "MIPA & UTBK" },
+  { id: "mipa", label: "MIPA" },
   { id: "bahasa", label: "Bahasa & Literasi" },
   { id: "kedokteran", label: "Kedokteran & Sains" },
   { id: "soshum", label: "Sosial & Humaniora" },
@@ -298,13 +298,15 @@ export default function HalamanKatalog() {
               jabatan: p.pendidikan || fallback.jabatan,
               mataPelajaran: p.mataPelajaran || fallback.mataPelajaran,
               jenjang: p.jenjang && p.jenjang.length > 0 ? p.jenjang : fallback.jenjang || ["SMA"],
-              kategori: (p.mataPelajaran?.some((m: string) => /inggris|indonesia|bahasa/i.test(m))
+              kategori: (p.mataPelajaran?.some((m: string) => /inggris|indonesia|bahasa|ielts|toefl|literasi/i.test(m))
                 ? "bahasa"
-                : p.mataPelajaran?.some((m: string) => /kedokteran|biologi/i.test(m))
-                  ? "kedokteran"
-                  : p.mataPelajaran?.some((m: string) => /ekonomi|sosiologi|sejarah/i.test(m))
-                    ? "soshum"
-                    : "mipa") as TutorItem["kategori"],
+                : p.mataPelajaran?.some((m: string) => /ekonomi|sosiologi|sejarah|geografi|akuntansi|soshum/i.test(m))
+                  ? "soshum"
+                  : p.mataPelajaran?.some((m: string) => /psikologi|konseling/i.test(m))
+                    ? "psikologi"
+                    : p.mataPelajaran?.some((m: string) => /kedokteran|anatomi|farmasi/i.test(m))
+                      ? "kedokteran"
+                      : "mipa") as TutorItem["kategori"],
               almamater: p.pendidikan ? p.pendidikan.split(" ")[0] + " • 5+ Thn" : fallback.almamater,
               ipk: p.ipk || fallback.ipk || "",
               pengalaman: "6 Thn",
@@ -346,7 +348,7 @@ export default function HalamanKatalog() {
           <Link href="/" className="flex items-center gap-3 transition-opacity hover:opacity-85">
             <img src="/logo.svg" alt="Gen Plasma" className="w-9 h-9 object-contain shrink-0" />
             <div className="flex flex-col justify-center">
-              <span className="font-serif text-[1.4rem] leading-none tracking-tight text-[#173F3A] select-none font-bold translate-y-[1.5px]">
+              <span className="font-serif text-[1.4rem] leading-none tracking-tight text-[#173F3A] select-none font-bold translate-y-[2.5px]">
                 Gen Plasma
               </span>
             </div>
@@ -362,15 +364,7 @@ export default function HalamanKatalog() {
             >
               Katalog Tutor
             </button>
-            <button
-              type="button"
-              onClick={() => {
-                document.getElementById("keunggulan")?.scrollIntoView({ behavior: "smooth" });
-              }}
-              className="text-[0.875rem] text-[#444748] hover:text-[#173F3A] transition-colors py-1 font-medium cursor-pointer"
-            >
-              Keunggulan
-            </button>
+            
             <button
               type="button"
               onClick={() => {
@@ -482,6 +476,8 @@ export default function HalamanKatalog() {
                       </div>
                     )}
 
+                    
+
                     {/* Floating Pill Badge Nestled at Bottom */}
                     <div className="absolute inset-x-3 bottom-3 p-3 rounded-2xl bg-white/95 backdrop-blur-md shadow-md text-center transition-transform duration-300 group-hover:-translate-y-1">
                       <h3 className="text-[0.875rem] text-[#1a1c1b] font-semibold truncate">
@@ -491,9 +487,7 @@ export default function HalamanKatalog() {
                         {tutor.jabatan}
                       </p>
                       <div className="flex items-center justify-center gap-1 mt-2 flex-wrap">
-                        <span className="text-[0.68rem] font-bold px-2 py-0.5 rounded-md bg-[#F2D5A8]/80 text-[#173F3A] border border-[#D88A32]/25">
-                          Total {tutor.jadwal?.length || 0} Sesi
-                        </span>
+                        
                         {tutor.jenjang && tutor.jenjang.map((j) => (
                           <span
                             key={j}
@@ -587,7 +581,7 @@ export default function HalamanKatalog() {
                       Kurikulum Terpadu &amp; Terarah
                     </h4>
                     <p className="text-[0.8125rem] text-[#444748] leading-relaxed">
-                      Materi adaptif untuk kurikulum sekolah, persiapan UTBK-SNBT, hingga olimpiade akademik.
+                      Materi adaptif untuk kurikulum sekolah, persiapan ujian akademik, hingga kompetisi sains.
                     </p>
                   </div>
                 </div>

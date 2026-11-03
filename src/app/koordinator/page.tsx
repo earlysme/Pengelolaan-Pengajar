@@ -717,7 +717,7 @@ export default function PanelKoordinator() {
             <Link href="/" className="flex items-center gap-2.5 transition-opacity hover:opacity-85">
               <img src="/logo.svg" alt="Gen Plasma" className="w-8 h-8 object-contain shrink-0" />
               <div className="flex flex-col justify-center">
-                <span className="font-serif text-[1.25rem] leading-none tracking-tight text-[#173F3A] select-none font-bold -translate-y-[1.5px]">
+                <span className="font-serif text-[1.25rem] leading-none tracking-tight text-[#173F3A] select-none font-bold translate-y-[2px]">
                   Gen Plasma
                 </span>
               </div>
