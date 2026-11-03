@@ -10,7 +10,7 @@ import {
   resetGagal,
 } from "@/lib/auth";
 
-const PESAN_SALAH = "Email atau password salah.";
+const PESAN_SALAH = "Email/Username atau password salah.";
 
 function samaAman(a: string, b: string) {
   const ha = crypto.createHash("sha256").update(a).digest();
@@ -18,13 +18,12 @@ function samaAman(a: string, b: string) {
   return crypto.timingSafeEqual(ha, hb);
 }
 
-// POST: login tutor (email + password) atau koordinator (username + password)
+// POST: login terpadu (email atau username + password)
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const role = body?.role === "koordinator" ? "koordinator" : "tutor";
     const password = typeof body?.password === "string" ? body.password : "";
-    const identitas = String(role === "koordinator" ? body?.username ?? "" : body?.email ?? "")
+    const identitas = String(body?.identitas ?? body?.email ?? body?.username ?? "")
       .trim()
       .toLowerCase();
 
@@ -32,7 +31,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: false, error: "Lengkapi data login." }, { status: 400 });
     }
 
-    const kunci = `${role}:${identitas}`;
+    const kunci = `login:${identitas}`;
     if (terlaluBanyakGagal(kunci)) {
       return NextResponse.json(
         { success: false, error: "Terlalu banyak percobaan gagal. Coba lagi dalam 15 menit." },
@@ -40,52 +39,52 @@ export async function POST(request: Request) {
       );
     }
 
-    if (role === "koordinator") {
-      const isDev = process.env.NODE_ENV !== "production";
-      const adminUser = (process.env.ADMIN_USERNAME || (isDev ? "admin" : "")).toLowerCase();
-      const adminPass = process.env.ADMIN_PASSWORD || (isDev ? "admin123" : "");
+    // 1. Cek kredensial Koordinator (Admin)
+    const isDev = process.env.NODE_ENV !== "production";
+    const adminUser = (process.env.ADMIN_USERNAME || (isDev ? "admin" : "")).toLowerCase();
+    const adminPass = process.env.ADMIN_PASSWORD || (isDev ? "admin123" : "");
 
-      const valid =
-        !!adminUser && !!adminPass && samaAman(identitas, adminUser) && samaAman(password, adminPass);
+    const isKoordinator =
+      !!adminUser && !!adminPass && samaAman(identitas, adminUser) && samaAman(password, adminPass);
 
-      if (!valid) {
-        catatGagal(kunci);
-        return NextResponse.json({ success: false, error: "Username atau password salah." }, { status: 401 });
+    if (isKoordinator) {
+      resetGagal(kunci);
+      await setSessionCookie({ role: "koordinator", nama: "Koordinator Bimbel" });
+      return NextResponse.json({
+        success: true,
+        data: { role: "koordinator", nama: "Koordinator Bimbel" },
+      });
+    }
+
+    // 2. Cek kredensial Tutor (MongoDB berdasarkan email)
+    await connectDB();
+    const tutor = await Pengajar.findOne({ email: identitas }).select("+passwordHash");
+    const okTutor = verifyPassword(password, tutor?.passwordHash);
+
+    if (tutor && okTutor) {
+      if (tutor.status === "Nonaktif") {
+        return NextResponse.json(
+          { success: false, error: "Akun ini dinonaktifkan. Hubungi koordinator." },
+          { status: 403 }
+        );
+      }
+
+      if (!tutor.akunDiaktifkanPada) {
+        tutor.akunDiaktifkanPada = new Date();
+        await tutor.save();
       }
 
       resetGagal(kunci);
-      await setSessionCookie({ role: "koordinator", nama: "Koordinator Bimbel" });
-      return NextResponse.json({ success: true, data: { role: "koordinator", nama: "Koordinator Bimbel" } });
+      await setSessionCookie({ role: "tutor", sub: String(tutor._id), nama: tutor.nama });
+      return NextResponse.json({
+        success: true,
+        data: { role: "tutor", id: String(tutor._id), nama: tutor.nama },
+      });
     }
 
-    // Tutor
-    await connectDB();
-    const tutor = await Pengajar.findOne({ email: identitas }).select("+passwordHash");
-    const ok = verifyPassword(password, tutor?.passwordHash);
-
-    if (!tutor || !ok) {
-      catatGagal(kunci);
-      return NextResponse.json({ success: false, error: PESAN_SALAH }, { status: 401 });
-    }
-
-    if (tutor.status === "Nonaktif") {
-      return NextResponse.json(
-        { success: false, error: "Akun ini dinonaktifkan. Hubungi koordinator." },
-        { status: 403 }
-      );
-    }
-
-    if (!tutor.akunDiaktifkanPada) {
-      tutor.akunDiaktifkanPada = new Date();
-      await tutor.save();
-    }
-
-    resetGagal(kunci);
-    await setSessionCookie({ role: "tutor", sub: String(tutor._id), nama: tutor.nama });
-    return NextResponse.json({
-      success: true,
-      data: { role: "tutor", id: String(tutor._id), nama: tutor.nama },
-    });
+    // 3. Jika gagal
+    catatGagal(kunci);
+    return NextResponse.json({ success: false, error: PESAN_SALAH }, { status: 401 });
   } catch {
     return NextResponse.json({ success: false, error: "Terjadi kesalahan server." }, { status: 500 });
   }

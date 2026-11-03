@@ -260,7 +260,7 @@ export default function HalamanAktivasi() {
           <Link href="/" className="flex items-center gap-3 transition-opacity hover:opacity-85">
             <img src="/logo.svg" alt="Gen Plasma" className="w-9 h-9 object-contain shrink-0" />
             <div className="flex flex-col justify-center">
-              <span className="font-serif text-[1.35rem] leading-none tracking-tight text-[#173F3A] select-none font-bold -translate-y-[2px]">
+              <span className="font-serif text-[1.35rem] leading-none tracking-tight text-[#173F3A] select-none font-bold translate-y-[2.5px]">
                 Gen Plasma
               </span>
             </div>

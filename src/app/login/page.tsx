@@ -6,11 +6,9 @@ import Link from "next/link";
 
 export default function HalamanLogin() {
   const router = useRouter();
-  const [role, setRole] = useState<"koordinator" | "tutor">("koordinator");
-  const [username, setUsername] = useState("");
+  const [identitas, setIdentitas] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [email, setEmail] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -45,17 +43,19 @@ export default function HalamanLogin() {
       const res = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(
-          role === "koordinator" ? { role, username, password } : { role, email, password }
-        ),
+        body: JSON.stringify({ identitas, password }),
       });
       const json = await res.json();
 
-      if (json.success) {
-        // Sesi disimpan server lewat cookie httpOnly; tidak ada data login di localStorage.
-        router.push(role === "koordinator" ? "/koordinator" : "/tutor");
+      if (json.success && json.data) {
+        // Otomatis arahkan berdasarkan peran akun yang terdeteksi
+        if (json.data.role === "koordinator") {
+          router.push("/koordinator");
+        } else {
+          router.push("/tutor");
+        }
       } else {
-        setError(json.error || "Login gagal. Periksa kembali email dan password Anda.");
+        setError(json.error || "Login gagal. Periksa kembali email/username dan password Anda.");
       }
     } catch {
       setError("Terjadi kendala koneksi.");
@@ -145,7 +145,7 @@ export default function HalamanLogin() {
           <Link href="/" className="flex items-center gap-3 transition-opacity hover:opacity-85">
             <img src="/logo.svg" alt="Gen Plasma" className="w-9 h-9 object-contain shrink-0" />
             <div className="flex flex-col justify-center">
-              <span className="font-serif text-[1.35rem] leading-none tracking-tight text-[#173F3A] select-none font-bold -translate-y-[2px]">
+              <span className="font-serif text-[1.35rem] leading-none tracking-tight text-[#173F3A] select-none font-bold translate-y-[2.5px]">
                 Gen Plasma
               </span>
             </div>
@@ -165,47 +165,17 @@ export default function HalamanLogin() {
         <div className="w-full max-w-md">
           <div className="text-center mb-8">
             <span className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#F2D5A8]/60 text-[0.75rem] font-semibold text-[#173F3A] uppercase tracking-wider mb-3 border border-[#D88A32]/30">
-              Portal Akses Internal
+              Portal Masuk
             </span>
             <h1 className="font-serif text-[2.25rem] text-[#173F3A] tracking-tight font-bold">
               Selamat Datang
             </h1>
             <p className="mt-2 text-[0.875rem] text-[#444748]">
-              Pilih peran Anda untuk mengakses panel kerja dan sinkronisasi data operasional.
+              Masuk ke akun Koordinator atau Tutor Pengajar Gen Plasma.
             </p>
           </div>
 
           <div className="bg-white border border-[#173F3A]/15 rounded-2xl p-7 shadow-[0_4px_20px_rgba(23,63,58,0.06)]">
-            {/* Segmented Role Switcher */}
-            <div className="flex bg-[#f2efe9] p-1 rounded-full mb-6">
-              <button
-                type="button"
-                onClick={() => {
-                  setRole("koordinator");
-                  setError("");
-                }}
-                className={`flex-1 py-2 rounded-full text-[0.8125rem] font-semibold transition-all ${role === "koordinator"
-                  ? "bg-[#173F3A] text-white shadow-sm"
-                  : "text-[#444748] hover:text-[#173F3A]"
-                  }`}
-              >
-                Koordinator
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setRole("tutor");
-                  setError("");
-                }}
-                className={`flex-1 py-2 rounded-full text-[0.8125rem] font-semibold transition-all ${role === "tutor"
-                  ? "bg-[#173F3A] text-white shadow-sm"
-                  : "text-[#444748] hover:text-[#173F3A]"
-                  }`}
-              >
-                Tutor Pengajar
-              </button>
-            </div>
-
             {error && (
               <div className="mb-5 p-3.5 bg-rose-50 border border-rose-200 text-rose-800 rounded-xl text-[0.8125rem] flex items-start gap-2">
                 <span className="material-symbols-outlined text-[18px] shrink-0 mt-0.5 text-rose-600">error</span>
@@ -214,129 +184,67 @@ export default function HalamanLogin() {
             )}
 
             <form onSubmit={handleSubmit} className="space-y-4">
-              {role === "koordinator" ? (
-                <>
-                  <div>
-                    <label className="block text-[0.8125rem] font-medium text-[#172421] mb-1.5">
-                      Username Koordinator
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      placeholder="Contoh: admin"
-                      value={username}
-                      onChange={(e) => setUsername(e.target.value)}
-                      className="w-full px-4 py-2.5 text-[0.875rem] bg-[#faf8f5] border border-[#173F3A]/20 rounded-xl focus:outline-none focus:border-[#173F3A] focus:bg-white focus:ring-1 focus:ring-[#173F3A] transition-colors"
-                    />
-                  </div>
+              <div>
+                <label className="block text-[0.8125rem] font-medium text-[#172421] mb-1.5">
+                  Email atau Username
+                </label>
+                <input
+                  type="text"
+                  required
+                  autoComplete="username"
+                  placeholder="nama@email.com atau admin"
+                  value={identitas}
+                  onChange={(e) => setIdentitas(e.target.value)}
+                  className="w-full px-4 py-2.5 text-[0.875rem] bg-[#faf8f5] border border-[#173F3A]/20 rounded-xl focus:outline-none focus:border-[#173F3A] focus:bg-white focus:ring-1 focus:ring-[#173F3A] transition-colors"
+                />
+              </div>
 
-                  <div>
-                    <label className="block text-[0.8125rem] font-medium text-[#172421] mb-1.5">
-                      Password
-                    </label>
-                    <div className="relative">
-                      <input
-                        type={showPassword ? "text" : "password"}
-                        required
-                        placeholder="Password koordinator"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        className="w-full pl-4 pr-11 py-2.5 text-[0.875rem] bg-[#faf8f5] border border-[#173F3A]/20 rounded-xl focus:outline-none focus:border-[#173F3A] focus:bg-white focus:ring-1 focus:ring-[#173F3A] transition-colors"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-[#67645f] hover:text-[#173F3A] p-1 transition-colors flex items-center justify-center"
-                        title={showPassword ? "Sembunyikan password" : "Lihat password"}
-                      >
-                        <span className="material-symbols-outlined text-[20px]">
-                          {showPassword ? "visibility_off" : "visibility"}
-                        </span>
-                      </button>
-                    </div>
-                    <div className="flex justify-end mt-1.5">
-                      <button
-                        type="button"
-                        onClick={() => {
-                          alert(
-                            "Akun Koordinator dikelola oleh Administrator sistem. Silakan periksa berkas .env.local (ADMIN_USERNAME & ADMIN_PASSWORD) untuk mengatur ulang password koordinator."
-                          );
-                        }}
-                        className="text-[0.75rem] font-semibold text-[#B74E2C] hover:underline transition-colors"
-                      >
-                        Lupa password?
-                      </button>
-                    </div>
-                  </div>
-                </>
-              ) : (
-                <>
-                  <div>
-                    <label className="block text-[0.8125rem] font-medium text-[#172421] mb-1.5">
-                      Alamat Email Tutor
-                    </label>
-                    <input
-                      type="email"
-                      required
-                      autoComplete="email"
-                      placeholder="nama@email.com"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      className="w-full px-4 py-2.5 text-[0.875rem] bg-[#faf8f5] border border-[#173F3A]/20 rounded-xl focus:outline-none focus:border-[#173F3A] focus:bg-white focus:ring-1 focus:ring-[#173F3A] transition-colors"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-[0.8125rem] font-medium text-[#172421] mb-1.5">
-                      Password
-                    </label>
-                    <div className="relative">
-                      <input
-                        type={showPassword ? "text" : "password"}
-                        required
-                        autoComplete="current-password"
-                        placeholder="Password akun tutor"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        className="w-full pl-4 pr-11 py-2.5 text-[0.875rem] bg-[#faf8f5] border border-[#173F3A]/20 rounded-xl focus:outline-none focus:border-[#173F3A] focus:bg-white focus:ring-1 focus:ring-[#173F3A] transition-colors"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-[#67645f] hover:text-[#173F3A] p-1 transition-colors flex items-center justify-center"
-                        title={showPassword ? "Sembunyikan password" : "Lihat password"}
-                      >
-                        <span className="material-symbols-outlined text-[20px]">
-                          {showPassword ? "visibility_off" : "visibility"}
-                        </span>
-                      </button>
-                    </div>
-                    <div className="flex justify-end mt-1.5">
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setForgotIdentitas(email);
-                          setForgotStep("request");
-                          setForgotError("");
-                          setForgotSuccess("");
-                          setIsForgotModalOpen(true);
-                        }}
-                        className="text-[0.75rem] font-semibold text-[#B74E2C] hover:underline transition-colors"
-                      >
-                        Lupa password?
-                      </button>
-                    </div>
-                    <p className="text-[0.72rem] text-[#67645f] mt-1.5">
-                      Belum mempunyai akun? Hubungi koordinator untuk menerima link undangan aktivasi akun via WhatsApp.
-                    </p>
-                  </div>
-                </>
-              )}
+              <div>
+                <label className="block text-[0.8125rem] font-medium text-[#172421] mb-1.5">
+                  Password
+                </label>
+                <div className="relative">
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    required
+                    autoComplete="current-password"
+                    placeholder="Masukkan password akun Anda"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="w-full pl-4 pr-11 py-2.5 text-[0.875rem] bg-[#faf8f5] border border-[#173F3A]/20 rounded-xl focus:outline-none focus:border-[#173F3A] focus:bg-white focus:ring-1 focus:ring-[#173F3A] transition-colors"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-[#67645f] hover:text-[#173F3A] p-1 transition-colors flex items-center justify-center"
+                    title={showPassword ? "Sembunyikan password" : "Lihat password"}
+                  >
+                    <span className="material-symbols-outlined text-[20px]">
+                      {showPassword ? "visibility_off" : "visibility"}
+                    </span>
+                  </button>
+                </div>
+                <div className="flex justify-end mt-1.5">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setForgotIdentitas(identitas);
+                      setForgotStep("request");
+                      setForgotError("");
+                      setForgotSuccess("");
+                      setIsForgotModalOpen(true);
+                    }}
+                    className="text-[0.75rem] font-semibold text-[#B74E2C] hover:underline transition-colors"
+                  >
+                    Lupa password?
+                  </button>
+                </div>
+              </div>
 
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full py-3 px-5 bg-[#173F3A] hover:bg-[#112F2B] text-white rounded-full text-[0.875rem] font-semibold transition-all shadow-sm hover:shadow disabled:opacity-50 flex items-center justify-center gap-2 mt-4 active:scale-[0.99]"
+                className="w-full py-3 px-5 bg-[#173F3A] hover:bg-[#112F2B] text-white rounded-full text-[0.875rem] font-semibold transition-all shadow-sm hover:shadow disabled:opacity-50 flex items-center justify-center gap-2 mt-4 active:scale-[0.99] cursor-pointer"
               >
                 {loading ? (
                   <>
@@ -350,6 +258,10 @@ export default function HalamanLogin() {
                   </>
                 )}
               </button>
+
+              <p className="text-[0.72rem] text-[#67645f] text-center pt-2">
+                Belum mempunyai akun? Hubungi koordinator untuk menerima link undangan aktivasi akun via WhatsApp.
+              </p>
             </form>
           </div>
         </div>
@@ -404,7 +316,7 @@ export default function HalamanLogin() {
                   <input
                     type="text"
                     required
-                    placeholder="Contoh: ferdian@gmail.com atau 08123456789"
+                    placeholder="Contoh: nama@email.com atau 08123456789"
                     value={forgotIdentitas}
                     onChange={(e) => setForgotIdentitas(e.target.value)}
                     className="w-full px-4 py-2.5 text-[0.875rem] bg-[#faf8f5] border border-[#173F3A]/20 rounded-xl text-[#173F3A] focus:outline-none focus:border-[#173F3A] focus:bg-white focus:ring-1 focus:ring-[#173F3A]"

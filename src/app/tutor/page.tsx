@@ -179,6 +179,7 @@ export default function AreaTutor() {
 
   const [savingProfil, setSavingProfil] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
+  const [highlightedFieldId, setHighlightedFieldId] = useState<string | null>(null);
 
   // State Modal Ubah Password Manual (Tanpa OTP)
   const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
@@ -375,7 +376,7 @@ export default function AreaTutor() {
           hari,
           jamMulai: "",
           jamSelesai: "",
-          keterangan: "Reguler",
+          keterangan: "",
         };
         const updated = [...prev, newSlot];
         updated.sort((a, b) => DAFTAR_HARI.indexOf(a.hari) - DAFTAR_HARI.indexOf(b.hari));
@@ -391,7 +392,7 @@ export default function AreaTutor() {
       hari,
       jamMulai: "",
       jamSelesai: "",
-      keterangan: "Reguler",
+      keterangan: "",
     };
     setJadwalSlots((prev) => {
       const updated = [...prev, newSlot];
@@ -499,9 +500,55 @@ export default function AreaTutor() {
     if (e) e.preventDefault();
     if (!currentTutor) return;
 
-    const incomplete = jadwalSlots.some((s) => !s.jamMulai || !s.jamSelesai);
-    if (incomplete) {
-      showToast("Lengkapi jam mulai dan jam selesai untuk semua hari yang Anda pilih.");
+    // Validasi slot ketersediaan (harus sudah memilih sesi jadwal & memilih minimal satu program)
+    for (const s of jadwalSlots) {
+      if (!s.jamMulai || !s.jamSelesai) {
+        const targetId = `slot-card-${s.id}`;
+        setHighlightedFieldId(targetId);
+        showToast(`Pilih jam sesi jadwal untuk hari ${s.hari}.`);
+        const elem = document.getElementById(targetId);
+        if (elem) elem.scrollIntoView({ behavior: "smooth", block: "center" });
+        setTimeout(() => setHighlightedFieldId(null), 4000);
+        return;
+      }
+      if (!s.keterangan || s.keterangan.trim() === "") {
+        const targetId = `slot-card-${s.id}`;
+        setHighlightedFieldId(targetId);
+        showToast(`Centang minimal 1 program (Reguler/Private) untuk sesi hari ${s.hari}.`);
+        const elem = document.getElementById(targetId);
+        if (elem) elem.scrollIntoView({ behavior: "smooth", block: "center" });
+        setTimeout(() => setHighlightedFieldId(null), 4000);
+        return;
+      }
+    }
+
+    if (!nomorWa.trim()) {
+      const targetId = "field-nomor-wa";
+      setHighlightedFieldId(targetId);
+      showToast("Nomor WhatsApp pengajar wajib diisi.");
+      const elem = document.getElementById(targetId);
+      if (elem) elem.scrollIntoView({ behavior: "smooth", block: "center" });
+      setTimeout(() => setHighlightedFieldId(null), 4000);
+      return;
+    }
+
+    if (!pendidikan.trim()) {
+      const targetId = "field-pendidikan";
+      setHighlightedFieldId(targetId);
+      showToast("Latar belakang pendidikan wajib diisi.");
+      const elem = document.getElementById(targetId);
+      if (elem) elem.scrollIntoView({ behavior: "smooth", block: "center" });
+      setTimeout(() => setHighlightedFieldId(null), 4000);
+      return;
+    }
+
+    if (!deskripsi.trim()) {
+      const targetId = "field-deskripsi";
+      setHighlightedFieldId(targetId);
+      showToast("Deskripsi / bio profil wajib diisi.");
+      const elem = document.getElementById(targetId);
+      if (elem) elem.scrollIntoView({ behavior: "smooth", block: "center" });
+      setTimeout(() => setHighlightedFieldId(null), 4000);
       return;
     }
 
@@ -598,7 +645,7 @@ export default function AreaTutor() {
             <Link href="/" className="flex items-center gap-3 transition-opacity hover:opacity-85">
               <img src="/logo.svg" alt="Gen Plasma" className="w-9 h-9 object-contain shrink-0" />
               <div className="flex flex-col justify-center">
-                <span className="font-serif text-[1.4rem] leading-none tracking-tight text-[#173F3A] select-none font-bold -translate-y-[2px]">
+                <span className="font-serif text-[1.4rem] leading-none tracking-tight text-[#173F3A] select-none font-bold translate-y-[2.5px]">
                   Gen Plasma
                 </span>
               </div>
@@ -606,6 +653,18 @@ export default function AreaTutor() {
           </div>
 
           <div className="flex items-center gap-2.5">
+            <button
+              type="button"
+              onClick={() => {
+                window.scrollTo({ top: 0, behavior: "smooth" });
+              }}
+              className="text-[0.8125rem] font-semibold text-[#173F3A] hover:bg-[#F2D5A8]/50 px-3.5 py-1.5 rounded-full border border-[#173F3A]/20 transition-colors flex items-center gap-1.5 cursor-pointer"
+              title="Kembali ke bagian atas dashboard"
+            >
+              <span className="material-symbols-outlined text-[17px]">dashboard</span>
+              <span className="hidden sm:inline">Dashboard</span>
+            </button>
+
             <button
               type="button"
               onClick={() => {
@@ -1027,7 +1086,8 @@ export default function AreaTutor() {
                                     return (
                                       <div
                                         key={slot.id}
-                                        className="p-3.5 bg-white rounded-xl border border-[#173F3A]/15 hover:border-[#173F3A]/30 transition-all shadow-xs space-y-2.5"
+                                        id={`slot-card-${slot.id}`}
+                                        className={`p-3.5 bg-white rounded-xl border transition-all shadow-xs space-y-2.5 ${highlightedFieldId === `slot-card-${slot.id}` ? "field-highlight-fade ring-4 ring-rose-500/50" : "border-[#173F3A]/15 hover:border-[#173F3A]/30"}`}
                                       >
                                         <div className="flex items-center justify-between border-b border-[#173F3A]/10 pb-1.5">
                                           <div className="flex items-center gap-2">
@@ -1103,32 +1163,68 @@ export default function AreaTutor() {
                                           <div>
                                             <label className="block text-[0.72rem] font-semibold text-[#173F3A] mb-1.5 flex items-center gap-1">
                                               <span className="material-symbols-outlined text-[15px]">school</span>
-                                              <span>Program</span>
+                                              <span>Program (Centang Pilihan)</span>
                                             </label>
-                                            <select
-                                              value={slot.keterangan || "Reguler"}
-                                              onChange={(e) => updateSlot(slot.id, { keterangan: e.target.value })}
-                                              className="w-full px-3 py-2 text-[0.8125rem] font-medium text-[#173F3A] bg-[#faf8f5] border border-[#173F3A]/20 focus:border-[#173F3A] focus:bg-white rounded-xl focus:outline-none transition-colors"
-                                            >
-                                              <option value="Reguler">Reguler</option>
-                                              <option value="Private">Private</option>
-                                            </select>
+                                            <div className="flex items-center gap-4 py-2 px-3 bg-[#faf8f5] border border-[#173F3A]/20 rounded-xl min-h-[38px]">
+                                              <label className="inline-flex items-center gap-1.5 cursor-pointer select-none text-[0.8125rem] font-medium text-[#173F3A]">
+                                                <input
+                                                  type="checkbox"
+                                                  checked={/reguler/i.test(slot.keterangan || "")}
+                                                  onChange={(e) => {
+                                                    const hasPrivate = /private/i.test(slot.keterangan || "");
+                                                    const isChecked = e.target.checked;
+                                                    let nextVal = "";
+                                                    if (isChecked && hasPrivate) nextVal = "Reguler, Private";
+                                                    else if (isChecked) nextVal = "Reguler";
+                                                    else if (hasPrivate) nextVal = "Private";
+                                                    else nextVal = "";
+                                                    updateSlot(slot.id, { keterangan: nextVal });
+                                                  }}
+                                                  className="w-4 h-4 rounded text-[#173F3A] focus:ring-[#173F3A] accent-[#173F3A] cursor-pointer"
+                                                />
+                                                <span>Reguler</span>
+                                              </label>
+
+                                              <label className="inline-flex items-center gap-1.5 cursor-pointer select-none text-[0.8125rem] font-medium text-[#173F3A]">
+                                                <input
+                                                  type="checkbox"
+                                                  checked={/private/i.test(slot.keterangan || "")}
+                                                  onChange={(e) => {
+                                                    const hasReguler = /reguler/i.test(slot.keterangan || "");
+                                                    const isChecked = e.target.checked;
+                                                    let nextVal = "";
+                                                    if (isChecked && hasReguler) nextVal = "Reguler, Private";
+                                                    else if (isChecked) nextVal = "Private";
+                                                    else if (hasReguler) nextVal = "Reguler";
+                                                    else nextVal = "";
+                                                    updateSlot(slot.id, { keterangan: nextVal });
+                                                  }}
+                                                  className="w-4 h-4 rounded text-[#173F3A] focus:ring-[#173F3A] accent-[#173F3A] cursor-pointer"
+                                                />
+                                                <span>Private</span>
+                                              </label>
+                                            </div>
                                           </div>
                                         </div>
 
                                         {/* Status Indikator Sesi */}
                                         <div className="pt-2 border-t border-[#173F3A]/10 flex items-center text-[0.75rem]">
-                                          {isFilled ? (
+                                          {slot.jamMulai && slot.jamSelesai && slot.keterangan ? (
                                             <div className="flex items-center gap-1.5 text-emerald-700 font-medium">
                                               <span className="material-symbols-outlined text-[16px]">check_circle</span>
                                               <span>
-                                                Aktif: {slot.jamMulai} - {slot.jamSelesai} WIB ({slot.keterangan || "Reguler"})
+                                                Aktif: {slot.jamMulai} - {slot.jamSelesai} WIB ({slot.keterangan})
                                               </span>
+                                            </div>
+                                          ) : !slot.jamMulai || !slot.jamSelesai ? (
+                                            <div className="flex items-center gap-1.5 text-amber-700">
+                                              <span className="material-symbols-outlined text-[16px]">info</span>
+                                              <span>Pilih sesi jadwal di atas</span>
                                             </div>
                                           ) : (
                                             <div className="flex items-center gap-1.5 text-amber-700">
                                               <span className="material-symbols-outlined text-[16px]">info</span>
-                                              <span>Pilih sesi jadwal di atas</span>
+                                              <span>Pilih program (centang Reguler / Private)</span>
                                             </div>
                                           )}
                                         </div>
@@ -1164,7 +1260,8 @@ export default function AreaTutor() {
                       <label className="text-[0.75rem] text-[#444748]">
                         Gelar, Program Studi, &amp; Almamater Utama
                       </label>
-                      <div className="bg-[#f4f3f1] rounded-xl px-4 py-3 focus-within:bg-[#efeeec] transition-colors">
+                      <div id="field-pendidikan"
+                        className={`bg-[#f4f3f1] rounded-xl px-4 py-3 focus-within:bg-[#efeeec] transition-all ${highlightedFieldId === "field-pendidikan" ? "field-highlight-fade ring-4 ring-rose-500/50" : ""}`}>
                         <input
                           type="text"
                           value={pendidikan}
@@ -1248,7 +1345,8 @@ export default function AreaTutor() {
                         <span className="text-[#444748]">Narasi Pendekatan &amp; Filosofi Bimbingan</span>
                         <span className="text-[#67645f]">{deskripsi.length} / 600 Karakter</span>
                       </div>
-                      <div className="bg-[#f4f3f1] rounded-xl p-4 focus-within:bg-[#efeeec] transition-colors">
+                      <div id="field-deskripsi"
+                        className={`bg-[#f4f3f1] rounded-xl p-4 focus-within:bg-[#efeeec] transition-all ${highlightedFieldId === "field-deskripsi" ? "field-highlight-fade ring-4 ring-rose-500/50" : ""}`}>
                         <textarea
                           rows={5}
                           value={deskripsi}
