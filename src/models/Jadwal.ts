@@ -1,5 +1,16 @@
 import mongoose, { Schema, Document, Model } from "mongoose";
 
+export const DAFTAR_HARI_JADWAL = [
+  "Senin",
+  "Selasa",
+  "Rabu",
+  "Kamis",
+  "Jumat",
+  "Sabtu",
+] as const;
+
+export type HariJadwal = (typeof DAFTAR_HARI_JADWAL)[number];
+
 export interface IJadwal extends Document {
   namaKelas: string;
   mataPelajaran: string;
@@ -7,7 +18,8 @@ export interface IJadwal extends Document {
   pengajarId: mongoose.Types.ObjectId;
   namaPengajar: string;
   nomorTeleponPengajar?: string;
-  hari: string;
+  hari: HariJadwal;
+  sesi?: string;
   jamMulai: string;
   jamSelesai: string;
   ruangan: string;
@@ -51,7 +63,15 @@ const JadwalSchema: Schema<IJadwal> = new Schema(
     },
     hari: {
       type: String,
-      required: true,
+      required: [true, "Hari wajib diisi"],
+      enum: {
+        values: DAFTAR_HARI_JADWAL,
+        message: "Hari harus salah satu dari: Senin, Selasa, Rabu, Kamis, Jumat, Sabtu",
+      },
+    },
+    sesi: {
+      type: String,
+      trim: true,
     },
     jamMulai: {
       type: String,

@@ -30,7 +30,7 @@ const PRESET_AVATARS = [
   "https://lh3.googleusercontent.com/aida-public/AB6AXuCHB51zhe7ysp42hrFuGrCikXhhJO5DN2gO8JqKp2yu12nNSMQjZmRglPQkjFjSKmhPGQ-tFodkfG-0yooYJBUkolpC1XulfmLDefheJeqKIRUwrYezHu6AwMmUND4OGzfxk2L9FHjQptypRRe0z-h4D5gf8xqpcUGrGVe_7t4ik20-JGh9I7mjTqVMj2xpHNplKu6S6fDlOVxHPj3zIi6DjM51tFaqYP7h5HOAgclN",
 ];
 
-const DAFTAR_HARI = ["Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu", "Minggu"];
+const DAFTAR_HARI = ["Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
 
 export interface JadwalSlot {
   id: string;
@@ -86,15 +86,65 @@ const parseJadwalToSlots = (rawList?: string[]): JadwalSlot[] => {
   });
 };
 
-const PRESET_SESI_JADWAL = [
-  { label: "— Pilih Sesi Jadwal —", jamMulai: "", jamSelesai: "" },
-  { label: "Sesi 1 (Pagi: 08:00 - 10:00 WIB)", jamMulai: "08:00", jamSelesai: "10:00" },
-  { label: "Sesi 2 (Siang: 10:30 - 12:30 WIB)", jamMulai: "10:30", jamSelesai: "12:30" },
-  { label: "Sesi 3 (Sore A: 13:30 - 15:30 WIB)", jamMulai: "13:30", jamSelesai: "15:30" },
-  { label: "Sesi 4 (Sore B: 16:00 - 18:00 WIB)", jamMulai: "16:00", jamSelesai: "18:00" },
-  { label: "Sesi 5 (Malam: 18:30 - 20:30 WIB)", jamMulai: "18:30", jamSelesai: "20:30" },
-  { label: "Kustom Jam Manual", jamMulai: "", jamSelesai: "" },
-];
+interface MasterSesiItem {
+  _id: string;
+  nama: string;
+  hariGroup: string;
+  hari: string[];
+  jamMulai: string;
+  jamSelesai: string;
+  waktuLabel: string;
+  durasiMenit: number;
+  urutan: number;
+  aktif: boolean;
+}
+
+const getPresetsByDay = (hari: string, masterList?: MasterSesiItem[]) => {
+  if (masterList && masterList.length > 0) {
+    const filtered = masterList.filter((m) => m.hari.includes(hari));
+    if (filtered.length > 0) {
+      return filtered.map((m) => ({
+        label: `${m.nama} (${m.waktuLabel} WIB)`,
+        jamMulai: m.jamMulai,
+        jamSelesai: m.jamSelesai,
+      }));
+    }
+  }
+
+  // Fallback resmi database bimbingan belajar jika offline/loading:
+  if (hari === "Sabtu") {
+    return [
+      { label: "Sesi 1 (09.00 - 10.15 WIB)", jamMulai: "09:00", jamSelesai: "10:15" },
+      { label: "Sesi 2 (10.15 - 11.30 WIB)", jamMulai: "10:15", jamSelesai: "11:30" },
+      { label: "Sesi 3 (11.30 - 12.45 WIB)", jamMulai: "11:30", jamSelesai: "12:45" },
+      { label: "Sesi 4 (13.00 - 14.15 WIB)", jamMulai: "13:00", jamSelesai: "14:15" },
+      { label: "Sesi 5 (14.15 - 15.30 WIB)", jamMulai: "14:15", jamSelesai: "15:30" },
+      { label: "Sesi 6 (15.30 - 16.45 WIB)", jamMulai: "15:30", jamSelesai: "16:45" },
+      { label: "Sesi 7 (16.45 - 18.00 WIB)", jamMulai: "16:45", jamSelesai: "18:00" },
+      { label: "Sesi 8 (18.00 - 19.15 WIB)", jamMulai: "18:00", jamSelesai: "19:15" },
+    ];
+  }
+
+  if (hari === "Jumat") {
+    return [
+      { label: "Sesi 1 (11.30 - 12.45 WIB)", jamMulai: "11:30", jamSelesai: "12:45" },
+      { label: "Sesi 2 (13.00 - 14.15 WIB)", jamMulai: "13:00", jamSelesai: "14:15" },
+      { label: "Sesi 3 (14.30 - 15.45 WIB)", jamMulai: "14:30", jamSelesai: "15:45" },
+      { label: "Sesi 4 (16.00 - 17.15 WIB)", jamMulai: "16:00", jamSelesai: "17:15" },
+      { label: "Sesi 5 (17.15 - 18.30 WIB)", jamMulai: "17:15", jamSelesai: "18:30" },
+      { label: "Sesi 6 (18.45 - 20.00 WIB)", jamMulai: "18:45", jamSelesai: "20:00" },
+    ];
+  }
+
+  // Default Senin s/d Kamis:
+  return [
+    { label: "Sesi 1 (13.00 - 14.15 WIB)", jamMulai: "13:00", jamSelesai: "14:15" },
+    { label: "Sesi 2 (14.30 - 15.45 WIB)", jamMulai: "14:30", jamSelesai: "15:45" },
+    { label: "Sesi 3 (16.00 - 17.15 WIB)", jamMulai: "16:00", jamSelesai: "17:15" },
+    { label: "Sesi 4 (17.15 - 18.30 WIB)", jamMulai: "17:15", jamSelesai: "18:30" },
+    { label: "Sesi 5 (18.45 - 20.00 WIB)", jamMulai: "18:45", jamSelesai: "20:00" },
+  ];
+};
 
 const formatSlotToString = (slot: JadwalSlot): string => {
   if (!slot.jamMulai || !slot.jamSelesai) {
@@ -125,6 +175,7 @@ export default function AreaTutor() {
   const [domisili, setDomisili] = useState("Bandung & Jakarta Selatan (Fleksibel)");
   const [nomorWa, setNomorWa] = useState("");
   const [jadwalSlots, setJadwalSlots] = useState<JadwalSlot[]>([]);
+  const [masterSesiList, setMasterSesiList] = useState<MasterSesiItem[]>([]);
 
   const [savingProfil, setSavingProfil] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
@@ -212,29 +263,47 @@ export default function AreaTutor() {
     });
   };
 
-  const fetchMyProfile = async () => {
+  const fetchMyProfile = async (): Promise<PengajarData | null> => {
     try {
-      setLoading(true);
       // Identitas diambil dari cookie sesi server, bukan dari localStorage.
       const me = await fetch("/api/auth/me");
       const meJson = await me.json();
       if (!me.ok || meJson.data?.role !== "tutor") {
         router.push("/login");
-        return;
+        return null;
       }
 
       const res = await fetch(`/api/pengajar/${meJson.data.id}`);
       const json = await res.json();
-      if (json.success) populateTutor(json.data);
+      return json.success ? (json.data as PengajarData) : null;
     } catch {
-      // Ignore
-    } finally {
-      setLoading(false);
+      return null;
     }
   };
 
   useEffect(() => {
-    fetchMyProfile();
+    let cancelled = false;
+    void fetchMyProfile()
+      .then((tutor) => {
+        if (!cancelled && tutor) populateTutor(tutor);
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+
+    // Ambil master sesi bimbingan belajar dari database
+    fetch("/api/master/sesi")
+      .then((r) => r.json())
+      .then((j) => {
+        if (!cancelled && j.success && Array.isArray(j.data)) {
+          setMasterSesiList(j.data);
+        }
+      })
+      .catch(() => {});
+
+    return () => {
+      cancelled = true;
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -987,40 +1056,48 @@ export default function AreaTutor() {
                                               <span className="material-symbols-outlined text-[15px]">schedule</span>
                                               <span>Pilih Sesi Jadwal</span>
                                             </label>
-                                            <select
-                                              value={
-                                                PRESET_SESI_JADWAL.find(
-                                                  (p) => p.jamMulai === slot.jamMulai && p.jamSelesai === slot.jamSelesai
-                                                )?.label || (slot.jamMulai && slot.jamSelesai ? "custom" : "")
-                                              }
-                                              onChange={(e) => {
-                                                const val = e.target.value;
-                                                if (!val) {
-                                                  updateSlot(slot.id, { jamMulai: "", jamSelesai: "" });
-                                                  return;
-                                                }
-                                                const selected = PRESET_SESI_JADWAL.find((p) => p.label === val);
-                                                if (selected && selected.jamMulai && selected.jamSelesai) {
-                                                  updateSlot(slot.id, {
-                                                    jamMulai: selected.jamMulai,
-                                                    jamSelesai: selected.jamSelesai,
-                                                  });
-                                                }
-                                              }}
-                                              className="w-full px-3 py-2 text-[0.8125rem] font-medium text-[#173F3A] bg-[#faf8f5] border border-[#173F3A]/20 focus:border-[#173F3A] focus:bg-white rounded-xl focus:outline-none transition-colors"
-                                            >
-                                              <option value="">— Pilih Sesi Jadwal —</option>
-                                              {PRESET_SESI_JADWAL.filter((p) => p.jamMulai).map((p, pIdx) => (
-                                                <option key={pIdx} value={p.label}>
-                                                  {p.label}
-                                                </option>
-                                              ))}
-                                              {slot.jamMulai && slot.jamSelesai && !PRESET_SESI_JADWAL.some((p) => p.jamMulai === slot.jamMulai && p.jamSelesai === slot.jamSelesai) && (
-                                                <option value="custom">
-                                                  {slot.jamMulai} - {slot.jamSelesai} WIB (Tersimpan)
-                                                </option>
-                                              )}
-                                            </select>
+                                            {(() => {
+                                              const presetsForDay = getPresetsByDay(slot.hari, masterSesiList);
+                                              const currentSelected = presetsForDay.find(
+                                                (p) => p.jamMulai === slot.jamMulai && p.jamSelesai === slot.jamSelesai
+                                              );
+                                              return (
+                                                <select
+                                                  value={currentSelected?.label || (slot.jamMulai && slot.jamSelesai ? "custom" : "")}
+                                                  onChange={(e) => {
+                                                    const val = e.target.value;
+                                                    if (!val) {
+                                                      updateSlot(slot.id, { jamMulai: "", jamSelesai: "" });
+                                                      return;
+                                                    }
+                                                    const selected = presetsForDay.find((p) => p.label === val);
+                                                    if (selected && selected.jamMulai && selected.jamSelesai) {
+                                                      updateSlot(slot.id, {
+                                                        jamMulai: selected.jamMulai,
+                                                        jamSelesai: selected.jamSelesai,
+                                                      });
+                                                    }
+                                                  }}
+                                                  className="w-full px-3 py-2 text-[0.8125rem] font-medium text-[#173F3A] bg-[#faf8f5] border border-[#173F3A]/20 focus:border-[#173F3A] focus:bg-white rounded-xl focus:outline-none transition-colors"
+                                                >
+                                                  <option value="">— Pilih Sesi Jadwal —</option>
+                                                  {presetsForDay.map((p, pIdx) => (
+                                                    <option key={pIdx} value={p.label}>
+                                                      {p.label}
+                                                    </option>
+                                                  ))}
+                                                  {slot.jamMulai &&
+                                                    slot.jamSelesai &&
+                                                    !presetsForDay.some(
+                                                      (p) => p.jamMulai === slot.jamMulai && p.jamSelesai === slot.jamSelesai
+                                                    ) && (
+                                                      <option value="custom">
+                                                        {slot.jamMulai} - {slot.jamSelesai} WIB (Tersimpan)
+                                                      </option>
+                                                    )}
+                                                </select>
+                                              );
+                                            })()}
                                           </div>
 
                                           <div>
