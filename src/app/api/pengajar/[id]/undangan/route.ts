@@ -8,6 +8,7 @@ import {
   requireKoordinator,
 } from "@/lib/auth";
 
+
 // POST: koordinator membuat link undangan aktivasi akun untuk satu tutor.
 // Token lama otomatis tidak berlaku lagi. Token asli hanya dikembalikan di respons ini,
 // di database hanya tersimpan hash-nya.
@@ -22,21 +23,31 @@ export async function POST(
 
     await connectDB();
     const { id } = await params;
-    const tutor = await Pengajar.findById(id);
+
+    let reqAction = "";
+    try {
+      const body = await request.json();
+      reqAction = body?.action || "";
+    } catch {
+      // jika tidak ada body json
+    }
+
+    const tutor = await Pengajar.findById(id).select("+passwordHash");
     if (!tutor) {
       return NextResponse.json({ success: false, error: "Pengajar tidak ditemukan" }, { status: 404 });
     }
 
     const { token, tokenHash } = generateAktivasiToken();
-    const isReset = !!tutor.akunDiaktifkanPada;
+    const isReset = reqAction === "reset" || Boolean(tutor.akunDiaktifkanPada || tutor.passwordHash);
 
-    await Pengajar.updateOne(
+    await Pengajar.collection.updateOne(
       { _id: tutor._id },
       {
         $set: {
           aktivasiTokenHash: tokenHash,
           aktivasiKadaluarsa: new Date(Date.now() + AKTIVASI_BERLAKU_MS),
           statusResetPassword: isReset,
+          ...(isReset && !tutor.akunDiaktifkanPada ? { akunDiaktifkanPada: new Date() } : {}),
         },
       }
     );

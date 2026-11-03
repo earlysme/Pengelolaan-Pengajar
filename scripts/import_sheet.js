@@ -82,20 +82,22 @@ async function runImport() {
   }, { timestamps: true }));
 
   // Baca data hasil scraping 6 tab
-  const dataPath = path.join(
-    "C:",
-    "Users",
-    "elgle",
-    ".gemini",
-    "antigravity",
-    "brain",
-    "55175dc9-1cca-46fb-b723-227172390eac",
-    "scratch",
-    "all_days_data.json"
-  );
+  const dataPath = fs.existsSync(path.join(__dirname, "all_days_data.json"))
+    ? path.join(__dirname, "all_days_data.json")
+    : path.join(
+        "C:",
+        "Users",
+        "elgle",
+        ".gemini",
+        "antigravity",
+        "brain",
+        "55175dc9-1cca-46fb-b723-227172390eac",
+        "scratch",
+        "all_days_data.json"
+      );
   const allDays = JSON.parse(fs.readFileSync(dataPath, "utf8"));
 
-  // Agregasikan per Tutor (Gabungkan jika tutor mengajar lebih dari 1 mapel, misal Ira Rahayu SOSIO & GEO, Acep SOSIO & INGGRIS)
+  // Agregasikan per Tutor: HANYA mengambil NAMA dan SESI JADWAL saja (ceklis jenjang/kelas diabaikan)
   const tutorAggregate = new Map();
 
   for (const [day, tutorList] of Object.entries(allDays)) {
@@ -115,8 +117,6 @@ async function runImport() {
         tutorAggregate.set(namaUpper, {
           nama: nama,
           mapelSet: new Set(),
-          jenjangSet: new Set(),
-          kelasSet: new Set(),
           slotsByDay: [],
           serializedJadwal: [],
         });
@@ -127,14 +127,10 @@ async function runImport() {
 
       const activeSlots = t.slots.filter((s) => s.isAvailable);
       for (const slot of activeSlots) {
-        slot.jenjang.forEach((j) => item.jenjangSet.add(j));
-        slot.kelas.forEach((k) => item.kelasSet.add(k));
-
         const times = normalizeTime(slot.waktu);
-        const kelasLabel = slot.kelas.join(" & ") || "Reguler";
         
-        // Format string jadwalTersedia: "Senin: 16:00 - 17:15 WIB (Reguler)"
-        const formattedStr = `${hari}: ${times.jamMulai} - ${times.jamSelesai} WIB (${kelasLabel})`;
+        // Format string jadwalTersedia murni: hanya Hari dan Jam Sesi (tanpa ceklis kelas/jenjang)
+        const formattedStr = `${hari}: ${times.jamMulai} - ${times.jamSelesai} WIB`;
         if (!item.serializedJadwal.includes(formattedStr)) {
           item.serializedJadwal.push(formattedStr);
         }
@@ -145,7 +141,7 @@ async function runImport() {
           jamMulai: times.jamMulai,
           jamSelesai: times.jamSelesai,
           moda: "Fleksibel",
-          catatan: `${normalizeMapel(t.mapel)} - ${slot.jenjang.join(", ")} (${kelasLabel})`,
+          catatan: normalizeMapel(t.mapel) || "Sesi Bimbingan",
         });
       }
     }
@@ -158,8 +154,8 @@ async function runImport() {
 
   for (const [namaUpper, item] of tutorAggregate.entries()) {
     const mapelArr = Array.from(item.mapelSet);
-    const jenjangArr = Array.from(item.jenjangSet).length > 0 ? Array.from(item.jenjangSet) : ["SMA"];
-    const kelasArr = Array.from(item.kelasSet).length > 0 ? Array.from(item.kelasSet) : ["Reguler"];
+    const jenjangArr = ["SMA"];
+    const kelasArr = ["Reguler"];
 
     // Cek apakah pengajar sudah ada di database
     let pengajar = await Pengajar.findOne({
@@ -167,10 +163,10 @@ async function runImport() {
     });
 
     if (pengajar) {
-      // Update pengajar yang ada
+      // Update sesi ketersediaan mengajar dan mapel, tanpa memasukkan ceklis sheet
       pengajar.mataPelajaran = Array.from(new Set([...(pengajar.mataPelajaran || []), ...mapelArr]));
-      pengajar.jenjang = Array.from(new Set([...(pengajar.jenjang || []), ...jenjangArr]));
-      pengajar.jenisKelas = Array.from(new Set([...(pengajar.jenisKelas || []), ...kelasArr]));
+      pengajar.jenjang = jenjangArr;
+      pengajar.jenisKelas = kelasArr;
       if (item.serializedJadwal.length > 0) {
         pengajar.jadwalTersedia = item.serializedJadwal;
         pengajar.status = "Aktif";
