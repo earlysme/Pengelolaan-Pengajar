@@ -1,0 +1,8139 @@
+{
+  "SENIN": [
+    {
+      "no": 1,
+      "nama": "Muhammad Zaki",
+      "mapel": "INGGRIS",
+      "slots": [
+        {
+          "waktu": "13.00 - 14.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "14.30 - 15.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "16.00- 17.15",
+          "isAvailable": true,
+          "jenjang": [
+            "SD",
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "17.15 - 18.30",
+          "isAvailable": true,
+          "jenjang": [
+            "SD",
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "18.45 - 20.00",
+          "isAvailable": true,
+          "jenjang": [
+            "SD",
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        }
+      ]
+    },
+    {
+      "no": 2,
+      "nama": "Acep Muhammad Abdullatif",
+      "mapel": "INGGRIS",
+      "slots": [
+        {
+          "waktu": "13.00 - 14.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "14.30 - 15.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "16.00- 17.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "17.15 - 18.30",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "18.45 - 20.00",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        }
+      ]
+    },
+    {
+      "no": 3,
+      "nama": "Rinda Permata Sari",
+      "mapel": "INGGRIS",
+      "slots": [
+        {
+          "waktu": "13.00 - 14.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "14.30 - 15.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "16.00- 17.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "17.15 - 18.30",
+          "isAvailable": true,
+          "jenjang": [
+            "SD",
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler"
+          ]
+        },
+        {
+          "waktu": "18.45 - 20.00",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        }
+      ]
+    },
+    {
+      "no": 5,
+      "nama": "Ainy",
+      "mapel": "INGGRIS",
+      "slots": [
+        {
+          "waktu": "11.30 - 12.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "13.00 - 14.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "14.30 - 15.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "16.00 - 17.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "17.15 - 18.30",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "18.45 - 20.00",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        }
+      ]
+    },
+    {
+      "no": 6,
+      "nama": "Fina Levina Sahira",
+      "mapel": "INGGRIS",
+      "slots": [
+        {
+          "waktu": "11.30 - 12.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "13.00 - 14.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "14.30 - 15.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "16.00 - 17.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "17.15 - 18.30",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "18.45 - 20.00",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        }
+      ]
+    },
+    {
+      "no": 7,
+      "nama": "DAMAR",
+      "mapel": "INGGRIS",
+      "slots": [
+        {
+          "waktu": "11.30 - 12.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "13.00 - 14.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "14.30 - 15.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "16.00 - 17.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "17.15 - 18.30",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "18.45 - 20.00",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        }
+      ]
+    },
+    {
+      "no": 8,
+      "nama": "SITI",
+      "mapel": "INGGRIS",
+      "slots": [
+        {
+          "waktu": "11.30 - 12.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "13.00 - 14.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "14.30 - 15.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "16.00 - 17.15",
+          "isAvailable": true,
+          "jenjang": [
+            "SD",
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "17.15 - 18.30",
+          "isAvailable": true,
+          "jenjang": [
+            "SD",
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "18.45 - 20.00",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        }
+      ]
+    },
+    {
+      "no": 9,
+      "nama": "Isma Salsabila",
+      "mapel": "MTK",
+      "slots": [
+        {
+          "waktu": "11.30 - 12.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "13.00 - 14.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "14.30 - 15.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "16.00 - 17.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "17.15 - 18.30",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "18.45 - 20.00",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        }
+      ]
+    },
+    {
+      "no": 10,
+      "nama": "Resha Robiatul AJ",
+      "mapel": "MTK",
+      "slots": [
+        {
+          "waktu": "13.00 - 14.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "14.30 - 15.45",
+          "isAvailable": true,
+          "jenjang": [
+            "SMP"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "16.00- 17.15",
+          "isAvailable": true,
+          "jenjang": [
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "17.15 - 18.30",
+          "isAvailable": true,
+          "jenjang": [
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "18.45 - 20.00",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        }
+      ]
+    },
+    {
+      "no": 11,
+      "nama": "Vickry",
+      "mapel": "MTK",
+      "slots": [
+        {
+          "waktu": "13.00 - 14.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "14.30 - 15.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "16.00- 17.15",
+          "isAvailable": true,
+          "jenjang": [
+            "SD",
+            "SMP"
+          ],
+          "kelas": [
+            "Reguler"
+          ]
+        },
+        {
+          "waktu": "17.15 - 18.30",
+          "isAvailable": true,
+          "jenjang": [
+            "SD",
+            "SMP"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "18.45 - 20.00",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        }
+      ]
+    },
+    {
+      "no": 12,
+      "nama": "Ahmad Faizun",
+      "mapel": "MTK",
+      "slots": [
+        {
+          "waktu": "13.00 - 14.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "14.30 - 15.45",
+          "isAvailable": true,
+          "jenjang": [
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler"
+          ]
+        },
+        {
+          "waktu": "16.00- 17.15",
+          "isAvailable": true,
+          "jenjang": [
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler"
+          ]
+        },
+        {
+          "waktu": "17.15 - 18.30",
+          "isAvailable": true,
+          "jenjang": [
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler"
+          ]
+        },
+        {
+          "waktu": "18.45 - 20.00",
+          "isAvailable": true,
+          "jenjang": [
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler"
+          ]
+        }
+      ]
+    },
+    {
+      "no": 13,
+      "nama": "Resti Lestari",
+      "mapel": "MTK",
+      "slots": [
+        {
+          "waktu": "13.00 - 14.15",
+          "isAvailable": true,
+          "jenjang": [
+            "SD",
+            "SMP"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "14.30 - 15.45",
+          "isAvailable": true,
+          "jenjang": [
+            "SD",
+            "SMP"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "16.00- 17.15",
+          "isAvailable": true,
+          "jenjang": [
+            "SD",
+            "SMP"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "17.15 - 18.30",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "18.45 - 20.00",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        }
+      ]
+    },
+    {
+      "no": 14,
+      "nama": "Kamila Amelia Hafifah",
+      "mapel": "B.INDO",
+      "slots": [
+        {
+          "waktu": "13.00 - 14.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "14.30 - 15.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "16.00- 17.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "17.15 - 18.30",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "18.45 - 20.00",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        }
+      ]
+    },
+    {
+      "no": 15,
+      "nama": "Alifa Yustianisa",
+      "mapel": "INDO",
+      "slots": [
+        {
+          "waktu": "13.00 - 14.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "14.30 - 15.45",
+          "isAvailable": true,
+          "jenjang": [
+            "SD",
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "16.00- 17.15",
+          "isAvailable": true,
+          "jenjang": [
+            "SD",
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "17.15 - 18.30",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "18.45 - 20.00",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        }
+      ]
+    },
+    {
+      "no": 16,
+      "nama": "Nurul Rahmawati",
+      "mapel": "INDO",
+      "slots": [
+        {
+          "waktu": "13.00 - 14.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "14.30 - 15.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "16.00- 17.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "17.15 - 18.30",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "18.45 - 20.00",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        }
+      ]
+    },
+    {
+      "no": 17,
+      "nama": "FAHMI IDRUS SALAM",
+      "mapel": "INDO",
+      "slots": [
+        {
+          "waktu": "13.00 - 14.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "14.30 - 15.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "16.00- 17.15",
+          "isAvailable": true,
+          "jenjang": [
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "17.15 - 18.30",
+          "isAvailable": true,
+          "jenjang": [
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "18.45 - 20.00",
+          "isAvailable": true,
+          "jenjang": [
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        }
+      ]
+    },
+    {
+      "no": 18,
+      "nama": "Acep Muhammad Abdullatif",
+      "mapel": "SOSIO",
+      "slots": [
+        {
+          "waktu": "13.00 - 14.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "14.30 - 15.45",
+          "isAvailable": true,
+          "jenjang": [],
+          "kelas": [
+            "Private"
+          ]
+        },
+        {
+          "waktu": "16.00- 17.15",
+          "isAvailable": true,
+          "jenjang": [],
+          "kelas": [
+            "Private"
+          ]
+        },
+        {
+          "waktu": "17.15 - 18.30",
+          "isAvailable": true,
+          "jenjang": [],
+          "kelas": [
+            "Private"
+          ]
+        },
+        {
+          "waktu": "18.45 - 20.00",
+          "isAvailable": true,
+          "jenjang": [],
+          "kelas": [
+            "Private"
+          ]
+        }
+      ]
+    },
+    {
+      "no": 19,
+      "nama": "Ira Rahayu Yunita",
+      "mapel": "SOSIO",
+      "slots": [
+        {
+          "waktu": "13.00 - 14.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "14.30 - 15.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "16.00- 17.15",
+          "isAvailable": true,
+          "jenjang": [
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "17.15 - 18.30",
+          "isAvailable": true,
+          "jenjang": [
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "18.45 - 20.00",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        }
+      ]
+    },
+    {
+      "no": 20,
+      "nama": "Selva Ayuni",
+      "mapel": "AKUNTANSI",
+      "slots": [
+        {
+          "waktu": "13.00 - 14.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "14.30 - 15.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "16.00- 17.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "17.15 - 18.30",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "18.45 - 20.00",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        }
+      ]
+    },
+    {
+      "no": 21,
+      "nama": "Selva Ayuni",
+      "mapel": "EKO",
+      "slots": [
+        {
+          "waktu": "13.00 - 14.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "14.30 - 15.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "16.00- 17.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "17.15 - 18.30",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "18.45 - 20.00",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        }
+      ]
+    },
+    {
+      "no": 22,
+      "nama": "ASIFA",
+      "mapel": "EKO",
+      "slots": [
+        {
+          "waktu": "13.00 - 14.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "14.30 - 15.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "16.00- 17.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "17.15 - 18.30",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "18.45 - 20.00",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        }
+      ]
+    },
+    {
+      "no": 23,
+      "nama": "Ira Rahayu Yunita",
+      "mapel": "GEO",
+      "slots": [
+        {
+          "waktu": "13.00 - 14.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "14.30 - 15.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "16.00- 17.15",
+          "isAvailable": true,
+          "jenjang": [
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "17.15 - 18.30",
+          "isAvailable": true,
+          "jenjang": [
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "18.45 - 20.00",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        }
+      ]
+    },
+    {
+      "no": 24,
+      "nama": "Diana Vijar Mutiara",
+      "mapel": "FISIKA",
+      "slots": [
+        {
+          "waktu": "11.30 - 12.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "13.00 - 14.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "14.30 - 15.45",
+          "isAvailable": true,
+          "jenjang": [
+            "SMA"
+          ],
+          "kelas": []
+        },
+        {
+          "waktu": "16.00 - 17.15",
+          "isAvailable": true,
+          "jenjang": [
+            "SMA"
+          ],
+          "kelas": []
+        },
+        {
+          "waktu": "17.15 - 18.30",
+          "isAvailable": true,
+          "jenjang": [
+            "SMA"
+          ],
+          "kelas": []
+        },
+        {
+          "waktu": "18.45 - 20.00",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        }
+      ]
+    },
+    {
+      "no": 25,
+      "nama": "ASIFA",
+      "mapel": "IPA",
+      "slots": [
+        {
+          "waktu": "11.30 - 12.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "13.00 - 14.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "14.30 - 15.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "16.00 - 17.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "17.15 - 18.30",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "18.45 - 20.00",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        }
+      ]
+    },
+    {
+      "no": 26,
+      "nama": "AYUNI",
+      "mapel": "KIMIA",
+      "slots": [
+        {
+          "waktu": "11.30 - 12.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "13.00 - 14.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "14.30 - 15.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "16.00 - 17.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "17.15 - 18.30",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "18.45 - 20.00",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        }
+      ]
+    },
+    {
+      "no": 27,
+      "nama": "HARRIS",
+      "mapel": "BIOLOGI",
+      "slots": [
+        {
+          "waktu": "11.30 - 12.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "13.00 - 14.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "14.30 - 15.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "16.00 - 17.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "17.15 - 18.30",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "18.45 - 20.00",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        }
+      ]
+    }
+  ],
+  "SELASA": [
+    {
+      "no": 1,
+      "nama": "Muhammad Zaki",
+      "mapel": "INGGRIS",
+      "slots": [
+        {
+          "waktu": "13.00 - 14.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "14.30 - 15.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "16.00- 17.15",
+          "isAvailable": true,
+          "jenjang": [
+            "SD",
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "17.15 - 18.30",
+          "isAvailable": true,
+          "jenjang": [
+            "SD",
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "18.45 - 20.00",
+          "isAvailable": true,
+          "jenjang": [
+            "SD",
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        }
+      ]
+    },
+    {
+      "no": 2,
+      "nama": "Acep Muhammad Abdullatif",
+      "mapel": "INGGRIS",
+      "slots": [
+        {
+          "waktu": "13.00 - 14.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "14.30 - 15.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "16.00- 17.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "17.15 - 18.30",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "18.45 - 20.00",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        }
+      ]
+    },
+    {
+      "no": 3,
+      "nama": "Rinda Permata Sari",
+      "mapel": "INGGRIS",
+      "slots": [
+        {
+          "waktu": "13.00 - 14.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "14.30 - 15.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "16.00- 17.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "17.15 - 18.30",
+          "isAvailable": true,
+          "jenjang": [
+            "SD",
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler"
+          ]
+        },
+        {
+          "waktu": "18.45 - 20.00",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        }
+      ]
+    },
+    {
+      "no": 5,
+      "nama": "Fina Levina Sahira",
+      "mapel": "INGGRIS",
+      "slots": [
+        {
+          "waktu": "11.30 - 12.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "13.00 - 14.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "14.30 - 15.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "16.00 - 17.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "17.15 - 18.30",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "18.45 - 20.00",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        }
+      ]
+    },
+    {
+      "no": 6,
+      "nama": "Ainy",
+      "mapel": "INGGRIS",
+      "slots": [
+        {
+          "waktu": "11.30 - 12.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "13.00 - 14.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "14.30 - 15.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "16.00 - 17.15",
+          "isAvailable": true,
+          "jenjang": [
+            "SD",
+            "SMP"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "17.15 - 18.30",
+          "isAvailable": true,
+          "jenjang": [
+            "SD",
+            "SMP"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "18.45 - 20.00",
+          "isAvailable": true,
+          "jenjang": [
+            "SD",
+            "SMP"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        }
+      ]
+    },
+    {
+      "no": 7,
+      "nama": "DAMAR",
+      "mapel": "INGGRIS",
+      "slots": [
+        {
+          "waktu": "11.30 - 12.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "13.00 - 14.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "14.30 - 15.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "16.00 - 17.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "17.15 - 18.30",
+          "isAvailable": true,
+          "jenjang": [
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler"
+          ]
+        },
+        {
+          "waktu": "18.45 - 20.00",
+          "isAvailable": true,
+          "jenjang": [
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler"
+          ]
+        }
+      ]
+    },
+    {
+      "no": 8,
+      "nama": "SITI",
+      "mapel": "INGGRIS",
+      "slots": [
+        {
+          "waktu": "11.30 - 12.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "13.00 - 14.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "14.30 - 15.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "16.00 - 17.15",
+          "isAvailable": true,
+          "jenjang": [
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "17.15 - 18.30",
+          "isAvailable": true,
+          "jenjang": [
+            "SD",
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "18.45 - 20.00",
+          "isAvailable": true,
+          "jenjang": [
+            "SMP"
+          ],
+          "kelas": []
+        }
+      ]
+    },
+    {
+      "no": 9,
+      "nama": "Isma Salsabila",
+      "mapel": "MTK",
+      "slots": [
+        {
+          "waktu": "11.30 - 12.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "13.00 - 14.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "14.30 - 15.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "16.00 - 17.15",
+          "isAvailable": true,
+          "jenjang": [
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "17.15 - 18.30",
+          "isAvailable": true,
+          "jenjang": [
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "18.45 - 20.00",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        }
+      ]
+    },
+    {
+      "no": 10,
+      "nama": "Resha Robiatul AJ",
+      "mapel": "MTK",
+      "slots": [
+        {
+          "waktu": "13.00 - 14.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "14.30 - 15.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "16.00- 17.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "17.15 - 18.30",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "18.45 - 20.00",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        }
+      ]
+    },
+    {
+      "no": 11,
+      "nama": "Vickry",
+      "mapel": "MTK",
+      "slots": [
+        {
+          "waktu": "13.00 - 14.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "14.30 - 15.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "16.00- 17.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "17.15 - 18.30",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "18.45 - 20.00",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        }
+      ]
+    },
+    {
+      "no": 12,
+      "nama": "Ahmad Faizun",
+      "mapel": "MTK",
+      "slots": [
+        {
+          "waktu": "13.00 - 14.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "14.30 - 15.45",
+          "isAvailable": true,
+          "jenjang": [
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler"
+          ]
+        },
+        {
+          "waktu": "16.00- 17.15",
+          "isAvailable": true,
+          "jenjang": [
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler"
+          ]
+        },
+        {
+          "waktu": "17.15 - 18.30",
+          "isAvailable": true,
+          "jenjang": [
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler"
+          ]
+        },
+        {
+          "waktu": "18.45 - 20.00",
+          "isAvailable": true,
+          "jenjang": [
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler"
+          ]
+        }
+      ]
+    },
+    {
+      "no": 13,
+      "nama": "Resti Lestari",
+      "mapel": "MTK",
+      "slots": [
+        {
+          "waktu": "13.00 - 14.15",
+          "isAvailable": true,
+          "jenjang": [
+            "SD",
+            "SMP"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "14.30 - 15.45",
+          "isAvailable": true,
+          "jenjang": [
+            "SD",
+            "SMP"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "16.00- 17.15",
+          "isAvailable": true,
+          "jenjang": [
+            "SD",
+            "SMP"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "17.15 - 18.30",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "18.45 - 20.00",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        }
+      ]
+    },
+    {
+      "no": 14,
+      "nama": "Kamila Amelia Hafifah",
+      "mapel": "B.INDO",
+      "slots": [
+        {
+          "waktu": "13.00 - 14.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "14.30 - 15.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "16.00- 17.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "17.15 - 18.30",
+          "isAvailable": true,
+          "jenjang": [
+            "SD",
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "18.45 - 20.00",
+          "isAvailable": true,
+          "jenjang": [
+            "SD",
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        }
+      ]
+    },
+    {
+      "no": 15,
+      "nama": "Alifa Yustianisa",
+      "mapel": "INDO",
+      "slots": [
+        {
+          "waktu": "13.00 - 14.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "14.30 - 15.45",
+          "isAvailable": true,
+          "jenjang": [
+            "SD",
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "16.00- 17.15",
+          "isAvailable": true,
+          "jenjang": [
+            "SD",
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "17.15 - 18.30",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "18.45 - 20.00",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        }
+      ]
+    },
+    {
+      "no": 16,
+      "nama": "Nurul Rahmawati",
+      "mapel": "INDO",
+      "slots": [
+        {
+          "waktu": "13.00 - 14.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "14.30 - 15.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "16.00- 17.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "17.15 - 18.30",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "18.45 - 20.00",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        }
+      ]
+    },
+    {
+      "no": 17,
+      "nama": "FAHMI IDRUS SALAM",
+      "mapel": "INDO",
+      "slots": [
+        {
+          "waktu": "13.00 - 14.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "14.30 - 15.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "16.00- 17.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "17.15 - 18.30",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "18.45 - 20.00",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        }
+      ]
+    },
+    {
+      "no": 18,
+      "nama": "Acep Muhammad Abdullatif",
+      "mapel": "SOSIO",
+      "slots": [
+        {
+          "waktu": "13.00 - 14.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "14.30 - 15.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "16.00- 17.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "17.15 - 18.30",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "18.45 - 20.00",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        }
+      ]
+    },
+    {
+      "no": 19,
+      "nama": "Ira Rahayu Yunita",
+      "mapel": "SOSIO",
+      "slots": [
+        {
+          "waktu": "13.00 - 14.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "14.30 - 15.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "16.00- 17.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "17.15 - 18.30",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "18.45 - 20.00",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        }
+      ]
+    },
+    {
+      "no": 20,
+      "nama": "Selva Ayuni",
+      "mapel": "AKUNTANSI",
+      "slots": [
+        {
+          "waktu": "13.00 - 14.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "14.30 - 15.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "16.00- 17.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "17.15 - 18.30",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "18.45 - 20.00",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        }
+      ]
+    },
+    {
+      "no": 21,
+      "nama": "Selva Ayuni",
+      "mapel": "EKO",
+      "slots": [
+        {
+          "waktu": "13.00 - 14.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "14.30 - 15.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "16.00- 17.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "17.15 - 18.30",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "18.45 - 20.00",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        }
+      ]
+    },
+    {
+      "no": 22,
+      "nama": "ASIFA",
+      "mapel": "EKO",
+      "slots": [
+        {
+          "waktu": "13.00 - 14.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "14.30 - 15.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "16.00- 17.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "17.15 - 18.30",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "18.45 - 20.00",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        }
+      ]
+    },
+    {
+      "no": 23,
+      "nama": "Ira Rahayu Yunita",
+      "mapel": "GEO",
+      "slots": [
+        {
+          "waktu": "13.00 - 14.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "14.30 - 15.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "16.00- 17.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "17.15 - 18.30",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "18.45 - 20.00",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        }
+      ]
+    },
+    {
+      "no": 24,
+      "nama": "Diana Vijar Mutiara",
+      "mapel": "FISIKA",
+      "slots": [
+        {
+          "waktu": "11.30 - 12.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "13.00 - 14.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "14.30 - 15.45",
+          "isAvailable": true,
+          "jenjang": [
+            "SMA"
+          ],
+          "kelas": []
+        },
+        {
+          "waktu": "16.00 - 17.15",
+          "isAvailable": true,
+          "jenjang": [
+            "SMA"
+          ],
+          "kelas": []
+        },
+        {
+          "waktu": "17.15 - 18.30",
+          "isAvailable": true,
+          "jenjang": [
+            "SMA"
+          ],
+          "kelas": []
+        },
+        {
+          "waktu": "18.45 - 20.00",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        }
+      ]
+    },
+    {
+      "no": 25,
+      "nama": "ASIFA",
+      "mapel": "IPA",
+      "slots": [
+        {
+          "waktu": "11.30 - 12.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "13.00 - 14.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "14.30 - 15.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "16.00 - 17.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "17.15 - 18.30",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "18.45 - 20.00",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        }
+      ]
+    },
+    {
+      "no": 26,
+      "nama": "AYUNI",
+      "mapel": "KIMIA",
+      "slots": [
+        {
+          "waktu": "11.30 - 12.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "13.00 - 14.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "14.30 - 15.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "16.00 - 17.15",
+          "isAvailable": true,
+          "jenjang": [
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler"
+          ]
+        },
+        {
+          "waktu": "17.15 - 18.30",
+          "isAvailable": true,
+          "jenjang": [
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler"
+          ]
+        },
+        {
+          "waktu": "18.45 - 20.00",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        }
+      ]
+    },
+    {
+      "no": 27,
+      "nama": "HARRIS",
+      "mapel": "BIOLOGI",
+      "slots": [
+        {
+          "waktu": "11.30 - 12.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "13.00 - 14.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "14.30 - 15.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "16.00 - 17.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "17.15 - 18.30",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "18.45 - 20.00",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        }
+      ]
+    }
+  ],
+  "RABU": [
+    {
+      "no": 1,
+      "nama": "Muhammad Zaki",
+      "mapel": "INGGRIS",
+      "slots": [
+        {
+          "waktu": "13.00 - 14.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "14.30 - 15.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "16.00- 17.15",
+          "isAvailable": true,
+          "jenjang": [
+            "SD",
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "17.15 - 18.30",
+          "isAvailable": true,
+          "jenjang": [
+            "SD",
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "18.45 - 20.00",
+          "isAvailable": true,
+          "jenjang": [
+            "SD",
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        }
+      ]
+    },
+    {
+      "no": 2,
+      "nama": "Acep Muhammad Abdullatif",
+      "mapel": "INGGRIS",
+      "slots": [
+        {
+          "waktu": "13.00 - 14.15",
+          "isAvailable": true,
+          "jenjang": [
+            "SD",
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "14.30 - 15.45",
+          "isAvailable": true,
+          "jenjang": [
+            "SD",
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "16.00- 17.15",
+          "isAvailable": true,
+          "jenjang": [
+            "SD",
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "17.15 - 18.30",
+          "isAvailable": true,
+          "jenjang": [
+            "SD",
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "18.45 - 20.00",
+          "isAvailable": true,
+          "jenjang": [
+            "SD",
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        }
+      ]
+    },
+    {
+      "no": 3,
+      "nama": "Rinda Permata Sari",
+      "mapel": "INGGRIS",
+      "slots": [
+        {
+          "waktu": "13.00 - 14.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "14.30 - 15.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "16.00- 17.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "17.15 - 18.30",
+          "isAvailable": true,
+          "jenjang": [
+            "SD",
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler"
+          ]
+        },
+        {
+          "waktu": "18.45 - 20.00",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        }
+      ]
+    },
+    {
+      "no": 5,
+      "nama": "Fina Levina Sahira",
+      "mapel": "INGGRIS",
+      "slots": [
+        {
+          "waktu": "11.30 - 12.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "13.00 - 14.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "14.30 - 15.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "16.00 - 17.15",
+          "isAvailable": true,
+          "jenjang": [
+            "SD",
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "17.15 - 18.30",
+          "isAvailable": true,
+          "jenjang": [
+            "SD",
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "18.45 - 20.00",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        }
+      ]
+    },
+    {
+      "no": 6,
+      "nama": "Ainy",
+      "mapel": "INGGRIS",
+      "slots": [
+        {
+          "waktu": "11.30 - 12.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "13.00 - 14.15",
+          "isAvailable": true,
+          "jenjang": [
+            "SD",
+            "SMP"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "14.30 - 15.45",
+          "isAvailable": true,
+          "jenjang": [
+            "SD",
+            "SMP"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "16.00 - 17.15",
+          "isAvailable": true,
+          "jenjang": [
+            "SD",
+            "SMP"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "17.15 - 18.30",
+          "isAvailable": true,
+          "jenjang": [
+            "SD",
+            "SMP"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "18.45 - 20.00",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        }
+      ]
+    },
+    {
+      "no": 7,
+      "nama": "DAMAR",
+      "mapel": "INGGRIS",
+      "slots": [
+        {
+          "waktu": "11.30 - 12.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "13.00 - 14.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "14.30 - 15.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "16.00 - 17.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "17.15 - 18.30",
+          "isAvailable": true,
+          "jenjang": [
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler"
+          ]
+        },
+        {
+          "waktu": "18.45 - 20.00",
+          "isAvailable": true,
+          "jenjang": [
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler"
+          ]
+        }
+      ]
+    },
+    {
+      "no": 8,
+      "nama": "SITI",
+      "mapel": "INGGRIS",
+      "slots": [
+        {
+          "waktu": "11.30 - 12.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "13.00 - 14.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "14.30 - 15.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "16.00 - 17.15",
+          "isAvailable": true,
+          "jenjang": [
+            "SD",
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "17.15 - 18.30",
+          "isAvailable": true,
+          "jenjang": [
+            "SD",
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "18.45 - 20.00",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        }
+      ]
+    },
+    {
+      "no": 9,
+      "nama": "Isma Salsabila",
+      "mapel": "MTK",
+      "slots": [
+        {
+          "waktu": "11.30 - 12.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "13.00 - 14.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "14.30 - 15.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "16.00 - 17.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "17.15 - 18.30",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "18.45 - 20.00",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        }
+      ]
+    },
+    {
+      "no": 10,
+      "nama": "Resha Robiatul AJ",
+      "mapel": "MTK",
+      "slots": [
+        {
+          "waktu": "13.00 - 14.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "14.30 - 15.45",
+          "isAvailable": true,
+          "jenjang": [
+            "SMP"
+          ],
+          "kelas": [
+            "Reguler"
+          ]
+        },
+        {
+          "waktu": "16.00- 17.15",
+          "isAvailable": true,
+          "jenjang": [
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler"
+          ]
+        },
+        {
+          "waktu": "17.15 - 18.30",
+          "isAvailable": true,
+          "jenjang": [
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler"
+          ]
+        },
+        {
+          "waktu": "18.45 - 20.00",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        }
+      ]
+    },
+    {
+      "no": 11,
+      "nama": "Vickry",
+      "mapel": "MTK",
+      "slots": [
+        {
+          "waktu": "13.00 - 14.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "14.30 - 15.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "16.00- 17.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "17.15 - 18.30",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "18.45 - 20.00",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        }
+      ]
+    },
+    {
+      "no": 12,
+      "nama": "Ahmad Faizun",
+      "mapel": "MTK",
+      "slots": [
+        {
+          "waktu": "13.00 - 14.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "14.30 - 15.45",
+          "isAvailable": true,
+          "jenjang": [
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler"
+          ]
+        },
+        {
+          "waktu": "16.00- 17.15",
+          "isAvailable": true,
+          "jenjang": [
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler"
+          ]
+        },
+        {
+          "waktu": "17.15 - 18.30",
+          "isAvailable": true,
+          "jenjang": [
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler"
+          ]
+        },
+        {
+          "waktu": "18.45 - 20.00",
+          "isAvailable": true,
+          "jenjang": [
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler"
+          ]
+        }
+      ]
+    },
+    {
+      "no": 13,
+      "nama": "Resti Lestari",
+      "mapel": "MTK",
+      "slots": [
+        {
+          "waktu": "13.00 - 14.15",
+          "isAvailable": true,
+          "jenjang": [
+            "SD",
+            "SMP"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "14.30 - 15.45",
+          "isAvailable": true,
+          "jenjang": [
+            "SD",
+            "SMP"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "16.00- 17.15",
+          "isAvailable": true,
+          "jenjang": [
+            "SD",
+            "SMP"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "17.15 - 18.30",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "18.45 - 20.00",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        }
+      ]
+    },
+    {
+      "no": 14,
+      "nama": "Kamila Amelia Hafifah",
+      "mapel": "B.INDO",
+      "slots": [
+        {
+          "waktu": "13.00 - 14.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "14.30 - 15.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "16.00- 17.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "17.15 - 18.30",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "18.45 - 20.00",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        }
+      ]
+    },
+    {
+      "no": 15,
+      "nama": "Alifa Yustianisa",
+      "mapel": "INDO",
+      "slots": [
+        {
+          "waktu": "13.00 - 14.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "14.30 - 15.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "16.00- 17.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "17.15 - 18.30",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "18.45 - 20.00",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        }
+      ]
+    },
+    {
+      "no": 16,
+      "nama": "Nurul Rahmawati",
+      "mapel": "INDO",
+      "slots": [
+        {
+          "waktu": "13.00 - 14.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "14.30 - 15.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "16.00- 17.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "17.15 - 18.30",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "18.45 - 20.00",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        }
+      ]
+    },
+    {
+      "no": 17,
+      "nama": "FAHMI IDRUS SALAM",
+      "mapel": "INDO",
+      "slots": [
+        {
+          "waktu": "13.00 - 14.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "14.30 - 15.45",
+          "isAvailable": true,
+          "jenjang": [
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "16.00- 17.15",
+          "isAvailable": true,
+          "jenjang": [
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "17.15 - 18.30",
+          "isAvailable": true,
+          "jenjang": [
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "18.45 - 20.00",
+          "isAvailable": true,
+          "jenjang": [
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        }
+      ]
+    },
+    {
+      "no": 18,
+      "nama": "Acep Muhammad Abdullatif",
+      "mapel": "SOSIO",
+      "slots": [
+        {
+          "waktu": "13.00 - 14.15",
+          "isAvailable": true,
+          "jenjang": [
+            "SD",
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "14.30 - 15.45",
+          "isAvailable": true,
+          "jenjang": [
+            "SD",
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "16.00- 17.15",
+          "isAvailable": true,
+          "jenjang": [
+            "SD",
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "17.15 - 18.30",
+          "isAvailable": true,
+          "jenjang": [
+            "SD",
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "18.45 - 20.00",
+          "isAvailable": true,
+          "jenjang": [
+            "SD",
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        }
+      ]
+    },
+    {
+      "no": 19,
+      "nama": "Ira Rahayu Yunita",
+      "mapel": "SOSIO",
+      "slots": [
+        {
+          "waktu": "13.00 - 14.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "14.30 - 15.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "16.00- 17.15",
+          "isAvailable": true,
+          "jenjang": [
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "17.15 - 18.30",
+          "isAvailable": true,
+          "jenjang": [
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "18.45 - 20.00",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        }
+      ]
+    },
+    {
+      "no": 20,
+      "nama": "Selva Ayuni",
+      "mapel": "AKUNTANSI",
+      "slots": [
+        {
+          "waktu": "13.00 - 14.15",
+          "isAvailable": true,
+          "jenjang": [
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "14.30 - 15.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "16.00- 17.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "17.15 - 18.30",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "18.45 - 20.00",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        }
+      ]
+    },
+    {
+      "no": 21,
+      "nama": "Selva Ayuni",
+      "mapel": "EKO",
+      "slots": [
+        {
+          "waktu": "13.00 - 14.15",
+          "isAvailable": true,
+          "jenjang": [
+            "SMP"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "14.30 - 15.45",
+          "isAvailable": true,
+          "jenjang": [
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "16.00- 17.15",
+          "isAvailable": true,
+          "jenjang": [
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "17.15 - 18.30",
+          "isAvailable": true,
+          "jenjang": [
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "18.45 - 20.00",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        }
+      ]
+    },
+    {
+      "no": 22,
+      "nama": "ASIFA",
+      "mapel": "EKO",
+      "slots": [
+        {
+          "waktu": "13.00 - 14.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "14.30 - 15.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "16.00- 17.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "17.15 - 18.30",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "18.45 - 20.00",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        }
+      ]
+    },
+    {
+      "no": 23,
+      "nama": "Ira Rahayu Yunita",
+      "mapel": "GEO",
+      "slots": [
+        {
+          "waktu": "13.00 - 14.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "14.30 - 15.45",
+          "isAvailable": true,
+          "jenjang": [
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "16.00- 17.15",
+          "isAvailable": true,
+          "jenjang": [
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "17.15 - 18.30",
+          "isAvailable": true,
+          "jenjang": [
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "18.45 - 20.00",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        }
+      ]
+    },
+    {
+      "no": 24,
+      "nama": "Diana Vijar Mutiara",
+      "mapel": "FISIKA",
+      "slots": [
+        {
+          "waktu": "11.30 - 12.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "13.00 - 14.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "14.30 - 15.45",
+          "isAvailable": true,
+          "jenjang": [
+            "SMA"
+          ],
+          "kelas": []
+        },
+        {
+          "waktu": "16.00 - 17.15",
+          "isAvailable": true,
+          "jenjang": [
+            "SMA"
+          ],
+          "kelas": []
+        },
+        {
+          "waktu": "17.15 - 18.30",
+          "isAvailable": true,
+          "jenjang": [
+            "SMA"
+          ],
+          "kelas": []
+        },
+        {
+          "waktu": "18.45 - 20.00",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        }
+      ]
+    },
+    {
+      "no": 25,
+      "nama": "ASIFA",
+      "mapel": "IPA",
+      "slots": [
+        {
+          "waktu": "11.30 - 12.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "13.00 - 14.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "14.30 - 15.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "16.00 - 17.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "17.15 - 18.30",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "18.45 - 20.00",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        }
+      ]
+    },
+    {
+      "no": 26,
+      "nama": "AYUNI",
+      "mapel": "KIMIA",
+      "slots": [
+        {
+          "waktu": "11.30 - 12.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "13.00 - 14.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "14.30 - 15.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "16.00 - 17.15",
+          "isAvailable": true,
+          "jenjang": [
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler"
+          ]
+        },
+        {
+          "waktu": "17.15 - 18.30",
+          "isAvailable": true,
+          "jenjang": [
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler"
+          ]
+        },
+        {
+          "waktu": "18.45 - 20.00",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        }
+      ]
+    },
+    {
+      "no": 27,
+      "nama": "HARRIS",
+      "mapel": "BIOLOGI",
+      "slots": [
+        {
+          "waktu": "11.30 - 12.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "13.00 - 14.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "14.30 - 15.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "16.00 - 17.15",
+          "isAvailable": true,
+          "jenjang": [
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler"
+          ]
+        },
+        {
+          "waktu": "17.15 - 18.30",
+          "isAvailable": true,
+          "jenjang": [
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler"
+          ]
+        },
+        {
+          "waktu": "18.45 - 20.00",
+          "isAvailable": true,
+          "jenjang": [
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler"
+          ]
+        }
+      ]
+    }
+  ],
+  "KAMIS": [
+    {
+      "no": 1,
+      "nama": "Muhammad Zaki",
+      "mapel": "INGGRIS",
+      "slots": [
+        {
+          "waktu": "13.00 - 14.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "14.30 - 15.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "16.00- 17.15",
+          "isAvailable": true,
+          "jenjang": [
+            "SD",
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "17.15 - 18.30",
+          "isAvailable": true,
+          "jenjang": [
+            "SD",
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "18.45 - 20.00",
+          "isAvailable": true,
+          "jenjang": [
+            "SD",
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        }
+      ]
+    },
+    {
+      "no": 2,
+      "nama": "Acep Muhammad Abdullatif",
+      "mapel": "INGGRIS",
+      "slots": [
+        {
+          "waktu": "13.00 - 14.15",
+          "isAvailable": true,
+          "jenjang": [
+            "SD",
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "14.30 - 15.45",
+          "isAvailable": true,
+          "jenjang": [
+            "SD",
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "16.00- 17.15",
+          "isAvailable": true,
+          "jenjang": [
+            "SD",
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "17.15 - 18.30",
+          "isAvailable": true,
+          "jenjang": [
+            "SD",
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "18.45 - 20.00",
+          "isAvailable": true,
+          "jenjang": [
+            "SD",
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        }
+      ]
+    },
+    {
+      "no": 3,
+      "nama": "Rinda Permata Sari",
+      "mapel": "INGGRIS",
+      "slots": [
+        {
+          "waktu": "13.00 - 14.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "14.30 - 15.45",
+          "isAvailable": true,
+          "jenjang": [
+            "SD",
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler"
+          ]
+        },
+        {
+          "waktu": "16.00- 17.15",
+          "isAvailable": true,
+          "jenjang": [
+            "SD",
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler"
+          ]
+        },
+        {
+          "waktu": "17.15 - 18.30",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "18.45 - 20.00",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        }
+      ]
+    },
+    {
+      "no": 5,
+      "nama": "Fina Levina Sahira",
+      "mapel": "INGGRIS",
+      "slots": [
+        {
+          "waktu": "11.30 - 12.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "13.00 - 14.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "14.30 - 15.45",
+          "isAvailable": true,
+          "jenjang": [
+            "SD",
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "16.00 - 17.15",
+          "isAvailable": true,
+          "jenjang": [
+            "SD",
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "17.15 - 18.30",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "18.45 - 20.00",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        }
+      ]
+    },
+    {
+      "no": 6,
+      "nama": "Ainy",
+      "mapel": "INGGRIS",
+      "slots": [
+        {
+          "waktu": "11.30 - 12.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "13.00 - 14.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "14.30 - 15.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "16.00 - 17.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "17.15 - 18.30",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "18.45 - 20.00",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        }
+      ]
+    },
+    {
+      "no": 7,
+      "nama": "DAMAR",
+      "mapel": "INGGRIS",
+      "slots": [
+        {
+          "waktu": "11.30 - 12.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "13.00 - 14.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "14.30 - 15.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "16.00 - 17.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "17.15 - 18.30",
+          "isAvailable": true,
+          "jenjang": [],
+          "kelas": [
+            "Reguler"
+          ]
+        },
+        {
+          "waktu": "18.45 - 20.00",
+          "isAvailable": true,
+          "jenjang": [
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler"
+          ]
+        }
+      ]
+    },
+    {
+      "no": 8,
+      "nama": "SITI",
+      "mapel": "INGGRIS",
+      "slots": [
+        {
+          "waktu": "11.30 - 12.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "13.00 - 14.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "14.30 - 15.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "16.00 - 17.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "17.15 - 18.30",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "18.45 - 20.00",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        }
+      ]
+    },
+    {
+      "no": 9,
+      "nama": "Isma Salsabila",
+      "mapel": "MTK",
+      "slots": [
+        {
+          "waktu": "11.30 - 12.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "13.00 - 14.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "14.30 - 15.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "16.00 - 17.15",
+          "isAvailable": true,
+          "jenjang": [
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "17.15 - 18.30",
+          "isAvailable": true,
+          "jenjang": [
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "18.45 - 20.00",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        }
+      ]
+    },
+    {
+      "no": 10,
+      "nama": "Resha Robiatul AJ",
+      "mapel": "MTK",
+      "slots": [
+        {
+          "waktu": "13.00 - 14.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "14.30 - 15.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "16.00- 17.15",
+          "isAvailable": true,
+          "jenjang": [
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "17.15 - 18.30",
+          "isAvailable": true,
+          "jenjang": [
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "18.45 - 20.00",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        }
+      ]
+    },
+    {
+      "no": 11,
+      "nama": "Vickry",
+      "mapel": "MTK",
+      "slots": [
+        {
+          "waktu": "13.00 - 14.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "14.30 - 15.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "16.00- 17.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "17.15 - 18.30",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "18.45 - 20.00",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        }
+      ]
+    },
+    {
+      "no": 12,
+      "nama": "Ahmad Faizun",
+      "mapel": "MTK",
+      "slots": [
+        {
+          "waktu": "13.00 - 14.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "14.30 - 15.45",
+          "isAvailable": true,
+          "jenjang": [
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler"
+          ]
+        },
+        {
+          "waktu": "16.00- 17.15",
+          "isAvailable": true,
+          "jenjang": [
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler"
+          ]
+        },
+        {
+          "waktu": "17.15 - 18.30",
+          "isAvailable": true,
+          "jenjang": [
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler"
+          ]
+        },
+        {
+          "waktu": "18.45 - 20.00",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        }
+      ]
+    },
+    {
+      "no": 13,
+      "nama": "Resti Lestari",
+      "mapel": "MTK",
+      "slots": [
+        {
+          "waktu": "13.00 - 14.15",
+          "isAvailable": true,
+          "jenjang": [
+            "SD",
+            "SMP"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "14.30 - 15.45",
+          "isAvailable": true,
+          "jenjang": [
+            "SD",
+            "SMP"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "16.00- 17.15",
+          "isAvailable": true,
+          "jenjang": [
+            "SD",
+            "SMP"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "17.15 - 18.30",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "18.45 - 20.00",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        }
+      ]
+    },
+    {
+      "no": 14,
+      "nama": "Kamila Amelia Hafifah",
+      "mapel": "B.INDO",
+      "slots": [
+        {
+          "waktu": "13.00 - 14.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "14.30 - 15.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "16.00- 17.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "17.15 - 18.30",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "18.45 - 20.00",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        }
+      ]
+    },
+    {
+      "no": 15,
+      "nama": "Alifa Yustianisa",
+      "mapel": "INDO",
+      "slots": [
+        {
+          "waktu": "13.00 - 14.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "14.30 - 15.45",
+          "isAvailable": true,
+          "jenjang": [
+            "SD",
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "16.00- 17.15",
+          "isAvailable": true,
+          "jenjang": [
+            "SD",
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "17.15 - 18.30",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "18.45 - 20.00",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        }
+      ]
+    },
+    {
+      "no": 16,
+      "nama": "Nurul Rahmawati",
+      "mapel": "INDO",
+      "slots": [
+        {
+          "waktu": "13.00 - 14.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "14.30 - 15.45",
+          "isAvailable": true,
+          "jenjang": [
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "16.00- 17.15",
+          "isAvailable": true,
+          "jenjang": [
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "17.15 - 18.30",
+          "isAvailable": true,
+          "jenjang": [
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "18.45 - 20.00",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        }
+      ]
+    },
+    {
+      "no": 17,
+      "nama": "FAHMI IDRUS SALAM",
+      "mapel": "INDO",
+      "slots": [
+        {
+          "waktu": "13.00 - 14.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "14.30 - 15.45",
+          "isAvailable": true,
+          "jenjang": [
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "16.00- 17.15",
+          "isAvailable": true,
+          "jenjang": [
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "17.15 - 18.30",
+          "isAvailable": true,
+          "jenjang": [
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "18.45 - 20.00",
+          "isAvailable": true,
+          "jenjang": [
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        }
+      ]
+    },
+    {
+      "no": 18,
+      "nama": "Acep Muhammad Abdullatif",
+      "mapel": "SOSIO",
+      "slots": [
+        {
+          "waktu": "13.00 - 14.15",
+          "isAvailable": true,
+          "jenjang": [
+            "SD",
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "14.30 - 15.45",
+          "isAvailable": true,
+          "jenjang": [
+            "SD",
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "16.00- 17.15",
+          "isAvailable": true,
+          "jenjang": [
+            "SD",
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "17.15 - 18.30",
+          "isAvailable": true,
+          "jenjang": [
+            "SD",
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "18.45 - 20.00",
+          "isAvailable": true,
+          "jenjang": [
+            "SD",
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        }
+      ]
+    },
+    {
+      "no": 19,
+      "nama": "Ira Rahayu Yunita",
+      "mapel": "SOSIO",
+      "slots": [
+        {
+          "waktu": "13.00 - 14.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "14.30 - 15.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "16.00- 17.15",
+          "isAvailable": true,
+          "jenjang": [
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "17.15 - 18.30",
+          "isAvailable": true,
+          "jenjang": [
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "18.45 - 20.00",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        }
+      ]
+    },
+    {
+      "no": 20,
+      "nama": "Selva Ayuni",
+      "mapel": "AKUNTANSI",
+      "slots": [
+        {
+          "waktu": "13.00 - 14.15",
+          "isAvailable": true,
+          "jenjang": [
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "14.30 - 15.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "16.00- 17.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "17.15 - 18.30",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "18.45 - 20.00",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        }
+      ]
+    },
+    {
+      "no": 21,
+      "nama": "Selva Ayuni",
+      "mapel": "EKO",
+      "slots": [
+        {
+          "waktu": "13.00 - 14.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "14.30 - 15.45",
+          "isAvailable": true,
+          "jenjang": [
+            "SMP"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "16.00- 17.15",
+          "isAvailable": true,
+          "jenjang": [
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "17.15 - 18.30",
+          "isAvailable": true,
+          "jenjang": [
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "18.45 - 20.00",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        }
+      ]
+    },
+    {
+      "no": 22,
+      "nama": "ASIFA",
+      "mapel": "EKO",
+      "slots": [
+        {
+          "waktu": "13.00 - 14.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "14.30 - 15.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "16.00- 17.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "17.15 - 18.30",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "18.45 - 20.00",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        }
+      ]
+    },
+    {
+      "no": 23,
+      "nama": "Ira Rahayu Yunita",
+      "mapel": "GEO",
+      "slots": [
+        {
+          "waktu": "13.00 - 14.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "14.30 - 15.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "16.00- 17.15",
+          "isAvailable": true,
+          "jenjang": [
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "17.15 - 18.30",
+          "isAvailable": true,
+          "jenjang": [
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "18.45 - 20.00",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        }
+      ]
+    },
+    {
+      "no": 24,
+      "nama": "Diana Vijar Mutiara",
+      "mapel": "FISIKA",
+      "slots": [
+        {
+          "waktu": "11.30 - 12.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "13.00 - 14.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "14.30 - 15.45",
+          "isAvailable": true,
+          "jenjang": [
+            "SMA"
+          ],
+          "kelas": []
+        },
+        {
+          "waktu": "16.00 - 17.15",
+          "isAvailable": true,
+          "jenjang": [
+            "SMA"
+          ],
+          "kelas": []
+        },
+        {
+          "waktu": "17.15 - 18.30",
+          "isAvailable": true,
+          "jenjang": [
+            "SMA"
+          ],
+          "kelas": []
+        },
+        {
+          "waktu": "18.45 - 20.00",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        }
+      ]
+    },
+    {
+      "no": 25,
+      "nama": "ASIFA",
+      "mapel": "IPA",
+      "slots": [
+        {
+          "waktu": "11.30 - 12.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "13.00 - 14.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "14.30 - 15.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "16.00 - 17.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "17.15 - 18.30",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "18.45 - 20.00",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        }
+      ]
+    },
+    {
+      "no": 26,
+      "nama": "AYUNI",
+      "mapel": "KIMIA",
+      "slots": [
+        {
+          "waktu": "11.30 - 12.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "13.00 - 14.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "14.30 - 15.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "16.00 - 17.15",
+          "isAvailable": true,
+          "jenjang": [
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler"
+          ]
+        },
+        {
+          "waktu": "17.15 - 18.30",
+          "isAvailable": true,
+          "jenjang": [
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler"
+          ]
+        },
+        {
+          "waktu": "18.45 - 20.00",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        }
+      ]
+    },
+    {
+      "no": 27,
+      "nama": "HARRIS",
+      "mapel": "BIOLOGI",
+      "slots": [
+        {
+          "waktu": "11.30 - 12.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "13.00 - 14.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "14.30 - 15.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "16.00 - 17.15",
+          "isAvailable": true,
+          "jenjang": [
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler"
+          ]
+        },
+        {
+          "waktu": "17.15 - 18.30",
+          "isAvailable": true,
+          "jenjang": [
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler"
+          ]
+        },
+        {
+          "waktu": "18.45 - 20.00",
+          "isAvailable": true,
+          "jenjang": [
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler"
+          ]
+        }
+      ]
+    }
+  ],
+  "JUMAT": [
+    {
+      "no": 1,
+      "nama": "Muhammad Zaki",
+      "mapel": "INGGRIS",
+      "slots": [
+        {
+          "waktu": "11.30 - 12.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "13.00 - 14.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "14.30 - 15.45",
+          "isAvailable": true,
+          "jenjang": [
+            "SD",
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "16.00 - 17.15",
+          "isAvailable": true,
+          "jenjang": [
+            "SD",
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "17.15 - 18.30",
+          "isAvailable": true,
+          "jenjang": [
+            "SD",
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "18.45 - 20.00",
+          "isAvailable": true,
+          "jenjang": [
+            "SD",
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        }
+      ]
+    },
+    {
+      "no": 2,
+      "nama": "Acep Muhammad Abdullatif",
+      "mapel": "INGGRIS",
+      "slots": [
+        {
+          "waktu": "11.30 - 12.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "13.00 - 14.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "14.30 - 15.45",
+          "isAvailable": true,
+          "jenjang": [
+            "SD",
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "16.00 - 17.15",
+          "isAvailable": true,
+          "jenjang": [
+            "SD",
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "17.15 - 18.30",
+          "isAvailable": true,
+          "jenjang": [
+            "SD",
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "18.45 - 20.00",
+          "isAvailable": true,
+          "jenjang": [
+            "SD",
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        }
+      ]
+    },
+    {
+      "no": 3,
+      "nama": "Rinda Permata Sari",
+      "mapel": "INGGRIS",
+      "slots": [
+        {
+          "waktu": "11.30 - 12.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "13.00 - 14.15",
+          "isAvailable": true,
+          "jenjang": [
+            "SD",
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler"
+          ]
+        },
+        {
+          "waktu": "14.30 - 15.45",
+          "isAvailable": true,
+          "jenjang": [
+            "SD",
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler"
+          ]
+        },
+        {
+          "waktu": "16.00 - 17.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "17.15 - 18.30",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "18.45 - 20.00",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        }
+      ]
+    },
+    {
+      "no": 5,
+      "nama": "Fina Levina Sahira",
+      "mapel": "INGGRIS",
+      "slots": [
+        {
+          "waktu": "11.30 - 12.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "13.00 - 14.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "14.30 - 15.45",
+          "isAvailable": true,
+          "jenjang": [
+            "SD",
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "16.00 - 17.15",
+          "isAvailable": true,
+          "jenjang": [
+            "SD",
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "17.15 - 18.30",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "18.45 - 20.00",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        }
+      ]
+    },
+    {
+      "no": 6,
+      "nama": "Ainy",
+      "mapel": "INGGRIS",
+      "slots": [
+        {
+          "waktu": "11.30 - 12.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "13.00 - 14.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "14.30 - 15.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "16.00 - 17.15",
+          "isAvailable": true,
+          "jenjang": [
+            "SD",
+            "SMP"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "17.15 - 18.30",
+          "isAvailable": true,
+          "jenjang": [
+            "SD",
+            "SMP"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "18.45 - 20.00",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        }
+      ]
+    },
+    {
+      "no": 7,
+      "nama": "DAMAR",
+      "mapel": "INGGRIS",
+      "slots": [
+        {
+          "waktu": "11.30 - 12.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "13.00 - 14.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "14.30 - 15.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "16.00 - 17.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "17.15 - 18.30",
+          "isAvailable": true,
+          "jenjang": [
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler"
+          ]
+        },
+        {
+          "waktu": "18.45 - 20.00",
+          "isAvailable": true,
+          "jenjang": [
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler"
+          ]
+        }
+      ]
+    },
+    {
+      "no": 8,
+      "nama": "SITI",
+      "mapel": "INGGRIS",
+      "slots": [
+        {
+          "waktu": "11.30 - 12.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "13.00 - 14.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "14.30 - 15.45",
+          "isAvailable": true,
+          "jenjang": [
+            "SMP"
+          ],
+          "kelas": [
+            "Private"
+          ]
+        },
+        {
+          "waktu": "16.00 - 17.15",
+          "isAvailable": true,
+          "jenjang": [
+            "SD",
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "17.15 - 18.30",
+          "isAvailable": true,
+          "jenjang": [
+            "SD",
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "18.45 - 20.00",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        }
+      ]
+    },
+    {
+      "no": 9,
+      "nama": "Isma Salsabila",
+      "mapel": "MTK",
+      "slots": [
+        {
+          "waktu": "11.30 - 12.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "13.00 - 14.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "14.30 - 15.45",
+          "isAvailable": true,
+          "jenjang": [
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "16.00 - 17.15",
+          "isAvailable": true,
+          "jenjang": [
+            "SMP"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "17.15 - 18.30",
+          "isAvailable": true,
+          "jenjang": [
+            "SMP"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "18.45 - 20.00",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        }
+      ]
+    },
+    {
+      "no": 10,
+      "nama": "Resha Robiatul AJ",
+      "mapel": "MTK",
+      "slots": [
+        {
+          "waktu": "11.30 - 12.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "13.00 - 14.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "14.30 - 15.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "16.00 - 17.15",
+          "isAvailable": true,
+          "jenjang": [
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "17.15 - 18.30",
+          "isAvailable": true,
+          "jenjang": [
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "18.45 - 20.00",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        }
+      ]
+    },
+    {
+      "no": 11,
+      "nama": "Vickry",
+      "mapel": "MTK",
+      "slots": [
+        {
+          "waktu": "11.30 - 12.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "13.00 - 14.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "14.30 - 15.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "16.00 - 17.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "17.15 - 18.30",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "18.45 - 20.00",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        }
+      ]
+    },
+    {
+      "no": 12,
+      "nama": "Ahmad Faizun",
+      "mapel": "MTK",
+      "slots": [
+        {
+          "waktu": "11.30 - 12.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "13.00 - 14.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "14.30 - 15.45",
+          "isAvailable": true,
+          "jenjang": [
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler"
+          ]
+        },
+        {
+          "waktu": "16.00 - 17.15",
+          "isAvailable": true,
+          "jenjang": [
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler"
+          ]
+        },
+        {
+          "waktu": "17.15 - 18.30",
+          "isAvailable": true,
+          "jenjang": [
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler"
+          ]
+        },
+        {
+          "waktu": "18.45 - 20.00",
+          "isAvailable": true,
+          "jenjang": [
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler"
+          ]
+        }
+      ]
+    },
+    {
+      "no": 13,
+      "nama": "Resti Lestari",
+      "mapel": "MTK",
+      "slots": [
+        {
+          "waktu": "11.30 - 12.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "13.00 - 14.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "14.30 - 15.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "16.00 - 17.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "17.15 - 18.30",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "18.45 - 20.00",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        }
+      ]
+    },
+    {
+      "no": 14,
+      "nama": "Kamila Amelia Hafifah",
+      "mapel": "B.INDO",
+      "slots": [
+        {
+          "waktu": "11.30 - 12.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "13.00 - 14.15",
+          "isAvailable": true,
+          "jenjang": [
+            "SD",
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "14.30 - 15.45",
+          "isAvailable": true,
+          "jenjang": [
+            "SD",
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "16.00 - 17.15",
+          "isAvailable": true,
+          "jenjang": [
+            "SD",
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "17.15 - 18.30",
+          "isAvailable": true,
+          "jenjang": [
+            "SD",
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "18.45 - 20.00",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        }
+      ]
+    },
+    {
+      "no": 15,
+      "nama": "Alifa Yustianisa",
+      "mapel": "INDO",
+      "slots": [
+        {
+          "waktu": "11.30 - 12.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "13.00 - 14.15",
+          "isAvailable": true,
+          "jenjang": [
+            "SD"
+          ],
+          "kelas": []
+        },
+        {
+          "waktu": "14.30 - 15.45",
+          "isAvailable": true,
+          "jenjang": [
+            "SD",
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "16.00 - 17.15",
+          "isAvailable": true,
+          "jenjang": [
+            "SD",
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "17.15 - 18.30",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "18.45 - 20.00",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        }
+      ]
+    },
+    {
+      "no": 16,
+      "nama": "Nurul Rahmawati",
+      "mapel": "INDO",
+      "slots": [
+        {
+          "waktu": "11.30 - 12.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "13.00 - 14.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "14.30 - 15.45",
+          "isAvailable": true,
+          "jenjang": [
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "16.00 - 17.15",
+          "isAvailable": true,
+          "jenjang": [
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "17.15 - 18.30",
+          "isAvailable": true,
+          "jenjang": [
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "18.45 - 20.00",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        }
+      ]
+    },
+    {
+      "no": 17,
+      "nama": "FAHMI IDRUS SALAM",
+      "mapel": "INDO",
+      "slots": [
+        {
+          "waktu": "11.30 - 12.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "13.00 - 14.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "14.30 - 15.45",
+          "isAvailable": true,
+          "jenjang": [
+            "SD",
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "16.00 - 17.15",
+          "isAvailable": true,
+          "jenjang": [
+            "SD",
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "17.15 - 18.30",
+          "isAvailable": true,
+          "jenjang": [
+            "SD",
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "18.45 - 20.00",
+          "isAvailable": true,
+          "jenjang": [
+            "SD",
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        }
+      ]
+    },
+    {
+      "no": 18,
+      "nama": "Acep Muhammad Abdullatif",
+      "mapel": "SOSIO",
+      "slots": [
+        {
+          "waktu": "11.30 - 12.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "13.00 - 14.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "14.30 - 15.45",
+          "isAvailable": true,
+          "jenjang": [
+            "SD",
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "16.00 - 17.15",
+          "isAvailable": true,
+          "jenjang": [
+            "SD",
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "17.15 - 18.30",
+          "isAvailable": true,
+          "jenjang": [
+            "SD",
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "18.45 - 20.00",
+          "isAvailable": true,
+          "jenjang": [
+            "SD",
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        }
+      ]
+    },
+    {
+      "no": 19,
+      "nama": "Ira Rahayu Yunita",
+      "mapel": "SOSIO",
+      "slots": [
+        {
+          "waktu": "11.30 - 12.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "13.00 - 14.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "14.30 - 15.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "16.00 - 17.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "17.15 - 18.30",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "18.45 - 20.00",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        }
+      ]
+    },
+    {
+      "no": 20,
+      "nama": "Selva Ayuni",
+      "mapel": "AKUNTANSI",
+      "slots": [
+        {
+          "waktu": "11.30 - 12.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "13.00 - 14.15",
+          "isAvailable": true,
+          "jenjang": [
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "14.30 - 15.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "16.00 - 17.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "17.15 - 18.30",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "18.45 - 20.00",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        }
+      ]
+    },
+    {
+      "no": 21,
+      "nama": "Selva Ayuni",
+      "mapel": "EKO",
+      "slots": [
+        {
+          "waktu": "11.30 - 12.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "13.00 - 14.15",
+          "isAvailable": true,
+          "jenjang": [
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "14.30 - 15.45",
+          "isAvailable": true,
+          "jenjang": [
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "16.00 - 17.15",
+          "isAvailable": true,
+          "jenjang": [
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "17.15 - 18.30",
+          "isAvailable": true,
+          "jenjang": [
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "18.45 - 20.00",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        }
+      ]
+    },
+    {
+      "no": 22,
+      "nama": "ASIFA",
+      "mapel": "EKO",
+      "slots": [
+        {
+          "waktu": "11.30 - 12.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "13.00 - 14.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "14.30 - 15.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "16.00 - 17.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "17.15 - 18.30",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "18.45 - 20.00",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        }
+      ]
+    },
+    {
+      "no": 23,
+      "nama": "Ira Rahayu Yunita",
+      "mapel": "GEO",
+      "slots": [
+        {
+          "waktu": "11.30 - 12.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "13.00 - 14.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "14.30 - 15.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "16.00 - 17.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "17.15 - 18.30",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "18.45 - 20.00",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        }
+      ]
+    },
+    {
+      "no": 24,
+      "nama": "Diana Vijar Mutiara",
+      "mapel": "FISIKA",
+      "slots": [
+        {
+          "waktu": "11.30 - 12.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "13.00 - 14.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "14.30 - 15.45",
+          "isAvailable": true,
+          "jenjang": [
+            "SMA"
+          ],
+          "kelas": []
+        },
+        {
+          "waktu": "16.00 - 17.15",
+          "isAvailable": true,
+          "jenjang": [
+            "SMA"
+          ],
+          "kelas": []
+        },
+        {
+          "waktu": "17.15 - 18.30",
+          "isAvailable": true,
+          "jenjang": [
+            "SMA"
+          ],
+          "kelas": []
+        },
+        {
+          "waktu": "18.45 - 20.00",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        }
+      ]
+    },
+    {
+      "no": 25,
+      "nama": "ASIFA",
+      "mapel": "IPA",
+      "slots": [
+        {
+          "waktu": "11.30 - 12.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "13.00 - 14.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "14.30 - 15.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "16.00 - 17.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "17.15 - 18.30",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "18.45 - 20.00",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        }
+      ]
+    },
+    {
+      "no": 26,
+      "nama": "AYUNI",
+      "mapel": "KIMIA",
+      "slots": [
+        {
+          "waktu": "11.30 - 12.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "13.00 - 14.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "14.30 - 15.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "16.00 - 17.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "17.15 - 18.30",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "18.45 - 20.00",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        }
+      ]
+    },
+    {
+      "no": 27,
+      "nama": "HARRIS",
+      "mapel": "BIOLOGI",
+      "slots": [
+        {
+          "waktu": "11.30 - 12.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "13.00 - 14.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "14.30 - 15.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "16.00 - 17.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "17.15 - 18.30",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "18.45 - 20.00",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        }
+      ]
+    }
+  ],
+  "SABTU": [
+    {
+      "no": 1,
+      "nama": "Muhammad Zaki",
+      "mapel": "INGGRIS",
+      "slots": [
+        {
+          "waktu": "09.00-10.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "10.15-11.30",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "11.30 - 12.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "13.00 - 14.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "14.15 - 15.30",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "15.30 - 16.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "16.45 - 18.00",
+          "isAvailable": true,
+          "jenjang": [
+            "SD",
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "18.00 - 19.15",
+          "isAvailable": true,
+          "jenjang": [
+            "SD",
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        }
+      ]
+    },
+    {
+      "no": 2,
+      "nama": "Acep Muhammad Abdullatif",
+      "mapel": "INGGRIS",
+      "slots": [
+        {
+          "waktu": "09.00-10.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "10.15-11.30",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "11.30 - 12.45",
+          "isAvailable": true,
+          "jenjang": [
+            "SD",
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "13.00 - 14.15",
+          "isAvailable": true,
+          "jenjang": [
+            "SD",
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "14.15 - 15.30",
+          "isAvailable": true,
+          "jenjang": [
+            "SD",
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "15.30 - 16.45",
+          "isAvailable": true,
+          "jenjang": [
+            "SD",
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "16.45 - 18.00",
+          "isAvailable": true,
+          "jenjang": [
+            "SD",
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "18.00 - 19.15",
+          "isAvailable": true,
+          "jenjang": [
+            "SD",
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        }
+      ]
+    },
+    {
+      "no": 3,
+      "nama": "Rinda Permata Sari",
+      "mapel": "INGGRIS",
+      "slots": [
+        {
+          "waktu": "09.00-10.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "10.15-11.30",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "11.30 - 12.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "13.00 - 14.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "14.15 - 15.30",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "15.30 - 16.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "16.45 - 18.00",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "18.00 - 19.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        }
+      ]
+    },
+    {
+      "no": 5,
+      "nama": "Fina Levina Sahira",
+      "mapel": "INGGRIS",
+      "slots": [
+        {
+          "waktu": "09.00-10.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "10.15-11.30",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "11.30 - 12.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "13.00 - 14.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "14.15 - 15.30",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "15.30 - 16.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "16.45 - 18.00",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "18.00 - 19.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        }
+      ]
+    },
+    {
+      "no": 7,
+      "nama": "DAMAR",
+      "mapel": "INGGRIS",
+      "slots": [
+        {
+          "waktu": "09.00-10.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "10.15-11.30",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "11.30 - 12.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "13.00 - 14.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "14.15 - 15.30",
+          "isAvailable": true,
+          "jenjang": [
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler"
+          ]
+        },
+        {
+          "waktu": "15.30 - 16.45",
+          "isAvailable": true,
+          "jenjang": [
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler"
+          ]
+        },
+        {
+          "waktu": "16.45 - 18.00",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "18.00 - 19.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        }
+      ]
+    },
+    {
+      "no": 8,
+      "nama": "SITI",
+      "mapel": "INGGRIS",
+      "slots": [
+        {
+          "waktu": "09.00-10.15",
+          "isAvailable": true,
+          "jenjang": [
+            "SMP"
+          ],
+          "kelas": [
+            "Private"
+          ]
+        },
+        {
+          "waktu": "10.15-11.30",
+          "isAvailable": true,
+          "jenjang": [
+            "SMP"
+          ],
+          "kelas": [
+            "Private"
+          ]
+        },
+        {
+          "waktu": "11.30 - 12.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "13.00 - 14.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "14.15 - 15.30",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "15.30 - 16.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "16.45 - 18.00",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "18.00 - 19.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        }
+      ]
+    },
+    {
+      "no": 9,
+      "nama": "Isma Salsabila",
+      "mapel": "MTK",
+      "slots": [
+        {
+          "waktu": "09.00-10.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "10.15-11.30",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "11.30 - 12.45",
+          "isAvailable": true,
+          "jenjang": [],
+          "kelas": [
+            "Private"
+          ]
+        },
+        {
+          "waktu": "13.00 - 14.15",
+          "isAvailable": true,
+          "jenjang": [
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "14.15 - 15.30",
+          "isAvailable": true,
+          "jenjang": [
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "15.30 - 16.45",
+          "isAvailable": true,
+          "jenjang": [
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "16.45 - 18.00",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "18.00 - 19.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        }
+      ]
+    },
+    {
+      "no": 10,
+      "nama": "Resha Robiatul AJ",
+      "mapel": "MTK",
+      "slots": [
+        {
+          "waktu": "09.00-10.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "10.15-11.30",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "11.30 - 12.45",
+          "isAvailable": true,
+          "jenjang": [
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "13.00 - 14.15",
+          "isAvailable": true,
+          "jenjang": [
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "14.15 - 15.30",
+          "isAvailable": true,
+          "jenjang": [
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "15.30 - 16.45",
+          "isAvailable": true,
+          "jenjang": [
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "16.45 - 18.00",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "18.00 - 19.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        }
+      ]
+    },
+    {
+      "no": 11,
+      "nama": "Vickry",
+      "mapel": "MTK",
+      "slots": [
+        {
+          "waktu": "09.00-10.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "10.15-11.30",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "11.30 - 12.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "13.00 - 14.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "14.15 - 15.30",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "15.30 - 16.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "16.45 - 18.00",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "18.00 - 19.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        }
+      ]
+    },
+    {
+      "no": 12,
+      "nama": "Ahmad Faizun",
+      "mapel": "MTK",
+      "slots": [
+        {
+          "waktu": "09.00-10.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "10.15-11.30",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "11.30 - 12.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "13.00 - 14.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "14.15 - 15.30",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "15.30 - 16.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "16.45 - 18.00",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "18.00 - 19.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        }
+      ]
+    },
+    {
+      "no": 13,
+      "nama": "Resti Lestari",
+      "mapel": "MTK",
+      "slots": [
+        {
+          "waktu": "09.00-10.15",
+          "isAvailable": true,
+          "jenjang": [
+            "SD"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "10.15-11.30",
+          "isAvailable": true,
+          "jenjang": [
+            "SD"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "11.30 - 12.45",
+          "isAvailable": true,
+          "jenjang": [
+            "SD"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "13.00 - 14.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "14.15 - 15.30",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "15.30 - 16.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "16.45 - 18.00",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "18.00 - 19.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        }
+      ]
+    },
+    {
+      "no": 14,
+      "nama": "Kamila Amelia Hafifah",
+      "mapel": "B.INDO",
+      "slots": [
+        {
+          "waktu": "09.00-10.15",
+          "isAvailable": true,
+          "jenjang": [
+            "SD",
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "10.15-11.30",
+          "isAvailable": true,
+          "jenjang": [
+            "SD",
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "11.30 - 12.45",
+          "isAvailable": true,
+          "jenjang": [
+            "SD",
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "13.00 - 14.15",
+          "isAvailable": true,
+          "jenjang": [
+            "SD",
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "14.15 - 15.30",
+          "isAvailable": true,
+          "jenjang": [
+            "SD",
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "15.30 - 16.45",
+          "isAvailable": true,
+          "jenjang": [
+            "SD",
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "16.45 - 18.00",
+          "isAvailable": true,
+          "jenjang": [
+            "SD",
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "18.00 - 19.15",
+          "isAvailable": true,
+          "jenjang": [
+            "SD",
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        }
+      ]
+    },
+    {
+      "no": 15,
+      "nama": "Alifa Yustianisa",
+      "mapel": "INDO",
+      "slots": [
+        {
+          "waktu": "09.00-10.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "10.15-11.30",
+          "isAvailable": true,
+          "jenjang": [
+            "SD",
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "11.30 - 12.45",
+          "isAvailable": true,
+          "jenjang": [
+            "SD",
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "13.00 - 14.15",
+          "isAvailable": true,
+          "jenjang": [
+            "SD",
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "14.15 - 15.30",
+          "isAvailable": true,
+          "jenjang": [
+            "SD",
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "15.30 - 16.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "16.45 - 18.00",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "18.00 - 19.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        }
+      ]
+    },
+    {
+      "no": 16,
+      "nama": "Nurul Rahmawati",
+      "mapel": "INDO",
+      "slots": [
+        {
+          "waktu": "09.00-10.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "10.15-11.30",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "11.30 - 12.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "13.00 - 14.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "14.15 - 15.30",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "15.30 - 16.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "16.45 - 18.00",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "18.00 - 19.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        }
+      ]
+    },
+    {
+      "no": 17,
+      "nama": "FAHMI IDRUS SALAM",
+      "mapel": "INDO",
+      "slots": [
+        {
+          "waktu": "09.00-10.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "10.15-11.30",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "11.30 - 12.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "13.00 - 14.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "14.15 - 15.30",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "15.30 - 16.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "16.45 - 18.00",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "18.00 - 19.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        }
+      ]
+    },
+    {
+      "no": 18,
+      "nama": "Acep Muhammad Abdullatif",
+      "mapel": "SOSIO",
+      "slots": [
+        {
+          "waktu": "09.00-10.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "10.15-11.30",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "11.30 - 12.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "13.00 - 14.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "14.15 - 15.30",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "15.30 - 16.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "16.45 - 18.00",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "18.00 - 19.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        }
+      ]
+    },
+    {
+      "no": 19,
+      "nama": "Ira Rahayu Yunita",
+      "mapel": "SOSIO",
+      "slots": [
+        {
+          "waktu": "09.00-10.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "10.15-11.30",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "11.30 - 12.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "13.00 - 14.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "14.15 - 15.30",
+          "isAvailable": true,
+          "jenjang": [
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "15.30 - 16.45",
+          "isAvailable": true,
+          "jenjang": [
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "16.45 - 18.00",
+          "isAvailable": true,
+          "jenjang": [
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "18.00 - 19.15",
+          "isAvailable": true,
+          "jenjang": [
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        }
+      ]
+    },
+    {
+      "no": 20,
+      "nama": "Selva Ayuni",
+      "mapel": "AKUNTANSI",
+      "slots": [
+        {
+          "waktu": "09.00-10.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "10.15-11.30",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "11.30 - 12.45",
+          "isAvailable": true,
+          "jenjang": [
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "13.00 - 14.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "14.15 - 15.30",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "15.30 - 16.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "16.45 - 18.00",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "18.00 - 19.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        }
+      ]
+    },
+    {
+      "no": 21,
+      "nama": "Selva Ayuni",
+      "mapel": "EKO",
+      "slots": [
+        {
+          "waktu": "09.00-10.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "10.15-11.30",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "11.30 - 12.45",
+          "isAvailable": true,
+          "jenjang": [
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "13.00 - 14.15",
+          "isAvailable": true,
+          "jenjang": [
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "14.15 - 15.30",
+          "isAvailable": true,
+          "jenjang": [
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "15.30 - 16.45",
+          "isAvailable": true,
+          "jenjang": [
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "16.45 - 18.00",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "18.00 - 19.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        }
+      ]
+    },
+    {
+      "no": 22,
+      "nama": "ASIFA",
+      "mapel": "EKO",
+      "slots": [
+        {
+          "waktu": "09.00-10.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "10.15-11.30",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "11.30 - 12.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "13.00 - 14.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "14.15 - 15.30",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "15.30 - 16.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "16.45 - 18.00",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "18.00 - 19.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        }
+      ]
+    },
+    {
+      "no": 23,
+      "nama": "Ira Rahayu Yunita",
+      "mapel": "GEO",
+      "slots": [
+        {
+          "waktu": "09.00-10.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "10.15-11.30",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "11.30 - 12.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "13.00 - 14.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "14.15 - 15.30",
+          "isAvailable": true,
+          "jenjang": [
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "15.30 - 16.45",
+          "isAvailable": true,
+          "jenjang": [
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "16.45 - 18.00",
+          "isAvailable": true,
+          "jenjang": [
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        },
+        {
+          "waktu": "18.00 - 19.15",
+          "isAvailable": true,
+          "jenjang": [
+            "SMP",
+            "SMA"
+          ],
+          "kelas": [
+            "Reguler",
+            "Private"
+          ]
+        }
+      ]
+    },
+    {
+      "no": 24,
+      "nama": "Diana Vijar Mutiara",
+      "mapel": "FISIKA",
+      "slots": [
+        {
+          "waktu": "09.00-10.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "10.15-11.30",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "11.30 - 12.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "13.00 - 14.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "14.15 - 15.30",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "15.30 - 16.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "16.45 - 18.00",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "18.00 - 19.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        }
+      ]
+    },
+    {
+      "no": 25,
+      "nama": "ASIFA",
+      "mapel": "IPA",
+      "slots": [
+        {
+          "waktu": "09.00-10.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "10.15-11.30",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "11.30 - 12.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "13.00 - 14.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "14.15 - 15.30",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "15.30 - 16.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "16.45 - 18.00",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "18.00 - 19.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        }
+      ]
+    },
+    {
+      "no": 26,
+      "nama": "AYUNI",
+      "mapel": "KIMIA",
+      "slots": [
+        {
+          "waktu": "09.00-10.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "10.15-11.30",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "11.30 - 12.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "13.00 - 14.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "14.15 - 15.30",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "15.30 - 16.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "16.45 - 18.00",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "18.00 - 19.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        }
+      ]
+    },
+    {
+      "no": 27,
+      "nama": "HARRIS",
+      "mapel": "BIOLOGI",
+      "slots": [
+        {
+          "waktu": "09.00-10.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "10.15-11.30",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "11.30 - 12.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "13.00 - 14.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "14.15 - 15.30",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "15.30 - 16.45",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "16.45 - 18.00",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        },
+        {
+          "waktu": "18.00 - 19.15",
+          "isAvailable": false,
+          "jenjang": [],
+          "kelas": []
+        }
+      ]
+    }
+  ]
+}
