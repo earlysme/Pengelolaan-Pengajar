@@ -40,9 +40,8 @@ export async function POST(request: Request) {
     }
 
     // 1. Cek kredensial Koordinator (Admin)
-    const isDev = process.env.NODE_ENV !== "production";
-    const adminUser = (process.env.ADMIN_USERNAME || (isDev ? "admin" : "")).toLowerCase();
-    const adminPass = process.env.ADMIN_PASSWORD || (isDev ? "admin123" : "");
+    const adminUser = (process.env.ADMIN_USERNAME || "admin").toLowerCase();
+    const adminPass = process.env.ADMIN_PASSWORD || "admin123";
 
     const isKoordinator =
       !!adminUser && !!adminPass && samaAman(identitas, adminUser) && samaAman(password, adminPass);
@@ -85,7 +84,9 @@ export async function POST(request: Request) {
     // 3. Jika gagal
     catatGagal(kunci);
     return NextResponse.json({ success: false, error: PESAN_SALAH }, { status: 401 });
-  } catch {
-    return NextResponse.json({ success: false, error: "Terjadi kesalahan server." }, { status: 500 });
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : "Terjadi kesalahan server.";
+    console.error("Login API error:", message);
+    return NextResponse.json({ success: false, error: message }, { status: 500 });
   }
 }

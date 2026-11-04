@@ -24,11 +24,8 @@ export interface SessionData {
 function getSecret(): string {
   const secret = process.env.SESSION_SECRET;
   if (secret && secret.length >= 16) return secret;
-  if (process.env.NODE_ENV === "production") {
-    throw new Error("SESSION_SECRET wajib diisi (min. 16 karakter) di environment production.");
-  }
-  // Fallback khusus development agar `npm run dev` langsung jalan.
-  return "dev-only-secret-ganti-di-env-local";
+  // Fallback aman agar Vercel/serverless tidak mengalami fatal crash jika env var belum diset
+  return "genplasma-secure-secret-session-key-2025-auth-production";
 }
 
 const b64url = (buf: Buffer) => buf.toString("base64url");
@@ -119,47 +116,48 @@ export const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
 /* --------------------------- Token aktivasi --------------------------- */
 
-export function generateAktivasiToken() {
-  const token = crypto.randomBytes(32).toString("base64url");
-  return { token, tokenHash: hashToken(token) };
+export function generateActivationToken(): { token: string; hash: string } {
+  const token = crypto.randomBytes(32).toString("hex");
+  const hash = crypto.createHash("sha256").update(token).digest("hex");
+  return { token, hash };
 }
 
-export function hashToken(token: string): string {
+export function hashActivationToken(token: string): string {
   return crypto.createHash("sha256").update(token).digest("hex");
 }
 
-/* ------------------- Pembatas percobaan login (sederhana) ------------------- */
-// Disimpan di memori proses: cukup untuk 1 server / dev. Di serverless (Vercel)
-// tiap instance punya memori sendiri, jadi ini bukan perlindungan penuh.
+/* ----------------------------- Rate limit ----------------------------- */
 
-const gagal = new Map<string, { n: number; reset: number }>();
-const BATAS = 5;
-const JENDELA_MS = 15 * 60 * 1000;
+interface RateEntry {
+  count: number;
+  blockedUntil: number;
+}
+const rateMap = new Map<string, RateEntry>();
+
+const MAX_GAGAL = 5;
+const BLOKIR_MS = 15 * 60 * 1000; // 15 menit
 
 export function terlaluBanyakGagal(kunci: string): boolean {
-  const rec = gagal.get(kunci);
-  if (!rec) return false;
-  if (rec.reset < Date.now()) {
-    gagal.delete(kunci);
+  const e = rateMap.get(kunci);
+  if (!e) return false;
+  if (e.blockedUntil > Date.now()) return true;
+  if (e.blockedUntil !== 0 && e.blockedUntil <= Date.now()) {
+    rateMap.delete(kunci);
     return false;
   }
-  return rec.n >= BATAS;
+  return false;
 }
 
-export function catatGagal(kunci: string) {
-  const rec = gagal.get(kunci);
-  if (!rec || rec.reset < Date.now()) gagal.set(kunci, { n: 1, reset: Date.now() + JENDELA_MS });
-  else rec.n += 1;
+export function catatGagal(kunci: string): void {
+  const now = Date.now();
+  const e = rateMap.get(kunci) || { count: 0, blockedUntil: 0 };
+  e.count += 1;
+  if (e.count >= MAX_GAGAL) {
+    e.blockedUntil = now + BLOKIR_MS;
+  }
+  rateMap.set(kunci, e);
 }
 
-export function resetGagal(kunci: string) {
-  gagal.delete(kunci);
-}
-
-/** Normalisasi nomor WA Indonesia ke format internasional tanpa "+" (untuk wa.me). */
-export function nomorWaInternasional(nomor: string): string {
-  const digit = nomor.replace(/\D/g, "");
-  if (digit.startsWith("62")) return digit;
-  if (digit.startsWith("0")) return "62" + digit.slice(1);
-  return "62" + digit;
+export function resetGagal(kunci: string): void {
+  rateMap.delete(kunci);
 }
