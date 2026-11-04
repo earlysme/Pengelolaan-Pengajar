@@ -3,6 +3,7 @@ import crypto from "crypto";
 import connectDB from "@/lib/mongodb";
 import Pengajar from "@/models/Pengajar";
 import {
+  bersihkanEnv,
   setSessionCookie,
   verifyPassword,
   terlaluBanyakGagal,
@@ -12,14 +13,11 @@ import {
 
 const PESAN_SALAH = "Email/Username atau password salah.";
 
-const cleanStr = (val?: string): string => {
-  if (!val) return "";
-  let s = val.trim();
-  if ((s.startsWith('"') && s.endsWith('"')) || (s.startsWith("'") && s.endsWith("'"))) {
-    s = s.slice(1, -1).trim();
-  }
-  return s;
-};
+function samaAman(a: string, b: string) {
+  const ha = crypto.createHash("sha256").update(a).digest();
+  const hb = crypto.createHash("sha256").update(b).digest();
+  return crypto.timingSafeEqual(ha, hb);
+}
 
 // POST: login terpadu (email atau username + password)
 export async function POST(request: Request) {
@@ -43,19 +41,28 @@ export async function POST(request: Request) {
     }
 
     // 1. Cek kredensial Koordinator (Admin)
-    const envAdminUser = cleanStr(process.env.ADMIN_USERNAME).toLowerCase();
-    const envAdminPass = cleanStr(process.env.ADMIN_PASSWORD);
+    const isDev = process.env.NODE_ENV !== "production";
+    // Nilai env sering diketik lengkap dengan tanda kutip di dashboard hosting — bersihkan dulu.
+    const adminUser = (bersihkanEnv(process.env.ADMIN_USERNAME) || (isDev ? "admin" : "")).toLowerCase();
+    const adminPass = bersihkanEnv(process.env.ADMIN_PASSWORD) || (isDev ? "admin123" : "");
 
-    const isUserMatch =
-      identitas === "admin" ||
-      identitas === "koordinator" ||
-      (!!envAdminUser && identitas === envAdminUser);
+    // Di production TIDAK ADA kredensial bawaan. Kalau env belum diisi, login koordinator
+    // mustahil berhasil — laporkan sebagai masalah konfigurasi, bukan "password salah".
+    if (!adminUser || !adminPass) {
+      console.error(
+        "[login] ADMIN_USERNAME/ADMIN_PASSWORD belum diset di environment ini; login koordinator tidak dapat dipakai."
+      );
+      return NextResponse.json(
+        {
+          success: false,
+          error:
+            "Login koordinator belum dikonfigurasi di server (ADMIN_USERNAME/ADMIN_PASSWORD kosong). Hubungi pengelola sistem.",
+        },
+        { status: 503 }
+      );
+    }
 
-    const isPassMatch =
-      password === "admin123" ||
-      (!!envAdminPass && password === envAdminPass);
-
-    const isKoordinator = isUserMatch && isPassMatch;
+    const isKoordinator = samaAman(identitas, adminUser) && samaAman(password, adminPass);
 
     if (isKoordinator) {
       resetGagal(kunci);
@@ -92,12 +99,27 @@ export async function POST(request: Request) {
       });
     }
 
-    // 3. Jika gagal
+    // 3. Email terdaftar tapi password belum pernah dibuat (tutor lama / hasil seed).
+    // Tanpa pesan khusus, pengguna selalu mengira "password salah" padahal akun belum aktif.
+    if (tutor && !tutor.passwordHash) {
+      return NextResponse.json(
+        {
+          success: false,
+          error:
+            "Akun ini belum memiliki password. Minta koordinator mengirim link undangan/aktivasi, lalu atur password Anda.",
+          kode: "BELUM_PUNYA_PASSWORD",
+        },
+        { status: 403 }
+      );
+    }
+
+    // 4. Jika gagal
     catatGagal(kunci);
     return NextResponse.json({ success: false, error: PESAN_SALAH }, { status: 401 });
-  } catch (error: unknown) {
-    const message = error instanceof Error ? error.message : "Terjadi kesalahan server.";
-    console.error("Login API error:", message);
-    return NextResponse.json({ success: false, error: message }, { status: 500 });
+  } catch (error) {
+    // Jangan telan error: tanpa log, kegagalan koneksi DB atau SESSION_SECRET yang hilang
+    // muncul di UI hanya sebagai "terjadi kesalahan server" tanpa jejak penyebab.
+    console.error("[login] gagal memproses login:", error);
+    return NextResponse.json({ success: false, error: "Terjadi kesalahan server." }, { status: 500 });
   }
 }
