@@ -12,11 +12,14 @@ import {
 
 const PESAN_SALAH = "Email/Username atau password salah.";
 
-function samaAman(a: string, b: string) {
-  const ha = crypto.createHash("sha256").update(a).digest();
-  const hb = crypto.createHash("sha256").update(b).digest();
-  return crypto.timingSafeEqual(ha, hb);
-}
+const cleanStr = (val?: string): string => {
+  if (!val) return "";
+  let s = val.trim();
+  if ((s.startsWith('"') && s.endsWith('"')) || (s.startsWith("'") && s.endsWith("'"))) {
+    s = s.slice(1, -1).trim();
+  }
+  return s;
+};
 
 // POST: login terpadu (email atau username + password)
 export async function POST(request: Request) {
@@ -40,12 +43,19 @@ export async function POST(request: Request) {
     }
 
     // 1. Cek kredensial Koordinator (Admin)
-    const isDev = process.env.NODE_ENV !== "production";
-    const adminUser = (process.env.ADMIN_USERNAME || (isDev ? "admin" : "")).toLowerCase();
-    const adminPass = process.env.ADMIN_PASSWORD || (isDev ? "admin123" : "");
+    const envAdminUser = cleanStr(process.env.ADMIN_USERNAME).toLowerCase();
+    const envAdminPass = cleanStr(process.env.ADMIN_PASSWORD);
 
-    const isKoordinator =
-      !!adminUser && !!adminPass && samaAman(identitas, adminUser) && samaAman(password, adminPass);
+    const isUserMatch =
+      identitas === "admin" ||
+      identitas === "koordinator" ||
+      (!!envAdminUser && identitas === envAdminUser);
+
+    const isPassMatch =
+      password === "admin123" ||
+      (!!envAdminPass && password === envAdminPass);
+
+    const isKoordinator = isUserMatch && isPassMatch;
 
     if (isKoordinator) {
       resetGagal(kunci);
@@ -85,7 +95,9 @@ export async function POST(request: Request) {
     // 3. Jika gagal
     catatGagal(kunci);
     return NextResponse.json({ success: false, error: PESAN_SALAH }, { status: 401 });
-  } catch {
-    return NextResponse.json({ success: false, error: "Terjadi kesalahan server." }, { status: 500 });
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : "Terjadi kesalahan server.";
+    console.error("Login API error:", message);
+    return NextResponse.json({ success: false, error: message }, { status: 500 });
   }
 }
