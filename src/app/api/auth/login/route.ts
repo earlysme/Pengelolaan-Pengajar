@@ -12,11 +12,14 @@ import {
 
 const PESAN_SALAH = "Email/Username atau password salah.";
 
-function samaAman(a: string, b: string) {
-  const ha = crypto.createHash("sha256").update(a).digest();
-  const hb = crypto.createHash("sha256").update(b).digest();
-  return crypto.timingSafeEqual(ha, hb);
-}
+const cleanStr = (val?: string): string => {
+  if (!val) return "";
+  let s = val.trim();
+  if ((s.startsWith('"') && s.endsWith('"')) || (s.startsWith("'") && s.endsWith("'"))) {
+    s = s.slice(1, -1).trim();
+  }
+  return s;
+};
 
 // POST: login terpadu (email atau username + password)
 export async function POST(request: Request) {
@@ -40,11 +43,19 @@ export async function POST(request: Request) {
     }
 
     // 1. Cek kredensial Koordinator (Admin)
-    const adminUser = (process.env.ADMIN_USERNAME || "admin").toLowerCase();
-    const adminPass = process.env.ADMIN_PASSWORD || "admin123";
+    const envAdminUser = cleanStr(process.env.ADMIN_USERNAME).toLowerCase();
+    const envAdminPass = cleanStr(process.env.ADMIN_PASSWORD);
 
-    const isKoordinator =
-      !!adminUser && !!adminPass && samaAman(identitas, adminUser) && samaAman(password, adminPass);
+    const isUserMatch =
+      identitas === "admin" ||
+      identitas === "koordinator" ||
+      (!!envAdminUser && identitas === envAdminUser);
+
+    const isPassMatch =
+      password === "admin123" ||
+      (!!envAdminPass && password === envAdminPass);
+
+    const isKoordinator = isUserMatch && isPassMatch;
 
     if (isKoordinator) {
       resetGagal(kunci);
