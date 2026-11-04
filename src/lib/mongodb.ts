@@ -1,11 +1,13 @@
 import mongoose from "mongoose";
 import dns from "dns";
 
-// Atasi masalah ECONNREFUSED pada querySrv MongoDB Atlas karena DNS lokal/ISP
-try {
-  dns.setServers(["8.8.8.8", "8.8.4.4", "1.1.1.1"]);
-} catch {
-  // Abaikan jika tidak didukung di lingkungan tertentu
+// Atasi masalah ECONNREFUSED pada querySrv MongoDB Atlas karena DNS lokal/ISP (hanya saat dev lokal, non-Vercel)
+if (!process.env.VERCEL && process.env.NODE_ENV !== "production") {
+  try {
+    dns.setServers(["8.8.8.8", "8.8.4.4", "1.1.1.1"]);
+  } catch {
+    // Abaikan jika tidak didukung di lingkungan tertentu
+  }
 }
 
 interface MongooseCache {
@@ -27,7 +29,7 @@ async function connectDB() {
   const uri = process.env.MONGODB_URI?.trim();
 
   if (!uri) {
-    throw new Error("Harap definisikan MONGODB_URI di dalam .env.local");
+    throw new Error("Harap definisikan MONGODB_URI di dalam Environment Variables");
   }
 
   if (cached!.conn) {
@@ -37,6 +39,8 @@ async function connectDB() {
   if (!cached!.promise) {
     const opts = {
       bufferCommands: false,
+      serverSelectionTimeoutMS: 10000,
+      connectTimeoutMS: 10000,
     };
 
     cached!.promise = mongoose.connect(uri, opts).then((mongooseInstance) => {
@@ -55,4 +59,3 @@ async function connectDB() {
 }
 
 export default connectDB;
-

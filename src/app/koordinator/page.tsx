@@ -166,10 +166,10 @@ const DAFTAR_MAPEL = [
   "Geografi",
   "Sosiologi",
   "Sejarah",
-  "TPS / UTBK",
+  "TPS",
 ];
 
-const DAFTAR_JENJANG = ["SD", "SMP", "SMA", "UTBK/Kedinasan"];
+const DAFTAR_JENJANG = ["SD", "SMP", "SMA", "Kedinasan"];
 const DAFTAR_HARI = ["Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
 
 export default function PanelKoordinator() {

@@ -39,11 +39,18 @@ export async function GET(request: Request) {
     const cuti = await Pengajar.countDocuments({ status: "Cuti" });
     const nonaktif = await Pengajar.countDocuments({ status: "Nonaktif" });
 
-    return NextResponse.json({
-      success: true,
-      stats: { total, aktif, cuti, nonaktif },
-      data,
-    });
+    return NextResponse.json(
+      {
+        success: true,
+        stats: { total, aktif, cuti, nonaktif },
+        data,
+      },
+      {
+        headers: {
+          "Cache-Control": "no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0",
+        },
+      }
+    );
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : "Terjadi kesalahan server";
     return NextResponse.json({ success: false, error: message }, { status: 500 });
