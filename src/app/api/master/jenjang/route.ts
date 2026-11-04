@@ -1,9 +1,10 @@
+
 import { NextResponse } from "next/server";
 import connectDB from "@/lib/mongodb";
 import Jenjang from "@/models/Jenjang";
 import { getSession } from "@/lib/auth";
 
-const DEFAULT_JENJANG = ["SD", "SMP", "SMA", "UTBK/Kedinasan"];
+const DEFAULT_JENJANG = ["SD", "SMP", "SMA", "Kedinasan"];
 
 // GET: Ambil semua jenjang
 export async function GET() {

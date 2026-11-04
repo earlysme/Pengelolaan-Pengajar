@@ -3,8 +3,9 @@ import connectDB from "@/lib/mongodb";
 import Pengajar from "@/models/Pengajar";
 import { getSession } from "@/lib/auth";
 
+
 // Field yang boleh diubah tutor untuk profilnya sendiri
-const FIELD_TUTOR = ["foto", "deskripsi", "pendidikan", "ipk", "alamat", "nomorTelepon", "jadwalTersedia", "status"];
+const FIELD_TUTOR = ["foto", "deskripsi", "pendidikan", "jenjang", "alamat", "nomorTelepon", "jadwalTersedia", "status"];
 
 // GET: Mengambil detail satu pengajar
 export async function GET(
@@ -23,7 +24,14 @@ export async function GET(
       );
     }
 
-    return NextResponse.json({ success: true, data: pengajar });
+    return NextResponse.json(
+      { success: true, data: pengajar },
+      {
+        headers: {
+          "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0",
+        },
+      }
+    );
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : "Terjadi kesalahan server";
     return NextResponse.json({ success: false, error: message }, { status: 500 });
@@ -105,4 +113,3 @@ export async function DELETE(
     return NextResponse.json({ success: false, error: message }, { status: 500 });
   }
 }
-

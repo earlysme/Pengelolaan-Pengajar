@@ -101,6 +101,15 @@ const parseJadwalList = (jadwal?: string[]): ParsedJadwalGroup[] => {
   return result;
 };
 
+const getJadwalSummary = (jadwal?: string[]) => {
+  if (!jadwal || jadwal.length === 0) return { sesi: 0, hari: 0 };
+  const parsed = parseJadwalList(jadwal);
+  return {
+    hari: parsed.length,
+    sesi: jadwal.length,
+  };
+};
+
 const MASTER_TUTORS: TutorItem[] = [
   {
     _id: "tutor-1",
@@ -264,32 +273,39 @@ export default function HalamanKatalog() {
     return parseJadwalList(modalTutor?.jadwal);
   }, [modalTutor?.jadwal]);
   const [tutorList, setTutorList] = useState<TutorItem[]>(MASTER_TUTORS);
+  const [isDbLoaded, setIsDbLoaded] = useState(false);
   const [loadMoreState, setLoadMoreState] = useState<"idle" | "loading" | "done">("idle");
+  const [loadError, setLoadError] = useState("");
 
-  useEffect(() => {
-    // Muat data dari database jika ada pengajar baru
-    const loadFromDB = async () => {
-      try {
-        const res = await fetch("/api/pengajar");
-        const json = await res.json();
-        if (json.success && Array.isArray(json.data) && json.data.length > 0) {
-          // Gabungkan atau gunakan pengajar dari database dengan mapping visual
-          interface DBPengajarItem {
-            _id: string;
-            nama: string;
-            status?: string;
-            pendidikan?: string;
-            ipk?: string;
-            mataPelajaran?: string[];
-            jenjang?: string[];
-            foto?: string;
-            nomorTelepon?: string;
-            deskripsi?: string;
-            jadwalTersedia?: string[];
-          }
-          const validTutors = (json.data as DBPengajarItem[]).filter((p) => p.status !== "Nonaktif");
-          if (validTutors.length === 0) return;
-
+  const loadFromDB = async (isManual = false) => {
+    try {
+      setLoadMoreState("loading");
+      setLoadError("");
+      // Gunakan query timestamp & no-store agar browser HP dan Vercel tidak menyajikan response cache lama
+      const res = await fetch("/api/pengajar?t=" + Date.now(), {
+        cache: "no-store",
+        headers: {
+          "Cache-Control": "no-cache, no-store, must-revalidate",
+          Pragma: "no-cache",
+        },
+      });
+      const json = await res.json();
+      if (json.success && Array.isArray(json.data) && json.data.length > 0) {
+        interface DBPengajarItem {
+          _id: string;
+          nama: string;
+          status?: string;
+          pendidikan?: string;
+          ipk?: string;
+          mataPelajaran?: string[];
+          jenjang?: string[];
+          foto?: string;
+          nomorTelepon?: string;
+          deskripsi?: string;
+          jadwalTersedia?: string[];
+        }
+        const validTutors = (json.data as DBPengajarItem[]).filter((p) => p.status !== "Nonaktif");
+        if (validTutors.length > 0) {
           const dbMapped: TutorItem[] = validTutors.map((p, idx) => {
             const fallback = MASTER_TUTORS[idx % MASTER_TUTORS.length];
             return {
@@ -320,12 +336,21 @@ export default function HalamanKatalog() {
             };
           });
           setTutorList(dbMapped);
+          setIsDbLoaded(true);
+          setLoadMoreState("done");
+          return;
         }
-      } catch {
-        // Tetap menggunakan MASTER_TUTORS bawaan designpublik.html
       }
-    };
-    loadFromDB();
+      setLoadMoreState("done");
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Tidak dapat terhubung ke database server";
+      setLoadError(msg);
+      setLoadMoreState("idle");
+    }
+  };
+
+  useEffect(() => {
+    void loadFromDB();
   }, []);
 
   const filteredTutors = useMemo(() => {
@@ -334,10 +359,7 @@ export default function HalamanKatalog() {
   }, [tutorList, activeFilter]);
 
   const handleLoadMore = () => {
-    setLoadMoreState("loading");
-    setTimeout(() => {
-      setLoadMoreState("done");
-    }, 600);
+    void loadFromDB(true);
   };
 
   return (
@@ -468,13 +490,19 @@ export default function HalamanKatalog() {
                       className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500 ease-out"
                     />
 
-                    {/* Top Right: IPK Badge */}
-                    {tutor.ipk && (
-                      <div className="absolute top-3.5 right-3.5 bg-white/95 backdrop-blur-md px-2.5 py-1 rounded-full flex items-center gap-1 shadow-xs border border-[#173F3A]/15 pointer-events-none">
-                        <span className="material-symbols-outlined text-[#B74E2C] text-[13px]">school</span>
-                        <span className="text-[0.72rem] font-bold text-[#173F3A]">IPK {tutor.ipk}</span>
-                      </div>
-                    )}
+                    {/* Top Right: Total Sesi & Total Hari Badge */}
+                    {(() => {
+                      const summary = getJadwalSummary(tutor.jadwal);
+                      if (summary.sesi === 0 && summary.hari === 0) return null;
+                      return (
+                        <div className="absolute top-3.5 right-3.5 bg-white/95 backdrop-blur-md px-2.5 py-1 rounded-full flex items-center gap-1 shadow-xs border border-[#173F3A]/15 pointer-events-none">
+                          <span className="material-symbols-outlined text-[#173F3A] text-[13px]">schedule</span>
+                          <span className="text-[0.72rem] font-bold text-[#173F3A]">
+                            {summary.sesi} Sesi • {summary.hari} Hari
+                          </span>
+                        </div>
+                      );
+                    })()}
 
                     
 
@@ -544,13 +572,21 @@ export default function HalamanKatalog() {
                 {loadMoreState === "done" && (
                   <>
                     <span className="material-symbols-outlined text-[18px]">check</span>
-                    <span>Semua 48 Pengajar Ditampilkan</span>
+                    <span>Semua {tutorList.length} Pengajar Ditampilkan</span>
                   </>
                 )}
               </button>
               <p className="text-[0.8125rem] text-[#67645f]">
-                Menampilkan {filteredTutors.length} dari 48 master tutor berlisensi
+                Menampilkan {filteredTutors.length} dari {tutorList.length} pengajar terverifikasi
+                {isDbLoaded && (
+                  <span className="ml-2 text-emerald-700 font-medium">• Database Terhubung</span>
+                )}
               </p>
+              {loadError && (
+                <p className="text-[0.75rem] text-rose-600">
+                  {loadError} (menampilkan data offline/cadangan)
+                </p>
+              )}
             </div>
           </section>
 
@@ -731,11 +767,7 @@ export default function HalamanKatalog() {
                 </h3>
                 <p className="text-[0.8125rem] text-[#444748] mt-0.5">{modalTutor.jabatan}</p>
                 <div className="mt-1 flex items-center gap-1.5 flex-wrap">
-                  {modalTutor.ipk && (
-                    <span className="text-[0.6875rem] font-bold text-[#173F3A] bg-[#F2D5A8]/80 px-2 py-0.5 rounded-full border border-[#D88A32]/25">
-                      IPK {modalTutor.ipk}
-                    </span>
-                  )}
+                  
                   {modalTutor.jenjang && modalTutor.jenjang.length > 0 && (
                     <div className="flex items-center gap-1">
                       <span className="text-[0.6875rem] text-[#67645f]">Jenjang:</span>

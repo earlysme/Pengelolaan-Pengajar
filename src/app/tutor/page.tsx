@@ -30,6 +30,10 @@ const PRESET_AVATARS = [
   "https://lh3.googleusercontent.com/aida-public/AB6AXuCHB51zhe7ysp42hrFuGrCikXhhJO5DN2gO8JqKp2yu12nNSMQjZmRglPQkjFjSKmhPGQ-tFodkfG-0yooYJBUkolpC1XulfmLDefheJeqKIRUwrYezHu6AwMmUND4OGzfxk2L9FHjQptypRRe0z-h4D5gf8xqpcUGrGVe_7t4ik20-JGh9I7mjTqVMj2xpHNplKu6S6fDlOVxHPj3zIi6DjM51tFaqYP7h5HOAgclN",
 ];
 
+const cleanMapelName = (name: string): string => {
+  return name.replace(/\s*\/?\s*utbk/gi, "").trim();
+};
+
 const DAFTAR_HARI = ["Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
 
 export interface JadwalSlot {
@@ -38,6 +42,7 @@ export interface JadwalSlot {
   jamMulai: string;
   jamSelesai: string;
   keterangan: string;
+  jenjang?: string[];
 }
 
 let slotCounter = 0;
@@ -46,12 +51,15 @@ function createSlotId(hari: string): string {
   return `slot-${hari.toLowerCase()}-${Date.now()}-${slotCounter}-${Math.random().toString(36).substring(2, 6)}`;
 }
 
-const parseJadwalToSlots = (rawList?: string[]): JadwalSlot[] => {
+const parseJadwalToSlots = (rawList?: string[], defaultJenjang?: string[]): JadwalSlot[] => {
+  const cleanDefault = (defaultJenjang || []).filter((j) => !/utbk/i.test(j));
+  const fallback = cleanDefault.length > 0 ? cleanDefault : ["SMA"];
+
   if (!rawList || rawList.length === 0) {
     return [
-      { id: createSlotId("Senin"), hari: "Senin", jamMulai: "16:00", jamSelesai: "18:00", keterangan: "Intensif" },
-      { id: createSlotId("Rabu"), hari: "Rabu", jamMulai: "16:00", jamSelesai: "18:00", keterangan: "Reguler" },
-      { id: createSlotId("Jumat"), hari: "Jumat", jamMulai: "16:00", jamSelesai: "18:00", keterangan: "Klinik Soal" },
+      { id: createSlotId("Senin"), hari: "Senin", jamMulai: "16:00", jamSelesai: "18:00", keterangan: "Reguler", jenjang: [...fallback] },
+      { id: createSlotId("Rabu"), hari: "Rabu", jamMulai: "16:00", jamSelesai: "18:00", keterangan: "Reguler", jenjang: [...fallback] },
+      { id: createSlotId("Jumat"), hari: "Jumat", jamMulai: "16:00", jamSelesai: "18:00", keterangan: "Reguler", jenjang: [...fallback] },
     ];
   }
 
@@ -65,6 +73,7 @@ const parseJadwalToSlots = (rawList?: string[]): JadwalSlot[] => {
         jamMulai: "16:00",
         jamSelesai: "18:00",
         keterangan: "Reguler",
+        jenjang: [...fallback],
       };
     }
 
@@ -74,14 +83,31 @@ const parseJadwalToSlots = (rawList?: string[]): JadwalSlot[] => {
     const jamMulai = timeMatch ? timeMatch[1] : "16:00";
     const jamSelesai = timeMatch ? timeMatch[2] : "18:00";
     const ketMatch = rest.match(/\((.*?)\)/);
-    const keterangan = ketMatch ? ketMatch[1] : "";
+    const parenContent = ketMatch ? ketMatch[1] : "";
+    const jenjangFound: string[] = [];
+    if (/\bsd\b/i.test(parenContent)) jenjangFound.push("SD");
+    if (/\bsmp\b/i.test(parenContent)) jenjangFound.push("SMP");
+    if (/\bsma\b/i.test(parenContent)) jenjangFound.push("SMA");
+
+    const progFound: string[] = [];
+    if (/reguler/i.test(parenContent)) progFound.push("Reguler");
+    if (/private/i.test(parenContent)) progFound.push("Private");
+
+    let slotJenjang: string[] = [];
+    if (jenjangFound.length > 0) {
+      slotJenjang = cleanDefault.length > 0 ? jenjangFound.filter((j) => cleanDefault.includes(j)) : jenjangFound;
+      if (slotJenjang.length === 0) slotJenjang = [...fallback];
+    } else {
+      slotJenjang = [...fallback];
+    }
 
     return {
       id: createSlotId(hari),
       hari,
       jamMulai,
       jamSelesai,
-      keterangan,
+      keterangan: progFound.join(", "),
+      jenjang: slotJenjang,
     };
   });
 };
@@ -147,11 +173,16 @@ const getPresetsByDay = (hari: string, masterList?: MasterSesiItem[]) => {
 };
 
 const formatSlotToString = (slot: JadwalSlot): string => {
+  const parts: string[] = [];
+  if (slot.keterangan) parts.push(slot.keterangan);
+  if (slot.jenjang && slot.jenjang.length > 0) parts.push(slot.jenjang.join(", "));
+  const label = parts.length > 0 ? ` (${parts.join(" • ")})` : "";
+
   if (!slot.jamMulai || !slot.jamSelesai) {
-    return slot.keterangan ? `${slot.hari}: Belum atur jam (${slot.keterangan})` : `${slot.hari}: Belum atur jam`;
+    return `${slot.hari}: Belum atur jam${label}`;
   }
   const jam = `${slot.jamMulai} - ${slot.jamSelesai} WIB`;
-  return slot.keterangan ? `${slot.hari}: ${jam} (${slot.keterangan})` : `${slot.hari}: ${jam}`;
+  return `${slot.hari}: ${jam}${label}`;
 };
 
 export default function AreaTutor() {
@@ -196,6 +227,11 @@ export default function AreaTutor() {
   // Daftar hari unik dari slot yang aktif
   const hariTersedia = Array.from(new Set(jadwalSlots.map((s) => s.hari)));
 
+  // Jenjang yang diizinkan untuk tutor ini (ditetapkan oleh koordinator saat akun dibuat)
+  const tutorAllowedJenjang = (currentTutor?.jenjang && currentTutor.jenjang.length > 0
+    ? currentTutor.jenjang.filter((j) => !/utbk/i.test(j))
+    : ["SD", "SMP", "SMA"]);
+
   // Melacak status apakah ada perubahan data (sedang mengedit)
   const [initialData, setInitialData] = useState<{
     foto: string;
@@ -238,7 +274,7 @@ export default function AreaTutor() {
     setDomisili(t.alamat || "Bandung & Jakarta Selatan (Fleksibel)");
 
     // Ekstrak slot ketersediaan dari data tutor
-    const initialSlots = parseJadwalToSlots(t.jadwalTersedia);
+    const initialSlots = parseJadwalToSlots(t.jadwalTersedia, t.jenjang);
     setJadwalSlots(initialSlots);
 
     const initialFoto = t.foto || PRESET_AVATARS[0];
@@ -377,6 +413,7 @@ export default function AreaTutor() {
           jamMulai: "",
           jamSelesai: "",
           keterangan: "",
+          jenjang: [],
         };
         const updated = [...prev, newSlot];
         updated.sort((a, b) => DAFTAR_HARI.indexOf(a.hari) - DAFTAR_HARI.indexOf(b.hari));
@@ -393,6 +430,7 @@ export default function AreaTutor() {
       jamMulai: "",
       jamSelesai: "",
       keterangan: "",
+      jenjang: [],
     };
     setJadwalSlots((prev) => {
       const updated = [...prev, newSlot];
@@ -520,6 +558,15 @@ export default function AreaTutor() {
         setTimeout(() => setHighlightedFieldId(null), 4000);
         return;
       }
+      if (!s.jenjang || s.jenjang.length === 0) {
+        const targetId = `slot-card-${s.id}`;
+        setHighlightedFieldId(targetId);
+        showToast(`Centang minimal 1 jenjang (${tutorAllowedJenjang.join("/")}) untuk sesi hari ${s.hari}.`);
+        const elem = document.getElementById(targetId);
+        if (elem) elem.scrollIntoView({ behavior: "smooth", block: "center" });
+        setTimeout(() => setHighlightedFieldId(null), 4000);
+        return;
+      }
     }
 
     if (!nomorWa.trim()) {
@@ -558,6 +605,8 @@ export default function AreaTutor() {
         .filter((s) => s.jamMulai && s.jamSelesai)
         .map(formatSlotToString);
 
+      const finalJenjang = tutorAllowedJenjang;
+
       const res = await fetch(`/api/pengajar/${currentTutor._id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
@@ -565,7 +614,7 @@ export default function AreaTutor() {
           foto,
           deskripsi,
           pendidikan,
-          ipk,
+          jenjang: finalJenjang,
           alamat: domisili,
           nomorTelepon: nomorWa.startsWith("0") ? nomorWa : `0${nomorWa}`,
           jadwalTersedia: serializedJadwal,
@@ -598,6 +647,7 @@ export default function AreaTutor() {
               nomorTelepon: nomorWa.startsWith("0") ? nomorWa : `0${nomorWa}`,
               jadwalTersedia: serializedJadwal,
               status: tutorStatus,
+              jenjang: finalJenjang,
             }
             : null
         );
@@ -746,29 +796,22 @@ export default function AreaTutor() {
                         {currentTutor?.nama || "Siti Rahmawati, M.Si."}
                       </h1>
 
-                      <div className="flex flex-wrap items-center gap-y-1 gap-x-4 text-[0.8125rem] text-[#444748]">
-                        <span className="flex items-center gap-1.5 font-medium text-[#1a1c1b]">
-                          <span className="material-symbols-outlined text-[16px] text-[#444748]">
-                            biotech
-                          </span>
-                          {currentTutor?.mataPelajaran.join(", ") || "Kimia, Biologi"}
-                        </span>
-                        <span>•</span>
+                      <div className="flex flex-wrap items-center gap-y-1.5 gap-x-4 text-[0.8125rem] text-[#444748]">
                         <span className="flex items-center gap-1.5">
                           <span className="material-symbols-outlined text-[16px] text-[#444748]">
                             chat
                           </span>
                           WhatsApp:{" "}
-                          <span className="text-[#1a1c1b] font-mono">
-                            {currentTutor?.nomorTelepon || "082198765432"}
+                          <span className="text-[#1a1c1b] font-mono font-medium">
+                            {nomorWa ? (nomorWa.startsWith("0") ? nomorWa : `0${nomorWa}`) : currentTutor?.nomorTelepon || "-"}
                           </span>
                         </span>
                         <span>•</span>
-                        <span className="flex items-center gap-1.5 truncate max-w-xs">
+                        <span className="flex items-center gap-1.5 truncate max-w-sm">
                           <span className="material-symbols-outlined text-[16px] text-[#444748]">
                             school
                           </span>
-                          {pendidikan.split("•")[0] || "S2 Kimia ITB"}
+                          {pendidikan ? pendidikan.split("•")[0].trim() : currentTutor?.pendidikan ? currentTutor.pendidikan.split("•")[0].trim() : "-"}
                         </span>
                       </div>
                     </div>
@@ -801,45 +844,64 @@ export default function AreaTutor() {
                 <div className="mt-8 pt-6 grid grid-cols-2 md:grid-cols-4 gap-4 bg-[#faf9f7]/70 rounded-xl p-4 lg:p-5 backdrop-blur-xs">
                   <div className="flex items-center gap-3.5 px-2">
                     <div className="w-10 h-10 rounded-full bg-[#efeeec] flex items-center justify-center text-black shrink-0">
-                      <span className="material-symbols-outlined text-[20px]">
-                        {ipk ? "school" : "verified"}
-                      </span>
+                      <span className="material-symbols-outlined text-[20px]">verified</span>
                     </div>
                     <div>
                       <div className="font-serif text-[1.5rem] text-[#1a1c1b] leading-none">
-                        {ipk ? ipk : "Aktif"}
+                        {tutorStatus}
                       </div>
                       <div className="text-[0.75rem] text-[#67645f] mt-1 font-medium">
-                        {ipk ? "IPK Akademik" : "Status Pengajar"}
+                        Status Pengajar
                       </div>
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-3.5 px-2">
-                    <div className="w-10 h-10 rounded-full bg-[#efeeec] flex items-center justify-center text-black shrink-0">
-                      <span className="material-symbols-outlined text-[20px]">calendar_month</span>
-                    </div>
-                    <div>
-                      <div className="font-serif text-[1.5rem] text-[#1a1c1b] leading-none">
-                        {hariTersedia.length}
-                        <span className="text-[0.8125rem] text-[#444748]"> Hari</span>
+                  {/* Box 2: Mata Pelajaran (menggantikan ketersediaan mingguan) */}
+                  {(() => {
+                    const tutorMapelList = (currentTutor?.mataPelajaran || [])
+                      .map(cleanMapelName)
+                      .filter(Boolean);
+                    const tutorMapelText = tutorMapelList.length > 0 ? tutorMapelList.join(", ") : "-";
+                    return (
+                      <div className="flex items-center gap-3.5 px-2">
+                        <div className="w-10 h-10 rounded-full bg-[#efeeec] flex items-center justify-center text-black shrink-0">
+                          <span className="material-symbols-outlined text-[20px]">menu_book</span>
+                        </div>
+                        <div className="min-w-0">
+                          <div
+                            className="font-serif text-[1.25rem] text-[#1a1c1b] leading-tight truncate"
+                            title={tutorMapelText}
+                          >
+                            {tutorMapelText}
+                          </div>
+                          <div className="text-[0.75rem] text-[#67645f] mt-1 font-medium">
+                            Mata Pelajaran
+                          </div>
+                        </div>
                       </div>
-                      <div className="text-[0.75rem] text-[#67645f] mt-1 font-medium">
-                        Ketersediaan Mingguan
-                      </div>
-                    </div>
-                  </div>
+                    );
+                  })()}
 
+                  {/* Box 3: Jenjang Bimbingan */}
                   <div className="flex items-center gap-3.5 px-2">
                     <div className="w-10 h-10 rounded-full bg-[#efeeec] flex items-center justify-center text-black shrink-0">
-                      <span className="material-symbols-outlined text-[20px]">groups</span>
+                      <span className="material-symbols-outlined text-[20px]">layers</span>
                     </div>
-                    <div>
-                      <div className="font-serif text-[1.5rem] text-[#1a1c1b] leading-none">
-                        24<span className="text-[0.8125rem] text-[#444748]"> Siswa</span>
+                    <div className="min-w-0">
+                      <div
+                        className="font-serif text-[1.25rem] text-[#1a1c1b] leading-tight truncate"
+                        title={
+                          currentTutor?.jenjang && currentTutor.jenjang.length > 0
+                            ? currentTutor.jenjang.filter((j) => !/utbk/i.test(j)).join(", ")
+                            : "-"
+                        }
+                      >
+                        {currentTutor?.jenjang && currentTutor.jenjang.length > 0
+                          ? currentTutor.jenjang.filter((j) => !/utbk/i.test(j)).join(", ")
+                          : "-"}
                       </div>
                       <div className="text-[0.75rem] text-[#67645f] mt-1 font-medium">
-                        Bimbingan Aktif
+                        Jenjang Bimbingan
                       </div>
                     </div>
                   </div>
@@ -1110,7 +1172,7 @@ export default function AreaTutor() {
                                         </div>
 
                                         {/* Dropdown Sesi & Dropdown Program */}
-                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
                                           <div>
                                             <label className="block text-[0.72rem] font-semibold text-[#173F3A] mb-1.5 flex items-center gap-1">
                                               <span className="material-symbols-outlined text-[15px]">schedule</span>
@@ -1205,15 +1267,44 @@ export default function AreaTutor() {
                                               </label>
                                             </div>
                                           </div>
+
+                                            <div>
+                                              <label className="block text-[0.72rem] font-semibold text-[#173F3A] mb-1.5 flex items-center gap-1">
+                                                <span className="material-symbols-outlined text-[15px]">layers</span>
+                                                <span>Jenjang (Centang Pilihan)</span>
+                                              </label>
+                                              <div className="flex items-center gap-3 py-2 px-3 bg-[#faf8f5] border border-[#173F3A]/20 rounded-xl min-h-[38px] flex-wrap">
+                                                {tutorAllowedJenjang.map((j) => {
+                                                  const isChecked = (slot.jenjang || []).includes(j);
+                                                  return (
+                                                    <label key={j} className="inline-flex items-center gap-1 cursor-pointer select-none text-[0.8125rem] font-medium text-[#173F3A]">
+                                                      <input
+                                                        type="checkbox"
+                                                        checked={isChecked}
+                                                        onChange={(e) => {
+                                                          const currentJenjang = slot.jenjang || [];
+                                                          const nextJenjang = e.target.checked
+                                                            ? [...currentJenjang, j]
+                                                            : currentJenjang.filter((item) => item !== j);
+                                                          updateSlot(slot.id, { jenjang: nextJenjang });
+                                                        }}
+                                                        className="w-4 h-4 rounded text-[#173F3A] focus:ring-[#173F3A] accent-[#173F3A] cursor-pointer"
+                                                      />
+                                                      <span>{j}</span>
+                                                    </label>
+                                                  );
+                                                })}
+                                              </div>
+                                            </div>
                                         </div>
 
                                         {/* Status Indikator Sesi */}
                                         <div className="pt-2 border-t border-[#173F3A]/10 flex items-center text-[0.75rem]">
-                                          {slot.jamMulai && slot.jamSelesai && slot.keterangan ? (
+                                          {slot.jamMulai && slot.jamSelesai && slot.keterangan && slot.jenjang && slot.jenjang.length > 0 ? (
                                             <div className="flex items-center gap-1.5 text-emerald-700 font-medium">
                                               <span className="material-symbols-outlined text-[16px]">check_circle</span>
                                               <span>
-                                                Aktif: {slot.jamMulai} - {slot.jamSelesai} WIB ({slot.keterangan})
+                                                Aktif: {slot.jamMulai} - {slot.jamSelesai} WIB ({slot.keterangan} • {slot.jenjang.join(", ")})
                                               </span>
                                             </div>
                                           ) : !slot.jamMulai || !slot.jamSelesai ? (
@@ -1221,10 +1312,15 @@ export default function AreaTutor() {
                                               <span className="material-symbols-outlined text-[16px]">info</span>
                                               <span>Pilih sesi jadwal di atas</span>
                                             </div>
-                                          ) : (
+                                          ) : !slot.keterangan ? (
                                             <div className="flex items-center gap-1.5 text-amber-700">
                                               <span className="material-symbols-outlined text-[16px]">info</span>
                                               <span>Pilih program (centang Reguler / Private)</span>
+                                            </div>
+                                          ) : (
+                                            <div className="flex items-center gap-1.5 text-amber-700">
+                                              <span className="material-symbols-outlined text-[16px]">info</span>
+                                              <span>Pilih jenjang (centang {tutorAllowedJenjang.join(" / ")})</span>
                                             </div>
                                           )}
                                         </div>
@@ -1275,22 +1371,7 @@ export default function AreaTutor() {
                       </p>
                     </div>
 
-                    {/* Input Nilai IPK */}
-                    <div className="space-y-2 pt-1">
-                      <label className="text-[0.75rem] text-[#444748] flex items-center justify-between">
-                        <span className="font-semibold text-[#173F3A]">Nilai IPK (Indeks Prestasi Kumulatif)</span>
-                        <span className="text-[#67645f]">Ditampilkan di kartu publik &amp; profil (Opsional)</span>
-                      </label>
-                      <div className="bg-[#f4f3f1] rounded-xl px-4 py-3 focus-within:bg-[#efeeec] transition-colors max-w-xs">
-                        <input
-                          type="text"
-                          value={ipk}
-                          onChange={(e) => setIpk(e.target.value)}
-                          placeholder="Contoh: 3.85 / 4.00"
-                          className="w-full bg-transparent text-[0.9375rem] text-[#1a1c1b] focus:outline-none"
-                        />
-                      </div>
-                    </div>
+                    
 
                     {/* Tags Keahlian */}
                     <div className="space-y-2 pt-2">
@@ -1498,41 +1579,64 @@ export default function AreaTutor() {
                       <span className="text-[0.75rem] text-[#444748]">Katalog</span>
                     </div>
 
-                    <div className="relative w-full aspect-[3/4] rounded-[24px] overflow-hidden bg-[#faf8f5] shadow-[0_12px_32px_-8px_rgba(23,63,58,0.15)]">
-                      <img
-                        id="sidebar-live-portrait"
-                        src={foto}
-                        alt="Preview"
-                        className="w-full h-full object-cover"
-                      />
+                    <div className="relative w-full bg-white rounded-3xl shadow-md border border-[#173F3A]/15 overflow-hidden flex flex-col">
+                      {/* Photo Container 4/5 Aspect Ratio matching Public */}
+                      <div className="relative w-full aspect-[4/5] bg-[#efeeec] overflow-hidden">
+                        <img
+                          id="sidebar-live-portrait"
+                          src={foto}
+                          alt={currentTutor?.nama || "Tutor"}
+                          className="w-full h-full object-cover object-center"
+                        />
 
-                      <div className="absolute top-3.5 left-3.5 right-3.5 flex items-center justify-between pointer-events-none">
-                        <span className="bg-[#faf8f5]/90 backdrop-blur-md text-[#173F3A] text-[0.6875rem] font-bold px-3 py-1 rounded-full uppercase tracking-wider shadow-xs border border-[#173F3A]/10">
-                          {currentTutor?.mataPelajaran[0] || "Kimia"}
-                        </span>
-                        {ipk ? (
-                          <span className="bg-white/95 backdrop-blur-md text-[#173F3A] text-[0.6875rem] font-bold px-2.5 py-1 rounded-full flex items-center gap-1 shadow-xs border border-[#173F3A]/15">
-                            <span className="material-symbols-outlined text-[13px] text-[#B74E2C]">school</span>
-                            IPK {ipk}
+                        {/* Top Right: Total Sesi & Total Hari Badge */}
+                        <div className="absolute top-3.5 right-3.5 bg-white/95 backdrop-blur-md px-2.5 py-1 rounded-full flex items-center gap-1 shadow-xs border border-[#173F3A]/15 pointer-events-none">
+                          <span className="material-symbols-outlined text-[#173F3A] text-[13px]">schedule</span>
+                          <span className="text-[0.72rem] font-bold text-[#173F3A]">
+                            {jadwalSlots.filter((s) => s.jamMulai && s.jamSelesai).length} Sesi • {hariTersedia.length} Hari
                           </span>
-                        ) : (
-                          <span className="bg-white/90 backdrop-blur-md text-[#173F3A] text-[0.6875rem] font-semibold px-2.5 py-1 rounded-full border border-[#173F3A]/10">
-                            Terverifikasi
-                          </span>
-                        )}
+                        </div>
+
+                        {/* Floating Pill Badge Nestled at Bottom */}
+                        <div className="absolute inset-x-3 bottom-3 p-3 rounded-2xl bg-white/95 backdrop-blur-md shadow-md text-center">
+                          <h3 className="text-[0.875rem] text-[#1a1c1b] font-semibold truncate">
+                            {currentTutor?.nama || "Siti Rahmawati, M.Si."}
+                          </h3>
+                          <p className="text-[0.8125rem] text-[#444748] truncate mt-0.5">
+                            {pendidikan ? pendidikan.split("•")[0].trim() : currentTutor?.pendidikan ? currentTutor.pendidikan.split("•")[0].trim() : "Pengajar Ahli"}
+                          </p>
+                          <div className="flex items-center justify-center gap-1 mt-2 flex-wrap">
+                            {(() => {
+                              const derived = Array.from(new Set(jadwalSlots.flatMap((s) => s.jenjang || [])));
+                              const list = derived.length > 0 ? derived : (currentTutor?.jenjang || ["SMA"]);
+                              return list.filter((j) => !/utbk/i.test(j)).map((j) => (
+                                <span
+                                  key={j}
+                                  className="text-[0.68rem] font-semibold px-2 py-0.5 rounded-md bg-[#173F3A]/10 text-[#173F3A]"
+                                >
+                                  {j}
+                                </span>
+                              ));
+                            })()}
+                          </div>
+                        </div>
                       </div>
 
-                      <div className="absolute bottom-3 left-3 right-3 bg-white/95 backdrop-blur-md rounded-xl p-3.5 shadow-lg space-y-1 border border-[#173F3A]/10">
-                        <h3 className="font-serif text-[1.125rem] text-[#173F3A] font-bold leading-tight">
-                          {currentTutor?.nama || "Siti Rahmawati, M.Si."}
-                        </h3>
-                        <p className="text-[0.6875rem] text-[#444748] truncate">
-                          {pendidikan.split("•")[0] || "S2 Kimia ITB"}
-                        </p>
+                      {/* Bottom Strip: School / Experience + Arrow Action */}
+                      <div className="p-3.5 flex items-center justify-between bg-white border-t border-[#173F3A]/10">
+                        <div className="flex items-center gap-1.5 text-[#444748] text-[0.75rem] min-w-0">
+                          <span className="material-symbols-outlined text-[16px] text-black shrink-0">school</span>
+                          <span className="truncate">
+                            {pendidikan ? pendidikan.split("•")[0].trim() : "Alumni PTN"}
+                          </span>
+                        </div>
+                        <span className="text-[0.75rem] text-black font-semibold flex items-center gap-0.5 shrink-0">
+                          Jadwal
+                          <span className="material-symbols-outlined text-[14px]">arrow_forward</span>
+                        </span>
                       </div>
                     </div>
 
-                    {/* Ketersediaan Hari & Jam Ringkas pada Pratinjau */}
                     <div className="bg-[#faf8f5] rounded-xl p-4 border border-[#173F3A]/15 space-y-2.5">
                       <div className="flex items-center justify-between">
                         <span className="text-[0.6875rem] font-bold uppercase tracking-wider text-[#173F3A] block">

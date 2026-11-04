@@ -1,3 +1,4 @@
+
 import { NextResponse } from "next/server";
 import connectDB from "@/lib/mongodb";
 import MataPelajaran from "@/models/MataPelajaran";
@@ -14,7 +15,7 @@ const DEFAULT_MAPEL = [
   "Geografi",
   "Sosiologi",
   "Sejarah",
-  "TPS / UTBK",
+  "TPS",
 ];
 
 // GET: Ambil semua mata pelajaran
