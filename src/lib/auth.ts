@@ -183,40 +183,21 @@ export const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
 /* --------------------------- Token aktivasi --------------------------- */
 
-export function generateActivationToken(): { token: string; hash: string } {
-  const token = crypto.randomBytes(32).toString("hex");
-  const hash = crypto.createHash("sha256").update(token).digest("hex");
-  return { token, hash };
-}
-
-export function hashActivationToken(token: string): string {
+export function hashToken(token: string): string {
   return crypto.createHash("sha256").update(token).digest("hex");
 }
 
-export const generateActivationToken = generateAktivasiToken;
+/** Nama lama / alias dipertahankan agar route yang sudah memakainya tidak perlu diubah. */
 export const hashActivationToken = hashToken;
 
-/** Normalisasi nomor WA Indonesia ke format internasional tanpa "+" (untuk wa.me). */
-export function nomorWaInternasional(nomor: string): string {
-  const digit = nomor.replace(/\D/g, "");
-  if (digit.startsWith("62")) return digit;
-  if (digit.startsWith("0")) return "62" + digit.slice(1);
-  return "62" + digit;
-}
-
-/** Nama lama dipertahankan agar route yang sudah memakainya tidak perlu diubah. */
-export const hashActivationToken = hashToken;
-
-export function generateAktivasiToken() {
+export function generateAktivasiToken(): { token: string; tokenHash: string; hash: string } {
   const token = crypto.randomBytes(32).toString("base64url");
-  return { token, tokenHash: hashToken(token) };
+  const tokenHash = hashToken(token);
+  return { token, tokenHash, hash: tokenHash };
 }
 
-/** Varian generik: { token, hash }. */
-export function generateActivationToken(): { token: string; hash: string } {
-  const { token, tokenHash } = generateAktivasiToken();
-  return { token, hash: tokenHash };
-}
+/** Varian generik: { token, hash, tokenHash }. */
+export const generateActivationToken = generateAktivasiToken;
 
 /* ------------------- Pembatas percobaan login (sederhana) ------------------- */
 // Disimpan di memori proses: cukup untuk 1 server / dev. Di serverless (Vercel)
