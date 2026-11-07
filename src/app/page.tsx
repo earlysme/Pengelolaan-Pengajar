@@ -47,6 +47,18 @@ interface ParsedJadwalGroup {
   slots: { jam: string; label?: string }[];
 }
 
+const extractJenjangFromJadwal = (jadwal?: string[]): string[] => {
+  if (!jadwal || jadwal.length === 0) return [];
+  const found = new Set<string>();
+  for (const item of jadwal) {
+    if (/\bsd\b/i.test(item)) found.add("SD");
+    if (/\bsmp\b/i.test(item)) found.add("SMP");
+    if (/\bsma\b/i.test(item)) found.add("SMA");
+    if (/\bkedinasan\b/i.test(item)) found.add("Kedinasan");
+  }
+  return Array.from(found);
+};
+
 const parseJadwalList = (jadwal?: string[]): ParsedJadwalGroup[] => {
   if (!jadwal || jadwal.length === 0) return [];
   const map = new Map<string, { jam: string; label?: string }[]>();
@@ -110,153 +122,6 @@ const getJadwalSummary = (jadwal?: string[]) => {
   };
 };
 
-const MASTER_TUTORS: TutorItem[] = [
-  {
-    _id: "tutor-1",
-    nama: "Dr. Hendra Wijaya",
-    jabatan: "Kepala Kurikulum & Fisika ITB",
-    mataPelajaran: ["Fisika", "Sains Terapan"],
-    jenjang: ["SMA", "Kedinasan"],
-    kategori: "mipa",
-    almamater: "Alumni ITB",
-    ipk: "3.92",
-    pengalaman: "9 Thn",
-    rating: 4.98,
-    foto: "https://lh3.googleusercontent.com/aida-public/AB6AXuCPSslSYYnfoV2BdHniraBvf-zFTY0_nnKDvhTyDKr-ePxazX-evrLx9wkLIMu0JmsGzBaNJV08G9BbP71H_bY_x70-6a470DOucz6qd81hdQe2fZkfE_9-kHxHKatJzcVMLQR_jtPJ2AlYAehZ1HU5QK2otmJ_KLN4NOpZfPAH9yhBkrG4P1PWOi7WdWCPGob4JPR1d0_-M5DebT8wLuTYErUmYzDEpBDERMac1Xm3",
-    nomorTelepon: "081249829011",
-    deskripsi: "Pakar fisika terapan dengan metode pengajaran intuitif berbasis visualisasi konsep dan problem solving olimpiade.",
-    jadwal: ["Senin: 16:00 - 18:00 WIB (Intensif)", "Kamis: 18:30 - 20:30 WIB (Klinik Soal)"],
-    iconType: "school",
-    ctaText: "Jadwal",
-  },
-  {
-    _id: "tutor-2",
-    nama: "Dra. Ratna Kartika, M.Pd.",
-    jabatan: "Master Tutor Kimia UI",
-    mataPelajaran: ["Kimia", "Sains"],
-    jenjang: ["SMA", "Kedinasan"],
-    kategori: "mipa",
-    almamater: "Alumni UI",
-    ipk: "3.88",
-    pengalaman: "11 Thn",
-    rating: 5.0,
-    foto: "https://lh3.googleusercontent.com/aida-public/AB6AXuBLORKz5cdb-b6Sr6iQlkZnWwaR4Wien9clgtQ_4naSaUQAyFF1M8VRzvd4ctrFL2I_zTWxbLy5l5Be2KsLfTDWB7RHoLTzkIehkUjMz5Pi-XHPSSRcgpn7QWLovBwA1xpaK90HqTOVA18yW6RiEP0Vg3HsYK5_eEp3N1eRwIlGmWLylsqJI97PY9sbsTThI-kln8L1bQqnIF1Tlm_hMUHIHdd59EEZ1WrVvP_G7ndK",
-    nomorTelepon: "082198765432",
-    deskripsi: "Berpengalaman mendampingi ratusan siswa menembus jurusan kedokteran & teknik dengan drilling soal terstruktur.",
-    jadwal: ["Selasa: 15:30 - 17:30 WIB", "Jumat: 16:00 - 18:00 WIB"],
-    iconType: "school",
-    ctaText: "Jadwal",
-  },
-  {
-    _id: "tutor-3",
-    nama: "Kevin Pratama, M.Mat.",
-    jabatan: "Medalis Emas OSN Matematika",
-    mataPelajaran: ["Matematika", "Kalkulus"],
-    jenjang: ["SMP", "SMA", "Kedinasan"],
-    kategori: "mipa",
-    almamater: "Alumni ITB",
-    ipk: "3.95",
-    pengalaman: "6 Thn",
-    rating: 4.97,
-    foto: "https://lh3.googleusercontent.com/aida-public/AB6AXuAMzpCwKO7dTXYJHybvMdaPcbeAiwkqw2shc9nkAkY6HpOuanEnWPOUAvIAZqtGdtb7zHGoEHTMjra-MHJ5KcgidGvYixdUooSScyKxPc9qPcXWSEhigbVrOlNyh0c2inmxj6Rxvv27wCjvjozEJkSZJzs2pD9AgnBax2xFI48VUkpQZX_OEGJA8hi0iOI26MjM7CA8Ytit4e4wnvcTv-SOUB5ZJXr-qzHXD7t6KY4M",
-    nomorTelepon: "081299887766",
-    deskripsi: "Spesialis logika matematika, aljabar linear, dan strategi penalaran analitis.",
-    jadwal: ["Rabu: 18:30 - 20:30 WIB", "Sabtu: 09:00 - 11:30 WIB"],
-    iconType: "school",
-    ctaText: "Jadwal",
-  },
-  {
-    _id: "tutor-4",
-    nama: "drg. Nadia Safira, S.KG.",
-    jabatan: "Mentor Masuk Kedokteran FKG UI",
-    mataPelajaran: ["Biologi", "Kedokteran Dasar"],
-    jenjang: ["SMA", "Kedinasan"],
-    kategori: "kedokteran",
-    almamater: "FKG UI",
-    ipk: "3.86",
-    pengalaman: "5 Thn",
-    rating: 4.99,
-    foto: "https://lh3.googleusercontent.com/aida-public/AB6AXuAGuy447MXo2kjeNpyEMYzbakob825Ov0Mzr_AoHY7OF_8T2utmJMn4Yjvwfk2omND1BUp8TVfh9O2d8g659-O6PUbvZNDrvhzocBSnd0DD5jZHWL-CnCtwqqME0VF_r11X5NDgbQuqm4qxP7DZRjLsqNP7FbMY6OS_UvVOEbFwjvfqKL_RY5E6TBS8_nWBJa9WHSjPEsj6izlX_ClmQCkOwtDdw1skYZ1UtxK_qMWB",
-    nomorTelepon: "081377889900",
-    deskripsi: "Fokus pada pendampingan intensif masuk Fakultas Kedokteran & Kedokteran Gigi PTN unggulan nasional.",
-    jadwal: ["Selasa: 16:30 - 18:30 WIB", "Sabtu: 13:00 - 15:30 WIB"],
-    iconType: "school",
-    ctaText: "Jadwal",
-  },
-  {
-    _id: "tutor-5",
-    nama: "Sarah Elizabeth, M.A.",
-    jabatan: "Master Bahasa Inggris & IELTS UGM",
-    mataPelajaran: ["Bahasa Inggris", "IELTS"],
-    jenjang: ["SD", "SMP", "SMA", "Kedinasan"],
-    kategori: "bahasa",
-    almamater: "Alumni UGM",
-    ipk: "3.84",
-    pengalaman: "8 Thn",
-    rating: 4.95,
-    foto: "https://lh3.googleusercontent.com/aida-public/AB6AXuBm0XBC9ojBinLHY1otLK2OkdrHFXr8DYPkcDfiN6for5hQho4p_kjv-GxtOyjQBVExdKe1_bVh9cII47Ozvye8W3vaRgppWaqiDySMg6aPE2qhLTlMUcMQHZPJ1v1OsghQwrozQYswyytWJVFLm_JRBbYt7yYA-io24srTjjNKkRvfmqd3f_jFGiVhi6h7Stx8N8w0da3rpblGeYuqNeX_Sh3How3nw055w21s83M4",
-    nomorTelepon: "081988223344",
-    deskripsi: "Pelatih sertifikasi IELTS Band 7.5+ dan kemampuan menulis esai akademik berstandar internasional.",
-    jadwal: ["Senin: 19:00 - 20:30 WIB", "Kamis: 19:00 - 20:30 WIB"],
-    iconType: "school",
-    ctaText: "Jadwal",
-  },
-  {
-    _id: "tutor-6",
-    nama: "Rizky Ramadhan, S.E.",
-    jabatan: "Ekonomi & SIMAK UI Spesialis",
-    mataPelajaran: ["Ekonomi", "Soshum"],
-    jenjang: ["SMA", "Kedinasan"],
-    kategori: "soshum",
-    almamater: "FEB UI",
-    ipk: "3.90",
-    pengalaman: "7 Thn",
-    rating: 4.96,
-    foto: "https://lh3.googleusercontent.com/aida-public/AB6AXuBihIIL8OHDv5plKshRoJYK1h8E6mH-_SV-pcRqOQizylclRjYdzHU87cfPChGSahQvPDlCpLka4EOTuC4DWpbiFiKZ9RkRcfYUg8hKjuSdoTmg-ZCPcA_T2rgwY5nfcOuqxFxovOejirXrJR814WfLGYzchJcohDJqXPDm-yEuF4r51O2OaooAa_VCbWqdjzoD3uZPTnUuWX8xTakgJ4K_HUvI3pTem2Gh3O34ORjU",
-    nomorTelepon: "085712349988",
-    deskripsi: "Pakar analisis makro-mikro ekonomi serta kurikulum SIMAK UI dan Ujian Masuk PTN klaster Soshum.",
-    jadwal: ["Rabu: 16:00 - 18:00 WIB", "Jumat: 14:00 - 16:00 WIB"],
-    iconType: "school",
-    ctaText: "Jadwal",
-  },
-  {
-    _id: "tutor-7",
-    nama: "Fadhila Anindita, M.Psi.",
-    jabatan: "Psikolog Pendampingan Belajar",
-    mataPelajaran: ["Konseling", "Psikologi"],
-    jenjang: ["SD", "SMP", "SMA"],
-    kategori: "psikologi",
-    almamater: "Psikologi UI",
-    ipk: "3.89",
-    pengalaman: "6 Thn",
-    rating: 5.0,
-    foto: "https://lh3.googleusercontent.com/aida-public/AB6AXuAbSN3hI6xayPEzaRiXUdNW04vN7yHtSBSJxZ24Eqlr-i45aDoRaA8iOQGwfJFlIloGvP14s49Hmj34_2oEx1k7MzTczima3IzGp2TVmCnzkVsZoqoNHUIQ5CKQiGj1XC7S5HvSohdATcS06cXqh7ZpQb1DjXEYx76_-aFsY_fUSxA8m50H9p_rMneLe9apXNB-HCW_i5txrO_sjdJPBnCltpCOe2RYxQyu1LShV4yo",
-    nomorTelepon: "081344556677",
-    deskripsi: "Membimbing kesiapan mental, manajemen stres ujian, dan tes pemetaan minat bakat jurusan kuliah.",
-    jadwal: ["Selasa: 14:00 - 16:00 WIB", "Sabtu: 10:00 - 12:00 WIB"],
-    iconType: "psychology",
-    ctaText: "Konseling",
-  },
-  {
-    _id: "tutor-8",
-    nama: "Bagas Pratama, S.Si.",
-    jabatan: "Biologi Terapan & Kedokteran Unair",
-    mataPelajaran: ["Biologi", "Sains"],
-    jenjang: ["SMP", "SMA", "Kedinasan"],
-    kategori: "mipa",
-    almamater: "Alumni Unair",
-    ipk: "3.85",
-    pengalaman: "5 Thn",
-    rating: 4.97,
-    foto: "https://lh3.googleusercontent.com/aida-public/AB6AXuBCTi8bN5APIh7vXalz2gT3e_2KG33lMKwXWg5u5eOnPByHw7TZX6zncgYC40_uMA8lVBNJz0yJb3GtIko9yVzivDgRKt_sDlrHMbptxQBwi39PgnDtLd02jlWQeLwkVkikPNo7Abeih5aE5rM8vmkNam4XStknrWbB2IszE_s4C7j8VwzCAZ7PJxvxVGuBy3VmwPLkiFUwt1pmuWLZtWGbsA0PMem8zV0FCcpFUR8t",
-    nomorTelepon: "081249829011",
-    deskripsi: "Fokus pada pendalaman biologi sel, genetika, dan fisiologi tubuh untuk seleksi ketat program sains.",
-    jadwal: ["Kamis: 16:00 - 18:00 WIB", "Minggu: 09:00 - 11:30 WIB"],
-    iconType: "school",
-    ctaText: "Jadwal",
-  },
-];
-
 const FILTER_ITEMS = [
   { id: "all", label: "Semua Pengajar" },
   { id: "mipa", label: "MIPA" },
@@ -266,22 +131,67 @@ const FILTER_ITEMS = [
   { id: "psikologi", label: "Konselor Belajar" },
 ];
 
+interface DBPengajarItem {
+  _id: string;
+  nama: string;
+  status?: string;
+  pendidikan?: string;
+  ipk?: string;
+  mataPelajaran?: string[];
+  jenjang?: string[];
+  foto?: string;
+  nomorTelepon?: string;
+  deskripsi?: string;
+  jadwalTersedia?: string[];
+}
+
+const mapDBToTutor = (p: DBPengajarItem): TutorItem => {
+  const jenjangList = p.jenjang && p.jenjang.length > 0 ? p.jenjang : extractJenjangFromJadwal(p.jadwalTersedia);
+  const avatarFallback = `https://ui-avatars.com/api/?name=${encodeURIComponent(p.nama)}&background=173F3A&color=ffffff&bold=true`;
+
+  return {
+    _id: p._id,
+    nama: p.nama,
+    jabatan: p.pendidikan || "Pengajar Bimbel",
+    mataPelajaran: p.mataPelajaran && p.mataPelajaran.length > 0 ? p.mataPelajaran : ["Bimbingan Belajar"],
+    jenjang: jenjangList,
+    kategori: (p.mataPelajaran?.some((m: string) => /inggris|indonesia|bahasa|ielts|toefl|literasi/i.test(m))
+      ? "bahasa"
+      : p.mataPelajaran?.some((m: string) => /ekonomi|sosiologi|sejarah|geografi|akuntansi|soshum/i.test(m))
+        ? "soshum"
+        : p.mataPelajaran?.some((m: string) => /psikologi|konseling/i.test(m))
+          ? "psikologi"
+          : p.mataPelajaran?.some((m: string) => /kedokteran|anatomi|farmasi/i.test(m))
+            ? "kedokteran"
+            : "mipa") as TutorItem["kategori"],
+    almamater: p.pendidikan || "Pendidik Terakreditasi",
+    ipk: p.ipk || "",
+    pengalaman: "Pengajar Aktif",
+    rating: 5.0,
+    foto: p.foto ? cleanImageUrl(p.foto) : avatarFallback,
+    nomorTelepon: p.nomorTelepon || "",
+    deskripsi: p.deskripsi || "",
+    jadwal: p.jadwalTersedia || [],
+    iconType: "school",
+    ctaText: "Jadwal",
+  };
+};
+
 export default function HalamanKatalog() {
   const [activeFilter, setActiveFilter] = useState("all");
   const [modalTutor, setModalTutor] = useState<TutorItem | null>(null);
   const parsedJadwalModal = useMemo(() => {
     return parseJadwalList(modalTutor?.jadwal);
   }, [modalTutor?.jadwal]);
-  const [tutorList, setTutorList] = useState<TutorItem[]>(MASTER_TUTORS);
+
+  const [tutorList, setTutorList] = useState<TutorItem[]>([]);
   const [isDbLoaded, setIsDbLoaded] = useState(false);
-  const [loadMoreState, setLoadMoreState] = useState<"idle" | "loading" | "done">("idle");
+  const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState("");
 
-  const loadFromDB = async (isManual = false) => {
+  const loadFromDB = async () => {
     try {
-      setLoadMoreState("loading");
       setLoadError("");
-      // Gunakan query timestamp & no-store agar browser HP dan Vercel tidak menyajikan response cache lama
       const res = await fetch("/api/pengajar?t=" + Date.now(), {
         cache: "no-store",
         headers: {
@@ -290,77 +200,38 @@ export default function HalamanKatalog() {
         },
       });
       const json = await res.json();
-      if (json.success && Array.isArray(json.data) && json.data.length > 0) {
-        interface DBPengajarItem {
-          _id: string;
-          nama: string;
-          status?: string;
-          pendidikan?: string;
-          ipk?: string;
-          mataPelajaran?: string[];
-          jenjang?: string[];
-          foto?: string;
-          nomorTelepon?: string;
-          deskripsi?: string;
-          jadwalTersedia?: string[];
-        }
-        const validTutors = (json.data as DBPengajarItem[]).filter((p) => p.status !== "Nonaktif");
-        if (validTutors.length > 0) {
-          const dbMapped: TutorItem[] = validTutors.map((p, idx) => {
-            const fallback = MASTER_TUTORS[idx % MASTER_TUTORS.length];
-            return {
-              _id: p._id,
-              nama: p.nama,
-              jabatan: p.pendidikan || fallback.jabatan,
-              mataPelajaran: p.mataPelajaran || fallback.mataPelajaran,
-              jenjang: p.jenjang && p.jenjang.length > 0 ? p.jenjang : fallback.jenjang || ["SMA"],
-              kategori: (p.mataPelajaran?.some((m: string) => /inggris|indonesia|bahasa|ielts|toefl|literasi/i.test(m))
-                ? "bahasa"
-                : p.mataPelajaran?.some((m: string) => /ekonomi|sosiologi|sejarah|geografi|akuntansi|soshum/i.test(m))
-                  ? "soshum"
-                  : p.mataPelajaran?.some((m: string) => /psikologi|konseling/i.test(m))
-                    ? "psikologi"
-                    : p.mataPelajaran?.some((m: string) => /kedokteran|anatomi|farmasi/i.test(m))
-                      ? "kedokteran"
-                      : "mipa") as TutorItem["kategori"],
-              almamater: p.pendidikan ? p.pendidikan.split(" ")[0] + " • 5+ Thn" : fallback.almamater,
-              ipk: p.ipk || fallback.ipk || "",
-              pengalaman: "6 Thn",
-              rating: 4.95,
-              foto: p.foto ? cleanImageUrl(p.foto) : fallback.foto,
-              nomorTelepon: p.nomorTelepon || fallback.nomorTelepon,
-              deskripsi: p.deskripsi || fallback.deskripsi,
-              jadwal: p.jadwalTersedia || fallback.jadwal,
-              iconType: "school",
-              ctaText: "Jadwal",
-            };
-          });
-          setTutorList(dbMapped);
-          setIsDbLoaded(true);
-          setLoadMoreState("done");
-          return;
-        }
+      if (json.success && Array.isArray(json.data)) {
+        const validTutors = (json.data as DBPengajarItem[]).filter((p) => {
+          if (p.status === "Nonaktif" || p.status === "Cuti") return false;
+          // Hanya tampilkan tutor yang sudah mengatur minimal 1 sesi jadwal aktif
+          const hasJadwal = Array.isArray(p.jadwalTersedia) && p.jadwalTersedia.length > 0;
+          return hasJadwal;
+        });
+        setTutorList(validTutors.map(mapDBToTutor));
+        setIsDbLoaded(true);
+      } else {
+        setTutorList([]);
       }
-      setLoadMoreState("done");
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Tidak dapat terhubung ke database server";
       setLoadError(msg);
-      setLoadMoreState("idle");
+      setTutorList([]);
+    } finally {
+      setLoading(false);
     }
   };
 
   useEffect(() => {
     void loadFromDB();
+    const onFocus = () => void loadFromDB();
+    window.addEventListener("focus", onFocus);
+    return () => window.removeEventListener("focus", onFocus);
   }, []);
 
   const filteredTutors = useMemo(() => {
     if (activeFilter === "all") return tutorList;
     return tutorList.filter((t) => t.kategori === activeFilter);
   }, [tutorList, activeFilter]);
-
-  const handleLoadMore = () => {
-    void loadFromDB(true);
-  };
 
   return (
     <div className="bg-[#faf9f7] text-[#1a1c1b] min-h-screen selection:bg-[#e3e2e0] selection:text-[#1a1c1b]">
@@ -386,7 +257,7 @@ export default function HalamanKatalog() {
             >
               Katalog Tutor
             </button>
-            
+
             <button
               type="button"
               onClick={() => {
@@ -469,125 +340,133 @@ export default function HalamanKatalog() {
           {/* 4-Column Portrait Cards Grid */}
           <section className="w-full max-w-7xl mx-auto px-6 lg:px-12 pb-20">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {filteredTutors.map((tutor) => (
-                <article
-                  key={tutor._id}
-                  onClick={() => setModalTutor(tutor)}
-                  className="group relative bg-white rounded-3xl shadow-xs hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col cursor-pointer"
-                >
-                  {/* Photo Container 4/5 Aspect Ratio */}
-                  <div className="relative w-full aspect-[4/5] bg-[#efeeec] overflow-hidden">
-                    <img
-                      src={cleanImageUrl(tutor.foto)}
-                      alt={tutor.nama}
-                      referrerPolicy="no-referrer"
-                      onError={(e) => {
-                        const fallback = `https://ui-avatars.com/api/?name=${encodeURIComponent(tutor.nama)}&background=173F3A&color=ffffff&bold=true`;
-                        if (e.currentTarget.src !== fallback) {
-                          e.currentTarget.src = fallback;
-                        }
-                      }}
-                      className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500 ease-out"
-                    />
+              {loading ? (
+                Array.from({ length: 4 }).map((_, i) => (
+                  <div
+                    key={i}
+                    className="bg-white rounded-3xl overflow-hidden shadow-xs border border-[#173F3A]/10 animate-pulse flex flex-col"
+                  >
+                    <div className="w-full aspect-[4/5] bg-neutral-200/70" />
+                    <div className="p-4 space-y-2.5">
+                      <div className="h-4 bg-neutral-200/80 rounded-md w-3/4" />
+                      <div className="h-3 bg-neutral-200/60 rounded-md w-1/2" />
+                    </div>
+                  </div>
+                ))
+              ) : filteredTutors.length === 0 ? (
+                <div className="col-span-full py-16 text-center">
+                  <div className="w-16 h-16 rounded-full bg-[#173F3A]/10 text-[#173F3A] flex items-center justify-center mx-auto mb-4">
+                    <span className="material-symbols-outlined text-[32px]">person_off</span>
+                  </div>
+                  <h3 className="font-serif text-[1.25rem] font-bold text-[#173F3A]">Belum Ada Pengajar</h3>
+                  <p className="text-[0.875rem] text-[#67645f] mt-1 max-w-md mx-auto">
+                    Tidak ada data pengajar aktif yang ditemukan untuk kategori ini.
+                  </p>
+                </div>
+              ) : (
+                filteredTutors.map((tutor) => (
+                  <article
+                    key={tutor._id}
+                    onClick={() => setModalTutor(tutor)}
+                    className="group relative bg-white rounded-3xl shadow-xs hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col cursor-pointer"
+                  >
+                    {/* Photo Container 4/5 Aspect Ratio */}
+                    <div className="relative w-full aspect-[4/5] bg-[#efeeec] overflow-hidden">
+                      <img
+                        src={cleanImageUrl(tutor.foto)}
+                        alt={tutor.nama}
+                        referrerPolicy="no-referrer"
+                        onError={(e) => {
+                          const fallback = `https://ui-avatars.com/api/?name=${encodeURIComponent(tutor.nama)}&background=173F3A&color=ffffff&bold=true`;
+                          if (e.currentTarget.src !== fallback) {
+                            e.currentTarget.src = fallback;
+                          }
+                        }}
+                        className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500 ease-out"
+                      />
 
-                    {/* Top Right: Total Sesi & Total Hari Badge */}
-                    {(() => {
-                      const summary = getJadwalSummary(tutor.jadwal);
-                      if (summary.sesi === 0 && summary.hari === 0) return null;
-                      return (
-                        <div className="absolute top-3.5 right-3.5 bg-white/95 backdrop-blur-md px-2.5 py-1 rounded-full flex items-center gap-1 shadow-xs border border-[#173F3A]/15 pointer-events-none">
-                          <span className="material-symbols-outlined text-[#173F3A] text-[13px]">schedule</span>
-                          <span className="text-[0.72rem] font-bold text-[#173F3A]">
-                            {summary.sesi} Sesi • {summary.hari} Hari
-                          </span>
+                      {/* Top Right: Total Sesi & Total Hari Badge */}
+                      {(() => {
+                        const summary = getJadwalSummary(tutor.jadwal);
+                        if (summary.sesi === 0 && summary.hari === 0) return null;
+                        return (
+                          <div className="absolute top-3.5 right-3.5 bg-white/95 backdrop-blur-md px-2.5 py-1 rounded-full flex items-center gap-1 shadow-xs border border-[#173F3A]/15 pointer-events-none">
+                            <span className="material-symbols-outlined text-[#173F3A] text-[13px]">schedule</span>
+                            <span className="text-[0.72rem] font-bold text-[#173F3A]">
+                              {summary.sesi} Sesi • {summary.hari} Hari
+                            </span>
+                          </div>
+                        );
+                      })()}
+
+                      {/* Floating Pill Badge Nestled at Bottom */}
+                      <div className="absolute inset-x-3 bottom-3 p-3 rounded-2xl bg-white/95 backdrop-blur-md shadow-md text-center transition-transform duration-300 group-hover:-translate-y-1">
+                        <h3 className="text-[0.875rem] text-[#1a1c1b] font-semibold truncate">
+                          {tutor.nama}
+                        </h3>
+                        <p className="text-[0.8125rem] text-[#444748] truncate mt-0.5">
+                          {tutor.jabatan}
+                        </p>
+                        <div className="flex items-center justify-center gap-1 mt-2 flex-wrap">
+                          {tutor.jenjang && tutor.jenjang.map((j) => (
+                            <span
+                              key={j}
+                              className="text-[0.68rem] font-semibold px-2 py-0.5 rounded-md bg-[#173F3A]/10 text-[#173F3A]"
+                            >
+                              {j}
+                            </span>
+                          ))}
                         </div>
-                      );
-                    })()}
-
-                    
-
-                    {/* Floating Pill Badge Nestled at Bottom */}
-                    <div className="absolute inset-x-3 bottom-3 p-3 rounded-2xl bg-white/95 backdrop-blur-md shadow-md text-center transition-transform duration-300 group-hover:-translate-y-1">
-                      <h3 className="text-[0.875rem] text-[#1a1c1b] font-semibold truncate">
-                        {tutor.nama}
-                      </h3>
-                      <p className="text-[0.8125rem] text-[#444748] truncate mt-0.5">
-                        {tutor.jabatan}
-                      </p>
-                      <div className="flex items-center justify-center gap-1 mt-2 flex-wrap">
-                        
-                        {tutor.jenjang && tutor.jenjang.map((j) => (
-                          <span
-                            key={j}
-                            className="text-[0.68rem] font-semibold px-2 py-0.5 rounded-md bg-[#173F3A]/10 text-[#173F3A]"
-                          >
-                            {j}
-                          </span>
-                        ))}
                       </div>
                     </div>
-                  </div>
 
-                  {/* Bottom Strip: School / Experience + Arrow Action */}
-                  <div className="p-4 flex items-center justify-between bg-white">
-                    <div className="flex items-center gap-1.5 text-[#444748] text-[0.75rem]">
-                      <span className="material-symbols-outlined text-[16px] text-black">
-                        {tutor.iconType === "psychology" ? "psychology" : "school"}
-                      </span>
-                      <span>
-                        {tutor.almamater} • {tutor.pengalaman}
+                    {/* Bottom Strip: School / Experience + Arrow Action */}
+                    <div className="p-4 flex items-center justify-between bg-white">
+                      <div className="flex items-center gap-1.5 text-[#444748] text-[0.75rem]">
+                        <span className="material-symbols-outlined text-[16px] text-black">
+                          {tutor.iconType === "psychology" ? "psychology" : "school"}
+                        </span>
+                        <span>
+                          {tutor.almamater} • {tutor.pengalaman}
+                        </span>
+                      </div>
+                      <span className="text-[0.75rem] text-black group-hover:text-[#615e59] flex items-center gap-0.5 font-semibold transition-colors">
+                        {tutor.ctaText || "Jadwal"}
+                        <span className="material-symbols-outlined text-[14px]">arrow_forward</span>
                       </span>
                     </div>
-                    <span className="text-[0.75rem] text-black group-hover:text-[#615e59] flex items-center gap-0.5 font-semibold transition-colors">
-                      {tutor.ctaText || "Jadwal"}
-                      <span className="material-symbols-outlined text-[14px]">arrow_forward</span>
-                    </span>
-                  </div>
-                </article>
-              ))}
-            </div>
-
-            {/* Centered Load More */}
-            <div className="mt-14 flex flex-col items-center justify-center gap-4">
-              <button
-                type="button"
-                onClick={handleLoadMore}
-                disabled={loadMoreState === "done"}
-                className="inline-flex items-center gap-2 bg-white text-[#1a1c1b] hover:bg-[#e9e8e6] text-[0.875rem] font-semibold px-6 py-3 rounded-full shadow-xs hover:shadow-md transition-all disabled:opacity-75 disabled:pointer-events-none"
-              >
-                {loadMoreState === "idle" && (
-                  <>
-                    <span>Muat Lebih Banyak Pengajar</span>
-                    <span className="material-symbols-outlined text-[18px]">expand_more</span>
-                  </>
-                )}
-                {loadMoreState === "loading" && (
-                  <>
-                    <span className="material-symbols-outlined text-[18px] animate-spin">
-                      progress_activity
-                    </span>
-                    <span>Memuat Pengajar...</span>
-                  </>
-                )}
-                {loadMoreState === "done" && (
-                  <>
-                    <span className="material-symbols-outlined text-[18px]">check</span>
-                    <span>Semua {tutorList.length} Pengajar Ditampilkan</span>
-                  </>
-                )}
-              </button>
-              <p className="text-[0.8125rem] text-[#67645f]">
-                Menampilkan {filteredTutors.length} dari {tutorList.length} pengajar terverifikasi
-                {isDbLoaded && (
-                  <span className="ml-2 text-emerald-700 font-medium">• Database Terhubung</span>
-                )}
-              </p>
-              {loadError && (
-                <p className="text-[0.75rem] text-rose-600">
-                  {loadError} (menampilkan data offline/cadangan)
-                </p>
+                  </article>
+                ))
               )}
             </div>
+
+            {/* Bottom Status Info */}
+            {!loading && (
+              <div className="mt-14 flex flex-col items-center justify-center gap-3">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setLoading(true);
+                    void loadFromDB();
+                  }}
+                  className="inline-flex items-center gap-2 bg-white text-[#1a1c1b] hover:bg-[#e9e8e6] text-[0.875rem] font-semibold px-6 py-3 rounded-full shadow-xs hover:shadow-md transition-all cursor-pointer"
+                >
+                  <span className="material-symbols-outlined text-[18px]">refresh</span>
+                  <span>Segarkan Data Pengajar</span>
+                </button>
+                <p className="text-[0.8125rem] text-[#67645f]">
+                  Menampilkan {filteredTutors.length} dari {tutorList.length} pengajar terverifikasi
+                  {isDbLoaded && (
+                    <span className="ml-2 text-emerald-700 font-medium">• Database Terhubung Langsung</span>
+                  )}
+                </p>
+                {loadError && (
+                  <p className="text-[0.75rem] text-rose-600">
+                    {loadError}
+                  </p>
+                )}
+              </div>
+            )}
           </section>
 
           {/* High-End Value Strip / Minimalist Reassurance */}
@@ -767,7 +646,7 @@ export default function HalamanKatalog() {
                 </h3>
                 <p className="text-[0.8125rem] text-[#444748] mt-0.5">{modalTutor.jabatan}</p>
                 <div className="mt-1 flex items-center gap-1.5 flex-wrap">
-                  
+
                   {modalTutor.jenjang && modalTutor.jenjang.length > 0 && (
                     <div className="flex items-center gap-1">
                       <span className="text-[0.6875rem] text-[#67645f]">Jenjang:</span>

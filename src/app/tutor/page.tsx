@@ -88,6 +88,7 @@ const parseJadwalToSlots = (rawList?: string[], defaultJenjang?: string[]): Jadw
     if (/\bsd\b/i.test(parenContent)) jenjangFound.push("SD");
     if (/\bsmp\b/i.test(parenContent)) jenjangFound.push("SMP");
     if (/\bsma\b/i.test(parenContent)) jenjangFound.push("SMA");
+    if (/\bkedinasan\b/i.test(parenContent)) jenjangFound.push("Kedinasan");
 
     const progFound: string[] = [];
     if (/reguler/i.test(parenContent)) progFound.push("Reguler");
@@ -95,8 +96,7 @@ const parseJadwalToSlots = (rawList?: string[], defaultJenjang?: string[]): Jadw
 
     let slotJenjang: string[] = [];
     if (jenjangFound.length > 0) {
-      slotJenjang = cleanDefault.length > 0 ? jenjangFound.filter((j) => cleanDefault.includes(j)) : jenjangFound;
-      if (slotJenjang.length === 0) slotJenjang = [...fallback];
+      slotJenjang = jenjangFound;
     } else {
       slotJenjang = [...fallback];
     }
@@ -227,10 +227,13 @@ export default function AreaTutor() {
   // Daftar hari unik dari slot yang aktif
   const hariTersedia = Array.from(new Set(jadwalSlots.map((s) => s.hari)));
 
-  // Jenjang yang diizinkan untuk tutor ini (ditetapkan oleh koordinator saat akun dibuat)
-  const tutorAllowedJenjang = (currentTutor?.jenjang && currentTutor.jenjang.length > 0
-    ? currentTutor.jenjang.filter((j) => !/utbk/i.test(j))
-    : ["SD", "SMP", "SMA"]);
+  // Master jenjang bimbingan belajar (tutor bebas memilih semua jenjang di setiap sesinya)
+  const [masterJenjangList, setMasterJenjangList] = useState<string[]>(["SD", "SMP", "SMA", "Kedinasan"]);
+  const allJenjangOptions = (
+    masterJenjangList && masterJenjangList.length > 0
+      ? masterJenjangList
+      : ["SD", "SMP", "SMA", "Kedinasan"]
+  ).filter((j) => !/utbk/i.test(j));
 
   // Melacak status apakah ada perubahan data (sedang mengedit)
   const [initialData, setInitialData] = useState<{
@@ -300,20 +303,77 @@ export default function AreaTutor() {
     });
   };
 
+  const getAuthHeader = (): Record<string, string> => {
+    if (typeof window === "undefined") return {};
+    try {
+      const saved = localStorage.getItem("genplasma_session");
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed.token) return { Authorization: `Bearer ${parsed.token}` };
+      }
+    } catch {}
+    return {};
+  };
+
   const fetchMyProfile = async (): Promise<PengajarData | null> => {
     try {
-      // Identitas diambil dari cookie sesi server, bukan dari localStorage.
-      const me = await fetch("/api/auth/me");
+      const authHeader = getAuthHeader();
+      const me = await fetch("/api/auth/me", {
+        headers: authHeader,
+        cache: "no-store",
+        credentials: "include",
+      });
       const meJson = await me.json();
-      if (!me.ok || meJson.data?.role !== "tutor") {
-        router.push("/login");
+
+      // Jika akses di-reset oleh koordinator, langsung keluarkan dan arahkan ke login dengan info jelas
+      if (meJson.isReset) {
+        if (typeof window !== "undefined") localStorage.removeItem("genplasma_session");
+        router.push("/login?reason=reset");
         return null;
       }
 
-      const res = await fetch(`/api/pengajar/${meJson.data.id}`);
+      let tutorId = meJson.data?.id;
+
+      if (!me.ok || meJson.data?.role !== "tutor") {
+        // Cek fallback localStorage jika ada glitch jaringan saat refresh
+        if (typeof window !== "undefined") {
+          try {
+            const saved = localStorage.getItem("genplasma_session");
+            if (saved) {
+              const parsed = JSON.parse(saved);
+              if (parsed.role === "tutor" && parsed.id) {
+                tutorId = parsed.id;
+              }
+            }
+          } catch {}
+        }
+
+        if (!tutorId) {
+          if (typeof window !== "undefined") localStorage.removeItem("genplasma_session");
+          router.push("/login");
+          return null;
+        }
+      }
+
+      const res = await fetch(`/api/pengajar/${tutorId}`, {
+        headers: authHeader,
+        cache: "no-store",
+      });
       const json = await res.json();
       return json.success ? (json.data as PengajarData) : null;
     } catch {
+      // Fallback network error
+      try {
+        const saved = localStorage.getItem("genplasma_session");
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          if (parsed.role === "tutor" && parsed.id) {
+            const res = await fetch(`/api/pengajar/${parsed.id}`, { cache: "no-store" });
+            const json = await res.json();
+            return json.success ? (json.data as PengajarData) : null;
+          }
+        }
+      } catch {}
       return null;
     }
   };
@@ -334,6 +394,16 @@ export default function AreaTutor() {
       .then((j) => {
         if (!cancelled && j.success && Array.isArray(j.data)) {
           setMasterSesiList(j.data);
+        }
+      })
+      .catch(() => {});
+
+    // Ambil master jenjang dari database agar pilihan selalu mutakhir
+    fetch("/api/master/jenjang")
+      .then((r) => r.json())
+      .then((j) => {
+        if (!cancelled && j.success && Array.isArray(j.data) && j.data.length > 0) {
+          setMasterJenjangList(j.data.map((item: { nama: string }) => item.nama));
         }
       })
       .catch(() => {});
@@ -561,7 +631,7 @@ export default function AreaTutor() {
       if (!s.jenjang || s.jenjang.length === 0) {
         const targetId = `slot-card-${s.id}`;
         setHighlightedFieldId(targetId);
-        showToast(`Centang minimal 1 jenjang (${tutorAllowedJenjang.join("/")}) untuk sesi hari ${s.hari}.`);
+        showToast(`Centang minimal 1 jenjang (${allJenjangOptions.join("/")}) untuk sesi hari ${s.hari}.`);
         const elem = document.getElementById(targetId);
         if (elem) elem.scrollIntoView({ behavior: "smooth", block: "center" });
         setTimeout(() => setHighlightedFieldId(null), 4000);
@@ -605,7 +675,8 @@ export default function AreaTutor() {
         .filter((s) => s.jamMulai && s.jamSelesai)
         .map(formatSlotToString);
 
-      const finalJenjang = tutorAllowedJenjang;
+      const derivedJenjang = Array.from(new Set(jadwalSlots.flatMap((s) => s.jenjang || [])));
+      const finalJenjang = derivedJenjang.length > 0 ? derivedJenjang : (currentTutor?.jenjang && currentTutor.jenjang.length > 0 ? currentTutor.jenjang : allJenjangOptions);
 
       const res = await fetch(`/api/pengajar/${currentTutor._id}`, {
         method: "PUT",
@@ -662,7 +733,10 @@ export default function AreaTutor() {
   };
 
   const handleLogout = async () => {
-    await fetch("/api/auth/logout", { method: "POST" });
+    try {
+      if (typeof window !== "undefined") localStorage.removeItem("genplasma_session");
+      await fetch("/api/auth/logout", { method: "POST" });
+    } catch {}
     router.push("/login");
   };
 
@@ -1274,7 +1348,7 @@ export default function AreaTutor() {
                                                 <span>Jenjang (Centang Pilihan)</span>
                                               </label>
                                               <div className="flex items-center gap-3 py-2 px-3 bg-[#faf8f5] border border-[#173F3A]/20 rounded-xl min-h-[38px] flex-wrap">
-                                                {tutorAllowedJenjang.map((j) => {
+                                                {allJenjangOptions.map((j) => {
                                                   const isChecked = (slot.jenjang || []).includes(j);
                                                   return (
                                                     <label key={j} className="inline-flex items-center gap-1 cursor-pointer select-none text-[0.8125rem] font-medium text-[#173F3A]">
@@ -1320,7 +1394,7 @@ export default function AreaTutor() {
                                           ) : (
                                             <div className="flex items-center gap-1.5 text-amber-700">
                                               <span className="material-symbols-outlined text-[16px]">info</span>
-                                              <span>Pilih jenjang (centang {tutorAllowedJenjang.join(" / ")})</span>
+                                              <span>Pilih jenjang (centang {allJenjangOptions.join(" / ")})</span>
                                             </div>
                                           )}
                                         </div>

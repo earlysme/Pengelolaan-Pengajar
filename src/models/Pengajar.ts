@@ -24,6 +24,8 @@ export interface IPengajar extends Document {
   passwordHash?: string;
   aktivasiTokenHash?: string; // hash token undangan sekali pakai
   aktivasiKadaluarsa?: Date;
+  aktivasiLink?: string;
+  aktivasiWaUrl?: string;
   akunDiaktifkanPada?: Date;
   statusResetPassword?: boolean;
   otpCodeHash?: string;
@@ -90,7 +92,7 @@ const PengajarSchema: Schema<IPengajar> = new Schema(
     },
     jenjang: {
       type: [String],
-      default: ["SMA"],
+      default: [],
     },
     jenisKelas: {
       type: [String],
@@ -122,7 +124,9 @@ const PengajarSchema: Schema<IPengajar> = new Schema(
     },
     passwordHash: { type: String, select: false },
     aktivasiTokenHash: { type: String, select: false },
-    aktivasiKadaluarsa: { type: Date, select: false },
+    aktivasiKadaluarsa: { type: Date },
+    aktivasiLink: { type: String },
+    aktivasiWaUrl: { type: String },
     akunDiaktifkanPada: { type: Date },
     statusResetPassword: { type: Boolean, default: false },
     otpCodeHash: { type: String, select: false },

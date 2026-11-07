@@ -5,6 +5,8 @@ import Pengajar from "@/models/Pengajar";
 import {
   bersihkanEnv,
   setSessionCookie,
+  getSessionCookieOptions,
+  SESSION_COOKIE,
   verifyPassword,
   terlaluBanyakGagal,
   catatGagal,
@@ -66,19 +68,28 @@ export async function POST(request: Request) {
 
     if (isKoordinator) {
       resetGagal(kunci);
-      await setSessionCookie({ role: "koordinator", nama: "Koordinator Bimbel" });
-      return NextResponse.json({
+      const token = await setSessionCookie({ role: "koordinator", nama: "Koordinator Bimbel" });
+      const res = NextResponse.json({
         success: true,
-        data: { role: "koordinator", nama: "Koordinator Bimbel" },
+        data: { role: "koordinator", nama: "Koordinator Bimbel", token },
       });
+      res.cookies.set(SESSION_COOKIE, token, getSessionCookieOptions());
+      return res;
     }
 
-    // 2. Cek kredensial Tutor (MongoDB berdasarkan email)
+    // 2. Cek kredensial Tutor (MongoDB berdasarkan email atau nomor telepon)
     await connectDB();
-    const tutor = await Pengajar.findOne({ email: identitas }).select("+passwordHash");
-    const okTutor = verifyPassword(password, tutor?.passwordHash);
+    const cleanIdentitas = identitas.trim().toLowerCase();
+    const cleanDigits = cleanIdentitas.replace(/\D/g, "");
 
-    if (tutor && okTutor) {
+    const tutor = await Pengajar.findOne({
+      $or: [
+        { email: cleanIdentitas },
+        ...(cleanDigits.length >= 8 ? [{ nomorTelepon: cleanDigits }, { nomorTelepon: cleanIdentitas }] : []),
+      ],
+    }).select("+passwordHash +statusResetPassword");
+
+    if (tutor) {
       if (tutor.status === "Nonaktif") {
         return NextResponse.json(
           { success: false, error: "Akun ini dinonaktifkan. Hubungi koordinator." },
@@ -86,17 +97,46 @@ export async function POST(request: Request) {
         );
       }
 
-      if (!tutor.akunDiaktifkanPada) {
-        tutor.akunDiaktifkanPada = new Date();
-        await tutor.save();
+      // Jika koordinator telah me-reset password tutor
+      if (tutor.statusResetPassword) {
+        return NextResponse.json(
+          {
+            success: false,
+            isReset: true,
+            error: "Akses login akun Anda telah di-reset oleh koordinator. Password lama Anda sudah tidak berlaku lagi. Silakan buka tautan pemulihan/undangan yang dikirimkan oleh koordinator via WhatsApp untuk membuat password baru akun Anda.",
+          },
+          { status: 403 }
+        );
       }
 
-      resetGagal(kunci);
-      await setSessionCookie({ role: "tutor", sub: String(tutor._id), nama: tutor.nama });
-      return NextResponse.json({
-        success: true,
-        data: { role: "tutor", id: String(tutor._id), nama: tutor.nama },
-      });
+      // Jika akun baru dan belum pernah aktivasi sama sekali
+      if (!tutor.passwordHash && !tutor.akunDiaktifkanPada) {
+        return NextResponse.json(
+          {
+            success: false,
+            isBelumAktivasi: true,
+            error: "Akun Anda belum diaktivasi. Silakan buka tautan undangan yang dikirimkan koordinator via WhatsApp untuk membuat password pertama kali.",
+          },
+          { status: 403 }
+        );
+      }
+
+      const okTutor = verifyPassword(password, tutor?.passwordHash);
+      if (okTutor) {
+        if (!tutor.akunDiaktifkanPada) {
+          tutor.akunDiaktifkanPada = new Date();
+          await tutor.save();
+        }
+
+        resetGagal(kunci);
+        const token = await setSessionCookie({ role: "tutor", sub: String(tutor._id), nama: tutor.nama });
+        const res = NextResponse.json({
+          success: true,
+          data: { role: "tutor", id: String(tutor._id), nama: tutor.nama, token },
+        });
+        res.cookies.set(SESSION_COOKIE, token, getSessionCookieOptions());
+        return res;
+      }
     }
 
     // 3. Email terdaftar tapi password belum pernah dibuat (tutor lama / hasil seed).

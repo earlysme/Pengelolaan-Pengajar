@@ -75,6 +75,12 @@ function FormAktivasi() {
       });
       const json = await res.json();
       if (json.success) {
+        // Simpan sesi ke localStorage sebagai backup persisten
+        if (typeof window !== "undefined" && json.data) {
+          try {
+            localStorage.setItem("genplasma_session", JSON.stringify(json.data));
+          } catch {}
+        }
         // Sesi sudah dibuat server lewat cookie, langsung redirect ke dashboard tutor
         router.push("/tutor");
       } else {
