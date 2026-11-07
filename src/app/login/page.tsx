@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
@@ -10,7 +10,20 @@ export default function HalamanLogin() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
+  const [isResetError, setIsResetError] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const searchParams = new URLSearchParams(window.location.search);
+      if (searchParams.get("reason") === "reset") {
+        setIsResetError(true);
+        setError(
+          "Akses akun Anda telah di-reset oleh koordinator. Password lama sudah tidak berlaku lagi. Silakan buka tautan pemulihan/undangan yang telah dikirimkan koordinator ke WhatsApp Anda untuk mengatur password baru."
+        );
+      }
+    }
+  }, []);
 
   // State Modal Lupa Password
   const [isForgotModalOpen, setIsForgotModalOpen] = useState(false);
@@ -48,6 +61,13 @@ export default function HalamanLogin() {
       const json = await res.json();
 
       if (json.success && json.data) {
+        // Simpan sesi ke localStorage sebagai backup persisten agar tidak logout saat refresh
+        if (typeof window !== "undefined") {
+          try {
+            localStorage.setItem("genplasma_session", JSON.stringify(json.data));
+          } catch {}
+        }
+
         // Otomatis arahkan berdasarkan peran akun yang terdeteksi
         if (json.data.role === "koordinator") {
           router.push("/koordinator");
@@ -55,6 +75,7 @@ export default function HalamanLogin() {
           router.push("/tutor");
         }
       } else {
+        setIsResetError(Boolean(json.isReset));
         setError(json.error || "Login gagal. Periksa kembali email/username dan password Anda.");
       }
     } catch {
@@ -177,9 +198,28 @@ export default function HalamanLogin() {
 
           <div className="bg-white border border-[#173F3A]/15 rounded-2xl p-7 shadow-[0_4px_20px_rgba(23,63,58,0.06)]">
             {error && (
-              <div className="mb-5 p-3.5 bg-rose-50 border border-rose-200 text-rose-800 rounded-xl text-[0.8125rem] flex items-start gap-2">
-                <span className="material-symbols-outlined text-[18px] shrink-0 mt-0.5 text-rose-600">error</span>
-                <span>{error}</span>
+              <div
+                className={`mb-5 p-4 rounded-xl text-[0.8125rem] flex items-start gap-2.5 border ${
+                  isResetError
+                    ? "bg-amber-50 border-amber-300 text-amber-950 shadow-xs"
+                    : "bg-rose-50 border-rose-200 text-rose-800"
+                }`}
+              >
+                <span
+                  className={`material-symbols-outlined text-[20px] shrink-0 mt-0.5 ${
+                    isResetError ? "text-amber-700" : "text-rose-600"
+                  }`}
+                >
+                  {isResetError ? "lock_reset" : "error"}
+                </span>
+                <div className="space-y-1">
+                  {isResetError && (
+                    <div className="font-bold text-[0.875rem] text-amber-900">
+                      Akses Akun Di-Reset oleh Koordinator
+                    </div>
+                  )}
+                  <div className="leading-relaxed">{error}</div>
+                </div>
               </div>
             )}
 

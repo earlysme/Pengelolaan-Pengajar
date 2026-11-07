@@ -40,18 +40,6 @@ export async function POST(
     const { token, tokenHash } = generateAktivasiToken();
     const isReset = reqAction === "reset" || Boolean(tutor.akunDiaktifkanPada || tutor.passwordHash);
 
-    await Pengajar.collection.updateOne(
-      { _id: tutor._id },
-      {
-        $set: {
-          aktivasiTokenHash: tokenHash,
-          aktivasiKadaluarsa: new Date(Date.now() + AKTIVASI_BERLAKU_MS),
-          statusResetPassword: isReset,
-          ...(isReset && !tutor.akunDiaktifkanPada ? { akunDiaktifkanPada: new Date() } : {}),
-        },
-      }
-    );
-
     const origin = new URL(request.url).origin;
     const link = `${origin}/aktivasi?token=${token}`;
     const pesan = isReset
@@ -59,13 +47,32 @@ export async function POST(
         `Silakan atur password baru Anda lewat link berikut (berlaku 72 jam):\n${link}`
       : `Halo ${tutor.nama}, akun tutor Lentera Belajar Anda sudah dibuat.\n\n` +
         `Silakan atur email dan password Anda lewat link berikut (berlaku 72 jam, hanya untuk Anda):\n${link}`;
+    const waUrl = `https://wa.me/${nomorWaInternasional(tutor.nomorTelepon)}?text=${encodeURIComponent(pesan)}`;
+    const berlakuHinggaDate = new Date(Date.now() + AKTIVASI_BERLAKU_MS);
+
+    const updateSet: Record<string, unknown> = {
+      aktivasiTokenHash: tokenHash,
+      aktivasiKadaluarsa: berlakuHinggaDate,
+      aktivasiLink: link,
+      aktivasiWaUrl: waUrl,
+      statusResetPassword: isReset,
+      ...(isReset && !tutor.akunDiaktifkanPada ? { akunDiaktifkanPada: new Date() } : {}),
+    };
+
+    const updateDoc: Record<string, unknown> = { $set: updateSet };
+    if (isReset) {
+      // Password lama langsung dihapus secara fisik dari database agar seketika tidak bisa login
+      updateDoc.$unset = { passwordHash: 1 };
+    }
+
+    await Pengajar.collection.updateOne({ _id: tutor._id }, updateDoc);
 
     return NextResponse.json({
       success: true,
       data: {
         link,
-        waUrl: `https://wa.me/${nomorWaInternasional(tutor.nomorTelepon)}?text=${encodeURIComponent(pesan)}`,
-        berlakuHingga: new Date(Date.now() + AKTIVASI_BERLAKU_MS).toISOString(),
+        waUrl,
+        berlakuHingga: berlakuHinggaDate.toISOString(),
         isResetPassword: isReset,
       },
     });

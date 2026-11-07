@@ -59,30 +59,68 @@ export function verifySessionToken(token: string | undefined): SessionData | nul
   }
 }
 
-export async function setSessionCookie(data: Omit<SessionData, "exp">) {
-  const store = await cookies();
-  store.set(SESSION_COOKIE, createSessionToken(data), {
+export function getSessionCookieOptions() {
+  return {
     httpOnly: true,
-    sameSite: "lax",
+    sameSite: "lax" as const,
     secure: process.env.NODE_ENV === "production",
     path: "/",
     maxAge: SESSION_MAX_AGE,
-  });
+  };
+}
+
+export async function setSessionCookie(data: Omit<SessionData, "exp">): Promise<string> {
+  const token = createSessionToken(data);
+  try {
+    const store = await cookies();
+    store.set(SESSION_COOKIE, token, getSessionCookieOptions());
+  } catch {
+    // Abaikan jika dipanggil di luar store
+  }
+  return token;
 }
 
 export async function clearSessionCookie() {
-  const store = await cookies();
-  store.delete(SESSION_COOKIE);
+  try {
+    const store = await cookies();
+    store.delete(SESSION_COOKIE);
+  } catch {}
 }
 
-export async function getSession(): Promise<SessionData | null> {
-  const store = await cookies();
-  return verifySessionToken(store.get(SESSION_COOKIE)?.value);
+export async function getSession(request?: Request): Promise<SessionData | null> {
+  // 1. Cek header Authorization (Bearer <token>) atau Cookie header jika request diberikan
+  if (request) {
+    const authHeader = request.headers.get("authorization");
+    if (authHeader && authHeader.toLowerCase().startsWith("bearer ")) {
+      const token = authHeader.slice(7).trim();
+      const verified = verifySessionToken(token);
+      if (verified) return verified;
+    }
+
+    const cookieHeader = request.headers.get("cookie");
+    if (cookieHeader) {
+      const match = cookieHeader.match(new RegExp(`(?:^|;\\s*)${SESSION_COOKIE}=([^;]+)`));
+      if (match && match[1]) {
+        const verified = verifySessionToken(decodeURIComponent(match[1]));
+        if (verified) return verified;
+      }
+    }
+  }
+
+  // 2. Cek cookie store Next.js
+  try {
+    const store = await cookies();
+    const token = store.get(SESSION_COOKIE)?.value;
+    const verified = verifySessionToken(token);
+    if (verified) return verified;
+  } catch {}
+
+  return null;
 }
 
 /** Untuk route handler yang hanya boleh diakses koordinator. */
-export async function requireKoordinator(): Promise<SessionData | null> {
-  const session = await getSession();
+export async function requireKoordinator(request?: Request): Promise<SessionData | null> {
+  const session = await getSession(request);
   return session?.role === "koordinator" ? session : null;
 }
 
@@ -116,14 +154,25 @@ export const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
 /* --------------------------- Token aktivasi --------------------------- */
 
-export function generateActivationToken(): { token: string; hash: string } {
-  const token = crypto.randomBytes(32).toString("hex");
-  const hash = crypto.createHash("sha256").update(token).digest("hex");
-  return { token, hash };
+export function generateAktivasiToken(): { token: string; tokenHash: string; hash: string } {
+  const token = crypto.randomBytes(32).toString("base64url");
+  const tokenHash = hashToken(token);
+  return { token, tokenHash, hash: tokenHash };
 }
 
-export function hashActivationToken(token: string): string {
+export function hashToken(token: string): string {
   return crypto.createHash("sha256").update(token).digest("hex");
+}
+
+export const generateActivationToken = generateAktivasiToken;
+export const hashActivationToken = hashToken;
+
+/** Normalisasi nomor WA Indonesia ke format internasional tanpa "+" (untuk wa.me). */
+export function nomorWaInternasional(nomor: string): string {
+  const digit = nomor.replace(/\D/g, "");
+  if (digit.startsWith("62")) return digit;
+  if (digit.startsWith("0")) return "62" + digit.slice(1);
+  return "62" + digit;
 }
 
 /* ----------------------------- Rate limit ----------------------------- */

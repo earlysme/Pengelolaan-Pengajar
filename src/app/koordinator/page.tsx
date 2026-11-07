@@ -96,6 +96,9 @@ interface PengajarData {
   catatanInternal?: string;
   akunDiaktifkanPada?: string;
   statusResetPassword?: boolean;
+  aktivasiKadaluarsa?: string;
+  aktivasiLink?: string;
+  aktivasiWaUrl?: string;
 }
 
 interface KetersediaanData {
@@ -194,20 +197,30 @@ export default function PanelKoordinator() {
   const [formFoto, setFormFoto] = useState("");
   const [formStatus, setFormStatus] = useState<"Aktif" | "Cuti" | "Nonaktif">("Aktif");
   const [formMapel, setFormMapel] = useState<string[]>([]);
-  const [formJenjang, setFormJenjang] = useState<string[]>(["SMA"]);
   const [formJenisKelas, setFormJenisKelas] = useState<string[]>(["Reguler"]);
   const [formCatatan, setFormCatatan] = useState("");
   const [formPendidikan, setFormPendidikan] = useState("");
   const [submittingPengajar, setSubmittingPengajar] = useState(false);
   const [errorPengajar, setErrorPengajar] = useState("");
   const [undangan, setUndangan] = useState<{
+    tutorId?: string;
     nama: string;
     link: string;
     waUrl: string;
     berlakuHingga: string;
+    isResetPassword?: boolean;
   } | null>(null);
   const [undanganLoadingId, setUndanganLoadingId] = useState<string | null>(null);
   const [linkTersalin, setLinkTersalin] = useState(false);
+  const [nowTime, setNowTime] = useState<number>(0);
+
+  useEffect(() => {
+    setNowTime(Date.now());
+    const timer = setInterval(() => {
+      setNowTime(Date.now());
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
 
   // Modul 2: State Ketersediaan
   const [ketersediaanList, setKetersediaanList] = useState<KetersediaanData[]>([]);
@@ -250,49 +263,68 @@ export default function PanelKoordinator() {
   const [newJenjangNama, setNewJenjangNama] = useState("");
   const [submittingMaster, setSubmittingMaster] = useState(false);
 
-  const fetchAllData = async () => {
+  const getAuthHeader = (): Record<string, string> => {
+    if (typeof window === "undefined") return {};
     try {
-      setLoading(true);
-      setDbError("");
+      const saved = localStorage.getItem("genplasma_session");
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed.token) return { Authorization: `Bearer ${parsed.token}` };
+      }
+    } catch {}
+    return {};
+  };
 
-      const resP = await fetch("/api/pengajar", { cache: "no-store" });
+  const fetchAllData = async (silentParam: boolean | React.SyntheticEvent = false) => {
+    const silent = typeof silentParam === "boolean" ? silentParam : false;
+    try {
+      if (!silent) {
+        setLoading(true);
+        setDbError("");
+      }
+
+      const authHeaders = getAuthHeader();
+
+      const resP = await fetch("/api/pengajar", { cache: "no-store", headers: authHeaders });
       const jsonP = await resP.json();
       if (jsonP.success) {
         setPengajarList(jsonP.data);
-      } else {
+      } else if (!silent) {
         setDbError(jsonP.error || "Gagal memuat data pengajar.");
       }
 
-      const resM = await fetch("/api/master/mapel");
-      const jsonM = await resM.json();
-      if (jsonM.success) setMapelList(jsonM.data);
+      if (!silent) {
+        const resM = await fetch("/api/master/mapel");
+        const jsonM = await resM.json();
+        if (jsonM.success) setMapelList(jsonM.data);
 
-      const resJn = await fetch("/api/master/jenjang");
-      const jsonJn = await resJn.json();
-      if (jsonJn.success) setJenjangList(jsonJn.data);
+        const resJn = await fetch("/api/master/jenjang");
+        const jsonJn = await resJn.json();
+        if (jsonJn.success) setJenjangList(jsonJn.data);
 
-      const resMasterSesi = await fetch("/api/master/sesi");
-      const jsonMasterSesi = await resMasterSesi.json();
-      if (jsonMasterSesi.success) setMasterSesiList(jsonMasterSesi.data);
+        const resMasterSesi = await fetch("/api/master/sesi");
+        const jsonMasterSesi = await resMasterSesi.json();
+        if (jsonMasterSesi.success) setMasterSesiList(jsonMasterSesi.data);
+      }
 
-      const resK = await fetch("/api/ketersediaan");
+      const resK = await fetch("/api/ketersediaan", { cache: "no-store", headers: authHeaders });
       const jsonK = await resK.json();
       if (jsonK.success) setKetersediaanList(jsonK.data);
 
-      const resJ = await fetch("/api/jadwal");
+      const resJ = await fetch("/api/jadwal", { cache: "no-store", headers: authHeaders });
       const jsonJ = await resJ.json();
       if (jsonJ.success) setJadwalList(jsonJ.data);
 
-      const resS = await fetch("/api/sesi");
+      const resS = await fetch("/api/sesi", { cache: "no-store", headers: authHeaders });
       const jsonS = await resS.json();
       if (jsonS.success) {
         setSesiList(jsonS.data);
         if (jsonS.stats) setHonorStats(jsonS.stats);
       }
     } catch {
-      setDbError("Tidak dapat terhubung ke server database.");
+      if (!silent) setDbError("Tidak dapat terhubung ke server database.");
     } finally {
-      setLoading(false);
+      if (!silent) setLoading(false);
     }
   };
 
@@ -369,15 +401,117 @@ export default function PanelKoordinator() {
   };
 
   useEffect(() => {
-    // Halaman ini khusus koordinator: cek sesi server dulu.
-    fetch("/api/auth/me")
-      .then((r) => r.json())
-      .then((json) => {
-        if (json.success && json.data?.role === "koordinator") fetchAllData();
-        else router.push("/login");
-      })
-      .catch(() => router.push("/login"));
+    let isMounted = true;
+
+    const verifyKoordinatorAuth = async () => {
+      try {
+        const authHeader = getAuthHeader();
+        const res = await fetch("/api/auth/me", {
+          headers: authHeader,
+          cache: "no-store",
+          credentials: "include",
+        });
+
+        if (res.ok) {
+          const json = await res.json();
+          if (json.success && json.data?.role === "koordinator") {
+            if (isMounted) fetchAllData();
+            return;
+          }
+        }
+
+        // Cek sesi lokal di localStorage jika server cookie belum terbaca atau terjadi latency
+        if (typeof window !== "undefined") {
+          try {
+            const saved = localStorage.getItem("genplasma_session");
+            if (saved) {
+              const parsed = JSON.parse(saved);
+              if (parsed.role === "koordinator" && parsed.token) {
+                if (isMounted) fetchAllData();
+                return;
+              }
+            }
+          } catch {}
+        }
+
+        if (isMounted) {
+          if (typeof window !== "undefined") localStorage.removeItem("genplasma_session");
+          router.push("/login");
+        }
+      } catch {
+        // Fallback jika glitch jaringan sesaat pada saat refresh
+        if (typeof window !== "undefined") {
+          try {
+            const saved = localStorage.getItem("genplasma_session");
+            if (saved && JSON.parse(saved).role === "koordinator") {
+              if (isMounted) fetchAllData();
+              return;
+            }
+          } catch {}
+        }
+        if (isMounted) router.push("/login");
+      }
+    };
+
+    verifyKoordinatorAuth();
+
+    return () => {
+      isMounted = false;
+    };
   }, [router]);
+
+  // Realtime Auto-Sync data:
+  // Mengupdate data secara otomatis di background tanpa perlu reload / refresh halaman
+  // - Setiap 3 detik saat ada tutor yang sedang dalam masa menunggu aktivasi (live sync)
+  // - Setiap 8 detik untuk sync reguler jadwal & data tutor
+  // - Seketika saat window/tab kembali dibuka (focus / visibilitychange)
+  useEffect(() => {
+    const adaMenungguAktivasi = pengajarList.some((p) => {
+      if (p.akunDiaktifkanPada) return false;
+      const cd = formatCountdown(p.aktivasiKadaluarsa, nowTime);
+      return Boolean(cd);
+    });
+
+    const intervalMs = adaMenungguAktivasi ? 3000 : 8000;
+
+    const interval = setInterval(() => {
+      if (typeof document !== "undefined" && !document.hidden) {
+        fetchAllData(true);
+      }
+    }, intervalMs);
+
+    const onVisible = () => {
+      if (typeof document !== "undefined" && !document.hidden) {
+        fetchAllData(true);
+      }
+    };
+
+    window.addEventListener("focus", onVisible);
+    document.addEventListener("visibilitychange", onVisible);
+
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener("focus", onVisible);
+      document.removeEventListener("visibilitychange", onVisible);
+    };
+  }, [pengajarList, nowTime]);
+
+  const formatCountdown = (kadaluarsaIso?: string, nowMs: number = 0) => {
+    if (!kadaluarsaIso || !nowMs) return null;
+    const expMs = new Date(kadaluarsaIso).getTime();
+    const diff = expMs - nowMs;
+    if (diff <= 0) return null;
+
+    const totalSec = Math.floor(diff / 1000);
+    const h = Math.floor(totalSec / 3600);
+    const m = Math.floor((totalSec % 3600) / 60);
+    const s = totalSec % 60;
+
+    if (h > 0) {
+      return `${h}j ${m.toString().padStart(2, "0")}m ${s.toString().padStart(2, "0")}d`;
+    }
+    return `${m}m ${s.toString().padStart(2, "0")}d`;
+  };
 
   const handleBuatUndangan = async (p: PengajarData, action?: "reset" | "aktivasi") => {
     try {
@@ -392,22 +526,30 @@ export default function PanelKoordinator() {
       const json = await res.json();
       if (json.success) {
         setLinkTersalin(false);
-        setUndangan({ nama: p.nama, ...json.data });
+        setUndangan({
+          tutorId: p._id,
+          nama: p.nama,
+          link: json.data.link,
+          waUrl: json.data.waUrl,
+          berlakuHingga: json.data.berlakuHingga,
+          isResetPassword: json.data.isResetPassword,
+        });
 
-        // Update state lokal seketika agar badge status langsung berubah di layar
-        if (isResetAction) {
-          setPengajarList((prev) =>
-            prev.map((item) =>
-              item._id === p._id
-                ? {
-                    ...item,
-                    statusResetPassword: true,
-                    akunDiaktifkanPada: item.akunDiaktifkanPada || new Date().toISOString(),
-                  }
-                : item
-            )
-          );
-        }
+        // Update state lokal seketika agar tombol countdown langsung aktif di layar
+        setPengajarList((prev) =>
+          prev.map((item) =>
+            item._id === p._id
+              ? {
+                  ...item,
+                  statusResetPassword: json.data.isResetPassword,
+                  aktivasiKadaluarsa: json.data.berlakuHingga,
+                  aktivasiLink: json.data.link,
+                  aktivasiWaUrl: json.data.waUrl,
+                  akunDiaktifkanPada: item.akunDiaktifkanPada || (isResetAction ? new Date().toISOString() : undefined),
+                }
+              : item
+          )
+        );
         fetchAllData();
       } else {
         alert(json.error || "Gagal membuat undangan.");
@@ -417,6 +559,18 @@ export default function PanelKoordinator() {
     } finally {
       setUndanganLoadingId(null);
     }
+  };
+
+  const handleBukaDetailUndangan = (p: PengajarData) => {
+    setLinkTersalin(false);
+    setUndangan({
+      tutorId: p._id,
+      nama: p.nama,
+      link: p.aktivasiLink || "",
+      waUrl: p.aktivasiWaUrl || `https://wa.me/${p.nomorTelepon.replace(/\D/g, "")}`,
+      berlakuHingga: p.aktivasiKadaluarsa || "",
+      isResetPassword: Boolean(p.statusResetPassword),
+    });
   };
 
   const handleSalinLink = async () => {
@@ -440,7 +594,6 @@ export default function PanelKoordinator() {
     setFormPendidikan("");
     setFormStatus("Aktif");
     setFormMapel(["Matematika"]);
-    setFormJenjang(["SMA"]);
     setFormJenisKelas(["Reguler"]);
     setFormCatatan("");
     setErrorPengajar("");
@@ -457,7 +610,6 @@ export default function PanelKoordinator() {
     setFormPendidikan(p.pendidikan || "");
     setFormStatus(p.status);
     setFormMapel(p.mataPelajaran || []);
-    setFormJenjang(p.jenjang || ["SMA"]);
     setFormJenisKelas(p.jenisKelas || ["Reguler"]);
     setFormCatatan(p.catatanInternal || "");
     setErrorPengajar("");
@@ -474,15 +626,11 @@ export default function PanelKoordinator() {
       setErrorPengajar("Pilih minimal 1 mata pelajaran.");
       return;
     }
-    if (formJenjang.length === 0) {
-      setErrorPengajar("Pilih minimal 1 jenjang bimbingan.");
-      return;
-    }
 
     try {
       setSubmittingPengajar(true);
       setErrorPengajar("");
-      const payload = {
+      const payload: Record<string, unknown> = {
         nama: formNama.trim(),
         nomorTelepon: formTelepon.trim(),
         email: formEmail.trim() || undefined,
@@ -490,10 +638,17 @@ export default function PanelKoordinator() {
         pendidikan: formPendidikan.trim() || undefined,
         status: formStatus,
         mataPelajaran: formMapel,
-        jenjang: formJenjang,
         jenisKelas: formJenisKelas,
         catatanInternal: formCatatan.trim() || undefined,
       };
+
+      if (isEditingPengajar) {
+        // Pertahankan jenjang yang sudah diset oleh tutor pada ketersediaan sesinya
+        const existingTutor = pengajarList.find((p) => p._id === currentPengajarId);
+        if (existingTutor?.jenjang) {
+          payload.jenjang = existingTutor.jenjang;
+        }
+      }
 
       const url = isEditingPengajar ? `/api/pengajar/${currentPengajarId}` : "/api/pengajar";
       const method = isEditingPengajar ? "PUT" : "POST";
@@ -666,22 +821,28 @@ export default function PanelKoordinator() {
   };
 
   const handleLogout = async () => {
-    await fetch("/api/auth/logout", { method: "POST" });
-    router.push("/");
+    try {
+      if (typeof window !== "undefined") localStorage.removeItem("genplasma_session");
+      await fetch("/api/auth/logout", { method: "POST" });
+    } catch {}
+    router.push("/login");
   };
 
   // Filtered views
   const filteredPengajar = pengajarList.filter((p) => {
     if (statusFilter !== "Semua") {
-      if (statusFilter === "Belum Aktivasi") {
-        if (p.akunDiaktifkanPada) return false;
+      const isWaitingActivation = Boolean(!p.akunDiaktifkanPada && formatCountdown(p.aktivasiKadaluarsa, nowTime));
+      if (statusFilter === "Menunggu Aktivasi") {
+        if (!isWaitingActivation) return false;
+      } else if (statusFilter === "Belum Aktivasi") {
+        if (p.akunDiaktifkanPada || isWaitingActivation) return false;
       } else if (statusFilter === "Reset Password") {
         if (!p.statusResetPassword) return false;
       } else if (p.status !== statusFilter) {
         return false;
       }
     }
-    if (jenjangFilter !== "Semua" && !p.jenjang.includes(jenjangFilter)) return false;
+    if (jenjangFilter !== "Semua" && (!p.jenjang || !p.jenjang.includes(jenjangFilter))) return false;
     if (searchPengajar.trim()) {
       const q = searchPengajar.toLowerCase();
       return (
@@ -789,7 +950,7 @@ export default function PanelKoordinator() {
                 </div>
                 <button
                   type="button"
-                  onClick={fetchAllData}
+                  onClick={() => fetchAllData()}
                   className="text-[0.8125rem] font-semibold underline hover:text-rose-950 px-2 py-1"
                 >
                   Muat Ulang
@@ -934,6 +1095,7 @@ export default function PanelKoordinator() {
                         <option value="Semua">Semua Status</option>
                         <option value="Aktif">Aktif</option>
                         <option value="Cuti">Cuti</option>
+                        <option value="Menunggu Aktivasi">Menunggu Aktivasi</option>
                         <option value="Belum Aktivasi">Belum Aktivasi</option>
                         <option value="Reset Password">Reset Password</option>
                         <option value="Nonaktif">Nonaktif</option>
@@ -1057,7 +1219,7 @@ export default function PanelKoordinator() {
 
                                 <td className="py-4 px-4 align-top">
                                   <div className="space-y-0.5 text-[0.8125rem]">
-                                    <div className="font-medium text-[#1a1c1b]">{p.jenjang.join(", ")}</div>
+                                    <div className="font-medium text-[#1a1c1b]">{p.jenjang && p.jenjang.length > 0 ? p.jenjang.join(", ") : "-"}</div>
                                     <div className="text-[0.75rem] text-[#67645f]">
                                       {p.jenisKelas.join(", ") || "Reguler"}
                                     </div>
@@ -1083,78 +1245,102 @@ export default function PanelKoordinator() {
                                   </div>
                                 </td>
 
-                                {/* Kolom Tunggal Status */}
+                                {/* Kolom Tunggal Status & Undangan */}
                                 <td className="py-4 px-4 align-top text-center">
-                                  <div className="flex flex-col items-center gap-2">
-                                    {p.statusResetPassword ? (
-                                      <>
-                                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[0.75rem] font-semibold bg-orange-50 text-orange-800 border border-orange-200">
-                                          <span className="w-1.5 h-1.5 rounded-full bg-orange-500"></span>
-                                          Reset Password
-                                        </span>
-                                        <button
-                                          type="button"
-                                          onClick={() => handleBuatUndangan(p, "reset")}
-                                          disabled={undanganLoadingId === p._id}
-                                          className="px-3 py-1.5 rounded-xl bg-orange-100 hover:bg-orange-200 text-orange-900 border border-orange-300 text-[0.72rem] font-semibold transition-all shadow-2xs hover:shadow-xs disabled:opacity-50 inline-flex items-center gap-1 cursor-pointer active:scale-95"
-                                          title="Kirim ulang link reset password"
-                                        >
-                                          <span className="material-symbols-outlined text-[14px]">send</span>
-                                          {undanganLoadingId === p._id ? "..." : "Kirim Ulang Link"}
-                                        </button>
-                                      </>
-                                    ) : !p.akunDiaktifkanPada ? (
-                                      <>
-                                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[0.75rem] font-semibold bg-amber-50 text-amber-800 border border-amber-200">
-                                          <span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
-                                          Belum Aktivasi
-                                        </span>
-                                        <button
-                                          type="button"
-                                          onClick={() => handleBuatUndangan(p, "aktivasi")}
-                                          disabled={undanganLoadingId === p._id}
-                                          className="px-3.5 py-1.5 rounded-xl bg-[#173F3A] hover:bg-[#112F2B] text-white text-[0.72rem] font-semibold transition-all shadow-xs disabled:opacity-50 inline-flex items-center gap-1 cursor-pointer active:scale-95"
-                                          title="Buat link undangan untuk login"
-                                        >
-                                          <span className="material-symbols-outlined text-[14px]">mail</span>
-                                          {undanganLoadingId === p._id ? "..." : "Kirim Undangan"}
-                                        </button>
-                                      </>
-                                    ) : (
-                                      <>
-                                        <span
-                                          className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[0.75rem] font-semibold ${
-                                            p.status === "Aktif"
-                                              ? "bg-emerald-50 text-emerald-800 border border-emerald-200"
-                                              : p.status === "Cuti"
-                                              ? "bg-amber-50 text-amber-800 border border-amber-200"
-                                              : "bg-neutral-100 text-neutral-600 border border-neutral-300"
-                                          }`}
-                                        >
+                                  {(() => {
+                                    const countdownText = formatCountdown(p.aktivasiKadaluarsa, nowTime);
+                                    const hasActiveCountdown = Boolean(countdownText);
+
+                                    return (
+                                      <div className="flex flex-col items-center gap-2">
+                                        {/* Status Badge */}
+                                        {p.statusResetPassword ? (
+                                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[0.75rem] font-semibold bg-orange-50 text-orange-800 border border-orange-200">
+                                            <span className="w-1.5 h-1.5 rounded-full bg-orange-500"></span>
+                                            Reset Password
+                                          </span>
+                                        ) : !p.akunDiaktifkanPada ? (
+                                          hasActiveCountdown ? (
+                                            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[0.75rem] font-semibold bg-sky-50 text-sky-800 border border-sky-200 shadow-2xs">
+                                              <span className="w-1.5 h-1.5 rounded-full bg-sky-500 animate-pulse"></span>
+                                              Menunggu Aktivasi
+                                            </span>
+                                          ) : (
+                                            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[0.75rem] font-semibold bg-amber-50 text-amber-800 border border-amber-200">
+                                              <span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
+                                              Belum Aktivasi
+                                            </span>
+                                          )
+                                        ) : (
                                           <span
-                                            className={`w-1.5 h-1.5 rounded-full ${
+                                            className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[0.75rem] font-semibold ${
                                               p.status === "Aktif"
-                                                ? "bg-emerald-600"
+                                                ? "bg-emerald-50 text-emerald-800 border border-emerald-200"
                                                 : p.status === "Cuti"
-                                                ? "bg-amber-500"
-                                                : "bg-neutral-400"
+                                                ? "bg-amber-50 text-amber-800 border border-amber-200"
+                                                : "bg-neutral-100 text-neutral-600 border border-neutral-300"
                                             }`}
-                                          ></span>
-                                          {p.status}
-                                        </span>
-                                        <button
-                                          type="button"
-                                          onClick={() => handleBuatUndangan(p, "reset")}
-                                          disabled={undanganLoadingId === p._id}
-                                          className="px-3 py-1.5 rounded-xl bg-white hover:bg-stone-50 text-[#173F3A] border border-[#173F3A]/25 text-[0.72rem] font-semibold transition-all shadow-2xs hover:shadow-xs disabled:opacity-50 inline-flex items-center gap-1.5 cursor-pointer active:scale-95"
-                                          title="Reset akses login tutor"
-                                        >
-                                          <span className="material-symbols-outlined text-[15px] text-[#173F3A]">lock_reset</span>
-                                          <span>{undanganLoadingId === p._id ? "..." : "Reset Akses"}</span>
-                                        </button>
-                                      </>
-                                    )}
-                                  </div>
+                                          >
+                                            <span
+                                              className={`w-1.5 h-1.5 rounded-full ${
+                                                p.status === "Aktif"
+                                                  ? "bg-emerald-600"
+                                                  : p.status === "Cuti"
+                                                  ? "bg-amber-500"
+                                                  : "bg-neutral-400"
+                                              }`}
+                                            ></span>
+                                            {p.status}
+                                          </span>
+                                        )}
+
+                                        {/* Tombol: Countdown jika aktif, atau Icon-only tidak terlalu bulat (rounded-xl) jika idle/expired */}
+                                        {hasActiveCountdown ? (
+                                          <button
+                                            type="button"
+                                            onClick={() => handleBukaDetailUndangan(p)}
+                                            className="px-3 py-1.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 text-[0.72rem] font-semibold font-mono transition-all shadow-2xs hover:shadow-xs inline-flex items-center gap-1.5 cursor-pointer active:scale-95"
+                                            title="Undangan masih aktif. Klik untuk melihat detail & menyalin link"
+                                          >
+                                            <span className="material-symbols-outlined text-[15px] text-emerald-700 animate-pulse">timer</span>
+                                            <span>{countdownText}</span>
+                                          </button>
+                                        ) : (
+                                          <button
+                                            type="button"
+                                            onClick={() => handleBuatUndangan(p, p.statusResetPassword || p.akunDiaktifkanPada ? "reset" : "aktivasi")}
+                                            disabled={undanganLoadingId === p._id}
+                                            className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all shadow-2xs hover:shadow-xs disabled:opacity-50 cursor-pointer active:scale-95 ${
+                                              p.statusResetPassword
+                                                ? "bg-orange-100 hover:bg-orange-200 text-orange-900 border border-orange-300"
+                                                : !p.akunDiaktifkanPada
+                                                ? "bg-[#173F3A] hover:bg-[#112F2B] text-white shadow-xs"
+                                                : "bg-white hover:bg-stone-100 text-[#173F3A] border border-[#173F3A]/25"
+                                            }`}
+                                            title={
+                                              undanganLoadingId === p._id
+                                                ? "Memproses..."
+                                                : p.statusResetPassword
+                                                ? "Kirim link reset password"
+                                                : !p.akunDiaktifkanPada
+                                                ? "Kirim link undangan aktivasi"
+                                                : "Reset akses login"
+                                            }
+                                          >
+                                            <span className={`material-symbols-outlined text-[18px] ${undanganLoadingId === p._id ? "animate-spin" : ""}`}>
+                                              {undanganLoadingId === p._id
+                                                ? "progress_activity"
+                                                : p.statusResetPassword
+                                                ? "send"
+                                                : !p.akunDiaktifkanPada
+                                                ? "mail"
+                                                : "lock_reset"}
+                                            </span>
+                                          </button>
+                                        )}
+                                      </div>
+                                    );
+                                  })()}
                                 </td>
 
                                 {/* Kolom Aksi Khusus Edit & Hapus */}
@@ -1365,7 +1551,7 @@ export default function PanelKoordinator() {
                       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                         {jenjangList.map((j) => {
                           const tutorCount = pengajarList.filter((p) =>
-                            p.jenjang.includes(j.nama)
+                            p.jenjang && p.jenjang.includes(j.nama)
                           ).length;
                           return (
                             <div
@@ -2051,53 +2237,146 @@ export default function PanelKoordinator() {
         </div>
       </main>
 
-      {/* Modal Tambah / Edit Tutor */}
+      {/* Modal Undangan / Detail Countdown */}
       {undangan && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
-          <div className="w-full max-w-lg bg-white rounded-2xl border border-[#e3e2e0] p-6 shadow-xl space-y-4">
-            <div>
-              <h3 className="font-serif text-[1.5rem] text-[#1a1c1b]">Undangan untuk {undangan.nama}</h3>
-              <p className="text-[0.8125rem] text-[#444748] mt-1">
-                Link ini sekali pakai, berlaku sampai{" "}
-                {new Date(undangan.berlakuHingga).toLocaleString("id-ID", {
-                  dateStyle: "medium",
-                  timeStyle: "short",
-                })}
-                . Membuat undangan baru membatalkan link sebelumnya. Kirim hanya ke nomor WhatsApp tutor yang
-                bersangkutan.
-              </p>
-            </div>
-
-            <input
-              readOnly
-              value={undangan.link}
-              onFocus={(e) => e.currentTarget.select()}
-              className="w-full px-3.5 py-2.5 text-[0.75rem] font-mono bg-[#faf9f7] border border-[#e3e2e0] rounded-xl"
-            />
-
-            <div className="flex flex-wrap gap-2 justify-end">
-              <button
-                type="button"
-                onClick={handleSalinLink}
-                className="px-4 py-2 rounded-full bg-[#efeeec] hover:bg-[#e3e2e0] text-[0.8125rem] font-medium"
-              >
-                {linkTersalin ? "Tersalin ✓" : "Salin link"}
-              </button>
-              <a
-                href={undangan.waUrl}
-                target="_blank"
-                rel="noreferrer"
-                className="px-4 py-2 rounded-full bg-black hover:bg-neutral-800 text-white text-[0.8125rem] font-medium"
-              >
-                Kirim via WhatsApp
-              </a>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4 animate-in fade-in duration-200">
+          <div className="w-full max-w-lg bg-white rounded-2xl border border-[#e3e2e0] p-6 shadow-2xl space-y-4">
+            <div className="flex items-start justify-between gap-3 border-b border-[#efeeec] pb-3">
+              <div>
+                <h3 className="font-serif text-[1.35rem] font-bold text-[#1a1c1b]">
+                  {undangan.isResetPassword ? "Link Reset Akses" : "Link Undangan Akun"}
+                </h3>
+                <p className="text-[0.8125rem] text-[#444748] mt-0.5">
+                  Tutor: <strong className="text-[#1a1c1b]">{undangan.nama}</strong>
+                </p>
+              </div>
               <button
                 type="button"
                 onClick={() => setUndangan(null)}
-                className="px-4 py-2 rounded-full text-[0.8125rem] font-medium text-[#444748] hover:text-black"
+                className="w-8 h-8 rounded-full hover:bg-[#efeeec] flex items-center justify-center text-[#747878] hover:text-black transition-colors shrink-0 cursor-pointer"
               >
-                Tutup
+                <span className="material-symbols-outlined text-[20px]">close</span>
               </button>
+            </div>
+
+            {/* Status Aktivasi Realtime atau Countdown Banner */}
+            {(() => {
+              const targetTutor = pengajarList.find((item) => item._id === undangan.tutorId);
+              const isSudahAktivasi = Boolean(targetTutor?.akunDiaktifkanPada && !targetTutor?.statusResetPassword);
+
+              if (isSudahAktivasi) {
+                return (
+                  <div className="p-4 rounded-xl border border-emerald-300 bg-emerald-50 text-emerald-950 flex items-center gap-3 animate-in fade-in">
+                    <span className="material-symbols-outlined text-[28px] text-emerald-600 shrink-0">check_circle</span>
+                    <div>
+                      <div className="font-bold text-[0.875rem]">Akun Tutor Berhasil Diaktivasi!</div>
+                      <div className="text-[0.75rem] text-emerald-800">
+                        Tutor <strong>{undangan.nama}</strong> baru saja mengaktifkan akun dan membuat password. Status akun di tabel telah otomatis aktif secara realtime.
+                      </div>
+                    </div>
+                  </div>
+                );
+              }
+
+              const cd = formatCountdown(undangan.berlakuHingga, nowTime);
+              return (
+                <div
+                  className={`p-3.5 rounded-xl border flex items-center justify-between text-[0.8125rem] ${
+                    cd
+                      ? "bg-emerald-50/80 border-emerald-200 text-emerald-950"
+                      : "bg-red-50 border-red-200 text-red-900"
+                  }`}
+                >
+                  <div className="flex items-center gap-2">
+                    <span className="material-symbols-outlined text-[20px] text-emerald-700">
+                      {cd ? "hourglass_top" : "history_toggle_off"}
+                    </span>
+                    <div>
+                      <div className="font-semibold">
+                        {cd ? "Masa Berlaku Link Aktif" : "Link Telah Kadaluarsa"}
+                      </div>
+                      <div className="text-[0.72rem] text-[#67645f]">
+                        Berlaku s/d:{" "}
+                        {new Date(undangan.berlakuHingga).toLocaleString("id-ID", {
+                          dateStyle: "medium",
+                          timeStyle: "short",
+                        })}
+                      </div>
+                    </div>
+                  </div>
+                  {cd && (
+                    <span className="font-mono font-bold px-2.5 py-1 rounded-lg bg-emerald-100 text-emerald-800 border border-emerald-300 shadow-2xs">
+                      {cd}
+                    </span>
+                  )}
+                </div>
+              );
+            })()}
+
+            <div>
+              <label className="block text-[0.75rem] font-semibold text-[#1a1c1b] mb-1">
+                Tautan Aktivasi (Sekali Pakai)
+              </label>
+              <div className="relative">
+                <input
+                  readOnly
+                  value={undangan.link}
+                  onFocus={(e) => e.currentTarget.select()}
+                  className="w-full pl-3 pr-24 py-2.5 text-[0.78rem] font-mono bg-[#faf9f7] border border-[#e3e2e0] rounded-xl text-[#1a1c1b] focus:outline-none focus:border-black select-all"
+                />
+                <button
+                  type="button"
+                  onClick={handleSalinLink}
+                  className="absolute right-1.5 top-1.5 bottom-1.5 px-3 rounded-lg bg-black hover:bg-neutral-800 text-white text-[0.75rem] font-semibold transition-all inline-flex items-center gap-1 cursor-pointer"
+                >
+                  <span className="material-symbols-outlined text-[14px]">
+                    {linkTersalin ? "check" : "content_copy"}
+                  </span>
+                  <span>{linkTersalin ? "Tersalin" : "Salin"}</span>
+                </button>
+              </div>
+              <p className="text-[0.72rem] text-[#67645f] mt-1.5">
+                Kirim link ini ke nomor WhatsApp tutor. Jika countdown habis, link ini otomatis tidak berlaku lagi dan digantikan oleh link baru.
+              </p>
+            </div>
+
+            <div className="pt-2 flex flex-col sm:flex-row items-center justify-between gap-2.5 border-t border-[#efeeec]">
+              {undangan.tutorId && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    const target = pengajarList.find((item) => item._id === undangan.tutorId);
+                    if (target) {
+                      if (confirm("Buat link baru sekarang? Link sebelumnya akan langsung hangus dan digantikan link baru.")) {
+                        handleBuatUndangan(target, target.statusResetPassword || target.akunDiaktifkanPada ? "reset" : "aktivasi");
+                      }
+                    }
+                  }}
+                  className="text-[0.72rem] text-red-600 hover:text-red-700 hover:underline font-semibold inline-flex items-center gap-1 cursor-pointer"
+                >
+                  <span className="material-symbols-outlined text-[14px]">refresh</span>
+                  <span>Buat Ulang Link Baru Sekarang</span>
+                </button>
+              )}
+
+              <div className="flex items-center gap-2 ml-auto">
+                <button
+                  type="button"
+                  onClick={() => setUndangan(null)}
+                  className="px-4 py-2 rounded-full border border-[#e3e2e0] hover:bg-[#efeeec] text-[0.8125rem] font-medium text-[#444748] transition-colors cursor-pointer"
+                >
+                  Tutup
+                </button>
+                <a
+                  href={undangan.waUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-[#173F3A] hover:bg-[#112F2B] text-white text-[0.8125rem] font-medium shadow-xs transition-colors cursor-pointer"
+                >
+                  <span className="material-symbols-outlined text-[16px]">chat</span>
+                  <span>Kirim via WhatsApp</span>
+                </a>
+              </div>
             </div>
           </div>
         </div>
@@ -2249,49 +2528,6 @@ export default function PanelKoordinator() {
                           }`}
                       >
                         {m}
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-
-              <div>
-                <div className="flex items-center justify-between mb-1.5">
-                  <label className="block text-[0.8125rem] font-medium text-[#1a1c1b]">
-                    Jenjang Bimbingan (Bisa pilih lebih dari 1)
-                  </label>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setIsPengajarModalOpen(false);
-                      setActiveTab("master");
-                    }}
-                    className="text-[0.7rem] text-[#B74E2C] hover:underline font-semibold"
-                  >
-                    + Kelola Master Jenjang
-                  </button>
-                </div>
-                <div className="flex flex-wrap gap-1.5 pt-1">
-                  {(jenjangList.length > 0 ? jenjangList.map((j) => j.nama) : DAFTAR_JENJANG).map((j) => {
-                    const selected = formJenjang.includes(j);
-                    return (
-                      <button
-                        key={j}
-                        type="button"
-                        onClick={() => {
-                          setFormJenjang((prev) =>
-                            selected ? prev.filter((item) => item !== j) : [...prev, j]
-                          );
-                        }}
-                        className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[0.75rem] font-medium transition-colors ${selected
-                          ? "bg-black text-white shadow-xs"
-                          : "bg-[#f4f3f1] text-[#444748] hover:bg-[#efeeec] border border-[#e3e2e0]"
-                          }`}
-                      >
-                        <span className="material-symbols-outlined text-[14px]">
-                          {selected ? "check" : "add"}
-                        </span>
-                        <span>{j}</span>
                       </button>
                     );
                   })}

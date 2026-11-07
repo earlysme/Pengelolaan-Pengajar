@@ -6,6 +6,8 @@ import {
   hashPassword,
   hashToken,
   setSessionCookie,
+  getSessionCookieOptions,
+  SESSION_COOKIE,
   validatePasswordBaru,
 } from "@/lib/auth";
 
@@ -87,10 +89,17 @@ export async function POST(request: Request) {
     tutor.akunDiaktifkanPada = tutor.akunDiaktifkanPada || new Date();
     tutor.aktivasiTokenHash = undefined; // token hangus setelah dipakai
     tutor.aktivasiKadaluarsa = undefined;
+    tutor.aktivasiLink = undefined;
+    tutor.aktivasiWaUrl = undefined;
     await tutor.save();
 
-    await setSessionCookie({ role: "tutor", sub: String(tutor._id), nama: tutor.nama });
-    return NextResponse.json({ success: true, data: { id: String(tutor._id), nama: tutor.nama } });
+    const tokenSession = await setSessionCookie({ role: "tutor", sub: String(tutor._id), nama: tutor.nama });
+    const res = NextResponse.json({
+      success: true,
+      data: { id: String(tutor._id), nama: tutor.nama, role: "tutor", token: tokenSession },
+    });
+    res.cookies.set(SESSION_COOKIE, tokenSession, getSessionCookieOptions());
+    return res;
   } catch {
     return NextResponse.json({ success: false, error: "Terjadi kesalahan server." }, { status: 500 });
   }
