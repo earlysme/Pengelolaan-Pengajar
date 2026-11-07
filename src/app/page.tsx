@@ -145,14 +145,38 @@ interface DBPengajarItem {
   jadwalTersedia?: string[];
 }
 
+const cleanPendidikan = (text?: string): string => {
+  if (!text) return "Pengajar Bimbel";
+  // Hapus semua teks '• Berpengalaman...', '- Berpengalaman...', atau kata 'Berpengalaman...'
+  const clean = text
+    .split(/•|\|/)[0]
+    .replace(/[-–—]?\s*berpengalaman.*$/i, "")
+    .trim();
+  return clean || text;
+};
+
+const extractJenjangTags = (label?: string, fallbackJenjang?: string[]): string[] => {
+  if (label) {
+    const list: string[] = [];
+    if (/\bsd\b/i.test(label)) list.push("SD");
+    if (/\bsmp\b/i.test(label)) list.push("SMP");
+    if (/\bsma\b/i.test(label)) list.push("SMA");
+    if (/\bkedinasan\b/i.test(label)) list.push("Kedinasan");
+    if (/\butbk\b/i.test(label)) list.push("UTBK");
+    if (list.length > 0) return list;
+  }
+  return fallbackJenjang && fallbackJenjang.length > 0 ? fallbackJenjang : [];
+};
+
 const mapDBToTutor = (p: DBPengajarItem): TutorItem => {
   const jenjangList = p.jenjang && p.jenjang.length > 0 ? p.jenjang : extractJenjangFromJadwal(p.jadwalTersedia);
   const avatarFallback = `https://ui-avatars.com/api/?name=${encodeURIComponent(p.nama)}&background=173F3A&color=ffffff&bold=true`;
+  const cleanEdu = cleanPendidikan(p.pendidikan);
 
   return {
     _id: p._id,
     nama: p.nama,
-    jabatan: p.pendidikan || "Pengajar Bimbel",
+    jabatan: cleanEdu,
     mataPelajaran: p.mataPelajaran && p.mataPelajaran.length > 0 ? p.mataPelajaran : ["Bimbingan Belajar"],
     jenjang: jenjangList,
     kategori: (p.mataPelajaran?.some((m: string) => /inggris|indonesia|bahasa|ielts|toefl|literasi/i.test(m))
@@ -164,7 +188,7 @@ const mapDBToTutor = (p: DBPengajarItem): TutorItem => {
           : p.mataPelajaran?.some((m: string) => /kedokteran|anatomi|farmasi/i.test(m))
             ? "kedokteran"
             : "mipa") as TutorItem["kategori"],
-    almamater: p.pendidikan || "Pendidik Terakreditasi",
+    almamater: cleanEdu,
     ipk: p.ipk || "",
     pengalaman: "Pengajar Aktif",
     rating: 5.0,
@@ -709,20 +733,42 @@ export default function HalamanKatalog() {
                           </span>
                         </div>
 
-                        <div className="flex flex-wrap gap-1.5">
-                          {group.slots.map((s, idx) => (
-                            <div
-                              key={idx}
-                              className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-white border border-[#173F3A]/15 rounded-xl text-[0.72rem] text-[#173F3A] shadow-2xs font-medium"
-                            >
-                              <span className="font-semibold">{s.jam}</span>
-                              {s.label && (
-                                <span className="text-[0.625rem] px-1.5 py-0.2 rounded-md bg-[#F2D5A8]/60 text-[#173F3A] border border-[#D88A32]/25 font-bold">
-                                  {s.label}
-                                </span>
-                              )}
-                            </div>
-                          ))}
+                        <div className="flex flex-wrap gap-2">
+                          {group.slots.map((s, idx) => {
+                            const slotJenjang = extractJenjangTags(s.label, modalTutor.jenjang);
+                            const otherLabel = s.label
+                              ? s.label
+                                .replace(/\b(sd|smp|sma|kedinasan|utbk)\b/gi, "")
+                                .replace(/[,•\s]+/g, " ")
+                                .trim()
+                              : "";
+
+                            return (
+                              <div
+                                key={idx}
+                                className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white border border-[#173F3A]/15 rounded-xl text-[0.72rem] text-[#173F3A] shadow-2xs font-medium"
+                              >
+                                <span className="font-semibold">{s.jam}</span>
+                                {slotJenjang.length > 0 && (
+                                  <div className="flex items-center gap-1">
+                                    {slotJenjang.map((j) => (
+                                      <span
+                                        key={j}
+                                        className="text-[0.625rem] px-1.5 py-0.5 rounded-md bg-[#173F3A]/10 text-[#173F3A] border border-[#173F3A]/15 font-bold"
+                                      >
+                                        {j}
+                                      </span>
+                                    ))}
+                                  </div>
+                                )}
+                                {otherLabel && (
+                                  <span className="text-[0.625rem] px-1.5 py-0.5 rounded-md bg-[#F2D5A8]/60 text-[#173F3A] border border-[#D88A32]/25 font-bold">
+                                    {otherLabel}
+                                  </span>
+                                )}
+                              </div>
+                            );
+                          })}
                         </div>
                       </div>
                     ))}
