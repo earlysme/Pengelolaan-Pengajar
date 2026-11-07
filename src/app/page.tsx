@@ -233,10 +233,6 @@ export default function HalamanKatalog() {
     return tutorList.filter((t) => t.kategori === activeFilter);
   }, [tutorList, activeFilter]);
 
-  const handleLoadMore = () => {
-    void loadFromDB(true);
-  };
-
   return (
     <div className="bg-[#faf9f7] text-[#1a1c1b] min-h-screen selection:bg-[#e3e2e0] selection:text-[#1a1c1b]">
       {/* Header Sticky */}
@@ -261,7 +257,7 @@ export default function HalamanKatalog() {
             >
               Katalog Tutor
             </button>
-            
+
             <button
               type="button"
               onClick={() => {
@@ -650,7 +646,7 @@ export default function HalamanKatalog() {
                 </h3>
                 <p className="text-[0.8125rem] text-[#444748] mt-0.5">{modalTutor.jabatan}</p>
                 <div className="mt-1 flex items-center gap-1.5 flex-wrap">
-                  
+
                   {modalTutor.jenjang && modalTutor.jenjang.length > 0 && (
                     <div className="flex items-center gap-1">
                       <span className="text-[0.6875rem] text-[#67645f]">Jenjang:</span>
