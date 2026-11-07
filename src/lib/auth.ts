@@ -21,11 +21,40 @@ export interface SessionData {
   exp: number; // epoch detik
 }
 
+/**
+ * Nilai env sering diisi lengkap dengan tanda kutip di dashboard hosting
+ * (mis. ADMIN_USERNAME="admin"). Tanpa dibersihkan, perbandingan string selalu gagal
+ * dan login tampak seperti "password salah".
+ */
+export function bersihkanEnv(val?: string | null): string {
+  if (!val) return "";
+  let s = val.trim();
+  if (s.length >= 2 && ((s.startsWith('"') && s.endsWith('"')) || (s.startsWith("'") && s.endsWith("'")))) {
+    s = s.slice(1, -1).trim();
+  }
+  return s;
+}
+
 function getSecret(): string {
-  const secret = process.env.SESSION_SECRET;
-  if (secret && secret.length >= 16) return secret;
-  // Fallback aman agar Vercel/serverless tidak mengalami fatal crash jika env var belum diset
-  return "genplasma-secure-secret-session-key-2025-auth-production";
+  const secret = bersihkanEnv(process.env.SESSION_SECRET);
+  if (secret.length >= 16) return secret;
+
+  // Turunkan kunci dari MONGODB_URI agar sesi tetap konsisten antar-instance di production
+  // tanpa menaruh secret di dalam repo. Tetap WAJIB disarankan mengisi SESSION_SECRET:
+  // kalau URI database diganti/rotasi password, semua sesi lama otomatis tidak berlaku.
+  const uri = bersihkanEnv(process.env.MONGODB_URI);
+  if (uri.length >= 16) {
+    console.warn(
+      "[auth] SESSION_SECRET belum diset. Sesi ditandatangani dengan kunci turunan MONGODB_URI — isi SESSION_SECRET di environment production."
+    );
+    return crypto.scryptSync(uri, "genplasma-session-key", 32).toString("hex");
+  }
+
+  if (process.env.NODE_ENV === "production") {
+    throw new Error("SESSION_SECRET wajib diisi (min. 16 karakter) di environment production.");
+  }
+  // Fallback khusus development agar `npm run dev` langsung jalan.
+  return "dev-only-secret-ganti-di-env-local";
 }
 
 const b64url = (buf: Buffer) => buf.toString("base64url");
@@ -84,7 +113,7 @@ export async function clearSessionCookie() {
   try {
     const store = await cookies();
     store.delete(SESSION_COOKIE);
-  } catch {}
+  } catch { }
 }
 
 export async function getSession(request?: Request): Promise<SessionData | null> {
@@ -113,7 +142,7 @@ export async function getSession(request?: Request): Promise<SessionData | null>
     const token = store.get(SESSION_COOKIE)?.value;
     const verified = verifySessionToken(token);
     if (verified) return verified;
-  } catch {}
+  } catch { }
 
   return null;
 }
@@ -154,13 +183,13 @@ export const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
 /* --------------------------- Token aktivasi --------------------------- */
 
-export function generateAktivasiToken(): { token: string; tokenHash: string; hash: string } {
-  const token = crypto.randomBytes(32).toString("base64url");
-  const tokenHash = hashToken(token);
-  return { token, tokenHash, hash: tokenHash };
+export function generateActivationToken(): { token: string; hash: string } {
+  const token = crypto.randomBytes(32).toString("hex");
+  const hash = crypto.createHash("sha256").update(token).digest("hex");
+  return { token, hash };
 }
 
-export function hashToken(token: string): string {
+export function hashActivationToken(token: string): string {
   return crypto.createHash("sha256").update(token).digest("hex");
 }
 
@@ -175,38 +204,52 @@ export function nomorWaInternasional(nomor: string): string {
   return "62" + digit;
 }
 
-/* ----------------------------- Rate limit ----------------------------- */
+/** Nama lama dipertahankan agar route yang sudah memakainya tidak perlu diubah. */
+export const hashActivationToken = hashToken;
 
-interface RateEntry {
-  count: number;
-  blockedUntil: number;
+export function generateAktivasiToken() {
+  const token = crypto.randomBytes(32).toString("base64url");
+  return { token, tokenHash: hashToken(token) };
 }
-const rateMap = new Map<string, RateEntry>();
 
-const MAX_GAGAL = 5;
-const BLOKIR_MS = 15 * 60 * 1000; // 15 menit
+/** Varian generik: { token, hash }. */
+export function generateActivationToken(): { token: string; hash: string } {
+  const { token, tokenHash } = generateAktivasiToken();
+  return { token, hash: tokenHash };
+}
+
+/* ------------------- Pembatas percobaan login (sederhana) ------------------- */
+// Disimpan di memori proses: cukup untuk 1 server / dev. Di serverless (Vercel)
+// tiap instance punya memori sendiri, jadi ini bukan perlindungan penuh.
+
+const gagal = new Map<string, { n: number; reset: number }>();
+const BATAS = 5;
+const JENDELA_MS = 15 * 60 * 1000;
 
 export function terlaluBanyakGagal(kunci: string): boolean {
-  const e = rateMap.get(kunci);
-  if (!e) return false;
-  if (e.blockedUntil > Date.now()) return true;
-  if (e.blockedUntil !== 0 && e.blockedUntil <= Date.now()) {
-    rateMap.delete(kunci);
+  const rec = gagal.get(kunci);
+  if (!rec) return false;
+  if (rec.reset < Date.now()) {
+    gagal.delete(kunci);
     return false;
   }
-  return false;
+  return rec.n >= BATAS;
 }
 
-export function catatGagal(kunci: string): void {
-  const now = Date.now();
-  const e = rateMap.get(kunci) || { count: 0, blockedUntil: 0 };
-  e.count += 1;
-  if (e.count >= MAX_GAGAL) {
-    e.blockedUntil = now + BLOKIR_MS;
-  }
-  rateMap.set(kunci, e);
+export function catatGagal(kunci: string) {
+  const rec = gagal.get(kunci);
+  if (!rec || rec.reset < Date.now()) gagal.set(kunci, { n: 1, reset: Date.now() + JENDELA_MS });
+  else rec.n += 1;
 }
 
-export function resetGagal(kunci: string): void {
-  rateMap.delete(kunci);
+export function resetGagal(kunci: string) {
+  gagal.delete(kunci);
+}
+
+/** Normalisasi nomor WA Indonesia ke format internasional tanpa "+" (untuk wa.me). */
+export function nomorWaInternasional(nomor: string): string {
+  const digit = nomor.replace(/\D/g, "");
+  if (digit.startsWith("62")) return digit;
+  if (digit.startsWith("0")) return "62" + digit.slice(1);
+  return "62" + digit;
 }
