@@ -117,6 +117,8 @@ async function runImport() {
         tutorAggregate.set(namaUpper, {
           nama: nama,
           mapelSet: new Set(),
+          jenjangSet: new Set(),
+          kelasSet: new Set(),
           slotsByDay: [],
           serializedJadwal: [],
         });
@@ -128,9 +130,12 @@ async function runImport() {
       const activeSlots = t.slots.filter((s) => s.isAvailable);
       for (const slot of activeSlots) {
         const times = normalizeTime(slot.waktu);
-        
-        // Format string jadwalTersedia murni: hanya Hari dan Jam Sesi (tanpa ceklis kelas/jenjang)
-        const formattedStr = `${hari}: ${times.jamMulai} - ${times.jamSelesai} WIB`;
+        const slotJenjangArr = (slot.jenjang || []).filter(Boolean);
+        slotJenjangArr.forEach((j) => item.jenjangSet.add(j));
+        if (slot.kelas) slot.kelas.forEach((k) => item.kelasSet.add(k));
+
+        const slotLabel = slotJenjangArr.length > 0 ? ` (${slotJenjangArr.join(", ")})` : "";
+        const formattedStr = `${hari}: ${times.jamMulai} - ${times.jamSelesai} WIB${slotLabel}`;
         if (!item.serializedJadwal.includes(formattedStr)) {
           item.serializedJadwal.push(formattedStr);
         }
@@ -141,7 +146,7 @@ async function runImport() {
           jamMulai: times.jamMulai,
           jamSelesai: times.jamSelesai,
           moda: "Fleksibel",
-          catatan: normalizeMapel(t.mapel) || "Sesi Bimbingan",
+          catatan: `${normalizeMapel(t.mapel) || "Sesi Bimbingan"}${slotLabel ? " • " + slotJenjangArr.join(", ") : ""}`,
         });
       }
     }
@@ -154,8 +159,8 @@ async function runImport() {
 
   for (const [namaUpper, item] of tutorAggregate.entries()) {
     const mapelArr = Array.from(item.mapelSet);
-    const jenjangArr = ["SMA"];
-    const kelasArr = ["Reguler"];
+    const jenjangArr = item.jenjangSet.size > 0 ? Array.from(item.jenjangSet) : ["SMA"];
+    const kelasArr = item.kelasSet.size > 0 ? Array.from(item.kelasSet) : ["Reguler"];
 
     // Cek apakah pengajar sudah ada di database
     let pengajar = await Pengajar.findOne({
@@ -163,17 +168,20 @@ async function runImport() {
     });
 
     if (pengajar) {
-      // Update sesi ketersediaan mengajar dan mapel, tanpa memasukkan ceklis sheet
+      // Update sesi ketersediaan mengajar, jenjang, dan mapel
       pengajar.mataPelajaran = Array.from(new Set([...(pengajar.mataPelajaran || []), ...mapelArr]));
       pengajar.jenjang = jenjangArr;
       pengajar.jenisKelas = kelasArr;
+      if (pengajar.pendidikan && pengajar.pendidikan.includes("Berpengalaman")) {
+        pengajar.pendidikan = pengajar.pendidikan.split(/•|\|/)[0].replace(/[-–—]?\s*berpengalaman.*$/i, "").trim();
+      }
       if (item.serializedJadwal.length > 0) {
         pengajar.jadwalTersedia = item.serializedJadwal;
         pengajar.status = "Aktif";
       }
       await pengajar.save();
       countUpdated++;
-      console.log(`[UPDATE] Tutor: ${pengajar.nama} (${pengajar.mataPelajaran.join(", ")}) - ${item.serializedJadwal.length} sesi`);
+      console.log(`[UPDATE] Tutor: ${pengajar.nama} (${pengajar.mataPelajaran.join(", ")}) - Jenjang: [${pengajar.jenjang.join(", ")}] - ${item.serializedJadwal.length} sesi`);
     } else {
       // Buat pengajar baru dengan data acak realistis untuk field pelengkap
       const randomPhone = "08" + Math.floor(1000000000 + Math.random() * 9000000000);
@@ -190,10 +198,10 @@ async function runImport() {
         jenisKelas: kelasArr,
         jadwalTersedia: item.serializedJadwal,
         deskripsi: `Master tutor pengampu ${mapelArr.join(" & ")} dengan dedikasi tinggi dan penguasaan kurikulum intensif.`,
-        pendidikan: `S1 Pendidikan ${mapelArr[0] || "Sains"} • Berpengalaman 3+ Tahun`,
+        pendidikan: `S1 Pendidikan ${mapelArr[0] || "Sains"}`,
       });
       countCreated++;
-      console.log(`[CREATE] Tutor Baru: ${pengajar.nama} (${pengajar.mataPelajaran.join(", ")}) - ${item.serializedJadwal.length} sesi`);
+      console.log(`[CREATE] Tutor Baru: ${pengajar.nama} (${pengajar.mataPelajaran.join(", ")}) - Jenjang: [${pengajar.jenjang.join(", ")}] - ${item.serializedJadwal.length} sesi`);
     }
 
     // Buat atau update catatan Ketersediaan untuk periode 2 - 6 November 2026
