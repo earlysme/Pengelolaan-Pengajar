@@ -19,6 +19,7 @@ interface PengajarData {
   status: string;
   alamat?: string;
   jadwalTersedia?: string[];
+  fokusMateri?: string[];
 }
 
 const PRESET_AVATARS = [
@@ -34,7 +35,14 @@ const cleanMapelName = (name: string): string => {
   return name.replace(/\s*\/?\s*utbk/gi, "").trim();
 };
 
+/** Avatar netral dari inisial nama — dipakai selama tutor belum punya foto sendiri. */
+const avatarFallbackUrl = (nama?: string) =>
+  `https://ui-avatars.com/api/?name=${encodeURIComponent(nama || "Tutor")}&background=173F3A&color=ffffff&bold=true`;
+
 const DAFTAR_HARI = ["Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
+
+// Periode tunggal yang dipakai modul "Ketersediaan" koordinator (lihat model Ketersediaan).
+const PERIODE_KETERSEDIAAN = "Periode Berjalan 2026/2027";
 
 export interface JadwalSlot {
   id: string;
@@ -56,11 +64,9 @@ const parseJadwalToSlots = (rawList?: string[], defaultJenjang?: string[]): Jadw
   const fallback = cleanDefault.length > 0 ? cleanDefault : ["SMA"];
 
   if (!rawList || rawList.length === 0) {
-    return [
-      { id: createSlotId("Senin"), hari: "Senin", jamMulai: "16:00", jamSelesai: "18:00", keterangan: "Reguler", jenjang: [...fallback] },
-      { id: createSlotId("Rabu"), hari: "Rabu", jamMulai: "16:00", jamSelesai: "18:00", keterangan: "Reguler", jenjang: [...fallback] },
-      { id: createSlotId("Jumat"), hari: "Jumat", jamMulai: "16:00", jamSelesai: "18:00", keterangan: "Reguler", jenjang: [...fallback] },
-    ];
+    // Tidak ada jadwal di database = belum ada sesi. Jangan mengarang slot default,
+    // karena slot karangan akan tampil berbeda dari panel koordinator dan ikut tersimpan.
+    return [];
   }
 
   return rawList.map((str, index) => {
@@ -191,19 +197,14 @@ export default function AreaTutor() {
   const [loading, setLoading] = useState(true);
 
   // Form Profil Data
-  const [foto, setFoto] = useState(PRESET_AVATARS[0]);
-  const [selectedPresetIndex, setSelectedPresetIndex] = useState(0);
+  const [foto, setFoto] = useState("");
+  const [selectedPresetIndex, setSelectedPresetIndex] = useState(-1);
   const [deskripsi, setDeskripsi] = useState("");
   const [pendidikan, setPendidikan] = useState("");
   const [ipk, setIpk] = useState("");
   const [tutorStatus, setTutorStatus] = useState<"Aktif" | "Cuti">("Aktif");
-  const [tags, setTags] = useState<string[]>([
-    "Kimia Organik & Stoikiometri SMA",
-    "Penalaran Sains UTBK-SNBT",
-    "Persiapan OSN Kimia Kabupaten/Provinsi",
-    "Biologi Sel & Genetika Kedokteran",
-  ]);
-  const [domisili, setDomisili] = useState("Bandung & Jakarta Selatan (Fleksibel)");
+  const [tags, setTags] = useState<string[]>([]);
+  const [domisili, setDomisili] = useState("");
   const [nomorWa, setNomorWa] = useState("");
   const [jadwalSlots, setJadwalSlots] = useState<JadwalSlot[]>([]);
   const [masterSesiList, setMasterSesiList] = useState<MasterSesiItem[]>([]);
@@ -226,6 +227,10 @@ export default function AreaTutor() {
 
   // Daftar hari unik dari slot yang aktif
   const hariTersedia = Array.from(new Set(jadwalSlots.map((s) => s.hari)));
+
+  // "Nonaktif" hanya bisa diubah koordinator; tampilkan apa adanya agar identik dengan panel koordinator.
+  const akunDinonaktifkan = currentTutor?.status === "Nonaktif";
+  const statusTampil = akunDinonaktifkan ? "Nonaktif" : tutorStatus;
 
   // Master jenjang bimbingan belajar (tutor bebas memilih semua jenjang di setiap sesinya)
   const [masterJenjangList, setMasterJenjangList] = useState<string[]>(["SD", "SMP", "SMA", "Kedinasan"]);
@@ -263,32 +268,29 @@ export default function AreaTutor() {
 
   const populateTutor = (t: PengajarData) => {
     setCurrentTutor(t);
-    setFoto(t.foto || PRESET_AVATARS[0]);
-    setTutorStatus(t.status === "Cuti" ? "Cuti" : "Aktif");
-    setDeskripsi(
-      t.deskripsi ||
-      "Berpengalaman lebih dari 8 tahun membimbing siswa menembus Fakultas Kedokteran dan PTN impian dengan metode visualisasi konsep dan pembedahan nalar logika soal HOTS tanpa hafalan rumus mati."
-    );
-    setPendidikan(
-      t.pendidikan || "S2 Magister Kimia ITB (Cumlaude) • S1 Pendidikan Kimia Universitas Indonesia"
-    );
-    setIpk(t.ipk || "");
-    setNomorWa(t.nomorTelepon ? t.nomorTelepon.replace(/^(\+62|62|0)/, "") : "");
-    setDomisili(t.alamat || "Bandung & Jakarta Selatan (Fleksibel)");
 
-    // Ekstrak slot ketersediaan dari data tutor
-    const initialSlots = parseJadwalToSlots(t.jadwalTersedia, t.jenjang);
-    setJadwalSlots(initialSlots);
-
-    const initialFoto = t.foto || PRESET_AVATARS[0];
-    const initialDesk =
-      t.deskripsi ||
-      "Berpengalaman lebih dari 8 tahun membimbing siswa menembus Fakultas Kedokteran dan PTN impian dengan metode visualisasi konsep dan pembedahan nalar logika soal HOTS tanpa hafalan rumus mati.";
-    const initialPend =
-      t.pendidikan || "S2 Magister Kimia ITB (Cumlaude) • S1 Pendidikan Kimia Universitas Indonesia";
+    // Semua nilai diambil apa adanya dari database — tidak ada lagi data karangan.
+    // Dengan begitu yang dilihat tutor identik dengan yang dilihat koordinator.
+    const initialFoto = t.foto || "";
+    const initialDesk = t.deskripsi || "";
+    const initialPend = t.pendidikan || "";
     const initialIpk = t.ipk || "";
     const initialWa = t.nomorTelepon ? t.nomorTelepon.replace(/^(\+62|62|0)/, "") : "";
-    const initialDom = t.alamat || "Bandung & Jakarta Selatan (Fleksibel)";
+    const initialDom = t.alamat || "";
+    // Ekstrak slot ketersediaan dari data tutor (kosong jika belum pernah diatur)
+    const initialSlots = parseJadwalToSlots(t.jadwalTersedia, t.jenjang);
+    const initialTags = [...(t.fokusMateri || [])];
+
+    setFoto(initialFoto);
+    setSelectedPresetIndex(PRESET_AVATARS.indexOf(initialFoto));
+    setTutorStatus(t.status === "Cuti" ? "Cuti" : "Aktif");
+    setDeskripsi(initialDesk);
+    setPendidikan(initialPend);
+    setIpk(initialIpk);
+    setNomorWa(initialWa);
+    setDomisili(initialDom);
+    setJadwalSlots(initialSlots);
+    setTags(initialTags);
 
     setInitialData({
       foto: initialFoto,
@@ -299,7 +301,7 @@ export default function AreaTutor() {
       nomorWa: initialWa,
       status: t.status === "Cuti" ? "Cuti" : "Aktif",
       jadwalSlots: initialSlots,
-      tags: [...tags],
+      tags: initialTags,
     });
   };
 
@@ -574,6 +576,7 @@ export default function AreaTutor() {
   // Handler Ubah Status Ketersediaan Otomatis (Langsung sync ke MongoDB & Koordinator)
   const [updatingStatus, setUpdatingStatus] = useState(false);
   const handleStatusChange = async (newStatus: "Aktif" | "Cuti") => {
+    if (akunDinonaktifkan) return;
     setTutorStatus(newStatus);
     if (!currentTutor) return;
     try {
@@ -677,6 +680,9 @@ export default function AreaTutor() {
 
       const derivedJenjang = Array.from(new Set(jadwalSlots.flatMap((s) => s.jenjang || [])));
       const finalJenjang = derivedJenjang.length > 0 ? derivedJenjang : (currentTutor?.jenjang && currentTutor.jenjang.length > 0 ? currentTutor.jenjang : allJenjangOptions);
+      const finalNomor = nomorWa.startsWith("0") ? nomorWa : `0${nomorWa}`;
+      // Status "Nonaktif" hanya boleh ditentukan koordinator — jangan pernah ditimpa dari sini.
+      const dinonaktifkan = currentTutor.status === "Nonaktif";
 
       const res = await fetch(`/api/pengajar/${currentTutor._id}`, {
         method: "PUT",
@@ -685,15 +691,42 @@ export default function AreaTutor() {
           foto,
           deskripsi,
           pendidikan,
+          ipk,
           jenjang: finalJenjang,
           alamat: domisili,
-          nomorTelepon: nomorWa.startsWith("0") ? nomorWa : `0${nomorWa}`,
+          nomorTelepon: finalNomor,
           jadwalTersedia: serializedJadwal,
-          status: tutorStatus,
+          fokusMateri: tags,
+          ...(dinonaktifkan ? {} : { status: tutorStatus }),
         }),
       });
       const json = await res.json();
       if (json.success) {
+        // Sinkronkan slot ke modul "Ketersediaan" koordinator agar kedua layar
+        // membaca jam mengajar yang sama (sebelumnya tab itu tidak pernah terisi).
+        try {
+          await fetch("/api/ketersediaan", {
+            method: "POST",
+            headers: { "Content-Type": "application/json", ...getAuthHeader() },
+            body: JSON.stringify({
+              pengajarId: currentTutor._id,
+              namaPengajar: currentTutor.nama,
+              nomorTelepon: finalNomor,
+              periode: PERIODE_KETERSEDIAAN,
+              slots: jadwalSlots
+                .filter((s) => s.jamMulai && s.jamSelesai)
+                .map((s) => ({
+                  hari: s.hari,
+                  jamMulai: s.jamMulai,
+                  jamSelesai: s.jamSelesai,
+                  moda: "Fleksibel",
+                })),
+            }),
+          });
+        } catch {
+          // Kegagalan sinkronisasi ketersediaan tidak boleh membatalkan simpan profil.
+        }
+
         showToast("Profil dan jam ketersediaan mengajar berhasil disimpan.");
         setInitialData({
           foto,
@@ -715,9 +748,10 @@ export default function AreaTutor() {
               pendidikan,
               ipk,
               alamat: domisili,
-              nomorTelepon: nomorWa.startsWith("0") ? nomorWa : `0${nomorWa}`,
+              nomorTelepon: finalNomor,
               jadwalTersedia: serializedJadwal,
-              status: tutorStatus,
+              fokusMateri: [...tags],
+              ...(dinonaktifkan ? {} : { status: tutorStatus }),
               jenjang: finalJenjang,
             }
             : null
@@ -852,7 +886,7 @@ export default function AreaTutor() {
                     <div className="relative group shrink-0">
                       <div className="w-24 h-24 lg:w-28 lg:h-28 rounded-2xl overflow-hidden bg-[#e3e2e0] shadow-[0_8px_20px_-6px_rgba(0,0,0,0.12)]">
                         <img
-                          src={foto}
+                          src={foto || avatarFallbackUrl(currentTutor?.nama)}
                           alt={currentTutor?.nama || "Tutor"}
                           className="w-full h-full object-cover"
                         />
@@ -867,7 +901,7 @@ export default function AreaTutor() {
                       </div>
 
                       <h1 className="font-serif text-[2.25rem] lg:text-[2.5rem] text-[#1a1c1b] tracking-tight leading-tight">
-                        {currentTutor?.nama || "Siti Rahmawati, M.Si."}
+                        {currentTutor?.nama || "-"}
                       </h1>
 
                       <div className="flex flex-wrap items-center gap-y-1.5 gap-x-4 text-[0.8125rem] text-[#444748]">
@@ -922,7 +956,7 @@ export default function AreaTutor() {
                     </div>
                     <div>
                       <div className="font-serif text-[1.5rem] text-[#1a1c1b] leading-none">
-                        {tutorStatus}
+                        {statusTampil}
                       </div>
                       <div className="text-[0.75rem] text-[#67645f] mt-1 font-medium">
                         Status Pengajar
@@ -982,35 +1016,42 @@ export default function AreaTutor() {
 
                   <div className="flex items-center gap-3.5 px-2">
                     <div
-                      className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${tutorStatus === "Aktif"
+                      className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${statusTampil === "Aktif"
                         ? "bg-emerald-100 text-emerald-800"
-                        : "bg-amber-100 text-amber-800"
+                        : statusTampil === "Cuti"
+                          ? "bg-amber-100 text-amber-800"
+                          : "bg-rose-100 text-rose-800"
                         }`}
                     >
                       <span className="material-symbols-outlined text-[20px]">
-                        {tutorStatus === "Aktif" ? "check_circle" : "pause_circle"}
+                        {statusTampil === "Aktif" ? "check_circle" : statusTampil === "Cuti" ? "pause_circle" : "block"}
                       </span>
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-1">
                         <select
-                          value={tutorStatus}
-                          disabled={updatingStatus}
+                          value={statusTampil}
+                          disabled={updatingStatus || akunDinonaktifkan}
                           onChange={(e) => handleStatusChange(e.target.value as "Aktif" | "Cuti")}
-                          className={`text-[0.875rem] font-bold rounded-lg px-2 py-0.5 border cursor-pointer focus:outline-none transition-colors ${tutorStatus === "Aktif"
+                          className={`text-[0.875rem] font-bold rounded-lg px-2 py-0.5 border cursor-pointer focus:outline-none transition-colors ${statusTampil === "Aktif"
                             ? "bg-emerald-50 text-emerald-800 border-emerald-300"
-                            : "bg-amber-50 text-amber-800 border-amber-300"
-                            } disabled:opacity-50`}
-                          title="Ubah status ketersediaan Anda"
+                            : statusTampil === "Cuti"
+                              ? "bg-amber-50 text-amber-800 border-amber-300"
+                              : "bg-rose-50 text-rose-800 border-rose-300"
+                            } disabled:opacity-50 disabled:cursor-not-allowed`}
+                          title={akunDinonaktifkan ? "Status akun ditentukan koordinator" : "Ubah status ketersediaan Anda"}
                         >
+                          {akunDinonaktifkan && <option value="Nonaktif">Dinonaktifkan Koordinator</option>}
                           <option value="Aktif">Aktif Mengajar</option>
                           <option value="Cuti">Sedang Cuti</option>
                         </select>
                       </div>
                       <div className="text-[0.7rem] text-[#67645f] mt-1 font-medium truncate">
-                        {tutorStatus === "Aktif"
+                        {statusTampil === "Aktif"
                           ? "Aktif mengajar (Terdata di koordinator)"
-                          : "Sedang cuti (Akun tetap aktif di sistem)"}
+                          : statusTampil === "Cuti"
+                            ? "Sedang cuti (Akun tetap aktif di sistem)"
+                            : "Dinonaktifkan oleh koordinator — hubungi koordinator"}
                       </div>
                     </div>
                   </div>
@@ -1100,28 +1141,6 @@ export default function AreaTutor() {
                       </div>
                     </div>
 
-                    {/* Tautan URL Mandiri */}
-                    <div className="space-y-1.5 pt-2">
-                      <label className="text-[0.75rem] text-[#444748] flex items-center justify-between">
-                        <span>Atau Masukkan Tautan URL Sumber Foto Mandiri</span>
-                        <span className="text-[#67645f]">Mendukung format JPG/PNG/WebP</span>
-                      </label>
-                      <div className="flex items-center gap-2 bg-[#f4f3f1] rounded-xl px-4 py-2.5 focus-within:bg-[#efeeec] transition-colors">
-                        <span className="material-symbols-outlined text-[#444748] text-[20px]">
-                          link
-                        </span>
-                        <input
-                          type="text"
-                          value={foto}
-                          onChange={(e) => {
-                            setFoto(e.target.value);
-                            setSelectedPresetIndex(-1);
-                          }}
-                          placeholder="https://..."
-                          className="w-full bg-transparent text-[0.8125rem] text-[#1a1c1b] focus:outline-none placeholder:text-[#444748]/60"
-                        />
-                      </div>
-                    </div>
                   </fieldset>
 
                   <div className="h-px w-full bg-[#efeeec]"></div>
@@ -1657,7 +1676,7 @@ export default function AreaTutor() {
                       <div className="relative w-full aspect-[4/5] bg-[#efeeec] overflow-hidden">
                         <img
                           id="sidebar-live-portrait"
-                          src={foto}
+                          src={foto || avatarFallbackUrl(currentTutor?.nama)}
                           alt={currentTutor?.nama || "Tutor"}
                           className="w-full h-full object-cover object-center"
                         />
@@ -1673,10 +1692,10 @@ export default function AreaTutor() {
                         {/* Floating Pill Badge Nestled at Bottom */}
                         <div className="absolute inset-x-3 bottom-3 p-3 rounded-2xl bg-white/95 backdrop-blur-md shadow-md text-center">
                           <h3 className="text-[0.875rem] text-[#1a1c1b] font-semibold truncate">
-                            {currentTutor?.nama || "Siti Rahmawati, M.Si."}
+                            {currentTutor?.nama || "-"}
                           </h3>
                           <p className="text-[0.8125rem] text-[#444748] truncate mt-0.5">
-                            {pendidikan ? pendidikan.split("•")[0].trim() : currentTutor?.pendidikan ? currentTutor.pendidikan.split("•")[0].trim() : "Pengajar Ahli"}
+                            {pendidikan ? pendidikan.split("•")[0].trim() : currentTutor?.pendidikan ? currentTutor.pendidikan.split("•")[0].trim() : "-"}
                           </p>
                           <div className="flex items-center justify-center gap-1 mt-2 flex-wrap">
                             {(() => {
@@ -1700,7 +1719,7 @@ export default function AreaTutor() {
                         <div className="flex items-center gap-1.5 text-[#444748] text-[0.75rem] min-w-0">
                           <span className="material-symbols-outlined text-[16px] text-black shrink-0">school</span>
                           <span className="truncate">
-                            {pendidikan ? pendidikan.split("•")[0].trim() : "Alumni PTN"}
+                            {pendidikan ? pendidikan.split("•")[0].trim() : "-"}
                           </span>
                         </div>
                         <span className="text-[0.75rem] text-black font-semibold flex items-center gap-0.5 shrink-0">

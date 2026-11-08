@@ -20,6 +20,7 @@ export interface IPengajar extends Document {
   kelasAktif?: { namaKelas: string; jumlahSiswa: number }[]; // Kelas yang sedang aktif
   dokumenStatus?: string; // Lengkap, Belum Lengkap, dsb.
   catatanInternal?: string; // Catatan khusus koordinator
+  fokusMateri?: string[]; // Fokus materi & silabus yang diberikan (dikelola tutor)
   // --- Autentikasi (tidak pernah dikirim ke client: select:false) ---
   passwordHash?: string;
   aktivasiTokenHash?: string; // hash token undangan sekali pakai
@@ -45,7 +46,9 @@ const PengajarSchema: Schema<IPengajar> = new Schema(
       type: String,
       trim: true,
       default: function () {
-        return "LB-" + new Date().getFullYear() + "-" + Math.floor(1000 + Math.random() * 9000);
+        const year = String(new Date().getFullYear()).slice(-2);
+        const randomNum = String(Math.floor(1 + Math.random() * 999)).padStart(3, "0");
+        return "GP-" + year + "-" + randomNum;
       },
     },
     nomorTelepon: {
@@ -121,6 +124,10 @@ const PengajarSchema: Schema<IPengajar> = new Schema(
     catatanInternal: {
       type: String,
       trim: true,
+    },
+    fokusMateri: {
+      type: [String],
+      default: [],
     },
     passwordHash: { type: String, select: false },
     aktivasiTokenHash: { type: String, select: false },

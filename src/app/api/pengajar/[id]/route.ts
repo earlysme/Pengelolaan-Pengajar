@@ -5,7 +5,19 @@ import { getSession } from "@/lib/auth";
 
 
 // Field yang boleh diubah tutor untuk profilnya sendiri
-const FIELD_TUTOR = ["foto", "deskripsi", "pendidikan", "jenjang", "alamat", "nomorTelepon", "jadwalTersedia", "status"];
+const FIELD_TUTOR = [
+  "foto",
+  "deskripsi",
+  "pendidikan",
+  "ipk",
+  "jenjang",
+  "alamat",
+  "nomorTelepon",
+  "jadwalTersedia",
+  "status",
+  "jenisKelas",
+  "fokusMateri",
+];
 
 // GET: Mengambil detail satu pengajar
 export async function GET(
@@ -63,6 +75,15 @@ export async function PUT(
       delete body.akunDiaktifkanPada;
     } else {
       body = Object.fromEntries(Object.entries(body).filter(([k]) => FIELD_TUTOR.includes(k)));
+
+      // Tutor tidak boleh mengaktifkan kembali akun yang sudah dinonaktifkan koordinator.
+      // Tanpa ini, setiap kali tutor menyimpan profil, status "Nonaktif" ikut tertimpa "Aktif".
+      if (Object.prototype.hasOwnProperty.call(body, "status")) {
+        const existing = await Pengajar.findById(id).select("status");
+        if (existing?.status === "Nonaktif" && body.status !== "Nonaktif") {
+          delete body.status;
+        }
+      }
     }
 
     const pengajar = await Pengajar.findByIdAndUpdate(id, body, {
