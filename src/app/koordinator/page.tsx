@@ -894,11 +894,11 @@ export default function PanelKoordinator() {
 
           <div className="flex items-center gap-2 sm:gap-3">
             {/* Tab Panel Sejajar di Header dengan Button Keluar */}
-            <nav className="flex items-center p-1 bg-[#efeeec] rounded-full gap-1">
+            <nav className="flex items-center p-1 bg-[#efeeec] rounded-full gap-1 overflow-x-auto no-scrollbar max-w-[210px] sm:max-w-none">
               <button
                 type="button"
                 onClick={() => setActiveTab("dashboard")}
-                className={`px-3.5 py-1.5 rounded-full text-[0.8125rem] font-semibold transition-all whitespace-nowrap ${
+                className={`px-2.5 sm:px-3.5 py-1 sm:py-1.5 rounded-full text-[0.75rem] sm:text-[0.8125rem] font-semibold transition-all whitespace-nowrap ${
                   activeTab === "dashboard" || activeTab === "pengajar"
                     ? "bg-black text-white shadow-xs"
                     : "text-[#444748] hover:text-black hover:bg-white/50"
@@ -909,24 +909,26 @@ export default function PanelKoordinator() {
               <button
                 type="button"
                 onClick={() => setActiveTab("mapel")}
-                className={`px-3.5 py-1.5 rounded-full text-[0.8125rem] font-semibold transition-all whitespace-nowrap ${
+                className={`px-2.5 sm:px-3.5 py-1 sm:py-1.5 rounded-full text-[0.75rem] sm:text-[0.8125rem] font-semibold transition-all whitespace-nowrap ${
                   activeTab === "mapel"
                     ? "bg-black text-white shadow-xs"
                     : "text-[#444748] hover:text-black hover:bg-white/50"
                 }`}
               >
-                Kelola Mata Pelajaran
+                <span className="inline sm:hidden">Mapel</span>
+                <span className="hidden sm:inline">Kelola Mata Pelajaran</span>
               </button>
               <button
                 type="button"
                 onClick={() => setActiveTab("jenjang")}
-                className={`px-3.5 py-1.5 rounded-full text-[0.8125rem] font-semibold transition-all whitespace-nowrap ${
+                className={`px-2.5 sm:px-3.5 py-1 sm:py-1.5 rounded-full text-[0.75rem] sm:text-[0.8125rem] font-semibold transition-all whitespace-nowrap ${
                   activeTab === "jenjang"
                     ? "bg-black text-white shadow-xs"
                     : "text-[#444748] hover:text-black hover:bg-white/50"
                 }`}
               >
-                Kelola Jenjang
+                <span className="inline sm:hidden">Jenjang</span>
+                <span className="hidden sm:inline">Kelola Jenjang</span>
               </button>
             </nav>
 

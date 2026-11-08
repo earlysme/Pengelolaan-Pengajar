@@ -268,11 +268,11 @@ export default function HalamanKatalog() {
     <div className="bg-[#faf9f7] text-[#1a1c1b] min-h-screen selection:bg-[#e3e2e0] selection:text-[#1a1c1b]">
       {/* Header Sticky */}
       <header className="fixed top-0 w-full z-50 bg-[#faf9f7]/85 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)]">
-        <div className="h-20 max-w-7xl mx-auto px-6 lg:px-12 flex items-center justify-between gap-6">
-          <Link href="/" className="flex items-center gap-3 transition-opacity hover:opacity-85">
-            <img src="/logo.svg" alt="Gen Plasma" className="w-9 h-9 object-contain shrink-0" />
+        <div className="h-16 sm:h-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 flex items-center justify-between gap-4 sm:gap-6">
+          <Link href="/" className="flex items-center gap-2.5 sm:gap-3 transition-opacity hover:opacity-85">
+            <img src="/logo.svg" alt="Gen Plasma" className="w-8 h-8 sm:w-9 sm:h-9 object-contain shrink-0" />
             <div className="flex flex-col justify-center">
-              <span className="font-serif text-[1.4rem] leading-none tracking-tight text-[#173F3A] select-none font-bold translate-y-[2.5px]">
+              <span className="font-serif text-[1.25rem] sm:text-[1.4rem] leading-none tracking-tight text-[#173F3A] select-none font-bold translate-y-[2px]">
                 Gen Plasma
               </span>
             </div>
@@ -303,51 +303,40 @@ export default function HalamanKatalog() {
           <div className="flex items-center gap-4">
             <Link
               href="/login"
-              className="inline-flex items-center justify-center px-6 py-2.5 rounded-full bg-[#173F3A] hover:bg-[#112d2a] text-white text-[0.875rem] font-semibold transition-all duration-200 shadow-sm hover:shadow-md hover:scale-[1.02] active:scale-[0.98]"
+              className="inline-flex items-center justify-center px-5 sm:px-6 py-2 sm:py-2.5 rounded-full bg-[#173F3A] hover:bg-[#112d2a] text-white text-[0.8125rem] sm:text-[0.875rem] font-semibold transition-all duration-200 shadow-sm hover:shadow-md hover:scale-[1.02] active:scale-[0.98]"
             >
               Masuk
             </Link>
-            {/* Konsultasi Gratis (di-hide sementara, siap diaktifkan kembali jika dibutuhkan) */}
-            {false && (
-              <a
-                href="https://wa.me/6281377889900?text=Halo%20Gen%20Plasma%2C%20saya%20ingin%20konsultasi%20pemilihan%20pengajar"
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex items-center justify-center bg-[#B74E2C] text-white text-[0.875rem] font-semibold px-5 py-2.5 rounded-full hover:bg-[#9c3e20] transition-colors shadow-[0_2px_8px_rgba(183,78,44,0.25)]"
-              >
-                Konsultasi Gratis
-              </a>
-            )}
           </div>
         </div>
       </header>
 
       {/* Main Content */}
-      <main className="w-full pt-20 bg-[#faf9f7]">
+      <main className="w-full pt-16 sm:pt-20 bg-[#faf9f7]">
         <div className="flex flex-col w-full">
           {/* Top Editorial Header & Filters Section */}
-          <section id="katalog" className="w-full max-w-7xl mx-auto px-6 lg:px-12 pt-16 pb-12 flex flex-col items-center text-center scroll-mt-20">
+          <section id="katalog" className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 pt-10 sm:pt-16 pb-8 sm:pb-12 flex flex-col items-center text-center scroll-mt-20">
             {/* Overline Metric Pill */}
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#F2D5A8]/50 text-[#173F3A] text-[0.75rem] font-semibold border border-[#D88A32]/30 shadow-xs mb-6">
+            <div className="inline-flex items-center gap-2 px-3 sm:px-3.5 py-1.5 rounded-full bg-[#F2D5A8]/50 text-[#173F3A] text-[0.7rem] sm:text-[0.75rem] font-semibold border border-[#D88A32]/30 shadow-xs mb-4 sm:mb-6">
               <span className="inline-block w-2 h-2 rounded-full bg-[#B74E2C] animate-pulse"></span>
               <span>Kurasi Pengajar Terakreditasi 2025</span>
             </div>
 
             {/* Editorial Headline */}
-            <h1 className="font-serif text-[2.5rem] sm:text-[3.25rem] lg:text-[4rem] text-[#173F3A] max-w-4xl tracking-tight leading-[1.1] mb-5 font-bold">
+            <h1 className="font-serif text-[1.85rem] sm:text-[3rem] lg:text-[4rem] text-[#173F3A] max-w-4xl tracking-tight leading-[1.15] mb-4 sm:mb-5 font-bold">
               Kenali pengajar yang membuat{" "}
               <span className="italic font-normal text-[#B74E2C]">keajaiban belajar</span> terjadi
             </h1>
 
             {/* Subtitle */}
-            <p className="text-[1.125rem] text-[#444748] max-w-2xl mx-auto mb-10 leading-relaxed font-normal">
+            <p className="text-[0.9375rem] sm:text-[1.125rem] text-[#444748] max-w-2xl mx-auto mb-8 sm:mb-10 leading-relaxed font-normal">
               Tim pendidik kuratorial lulusan almamater terkemuka, peraih medali olimpiade, dan
               mentor berdedikasi yang membimbing potensi setiap siswa dengan ketenangan dan ketepatan.
             </p>
 
             {/* Segmented Filter Bar */}
-            <div className="w-full flex items-center justify-center overflow-x-auto no-scrollbar py-2">
-              <div className="inline-flex items-center gap-1.5 p-1.5 rounded-full bg-[#eae6df] shadow-xs backdrop-blur-md max-w-full">
+            <div className="w-full overflow-x-auto no-scrollbar py-2 px-4 flex sm:justify-center">
+              <div className="inline-flex items-center gap-1 sm:gap-1.5 p-1 sm:p-1.5 rounded-full bg-[#eae6df] shadow-xs backdrop-blur-md shrink-0">
                 {FILTER_ITEMS.map((item) => {
                   const isActive = activeFilter === item.id;
                   return (
@@ -355,7 +344,7 @@ export default function HalamanKatalog() {
                       key={item.id}
                       type="button"
                       onClick={() => setActiveFilter(item.id)}
-                      className={`px-4 py-2 rounded-full text-[0.875rem] transition-all duration-200 shrink-0 ${isActive
+                      className={`px-3.5 sm:px-4 py-1.5 sm:py-2 rounded-full text-[0.8125rem] sm:text-[0.875rem] transition-all duration-200 shrink-0 ${isActive
                         ? "bg-[#173F3A] text-white shadow-xs font-semibold"
                         : "text-[#444748] hover:text-[#173F3A] font-medium"
                         }`}
@@ -368,18 +357,18 @@ export default function HalamanKatalog() {
             </div>
           </section>
 
-          {/* 4-Column Portrait Cards Grid */}
-          <section className="w-full max-w-7xl mx-auto px-6 lg:px-12 pb-20">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {/* 2-Column Mobile, 4-Column Desktop Cards Grid */}
+          <section className="w-full max-w-7xl mx-auto px-3 sm:px-6 lg:px-12 pb-16 sm:pb-20">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
               {loading ? (
                 Array.from({ length: 4 }).map((_, i) => (
                   <div
                     key={i}
-                    className="bg-white rounded-3xl overflow-hidden shadow-xs border border-[#173F3A]/10 animate-pulse flex flex-col"
+                    className="bg-white rounded-2xl sm:rounded-3xl overflow-hidden shadow-xs border border-[#173F3A]/10 animate-pulse flex flex-col"
                   >
                     <div className="w-full aspect-[4/5] bg-neutral-200/70" />
-                    <div className="p-4 space-y-2.5">
-                      <div className="h-4 bg-neutral-200/80 rounded-md w-3/4" />
+                    <div className="p-3 sm:p-4 space-y-2">
+                      <div className="h-3.5 sm:h-4 bg-neutral-200/80 rounded-md w-3/4" />
                       <div className="h-3 bg-neutral-200/60 rounded-md w-1/2" />
                     </div>
                   </div>
@@ -399,7 +388,7 @@ export default function HalamanKatalog() {
                   <article
                     key={tutor._id}
                     onClick={() => setModalTutor(tutor)}
-                    className="group relative bg-white rounded-3xl shadow-xs hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col cursor-pointer"
+                    className="group relative bg-white rounded-2xl sm:rounded-3xl shadow-xs hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col cursor-pointer"
                   >
                     {/* Photo Container 4/5 Aspect Ratio */}
                     <div className="relative w-full aspect-[4/5] bg-[#efeeec] overflow-hidden">
@@ -421,9 +410,9 @@ export default function HalamanKatalog() {
                         const summary = getJadwalSummary(tutor.jadwal);
                         if (summary.sesi === 0 && summary.hari === 0) return null;
                         return (
-                          <div className="absolute top-3.5 right-3.5 bg-white/95 backdrop-blur-md px-2.5 py-1 rounded-full flex items-center gap-1 shadow-xs border border-[#173F3A]/15 pointer-events-none">
-                            <span className="material-symbols-outlined text-[#173F3A] text-[13px]">schedule</span>
-                            <span className="text-[0.72rem] font-bold text-[#173F3A]">
+                          <div className="absolute top-2 sm:top-3.5 right-2 sm:right-3.5 bg-white/95 backdrop-blur-md px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full flex items-center gap-0.5 sm:gap-1 shadow-xs border border-[#173F3A]/15 pointer-events-none">
+                            <span className="material-symbols-outlined text-[#173F3A] text-[11px] sm:text-[13px]">schedule</span>
+                            <span className="text-[0.62rem] sm:text-[0.72rem] font-bold text-[#173F3A]">
                               {summary.sesi} Sesi • {summary.hari} Hari
                             </span>
                           </div>
@@ -431,18 +420,18 @@ export default function HalamanKatalog() {
                       })()}
 
                       {/* Floating Pill Badge Nestled at Bottom */}
-                      <div className="absolute inset-x-3 bottom-3 p-3 rounded-2xl bg-white/95 backdrop-blur-md shadow-md text-center transition-transform duration-300 group-hover:-translate-y-1">
-                        <h3 className="text-[0.875rem] text-[#1a1c1b] font-semibold truncate">
+                      <div className="absolute inset-x-2 sm:inset-x-3 bottom-2 sm:bottom-3 p-2 sm:p-3 rounded-xl sm:rounded-2xl bg-white/95 backdrop-blur-md shadow-md text-center transition-transform duration-300 group-hover:-translate-y-1">
+                        <h3 className="text-[0.78rem] sm:text-[0.875rem] text-[#1a1c1b] font-semibold truncate">
                           {tutor.nama}
                         </h3>
-                        <p className="text-[0.8125rem] text-[#444748] truncate mt-0.5">
+                        <p className="text-[0.68rem] sm:text-[0.8125rem] text-[#444748] truncate mt-0.5">
                           {tutor.jabatan}
                         </p>
-                        <div className="flex items-center justify-center gap-1 mt-2 flex-wrap">
+                        <div className="flex items-center justify-center gap-1 mt-1.5 sm:mt-2 flex-wrap">
                           {tutor.jenjang && tutor.jenjang.map((j) => (
                             <span
                               key={j}
-                              className="text-[0.68rem] font-semibold px-2 py-0.5 rounded-md bg-[#173F3A]/10 text-[#173F3A]"
+                              className="text-[0.58rem] sm:text-[0.68rem] font-semibold px-1.5 sm:px-2 py-0.2 sm:py-0.5 rounded sm:rounded-md bg-[#173F3A]/10 text-[#173F3A]"
                             >
                               {j}
                             </span>
@@ -452,18 +441,18 @@ export default function HalamanKatalog() {
                     </div>
 
                     {/* Bottom Strip: School / Experience + Arrow Action */}
-                    <div className="p-4 flex items-center justify-between bg-white">
-                      <div className="flex items-center gap-1.5 text-[#444748] text-[0.75rem]">
-                        <span className="material-symbols-outlined text-[16px] text-black">
+                    <div className="p-2.5 sm:p-4 flex items-center justify-between bg-white gap-1 sm:gap-2">
+                      <div className="flex items-center gap-1 sm:gap-1.5 text-[#444748] text-[0.68rem] sm:text-[0.75rem] min-w-0 flex-1">
+                        <span className="material-symbols-outlined text-[14px] sm:text-[16px] text-black shrink-0">
                           {tutor.iconType === "psychology" ? "psychology" : "school"}
                         </span>
-                        <span>
+                        <span className="truncate">
                           {tutor.almamater} • {tutor.pengalaman}
                         </span>
                       </div>
-                      <span className="text-[0.75rem] text-black group-hover:text-[#615e59] flex items-center gap-0.5 font-semibold transition-colors">
+                      <span className="text-[0.68rem] sm:text-[0.75rem] text-black group-hover:text-[#615e59] flex items-center gap-0.5 font-semibold transition-colors shrink-0">
                         {tutor.ctaText || "Jadwal"}
-                        <span className="material-symbols-outlined text-[14px]">arrow_forward</span>
+                        <span className="material-symbols-outlined text-[12px] sm:text-[14px]">arrow_forward</span>
                       </span>
                     </div>
                   </article>
@@ -473,26 +462,26 @@ export default function HalamanKatalog() {
 
             {/* Bottom Status Info */}
             {!loading && (
-              <div className="mt-14 flex flex-col items-center justify-center gap-3">
+              <div className="mt-10 sm:mt-14 flex flex-col items-center justify-center gap-3">
                 <button
                   type="button"
                   onClick={() => {
                     setLoading(true);
                     void loadFromDB();
                   }}
-                  className="inline-flex items-center gap-2 bg-white text-[#1a1c1b] hover:bg-[#e9e8e6] text-[0.875rem] font-semibold px-6 py-3 rounded-full shadow-xs hover:shadow-md transition-all cursor-pointer"
+                  className="inline-flex items-center gap-2 bg-white text-[#1a1c1b] hover:bg-[#e9e8e6] text-[0.8125rem] sm:text-[0.875rem] font-semibold px-5 sm:px-6 py-2.5 sm:py-3 rounded-full shadow-xs hover:shadow-md transition-all cursor-pointer"
                 >
                   <span className="material-symbols-outlined text-[18px]">refresh</span>
                   <span>Segarkan Data Pengajar</span>
                 </button>
-                <p className="text-[0.8125rem] text-[#67645f]">
+                <p className="text-[0.75rem] sm:text-[0.8125rem] text-[#67645f] text-center">
                   Menampilkan {filteredTutors.length} dari {tutorList.length} pengajar terverifikasi
                   {isDbLoaded && (
-                    <span className="ml-2 text-emerald-700 font-medium">• Database Terhubung Langsung</span>
+                    <span className="ml-2 text-emerald-700 font-medium block sm:inline">• Database Terhubung Langsung</span>
                   )}
                 </p>
                 {loadError && (
-                  <p className="text-[0.75rem] text-rose-600">
+                  <p className="text-[0.75rem] text-rose-600 text-center">
                     {loadError}
                   </p>
                 )}
@@ -501,10 +490,10 @@ export default function HalamanKatalog() {
           </section>
 
           {/* High-End Value Strip / Minimalist Reassurance */}
-          <section id="keunggulan" className="w-full bg-[#f4f3f1] py-12 scroll-mt-20">
-            <div className="max-w-7xl mx-auto px-6 lg:px-12">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center md:text-left">
-                <div className="flex items-start gap-4 justify-center md:justify-start">
+          <section id="keunggulan" className="w-full bg-[#f4f3f1] py-10 sm:py-12 scroll-mt-20">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8 text-left">
+                <div className="flex items-start gap-4 justify-start">
                   <div className="w-12 h-12 rounded-2xl bg-white flex items-center justify-center text-black shadow-xs shrink-0">
                     <span className="material-symbols-outlined text-[24px]">verified</span>
                   </div>
@@ -518,7 +507,7 @@ export default function HalamanKatalog() {
                   </div>
                 </div>
 
-                <div className="flex items-start gap-4 justify-center md:justify-start">
+                <div className="flex items-start gap-4 justify-start">
                   <div className="w-12 h-12 rounded-2xl bg-white flex items-center justify-center text-black shadow-xs shrink-0">
                     <span className="material-symbols-outlined text-[24px]">menu_book</span>
                   </div>
@@ -532,7 +521,7 @@ export default function HalamanKatalog() {
                   </div>
                 </div>
 
-                <div className="flex items-start gap-4 justify-center md:justify-start">
+                <div className="flex items-start gap-4 justify-start">
                   <div className="w-12 h-12 rounded-2xl bg-white flex items-center justify-center text-black shadow-xs shrink-0">
                     <span className="material-symbols-outlined text-[24px]">devices</span>
                   </div>
@@ -551,33 +540,33 @@ export default function HalamanKatalog() {
           </section>
 
           {/* Editorial Invitation Banner */}
-          <section id="konsultasi" className="w-full max-w-7xl mx-auto px-6 lg:px-12 py-16 scroll-mt-20">
-            <div className="relative overflow-hidden rounded-3xl bg-[#efeeec] p-8 lg:p-14 flex flex-col lg:flex-row items-center justify-between gap-8 shadow-xs">
-              <div className="max-w-xl space-y-3 text-center lg:text-left">
-                <span className="text-[0.75rem] text-[#67645f] tracking-wider uppercase font-semibold">
+          <section id="konsultasi" className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 py-12 sm:py-16 scroll-mt-20">
+            <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-[#efeeec] p-6 sm:p-8 lg:p-14 flex flex-col lg:flex-row items-center justify-between gap-6 sm:gap-8 shadow-xs">
+              <div className="max-w-xl space-y-2 sm:space-y-3 text-center lg:text-left">
+                <span className="text-[0.7rem] sm:text-[0.75rem] text-[#67645f] tracking-wider uppercase font-semibold">
                   Bimbingan Yang Tepat Untuk Anda
                 </span>
-                <h3 className="font-serif text-[1.75rem] text-[#1a1c1b] leading-tight">
+                <h3 className="font-serif text-[1.4rem] sm:text-[1.75rem] text-[#1a1c1b] leading-tight">
                   Bingung memilih pengajar yang paling cocok?
                 </h3>
-                <p className="text-[0.9375rem] text-[#444748] leading-relaxed">
+                <p className="text-[0.875rem] sm:text-[0.9375rem] text-[#444748] leading-relaxed">
                   Konselor akademik kami siap membantu memetakan gaya belajar dan kurikulum siswa
                   untuk mencocokkan tutor terbaik secara cuma-cuma.
                 </p>
               </div>
 
-              <div className="flex flex-col sm:flex-row items-center gap-3 shrink-0">
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 shrink-0 w-full sm:w-auto">
                 <a
                   href="https://wa.me/6281377889900?text=Halo%20Lentera%20Belajar%2C%20saya%20ingin%20konsultasi%20penjurusan%20tutor"
                   target="_blank"
                   rel="noreferrer"
-                  className="inline-flex items-center justify-center bg-black text-white text-[0.875rem] font-semibold px-6 py-3 rounded-full hover:bg-[#444748] transition-colors shadow-xs"
+                  className="inline-flex items-center justify-center bg-black text-white text-[0.8125rem] sm:text-[0.875rem] font-semibold px-5 sm:px-6 py-3 rounded-full hover:bg-[#444748] transition-colors shadow-xs text-center"
                 >
                   Konsultasi Penjurusan Tutor
                 </a>
                 <Link
                   href="/login"
-                  className="inline-flex items-center justify-center bg-white text-[#1a1c1b] text-[0.875rem] font-semibold px-6 py-3 rounded-full hover:bg-[#e9e8e6] transition-colors shadow-xs"
+                  className="inline-flex items-center justify-center bg-white text-[#1a1c1b] text-[0.8125rem] sm:text-[0.875rem] font-semibold px-5 sm:px-6 py-3 rounded-full hover:bg-[#e9e8e6] transition-colors shadow-xs text-center"
                 >
                   Portal Pengajar
                 </Link>
@@ -589,13 +578,13 @@ export default function HalamanKatalog() {
 
       {/* Footer */}
       <footer className="w-full bg-[#f2efe9] border-t border-[#173F3A]/10">
-        <div className="max-w-7xl mx-auto px-6 lg:px-12 pt-16 pb-12">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-8 pb-12 border-b border-[#173F3A]/15">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 pt-12 sm:pt-16 pb-8 sm:pb-12">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 sm:gap-8 pb-8 sm:pb-12 border-b border-[#173F3A]/15">
             <div className="space-y-3">
               <div className="flex items-center gap-3">
                 <img src="/logo.svg" alt="Gen Plasma" className="w-8 h-8 object-contain shrink-0" />
                 <div className="flex flex-col justify-center">
-                  <span className="font-serif text-[1.45rem] leading-none tracking-tight text-[#173F3A] font-bold translate-y-[1px]">
+                  <span className="font-serif text-[1.35rem] sm:text-[1.45rem] leading-none tracking-tight text-[#173F3A] font-bold translate-y-[1px]">
                     Gen Plasma
                   </span>
                 </div>
@@ -606,7 +595,7 @@ export default function HalamanKatalog() {
               </p>
             </div>
 
-            <nav className="flex flex-wrap items-center gap-x-8 gap-y-3 text-[0.75rem] text-[#444748]">
+            <nav className="flex flex-wrap items-center gap-x-6 sm:gap-x-8 gap-y-2.5 text-[0.75rem] text-[#444748]">
               <button
                 type="button"
                 onClick={() => {
@@ -640,9 +629,9 @@ export default function HalamanKatalog() {
             </nav>
           </div>
 
-          <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-[0.75rem] text-[#67645f]">
+          <div className="pt-6 sm:pt-8 flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4 text-[0.75rem] text-[#67645f] text-center sm:text-left">
             <p>© 2025 - 2026 Gen Plasma. Hak cipta dilindungi undang-undang.</p>
-            <div className="flex items-center gap-6">
+            <div className="flex items-center gap-4 sm:gap-6">
               <span>Jakarta • Yogyakarta • Bandung</span>
             </div>
           </div>
@@ -651,10 +640,10 @@ export default function HalamanKatalog() {
 
       {/* Detail / Jadwal Modal */}
       {modalTutor && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-xs animate-in fade-in duration-200">
-          <div className="bg-white rounded-3xl border border-[#173F3A]/15 shadow-2xl w-full max-w-2xl overflow-hidden flex flex-col max-h-[90vh] animate-in zoom-in-95 duration-200">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/40 backdrop-blur-xs animate-in fade-in duration-200">
+          <div className="bg-white rounded-2xl sm:rounded-3xl border border-[#173F3A]/15 shadow-2xl w-full max-w-2xl overflow-hidden flex flex-col max-h-[92vh] sm:max-h-[90vh] animate-in zoom-in-95 duration-200">
             {/* Modal Header */}
-            <div className="relative p-6 bg-[#faf8f5] border-b border-[#173F3A]/10 flex items-center gap-4">
+            <div className="relative p-4 sm:p-6 bg-[#faf8f5] border-b border-[#173F3A]/10 flex items-start sm:items-center gap-3 sm:gap-4">
               <img
                 src={cleanImageUrl(modalTutor.foto)}
                 alt={modalTutor.nama}
@@ -665,17 +654,17 @@ export default function HalamanKatalog() {
                     e.currentTarget.src = fallback;
                   }
                 }}
-                className="w-16 h-20 rounded-2xl object-cover shadow-sm shrink-0"
+                className="w-14 h-18 sm:w-16 sm:h-20 rounded-xl sm:rounded-2xl object-cover shadow-sm shrink-0"
               />
               <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-1.5 mb-1 text-[#173F3A]">
-                  <span className="material-symbols-outlined text-[16px]">school</span>
-                  <span className="text-[0.75rem] font-medium text-[#444748]">{modalTutor.almamater}</span>
+                <div className="flex items-center gap-1.5 mb-0.5 sm:mb-1 text-[#173F3A]">
+                  <span className="material-symbols-outlined text-[14px] sm:text-[16px]">school</span>
+                  <span className="text-[0.7rem] sm:text-[0.75rem] font-medium text-[#444748] truncate">{modalTutor.almamater}</span>
                 </div>
-                <h3 className="font-serif text-[1.35rem] font-bold text-[#173F3A] leading-tight truncate">
+                <h3 className="font-serif text-[1.15rem] sm:text-[1.35rem] font-bold text-[#173F3A] leading-tight truncate">
                   {modalTutor.nama}
                 </h3>
-                <p className="text-[0.8125rem] text-[#444748] mt-0.5">{modalTutor.jabatan}</p>
+                <p className="text-[0.75rem] sm:text-[0.8125rem] text-[#444748] truncate mt-0.5">{modalTutor.jabatan}</p>
                 <div className="mt-1 flex items-center gap-1.5 flex-wrap">
 
                   {modalTutor.jenjang && modalTutor.jenjang.length > 0 && (
@@ -692,21 +681,21 @@ export default function HalamanKatalog() {
               <button
                 type="button"
                 onClick={() => setModalTutor(null)}
-                className="w-8 h-8 rounded-full bg-white flex items-center justify-center text-[#444748] hover:text-[#173F3A] shadow-xs font-bold text-sm shrink-0"
+                className="w-8 h-8 rounded-full bg-white flex items-center justify-center text-[#444748] hover:text-[#173F3A] shadow-xs font-bold text-sm shrink-0 cursor-pointer"
               >
                 ✕
               </button>
             </div>
 
             {/* Modal Body */}
-            <div className="p-6 space-y-5 overflow-y-auto max-h-[62vh] text-xs text-[#444748]">
+            <div className="p-4 sm:p-6 space-y-4 sm:space-y-5 overflow-y-auto max-h-[58vh] sm:max-h-[62vh] text-xs text-[#444748]">
               {modalTutor.deskripsi && (
                 <div>
                   <span className="text-[0.6875rem] font-bold uppercase tracking-wider text-[#67645f] block mb-1.5 flex items-center gap-1.5">
                     <span className="material-symbols-outlined text-[15px] text-[#173F3A]">person</span>
                     Profil Akademik &amp; Pendekatan
                   </span>
-                  <p className="text-[#173F3A] bg-[#faf8f5] border border-[#173F3A]/10 p-3.5 rounded-2xl leading-relaxed italic">
+                  <p className="text-[#173F3A] bg-[#faf8f5] border border-[#173F3A]/10 p-3 sm:p-3.5 rounded-xl sm:rounded-2xl leading-relaxed italic text-[0.75rem] sm:text-[0.8125rem]">
                     &quot;{modalTutor.deskripsi}&quot;
                   </p>
                 </div>
@@ -725,60 +714,69 @@ export default function HalamanKatalog() {
 
                 {parsedJadwalModal.length > 0 ? (
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                    {parsedJadwalModal.map((group) => (
-                      <div
-                        key={group.hari}
-                        className="p-3 bg-[#faf8f5] rounded-2xl border border-[#173F3A]/10 flex flex-col gap-2 hover:border-[#173F3A]/25 transition-all"
-                      >
-                        <div className="flex items-center justify-between border-b border-[#173F3A]/5 pb-1.5">
-                          <span className="font-bold text-[#173F3A] text-[0.8125rem] flex items-center gap-1.5">
-                            <span className="w-2 h-2 rounded-full bg-[#173F3A]"></span>
-                            {group.hari}
-                          </span>
-                          <span className="text-[0.65rem] font-semibold text-[#173F3A]/70 bg-white px-2 py-0.5 rounded-full border border-[#173F3A]/10">
-                            {group.slots.length} Sesi
-                          </span>
-                        </div>
+                    {parsedJadwalModal.map((group) => {
+                      const dayJenjang = Array.from(
+                        new Set(
+                          group.slots.flatMap((s) => extractJenjangTags(s.label, modalTutor.jenjang))
+                        )
+                      );
 
-                        <div className="flex flex-wrap gap-2">
-                          {group.slots.map((s, idx) => {
-                            const slotJenjang = extractJenjangTags(s.label, modalTutor.jenjang);
-                            const otherLabel = s.label
-                              ? s.label
-                                .replace(/\b(sd|smp|sma|kedinasan|utbk)\b/gi, "")
-                                .replace(/[,•\s]+/g, " ")
-                                .trim()
-                              : "";
+                      return (
+                        <div
+                          key={group.hari}
+                          className="p-3 bg-[#faf8f5] rounded-2xl border border-[#173F3A]/10 flex flex-col gap-2 hover:border-[#173F3A]/25 transition-all"
+                        >
+                          <div className="flex items-center justify-between border-b border-[#173F3A]/5 pb-1.5 gap-2">
+                            <div className="flex items-center gap-1.5 flex-wrap min-w-0">
+                              <span className="font-bold text-[#173F3A] text-[0.8125rem] flex items-center gap-1.5 shrink-0">
+                                <span className="w-2 h-2 rounded-full bg-[#173F3A]"></span>
+                                {group.hari}
+                              </span>
+                              {dayJenjang.length > 0 && (
+                                <div className="flex items-center gap-1 flex-wrap">
+                                  {dayJenjang.map((j) => (
+                                    <span
+                                      key={j}
+                                      className="text-[0.625rem] px-1.5 py-0.5 rounded-md bg-[#173F3A]/10 text-[#173F3A] border border-[#173F3A]/15 font-bold"
+                                    >
+                                      {j}
+                                    </span>
+                                  ))}
+                                </div>
+                              )}
+                            </div>
+                            <span className="text-[0.65rem] font-semibold text-[#173F3A]/70 bg-white px-2 py-0.5 rounded-full border border-[#173F3A]/10 shrink-0">
+                              {group.slots.length} Sesi
+                            </span>
+                          </div>
 
-                            return (
-                              <div
-                                key={idx}
-                                className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white border border-[#173F3A]/15 rounded-xl text-[0.72rem] text-[#173F3A] shadow-2xs font-medium"
-                              >
-                                <span className="font-semibold">{s.jam}</span>
-                                {slotJenjang.length > 0 && (
-                                  <div className="flex items-center gap-1">
-                                    {slotJenjang.map((j) => (
-                                      <span
-                                        key={j}
-                                        className="text-[0.625rem] px-1.5 py-0.5 rounded-md bg-[#173F3A]/10 text-[#173F3A] border border-[#173F3A]/15 font-bold"
-                                      >
-                                        {j}
-                                      </span>
-                                    ))}
-                                  </div>
-                                )}
-                                {otherLabel && (
-                                  <span className="text-[0.625rem] px-1.5 py-0.5 rounded-md bg-[#F2D5A8]/60 text-[#173F3A] border border-[#D88A32]/25 font-bold">
-                                    {otherLabel}
-                                  </span>
-                                )}
-                              </div>
-                            );
-                          })}
+                          <div className="flex flex-wrap gap-1.5 sm:gap-2">
+                            {group.slots.map((s, idx) => {
+                              const otherLabel = s.label
+                                ? s.label
+                                  .replace(/\b(sd|smp|sma|kedinasan|utbk)\b/gi, "")
+                                  .replace(/[,•\s]+/g, " ")
+                                  .trim()
+                                : "";
+
+                              return (
+                                <div
+                                  key={idx}
+                                  className="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1 sm:py-1.5 bg-white border border-[#173F3A]/15 rounded-xl text-[0.72rem] text-[#173F3A] shadow-2xs font-medium"
+                                >
+                                  <span className="font-semibold">{s.jam}</span>
+                                  {otherLabel && (
+                                    <span className="text-[0.625rem] px-1.5 py-0.5 rounded-md bg-[#F2D5A8]/60 text-[#173F3A] border border-[#D88A32]/25 font-bold">
+                                      {otherLabel}
+                                    </span>
+                                  )}
+                                </div>
+                              );
+                            })}
+                          </div>
                         </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 ) : (
                   <div className="p-4 bg-[#faf8f5] rounded-2xl border border-[#173F3A]/10 text-center text-[#67645f]">
@@ -789,11 +787,11 @@ export default function HalamanKatalog() {
             </div>
 
             {/* Modal Footer */}
-            <div className="p-4 bg-[#f2efe9] border-t border-[#173F3A]/10 flex items-center justify-end gap-2">
+            <div className="p-3 sm:p-4 bg-[#f2efe9] border-t border-[#173F3A]/10 flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-2">
               <button
                 type="button"
                 onClick={() => setModalTutor(null)}
-                className="px-4 py-2 text-[0.8125rem] font-semibold text-[#444748] hover:bg-[#eae6df] rounded-full transition-colors"
+                className="w-full sm:w-auto px-4 py-2.5 text-[0.8125rem] font-semibold text-[#444748] hover:bg-[#eae6df] rounded-full transition-colors text-center cursor-pointer"
               >
                 Tutup
               </button>
@@ -803,7 +801,7 @@ export default function HalamanKatalog() {
                 )}`}
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex items-center gap-2 bg-[#173F3A] hover:bg-[#112F2B] text-white text-[0.8125rem] font-semibold px-5 py-2.5 rounded-full transition-colors shadow-xs"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-[#173F3A] hover:bg-[#112F2B] text-white text-[0.8125rem] font-semibold px-5 py-2.5 rounded-full transition-colors shadow-xs text-center"
               >
                 <span>Atur Jadwal via WhatsApp</span>
                 <span className="material-symbols-outlined text-[16px]">arrow_forward</span>
