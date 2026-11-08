@@ -14,7 +14,8 @@ export default function HalamanLogin() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (typeof window !== "undefined") {
+    const timer = setTimeout(() => {
+      if (typeof window === "undefined") return;
       const searchParams = new URLSearchParams(window.location.search);
       if (searchParams.get("reason") === "reset") {
         setIsResetError(true);
@@ -22,7 +23,8 @@ export default function HalamanLogin() {
           "Akses akun Anda telah di-reset oleh koordinator. Password lama sudah tidak berlaku lagi. Silakan buka tautan pemulihan/undangan yang telah dikirimkan koordinator ke WhatsApp Anda untuk mengatur password baru."
         );
       }
-    }
+    }, 0);
+    return () => clearTimeout(timer);
   }, []);
 
   // State Modal Lupa Password

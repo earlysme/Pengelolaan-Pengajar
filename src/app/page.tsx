@@ -215,7 +215,6 @@ export default function HalamanKatalog() {
 
   const loadFromDB = async () => {
     try {
-      setLoadError("");
       const res = await fetch("/api/pengajar?t=" + Date.now(), {
         cache: "no-store",
         headers: {
@@ -223,6 +222,7 @@ export default function HalamanKatalog() {
           Pragma: "no-cache",
         },
       });
+      setLoadError("");
       const json = await res.json();
       if (json.success && Array.isArray(json.data)) {
         const validTutors = (json.data as DBPengajarItem[]).filter((p) => {
@@ -246,10 +246,17 @@ export default function HalamanKatalog() {
   };
 
   useEffect(() => {
-    void loadFromDB();
+    // Ditunda ke task berikutnya agar setState tidak terjadi sinkron di body effect
+    // (menghindari cascading render; state awal sudah "loading").
+    const timer = setTimeout(() => {
+      void loadFromDB();
+    }, 0);
     const onFocus = () => void loadFromDB();
     window.addEventListener("focus", onFocus);
-    return () => window.removeEventListener("focus", onFocus);
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener("focus", onFocus);
+    };
   }, []);
 
   const filteredTutors = useMemo(() => {

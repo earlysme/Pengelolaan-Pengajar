@@ -157,7 +157,7 @@ async function runImport() {
   let countCreated = 0;
   let countUpdated = 0;
 
-  for (const [namaUpper, item] of tutorAggregate.entries()) {
+  for (const item of tutorAggregate.values()) {
     const mapelArr = Array.from(item.mapelSet);
     const jenjangArr = item.jenjangSet.size > 0 ? Array.from(item.jenjangSet) : ["SMA"];
     const kelasArr = item.kelasSet.size > 0 ? Array.from(item.kelasSet) : ["Reguler"];

@@ -11,6 +11,14 @@ const eslintConfig = defineConfig([
       "@next/next/no-page-custom-font": "off",
     },
   },
+  // Skrip operasional di scripts/ adalah CommonJS Node (dijalankan `node scripts/x.js`),
+  // jadi require() sah di sana dan tidak ikut aturan modul TypeScript.
+  {
+    files: ["scripts/**/*.js"],
+    rules: {
+      "@typescript-eslint/no-require-imports": "off",
+    },
+  },
   // Override default ignores of eslint-config-next.
   globalIgnores([
     // Default ignores of eslint-config-next:

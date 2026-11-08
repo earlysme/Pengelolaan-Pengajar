@@ -1218,7 +1218,6 @@ export default function AreaTutor() {
 
                                 <div className="space-y-2.5">
                                   {slotsHari.map((slot, sIdx) => {
-                                    const isFilled = Boolean(slot.jamMulai && slot.jamSelesai);
                                     return (
                                       <div
                                         key={slot.id}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
@@ -175,6 +175,27 @@ const DAFTAR_MAPEL = [
 const DAFTAR_JENJANG = ["SD", "SMP", "SMA", "Kedinasan"];
 const DAFTAR_HARI = ["Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
 
+/**
+ * Sisa waktu menuju aktivasi kedaluwarsa dalam format "1j 02m 03d".
+ * Fungsi murni di level modul agar aman dipakai di dalam effect sebelum deklarasi komponen.
+ */
+function formatCountdown(kadaluarsaIso?: string, nowMs: number = 0) {
+  if (!kadaluarsaIso || !nowMs) return null;
+  const expMs = new Date(kadaluarsaIso).getTime();
+  const diff = expMs - nowMs;
+  if (diff <= 0) return null;
+
+  const totalSec = Math.floor(diff / 1000);
+  const h = Math.floor(totalSec / 3600);
+  const m = Math.floor((totalSec % 3600) / 60);
+  const s = totalSec % 60;
+
+  if (h > 0) {
+    return `${h}j ${m.toString().padStart(2, "0")}m ${s.toString().padStart(2, "0")}d`;
+  }
+  return `${m}m ${s.toString().padStart(2, "0")}d`;
+}
+
 export default function PanelKoordinator() {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<TabModul>("dashboard");
@@ -215,11 +236,14 @@ export default function PanelKoordinator() {
   const [nowTime, setNowTime] = useState<number>(0);
 
   useEffect(() => {
-    setNowTime(Date.now());
+    const first = setTimeout(() => setNowTime(Date.now()), 0);
     const timer = setInterval(() => {
       setNowTime(Date.now());
     }, 1000);
-    return () => clearInterval(timer);
+    return () => {
+      clearTimeout(first);
+      clearInterval(timer);
+    };
   }, []);
 
   // Modul 2: State Ketersediaan
@@ -263,7 +287,7 @@ export default function PanelKoordinator() {
   const [newJenjangNama, setNewJenjangNama] = useState("");
   const [submittingMaster, setSubmittingMaster] = useState(false);
 
-  const getAuthHeader = (): Record<string, string> => {
+  const getAuthHeader = useCallback((): Record<string, string> => {
     if (typeof window === "undefined") return {};
     try {
       const saved = localStorage.getItem("genplasma_session");
@@ -273,9 +297,9 @@ export default function PanelKoordinator() {
       }
     } catch {}
     return {};
-  };
+  }, []);
 
-  const fetchAllData = async (silentParam: boolean | React.SyntheticEvent = false) => {
+  const fetchAllData = useCallback(async (silentParam: boolean | React.SyntheticEvent = false) => {
     const silent = typeof silentParam === "boolean" ? silentParam : false;
     try {
       if (!silent) {
@@ -326,7 +350,7 @@ export default function PanelKoordinator() {
     } finally {
       if (!silent) setLoading(false);
     }
-  };
+  }, [getAuthHeader]);
 
   const handleAddMapel = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -458,7 +482,7 @@ export default function PanelKoordinator() {
     return () => {
       isMounted = false;
     };
-  }, [router]);
+  }, [router, fetchAllData, getAuthHeader]);
 
   // Realtime Auto-Sync data:
   // Mengupdate data secara otomatis di background tanpa perlu reload / refresh halaman
@@ -494,24 +518,7 @@ export default function PanelKoordinator() {
       window.removeEventListener("focus", onVisible);
       document.removeEventListener("visibilitychange", onVisible);
     };
-  }, [pengajarList, nowTime]);
-
-  const formatCountdown = (kadaluarsaIso?: string, nowMs: number = 0) => {
-    if (!kadaluarsaIso || !nowMs) return null;
-    const expMs = new Date(kadaluarsaIso).getTime();
-    const diff = expMs - nowMs;
-    if (diff <= 0) return null;
-
-    const totalSec = Math.floor(diff / 1000);
-    const h = Math.floor(totalSec / 3600);
-    const m = Math.floor((totalSec % 3600) / 60);
-    const s = totalSec % 60;
-
-    if (h > 0) {
-      return `${h}j ${m.toString().padStart(2, "0")}m ${s.toString().padStart(2, "0")}d`;
-    }
-    return `${m}m ${s.toString().padStart(2, "0")}d`;
-  };
+  }, [pengajarList, nowTime, fetchAllData]);
 
   const handleBuatUndangan = async (p: PengajarData, action?: "reset" | "aktivasi") => {
     try {
