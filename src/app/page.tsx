@@ -396,7 +396,7 @@ export default function HalamanKatalog() {
                   <article
                     key={tutor._id}
                     onClick={() => setModalTutor(tutor)}
-className="group relative rounded-2xl sm:rounded-3xl shadow-xs hover:shadow-2xl transition-all duration-300 overflow-hidden cursor-pointer aspect-[4/5] bg-[#efeeec]"
+                    className="group relative rounded-2xl sm:rounded-3xl shadow-xs hover:shadow-2xl transition-all duration-300 overflow-hidden cursor-pointer aspect-[4/5] bg-[#efeeec]"
                   >
                     {/* Full-bleed Photo */}
                     <img
@@ -720,7 +720,7 @@ className="group relative rounded-2xl sm:rounded-3xl shadow-xs hover:shadow-2xl 
                         )
                       );
 
-return (
+                      return (
                         <div
                           key={group.hari}
                           className="p-3 bg-[#faf8f5] rounded-2xl border border-[#173F3A]/10 flex flex-col gap-2 hover:border-[#173F3A]/25 transition-all"
