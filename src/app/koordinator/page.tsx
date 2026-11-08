@@ -36,7 +36,7 @@ interface MasterSesiItem {
   aktif: boolean;
 }
 
-export const cleanImageUrl = (url?: string): string => {
+const cleanImageUrl = (url?: string): string => {
   if (!url) return "";
   const trimmed = url.trim();
 
@@ -60,7 +60,7 @@ export const cleanImageUrl = (url?: string): string => {
   return trimmed;
 };
 
-export const getAvatarFallback = (nama?: string): string => {
+const getAvatarFallback = (nama?: string): string => {
   return `https://ui-avatars.com/api/?name=${encodeURIComponent(nama || "Tutor")}&background=173F3A&color=ffffff&bold=true`;
 };
 
