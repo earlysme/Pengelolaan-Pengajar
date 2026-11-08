@@ -168,6 +168,14 @@ const extractJenjangTags = (label?: string, fallbackJenjang?: string[]): string[
   return fallbackJenjang && fallbackJenjang.length > 0 ? fallbackJenjang : [];
 };
 
+const extractProgramTags = (label?: string): string[] => {
+  if (!label) return [];
+  const progs: string[] = [];
+  if (/\breguler\b/i.test(label)) progs.push("Reguler");
+  if (/\bprivate\b|\bprivat\b/i.test(label)) progs.push("Private");
+  return progs;
+};
+
 const mapDBToTutor = (p: DBPengajarItem): TutorItem => {
   const jenjangList = p.jenjang && p.jenjang.length > 0 ? p.jenjang : extractJenjangFromJadwal(p.jadwalTersedia);
   const avatarFallback = `https://ui-avatars.com/api/?name=${encodeURIComponent(p.nama)}&background=173F3A&color=ffffff&bold=true`;
@@ -399,72 +407,63 @@ export default function HalamanKatalog() {
                   <article
                     key={tutor._id}
                     onClick={() => setModalTutor(tutor)}
-                    className="group relative bg-white rounded-3xl shadow-xs hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col cursor-pointer"
+                    className="group relative rounded-3xl shadow-xs hover:shadow-2xl transition-all duration-300 overflow-hidden cursor-pointer aspect-[4/5] bg-[#efeeec]"
                   >
-                    {/* Photo Container 4/5 Aspect Ratio */}
-                    <div className="relative w-full aspect-[4/5] bg-[#efeeec] overflow-hidden">
-                      <img
-                        src={cleanImageUrl(tutor.foto)}
-                        alt={tutor.nama}
-                        referrerPolicy="no-referrer"
-                        onError={(e) => {
-                          const fallback = `https://ui-avatars.com/api/?name=${encodeURIComponent(tutor.nama)}&background=173F3A&color=ffffff&bold=true`;
-                          if (e.currentTarget.src !== fallback) {
-                            e.currentTarget.src = fallback;
-                          }
-                        }}
-                        className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500 ease-out"
-                      />
+                    {/* Full-bleed Photo */}
+                    <img
+                      src={cleanImageUrl(tutor.foto)}
+                      alt={tutor.nama}
+                      referrerPolicy="no-referrer"
+                      onError={(e) => {
+                        const fallback = `https://ui-avatars.com/api/?name=${encodeURIComponent(tutor.nama)}&background=173F3A&color=ffffff&bold=true`;
+                        if (e.currentTarget.src !== fallback) {
+                          e.currentTarget.src = fallback;
+                        }
+                      }}
+                      className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500 ease-out"
+                    />
 
-                      {/* Top Right: Total Sesi & Total Hari Badge */}
-                      {(() => {
-                        const summary = getJadwalSummary(tutor.jadwal);
-                        if (summary.sesi === 0 && summary.hari === 0) return null;
-                        return (
-                          <div className="absolute top-3.5 right-3.5 bg-white/95 backdrop-blur-md px-2.5 py-1 rounded-full flex items-center gap-1 shadow-xs border border-[#173F3A]/15 pointer-events-none">
-                            <span className="material-symbols-outlined text-[#173F3A] text-[13px]">schedule</span>
-                            <span className="text-[0.72rem] font-bold text-[#173F3A]">
-                              {summary.sesi} Sesi • {summary.hari} Hari
-                            </span>
-                          </div>
-                        );
-                      })()}
+                    {/* Gradient Overlay for subtle contrast */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-black/10 pointer-events-none" />
 
-                      {/* Floating Pill Badge Nestled at Bottom */}
-                      <div className="absolute inset-x-3 bottom-3 p-3 rounded-2xl bg-white/95 backdrop-blur-md shadow-md text-center transition-transform duration-300 group-hover:-translate-y-1">
-                        <h3 className="text-[0.875rem] text-[#1a1c1b] font-semibold truncate">
-                          {tutor.nama}
-                        </h3>
-                        <p className="text-[0.8125rem] text-[#444748] truncate mt-0.5">
-                          {tutor.jabatan}
-                        </p>
-                        <div className="flex items-center justify-center gap-1 mt-2 flex-wrap">
+                    {/* Top Right: Ketersediaan Hari Badge */}
+                    {(() => {
+                      const summary = getJadwalSummary(tutor.jadwal);
+                      if (summary.hari === 0) return null;
+                      return (
+                        <div className="absolute top-3.5 right-3.5 bg-white/95 backdrop-blur-md px-2.5 py-1 rounded-full flex items-center gap-1.5 shadow-xs border border-[#173F3A]/15 pointer-events-none z-10">
+                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                          <span className="text-[0.72rem] font-bold text-[#173F3A]">
+                            Tersedia {summary.hari} Hari
+                          </span>
+                        </div>
+                      );
+                    })()}
+
+                    {/* Floating Pill Badge Nestled at Bottom (Opsi A: Clean & Modern) */}
+                    <div className="absolute inset-x-3 bottom-3 p-3.5 rounded-2xl bg-white/95 backdrop-blur-md shadow-lg text-center transition-all duration-300 group-hover:-translate-y-1.5 z-10">
+                      <h3 className="text-[0.9375rem] text-[#1a1c1b] font-bold truncate">
+                        {tutor.nama}
+                      </h3>
+                      <p className="text-[0.78rem] text-[#444748] truncate mt-0.5 font-medium">
+                        {tutor.jabatan}
+                      </p>
+                      <div className="flex items-center justify-between gap-2 mt-2.5 pt-2 border-t border-[#efeeec]">
+                        <div className="flex items-center gap-1 flex-wrap">
                           {tutor.jenjang && tutor.jenjang.map((j) => (
                             <span
                               key={j}
-                              className="text-[0.68rem] font-semibold px-2 py-0.5 rounded-md bg-[#173F3A]/10 text-[#173F3A]"
+                              className="text-[0.68rem] font-bold px-2 py-0.5 rounded-md bg-[#173F3A]/10 text-[#173F3A]"
                             >
                               {j}
                             </span>
                           ))}
                         </div>
-                      </div>
-                    </div>
-
-                    {/* Bottom Strip: School / Experience + Arrow Action */}
-                    <div className="p-4 flex items-center justify-between bg-white">
-                      <div className="flex items-center gap-1.5 text-[#444748] text-[0.75rem]">
-                        <span className="material-symbols-outlined text-[16px] text-black">
-                          {tutor.iconType === "psychology" ? "psychology" : "school"}
-                        </span>
-                        <span>
-                          {tutor.almamater} • {tutor.pengalaman}
+                        <span className="inline-flex items-center gap-0.5 text-[0.72rem] font-bold text-[#173F3A] group-hover:text-emerald-700 transition-colors shrink-0">
+                          <span>Jadwal</span>
+                          <span className="material-symbols-outlined text-[14px] transition-transform group-hover:translate-x-0.5">arrow_forward</span>
                         </span>
                       </div>
-                      <span className="text-[0.75rem] text-black group-hover:text-[#615e59] flex items-center gap-0.5 font-semibold transition-colors">
-                        {tutor.ctaText || "Jadwal"}
-                        <span className="material-symbols-outlined text-[14px]">arrow_forward</span>
-                      </span>
                     </div>
                   </article>
                 ))
@@ -743,9 +742,11 @@ export default function HalamanKatalog() {
                         <div className="flex flex-wrap gap-2">
                           {group.slots.map((s, idx) => {
                             const slotJenjang = extractJenjangTags(s.label, modalTutor.jenjang);
+                            const slotProgram = extractProgramTags(s.label);
                             const otherLabel = s.label
                               ? s.label
                                 .replace(/\b(sd|smp|sma|kedinasan|utbk)\b/gi, "")
+                                .replace(/\b(reguler|private|privat)\b/gi, "")
                                 .replace(/[,•\s]+/g, " ")
                                 .trim()
                               : "";
@@ -753,7 +754,7 @@ export default function HalamanKatalog() {
                             return (
                               <div
                                 key={idx}
-                                className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white border border-[#173F3A]/15 rounded-xl text-[0.72rem] text-[#173F3A] shadow-2xs font-medium"
+                                className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white border border-[#173F3A]/15 rounded-xl text-[0.72rem] text-[#173F3A] shadow-2xs font-medium flex-wrap"
                               >
                                 <span className="font-semibold">{s.jam}</span>
                                 {slotJenjang.length > 0 && (
@@ -768,8 +769,20 @@ export default function HalamanKatalog() {
                                     ))}
                                   </div>
                                 )}
+                                {slotProgram.length > 0 && (
+                                  <div className="flex items-center gap-1">
+                                    {slotProgram.map((prog) => (
+                                      <span
+                                        key={prog}
+                                        className="text-[0.625rem] px-1.5 py-0.5 rounded-md bg-[#F2D5A8]/70 text-[#173F3A] border border-[#D88A32]/30 font-bold"
+                                      >
+                                        {prog}
+                                      </span>
+                                    ))}
+                                  </div>
+                                )}
                                 {otherLabel && (
-                                  <span className="text-[0.625rem] px-1.5 py-0.5 rounded-md bg-[#F2D5A8]/60 text-[#173F3A] border border-[#D88A32]/25 font-bold">
+                                  <span className="text-[0.625rem] px-1.5 py-0.5 rounded-md bg-[#faf8f5] text-[#173F3A] border border-[#173F3A]/15 font-medium">
                                     {otherLabel}
                                   </span>
                                 )}
