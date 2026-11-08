@@ -82,6 +82,26 @@ export async function POST(request: Request) {
       body.jadwalTersedia = [];
     }
 
+    // Auto-generate ID Pegawai berurutan (GP-YY-001) jika tidak diisi manual oleh koordinator
+    if (!body.nip || !String(body.nip).trim()) {
+      const year = String(new Date().getFullYear()).slice(-2);
+      const prefix = `GP-${year}-`;
+      const lastWithPrefix = await Pengajar.findOne({ nip: { $regex: `^${prefix}` } })
+        .sort({ nip: -1 })
+        .select("nip");
+
+      let nextNum = 1;
+      if (lastWithPrefix?.nip) {
+        const match = lastWithPrefix.nip.match(/(\d+)$/);
+        if (match) {
+          nextNum = parseInt(match[1], 10) + 1;
+        }
+      }
+      body.nip = `${prefix}${String(nextNum).padStart(3, "0")}`;
+    } else {
+      body.nip = String(body.nip).trim().toUpperCase();
+    }
+
     const pengajarBaru = await Pengajar.create(body);
     return NextResponse.json({ success: true, data: pengajarBaru }, { status: 201 });
   } catch (error: unknown) {
