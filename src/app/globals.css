@@ -35,6 +35,7 @@
   white-space: nowrap;
   word-wrap: normal;
   direction: ltr;
+  font-feature-settings: 'liga';
   -webkit-font-feature-settings: 'liga';
   -webkit-font-smoothing: antialiased;
 }
@@ -43,6 +44,7 @@
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
+
 .no-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;
@@ -51,10 +53,13 @@
 
 /* Animasi highlight fade in fade out untuk validasi input tutor */
 @keyframes fieldHighlightPulse {
-  0%, 100% {
+
+  0%,
+  100% {
     box-shadow: 0 0 0 2px rgba(225, 29, 72, 0.2), 0 0 12px rgba(225, 29, 72, 0.15);
     background-color: rgba(254, 242, 242, 0.6);
   }
+
   50% {
     box-shadow: 0 0 0 5px rgba(225, 29, 72, 0.65), 0 0 24px rgba(225, 29, 72, 0.35);
     background-color: rgba(254, 226, 226, 0.95);
@@ -64,4 +69,15 @@
 .field-highlight-fade {
   animation: fieldHighlightPulse 1.6s ease-in-out infinite;
   border-color: #e11d48 !important;
+}
+
+/* Global cursor pointer untuk button di seluruh project */
+button,
+[role="button"] {
+  cursor: pointer;
+}
+
+button:disabled,
+[role="button"][aria-disabled="true"] {
+  cursor: not-allowed;
 }
