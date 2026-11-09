@@ -785,13 +785,30 @@ export default function AreaTutor() {
     setTags(tags.filter((_, i) => i !== index));
   };
 
-  const previewPublicCard = () => {
-    const card = document.getElementById("sidebar-live-portrait");
-    if (card) {
-      card.scrollIntoView({ behavior: "smooth", block: "center" });
-      card.parentElement?.classList.add("ring-4", "ring-black/20");
-      setTimeout(() => card.parentElement?.classList.remove("ring-4", "ring-black/20"), 1500);
+  const [confirmLeaveModalOpen, setConfirmLeaveModalOpen] = useState(false);
+  const [isPreviewModalOpen, setIsPreviewModalOpen] = useState(false);
+
+  // Mencegah navigasi / reload browser yang tidak sengaja jika masih ada perubahan yang belum disimpan
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (hasChanges) {
+        e.preventDefault();
+        e.returnValue = "";
+      }
+    };
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+  }, [hasChanges]);
+
+  const handleLihatPublikClick = (e: React.MouseEvent) => {
+    if (hasChanges) {
+      e.preventDefault();
+      setConfirmLeaveModalOpen(true);
     }
+  };
+
+  const previewPublicCard = () => {
+    setIsPreviewModalOpen(true);
   };
 
   return (
@@ -929,6 +946,7 @@ export default function AreaTutor() {
                   <div className="flex items-center gap-3 w-full sm:w-auto">
                     <Link
                       href="/"
+                      onClick={handleLihatPublikClick}
                       className="inline-flex items-center justify-center gap-2 bg-[#faf8f5] text-[#173F3A] text-[0.875rem] font-semibold px-4 py-2.5 rounded-full hover:bg-[#F2D5A8]/50 border border-[#173F3A]/15 transition-colors shadow-xs"
                     >
                       <span className="material-symbols-outlined text-[18px]">visibility</span>
@@ -1671,7 +1689,11 @@ export default function AreaTutor() {
                       <span className="text-[0.75rem] text-[#444748]">Katalog</span>
                     </div>
 
-                    <div className="relative w-full bg-white rounded-3xl shadow-md border border-[#173F3A]/15 overflow-hidden flex flex-col">
+                    <div
+                      onClick={() => setIsPreviewModalOpen(true)}
+                      className="relative w-full bg-white rounded-3xl shadow-md border border-[#173F3A]/15 overflow-hidden flex flex-col cursor-pointer hover:shadow-xl hover:border-[#173F3A]/30 transition-all duration-300 group"
+                      title="Klik untuk melihat pratinjau detail modal publik"
+                    >
                       {/* Photo Container 4/5 Aspect Ratio matching Public */}
                       <div className="relative w-full aspect-[4/5] bg-[#efeeec] overflow-hidden">
                         <img
@@ -1952,6 +1974,271 @@ export default function AreaTutor() {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Modal Konfirmasi Peringatan Perubahan Belum Disimpan */}
+      {confirmLeaveModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200">
+          <div className="bg-white rounded-3xl max-w-md w-full p-6 sm:p-7 shadow-2xl border border-neutral-100 space-y-5 animate-in zoom-in-95 duration-200">
+            <div className="flex items-start gap-4">
+              <div className="w-12 h-12 rounded-2xl bg-amber-50 border border-amber-200 flex items-center justify-center text-amber-600 shrink-0">
+                <span className="material-symbols-outlined text-[26px]">warning</span>
+              </div>
+              <div>
+                <h3 className="font-serif text-[1.25rem] text-[#173F3A] font-bold leading-snug">
+                  Perubahan Belum Disimpan
+                </h3>
+                <p className="text-[0.875rem] text-[#444748] mt-1.5 leading-relaxed">
+                  Anda telah mengubah foto, sesi jadwal, atau data profil lainnya tetapi belum menekan tombol <strong>Simpan Profil</strong>. Jika membuka halaman publik sekarang, perubahan tersebut belum muncul di publik.
+                </p>
+              </div>
+            </div>
+
+            <div className="pt-2 flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-2.5">
+              <button
+                type="button"
+                onClick={() => setConfirmLeaveModalOpen(false)}
+                className="px-4 py-2.5 rounded-full text-[0.8125rem] font-medium text-[#444748] hover:bg-neutral-100 transition-colors"
+              >
+                Tetap di Sini
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setConfirmLeaveModalOpen(false);
+                  router.push("/");
+                }}
+                className="px-4 py-2.5 rounded-full text-[0.8125rem] font-medium text-amber-700 bg-amber-50 hover:bg-amber-100 border border-amber-200/80 transition-colors"
+              >
+                Buka Tanpa Menyimpan
+              </button>
+              <button
+                type="button"
+                disabled={savingProfil}
+                onClick={async () => {
+                  await handleSaveProfile();
+                  setConfirmLeaveModalOpen(false);
+                  router.push("/");
+                }}
+                className="px-5 py-2.5 bg-[#173F3A] hover:bg-[#12312d] text-white rounded-full text-[0.8125rem] font-semibold transition-all shadow-sm disabled:opacity-50 flex items-center justify-center gap-1.5"
+              >
+                <span className="material-symbols-outlined text-[16px]">save</span>
+                <span>{savingProfil ? "Menyimpan..." : "Simpan & Buka"}</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal Pratinjau Detail Publik Tutor */}
+      {isPreviewModalOpen && currentTutor && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/50 backdrop-blur-xs animate-in fade-in duration-200">
+          <div className="bg-white rounded-2xl sm:rounded-3xl border border-[#173F3A]/15 shadow-2xl w-full max-w-2xl overflow-hidden flex flex-col max-h-[92vh] sm:max-h-[90vh] animate-in zoom-in-95 duration-200">
+            {/* Modal Header */}
+            <div className="relative p-4 sm:p-6 bg-[#faf8f5] border-b border-[#173F3A]/10 flex items-start sm:items-center gap-3 sm:gap-4">
+              <img
+                src={foto || avatarFallbackUrl(currentTutor.nama)}
+                alt={currentTutor.nama}
+                referrerPolicy="no-referrer"
+                onError={(e) => {
+                  const fallback = avatarFallbackUrl(currentTutor.nama);
+                  if (e.currentTarget.src !== fallback) {
+                    e.currentTarget.src = fallback;
+                  }
+                }}
+                className="w-14 h-18 sm:w-16 sm:h-20 rounded-xl sm:rounded-2xl object-cover shadow-sm shrink-0"
+              />
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-1.5 mb-0.5 sm:mb-1 text-[#173F3A]">
+                  <span className="material-symbols-outlined text-[14px] sm:text-[16px]">school</span>
+                  <span className="text-[0.7rem] sm:text-[0.75rem] font-medium text-[#444748] truncate">
+                    {pendidikan ? pendidikan.split("•")[0].trim() : "-"}
+                  </span>
+                </div>
+                <h3 className="font-serif text-[1.15rem] sm:text-[1.35rem] font-bold text-[#173F3A] leading-tight truncate">
+                  {currentTutor.nama}
+                </h3>
+                <p className="text-[0.75rem] sm:text-[0.8125rem] text-[#444748] truncate mt-0.5">
+                  Tutor Pengajar
+                </p>
+                <div className="mt-1 flex items-center gap-1.5 flex-wrap">
+                  {(() => {
+                    const derived = Array.from(new Set(jadwalSlots.flatMap((s) => s.jenjang || [])));
+                    const list = (derived.length > 0 ? derived : (currentTutor.jenjang || ["SMA"])).filter((j) => !/utbk/i.test(j));
+                    if (list.length === 0) return null;
+                    return (
+                      <div className="flex items-center gap-1">
+                        <span className="text-[0.6875rem] text-[#67645f]">Jenjang:</span>
+                        <span className="text-[0.6875rem] font-semibold text-[#173F3A] bg-[#173F3A]/10 px-2 py-0.5 rounded-full border border-[#173F3A]/15">
+                          {list.join(", ")}
+                        </span>
+                      </div>
+                    );
+                  })()}
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setIsPreviewModalOpen(false)}
+                className="w-8 h-8 rounded-full bg-white flex items-center justify-center text-[#444748] hover:text-[#173F3A] shadow-xs font-bold text-sm shrink-0 cursor-pointer"
+                title="Tutup Pratinjau"
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Modal Body */}
+            <div className="p-4 sm:p-6 space-y-4 sm:space-y-5 overflow-y-auto max-h-[58vh] sm:max-h-[62vh] text-xs text-[#444748]">
+              {/* Notif preview live data */}
+              <div className="flex items-center gap-2 p-2.5 rounded-xl bg-[#F2D5A8]/30 border border-[#D88A32]/25 text-[0.75rem] text-[#173F3A]">
+                <span className="material-symbols-outlined text-[16px] text-[#D88A32]">visibility</span>
+                <span>Ini adalah tampilan langsung bagaimana profil & jadwal Anda terlihat oleh murid/wali di halaman publik.</span>
+              </div>
+
+              {deskripsi && (
+                <div>
+                  <span className="text-[0.6875rem] font-bold uppercase tracking-wider text-[#67645f] block mb-1.5 flex items-center gap-1.5">
+                    <span className="material-symbols-outlined text-[15px] text-[#173F3A]">person</span>
+                    Profil Akademik &amp; Pendekatan
+                  </span>
+                  <p className="text-[#173F3A] bg-[#faf8f5] border border-[#173F3A]/10 p-3 sm:p-3.5 rounded-xl sm:rounded-2xl leading-relaxed italic text-[0.75rem] sm:text-[0.8125rem]">
+                    &quot;{deskripsi}&quot;
+                  </p>
+                </div>
+              )}
+
+              {/* Bidang Keahlian / Tags */}
+              {tags.length > 0 && (
+                <div>
+                  <span className="text-[0.6875rem] font-bold uppercase tracking-wider text-[#67645f] block mb-1.5 flex items-center gap-1.5">
+                    <span className="material-symbols-outlined text-[15px] text-[#173F3A]">auto_awesome</span>
+                    Fokus Materi &amp; Keahlian
+                  </span>
+                  <div className="flex flex-wrap gap-1.5">
+                    {tags.map((tag, idx) => (
+                      <span
+                        key={idx}
+                        className="text-[0.72rem] px-2.5 py-1 rounded-full bg-[#173F3A]/10 text-[#173F3A] font-medium border border-[#173F3A]/15"
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              <div className="space-y-2.5">
+                <div className="flex items-center justify-between">
+                  <span className="text-[0.6875rem] font-bold uppercase tracking-wider text-[#67645f] flex items-center gap-1.5">
+                    <span className="material-symbols-outlined text-[16px] text-[#173F3A]">calendar_month</span>
+                    Ketersediaan Jadwal Mengajar
+                  </span>
+                  <span className="text-[0.6875rem] font-semibold text-[#173F3A] bg-[#173F3A]/10 px-2.5 py-0.5 rounded-full border border-[#173F3A]/15">
+                    {jadwalSlots.filter((s) => s.jamMulai && s.jamSelesai).length} Sesi Terjadwal
+                  </span>
+                </div>
+
+                {(() => {
+                  const activeSlots = jadwalSlots.filter((s) => s.jamMulai && s.jamSelesai);
+                  if (activeSlots.length === 0) {
+                    return (
+                      <div className="p-4 bg-[#faf8f5] rounded-2xl border border-[#173F3A]/10 text-center text-[#67645f]">
+                        Belum ada sesi jadwal yang aktif dipilih.
+                      </div>
+                    );
+                  }
+
+                  const grouped = DAFTAR_HARI.map((hari) => ({
+                    hari,
+                    slots: activeSlots.filter((s) => s.hari === hari),
+                  })).filter((g) => g.slots.length > 0);
+
+                  return (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                      {grouped.map((group) => {
+                        const dayJenjang = Array.from(
+                          new Set(group.slots.flatMap((s) => s.jenjang || []))
+                        ).filter((j) => !/utbk/i.test(j));
+
+                        return (
+                          <div
+                            key={group.hari}
+                            className="p-3 bg-[#faf8f5] rounded-2xl border border-[#173F3A]/10 flex flex-col gap-2 hover:border-[#173F3A]/25 transition-all"
+                          >
+                            <div className="flex items-center justify-between border-b border-[#173F3A]/5 pb-1.5 gap-2">
+                              <div className="flex items-center gap-1.5 flex-wrap min-w-0">
+                                <span className="font-bold text-[#173F3A] text-[0.8125rem] flex items-center gap-1.5 shrink-0">
+                                  <span className="w-2 h-2 rounded-full bg-[#173F3A]"></span>
+                                  {group.hari}
+                                </span>
+                                {dayJenjang.length > 0 && (
+                                  <div className="flex items-center gap-1 flex-wrap">
+                                    {dayJenjang.map((j) => (
+                                      <span
+                                        key={j}
+                                        className="text-[0.625rem] px-1.5 py-0.5 rounded-md bg-[#173F3A]/10 text-[#173F3A] border border-[#173F3A]/15 font-bold"
+                                      >
+                                        {j}
+                                      </span>
+                                    ))}
+                                  </div>
+                                )}
+                              </div>
+                              <span className="text-[0.65rem] font-semibold text-[#173F3A]/70 bg-white px-2 py-0.5 rounded-full border border-[#173F3A]/10 shrink-0">
+                                {group.slots.length} Sesi
+                              </span>
+                            </div>
+
+                            <div className="flex flex-wrap gap-1.5 sm:gap-2">
+                              {group.slots.map((s) => (
+                                <div
+                                  key={s.id}
+                                  className="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1 sm:py-1.5 bg-white border border-[#173F3A]/15 rounded-xl text-[0.72rem] text-[#173F3A] shadow-2xs font-medium"
+                                >
+                                  <span className="font-semibold">
+                                    {s.jamMulai} - {s.jamSelesai} WIB
+                                  </span>
+                                  {s.keterangan && (
+                                    <span className="text-[0.625rem] px-1.5 py-0.5 rounded-md bg-[#F2D5A8]/60 text-[#173F3A] border border-[#D88A32]/25 font-bold">
+                                      {s.keterangan}
+                                    </span>
+                                  )}
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  );
+                })()}
+              </div>
+            </div>
+
+            {/* Modal Footer */}
+            <div className="p-3 sm:p-4 bg-[#f2efe9] border-t border-[#173F3A]/10 flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-2">
+              <button
+                type="button"
+                onClick={() => setIsPreviewModalOpen(false)}
+                className="w-full sm:w-auto px-5 py-2.5 text-[0.8125rem] font-semibold text-[#444748] hover:bg-[#eae6df] rounded-full transition-colors text-center cursor-pointer"
+              >
+                Tutup
+              </button>
+              <a
+                href={`https://wa.me/${(nomorWa ? (nomorWa.startsWith("0") ? `62${nomorWa.slice(1)}` : `62${nomorWa}`) : "628123456789").replace(/[^0-9]/g, "")}?text=${encodeURIComponent(
+                  `Halo ${currentTutor.nama}, saya melihat profil Anda di Gen Plasma dan ingin berkonsultasi mengenai bimbingan belajar.`
+                )}`}
+                target="_blank"
+                rel="noreferrer"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-[#173F3A] hover:bg-[#112F2B] text-white text-[0.8125rem] font-semibold px-5 py-2.5 rounded-full transition-colors shadow-xs text-center cursor-pointer"
+              >
+                <span>Uji Coba WhatsApp</span>
+                <span className="material-symbols-outlined text-[16px]">arrow_forward</span>
+              </a>
+            </div>
           </div>
         </div>
       )}
