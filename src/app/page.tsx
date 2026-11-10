@@ -491,39 +491,38 @@ export default function HalamanKatalog() {
                   </div>
                   <div className="space-y-1">
                     <h4 className="text-[0.875rem] text-[#1a1c1b] font-semibold">
-                      100% Tutor Tersertifikasi
+                      Standar Pengajar Terbaik
                     </h4>
                     <p className="text-[0.8125rem] text-[#444748] leading-relaxed">
-                      Lulus seleksi ketat pedagogi, penguasaan materi, dan kepribadian empatik.
+                      Berdedikasi mendampingi siswa lewat pemahaman konsep yang kuat, metode komunikatif, dan pendekatan empatik.
                     </p>
                   </div>
                 </div>
 
                 <div className="flex items-start gap-4 justify-start">
                   <div className="w-12 h-12 rounded-2xl bg-white flex items-center justify-center text-black shadow-xs shrink-0">
-                    <span className="material-symbols-outlined text-[24px]">menu_book</span>
+                    <span className="material-symbols-outlined text-[24px]">psychology</span>
                   </div>
                   <div className="space-y-1">
                     <h4 className="text-[0.875rem] text-[#1a1c1b] font-semibold">
-                      Kurikulum Terpadu &amp; Terarah
+                      Pengajar Ahli &amp; Kompeten
                     </h4>
                     <p className="text-[0.8125rem] text-[#444748] leading-relaxed">
-                      Materi adaptif untuk kurikulum sekolah, persiapan ujian akademik, hingga kompetisi sains.
+                      Berpengalaman di bidangnya dengan kemampuan adaptasi mengajar sesuai karakter dan kebutuhan belajar siswa.
                     </p>
                   </div>
                 </div>
 
                 <div className="flex items-start gap-4 justify-start">
                   <div className="w-12 h-12 rounded-2xl bg-white flex items-center justify-center text-black shadow-xs shrink-0">
-                    <span className="material-symbols-outlined text-[24px]">devices</span>
+                    <span className="material-symbols-outlined text-[24px]">stars</span>
                   </div>
                   <div className="space-y-1">
                     <h4 className="text-[0.875rem] text-[#1a1c1b] font-semibold">
-                      Fleksibel &amp; Personal
+                      Tutor Pilihan Berkualitas
                     </h4>
                     <p className="text-[0.8125rem] text-[#444748] leading-relaxed">
-                      Tersedia sesi privat daring interaktif maupun tatap muka kuratorial di studio
-                      kami.
+                      Teruji dalam penyampaian materi, bimbingan akademis terarah, dan komunikasi yang interaktif.
                     </p>
                   </div>
                 </div>
@@ -570,24 +569,23 @@ export default function HalamanKatalog() {
 
       {/* Footer */}
       <footer className="w-full bg-[#f2efe9] border-t border-[#173F3A]/10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 pt-12 sm:pt-16 pb-8 sm:pb-12">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 sm:gap-8 pb-8 sm:pb-12 border-b border-[#173F3A]/15">
-            <div className="space-y-3">
-              <div className="flex items-center gap-3">
-                <img src="/logo.svg" alt="Gen Plasma" className="w-8 h-8 object-contain shrink-0" />
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 py-6 sm:py-8">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-5 sm:pb-6 border-b border-[#173F3A]/15">
+            <div className="space-y-1.5">
+              <div className="flex items-center gap-2.5">
+                <img src="/logo.svg" alt="Gen Plasma" className="w-6 h-6 sm:w-7 sm:h-7 object-contain shrink-0" />
                 <div className="flex flex-col justify-center">
-                  <span className="font-serif text-[1.35rem] sm:text-[1.45rem] leading-none tracking-tight text-[#173F3A] font-bold translate-y-[1px]">
+                  <span className="font-serif text-[1.125rem] sm:text-[1.25rem] leading-none tracking-tight text-[#173F3A] font-bold">
                     Gen Plasma
                   </span>
                 </div>
               </div>
-              <p className="text-[0.8125rem] text-[#444748] max-w-sm leading-relaxed">
-                Pendidikan kuratorial dan bimbingan terpadu yang dirancang dengan ketenangan,
-                ketepatan, dan kehangatan manusiawi.
+              <p className="text-[0.75rem] sm:text-[0.8125rem] text-[#444748] max-w-sm leading-relaxed">
+                Solusi bimbingan belajar terpadu untuk mendampingi langkah akademis Anda secara terarah, adaptif, dan menyenangkan.
               </p>
             </div>
 
-            <nav className="flex flex-wrap items-center gap-x-6 sm:gap-x-8 gap-y-2.5 text-[0.75rem] text-[#444748]">
+            <nav className="flex flex-wrap items-center gap-x-5 sm:gap-x-6 gap-y-2 text-[0.75rem] text-[#444748]">
               <button
                 type="button"
                 onClick={() => {
@@ -621,10 +619,10 @@ export default function HalamanKatalog() {
             </nav>
           </div>
 
-          <div className="pt-6 sm:pt-8 flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4 text-[0.75rem] text-[#67645f] text-center sm:text-left">
+          <div className="pt-4 sm:pt-5 flex flex-col sm:flex-row items-center justify-between gap-2.5 text-[0.7rem] sm:text-[0.75rem] text-[#67645f] text-center sm:text-left">
             <p>© 2025 - 2026 Gen Plasma. Hak cipta dilindungi undang-undang.</p>
-            <div className="flex items-center gap-4 sm:gap-6">
-              <span>Jakarta • Yogyakarta • Bandung</span>
+            <div className="flex items-center gap-4">
+              <span>Cianjur</span>
             </div>
           </div>
         </div>
