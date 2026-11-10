@@ -186,19 +186,18 @@ export default function HalamanLogin() {
       {/* Main Login Card */}
       <main className="flex-1 flex items-center justify-center px-6 py-12">
         <div className="w-full max-w-md">
-          <div className="text-center mb-8">
-            <span className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#F2D5A8]/60 text-[0.75rem] font-semibold text-[#173F3A] uppercase tracking-wider mb-3 border border-[#D88A32]/30">
-              Portal Masuk
-            </span>
-            <h1 className="font-serif text-[2.25rem] text-[#173F3A] tracking-tight font-bold">
-              Selamat Datang
-            </h1>
-            <p className="mt-2 text-[0.875rem] text-[#444748]">
-              Masuk ke akun Koordinator atau Tutor Pengajar Gen Plasma.
-            </p>
-          </div>
-
-          <div className="bg-white border border-[#173F3A]/15 rounded-2xl p-7 shadow-[0_4px_20px_rgba(23,63,58,0.06)]">
+          <div className="bg-white border border-[#173F3A]/15 rounded-3xl p-7 sm:p-8 shadow-[0_4px_24px_rgba(23,63,58,0.06)]">
+            <div className="text-center mb-7">
+              <span className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#F2D5A8]/60 text-[0.75rem] font-semibold text-[#173F3A] uppercase tracking-wider mb-3 border border-[#D88A32]/30">
+                Portal Masuk
+              </span>
+              <h1 className="font-serif text-[2rem] sm:text-[2.25rem] text-[#173F3A] tracking-tight font-bold">
+                Selamat Datang
+              </h1>
+              <p className="mt-2 text-[0.875rem] text-[#444748]">
+                Masuk ke akun Koordinator atau Tutor Pengajar Gen Plasma.
+              </p>
+            </div>
             {error && (
               <div
                 className={`mb-5 p-4 rounded-xl text-[0.8125rem] flex items-start gap-2.5 border ${

@@ -704,36 +704,16 @@ export default function HalamanKatalog() {
                 {parsedJadwalModal.length > 0 ? (
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                     {parsedJadwalModal.map((group) => {
-                      const dayJenjang = Array.from(
-                        new Set(
-                          group.slots.flatMap((s) => extractJenjangTags(s.label, modalTutor.jenjang))
-                        )
-                      );
-
                       return (
                         <div
                           key={group.hari}
                           className="p-3 bg-[#faf8f5] rounded-2xl border border-[#173F3A]/10 flex flex-col gap-2 hover:border-[#173F3A]/25 transition-all"
                         >
                           <div className="flex items-center justify-between border-b border-[#173F3A]/5 pb-1.5 gap-2">
-                            <div className="flex items-center gap-1.5 flex-wrap min-w-0">
-                              <span className="font-bold text-[#173F3A] text-[0.8125rem] flex items-center gap-1.5 shrink-0">
-                                <span className="w-2 h-2 rounded-full bg-[#173F3A]"></span>
-                                {group.hari}
-                              </span>
-                              {dayJenjang.length > 0 && (
-                                <div className="flex items-center gap-1 flex-wrap">
-                                  {dayJenjang.map((j) => (
-                                    <span
-                                      key={j}
-                                      className="text-[0.625rem] px-1.5 py-0.5 rounded-md bg-[#173F3A]/10 text-[#173F3A] border border-[#173F3A]/15 font-bold"
-                                    >
-                                      {j}
-                                    </span>
-                                  ))}
-                                </div>
-                              )}
-                            </div>
+                            <span className="font-bold text-[#173F3A] text-[0.8125rem] flex items-center gap-1.5 shrink-0">
+                              <span className="w-2 h-2 rounded-full bg-[#173F3A]"></span>
+                              {group.hari}
+                            </span>
                             <span className="text-[0.65rem] font-semibold text-[#173F3A]/70 bg-white px-2 py-0.5 rounded-full border border-[#173F3A]/10 shrink-0">
                               {group.slots.length} Sesi
                             </span>
