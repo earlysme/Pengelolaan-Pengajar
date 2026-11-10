@@ -535,25 +535,24 @@ export default function HalamanKatalog() {
             <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-[#efeeec] p-6 sm:p-8 lg:p-14 flex flex-col lg:flex-row items-center justify-between gap-6 sm:gap-8 shadow-xs">
               <div className="max-w-xl space-y-2 sm:space-y-3 text-center lg:text-left">
                 <span className="text-[0.7rem] sm:text-[0.75rem] text-[#67645f] tracking-wider uppercase font-semibold">
-                  Bimbingan Yang Tepat Untuk Anda
+                  Konsultasi Belajar Gratis
                 </span>
                 <h3 className="font-serif text-[1.4rem] sm:text-[1.75rem] text-[#1a1c1b] leading-tight">
-                  Bingung memilih pengajar yang paling cocok?
+                  Butuh rekomendasi pengajar yang paling tepat?
                 </h3>
                 <p className="text-[0.875rem] sm:text-[0.9375rem] text-[#444748] leading-relaxed">
-                  Konselor akademik kami siap membantu memetakan gaya belajar dan kurikulum siswa
-                  untuk mencocokkan tutor terbaik secara cuma-cuma.
+                  Tim akademik Gen Plasma siap membantu menyesuaikan materi, jenjang, dan jadwal belajar yang paling pas untuk kebutuhan Anda tanpa biaya.
                 </p>
               </div>
 
               <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 shrink-0 w-full sm:w-auto">
                 <a
-                  href="https://wa.me/6281377889900?text=Halo%20Lentera%20Belajar%2C%20saya%20ingin%20konsultasi%20penjurusan%20tutor"
+                  href="https://wa.me/6281377889900?text=Halo%20Gen%20Plasma%2C%20saya%20ingin%20konsultasi%20mengenai%20bimbingan%20dan%20pemilihan%20pengajar"
                   target="_blank"
                   rel="noreferrer"
                   className="inline-flex items-center justify-center bg-black text-white text-[0.8125rem] sm:text-[0.875rem] font-semibold px-5 sm:px-6 py-3 rounded-full hover:bg-[#444748] transition-colors shadow-xs text-center"
                 >
-                  Konsultasi Penjurusan Tutor
+                  Konsultasi via WhatsApp
                 </a>
                 <Link
                   href="/login"
