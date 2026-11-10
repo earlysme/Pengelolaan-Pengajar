@@ -1310,7 +1310,7 @@ export default function PanelKoordinator() {
                                           <button
                                             type="button"
                                             onClick={() => handleBukaDetailUndangan(p)}
-                                            className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-emerald-50/70 text-emerald-700 border border-emerald-200/60 text-[11px] font-medium whitespace-nowrap hover:bg-emerald-100 transition-colors"
+                                            className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-emerald-50/70 text-emerald-700 border border-emerald-200/60 text-[11px] font-medium whitespace-nowrap hover:bg-emerald-100 transition-colors cursor-pointer"
                                             title="Sisa waktu tautan reset password"
                                           >
                                             <svg className="w-3 h-3 text-emerald-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
@@ -1323,7 +1323,7 @@ export default function PanelKoordinator() {
                                             type="button"
                                             onClick={() => handleBuatUndangan(p, "reset")}
                                             disabled={undanganLoadingId === p._id}
-                                            className="w-7 h-7 rounded-full border border-slate-200 text-slate-600 hover:bg-slate-100 hover:text-teal-800 flex items-center justify-center transition-colors shrink-0 disabled:opacity-50"
+                                            className="w-7 h-7 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-100 hover:text-teal-800 flex items-center justify-center transition-colors shrink-0 disabled:opacity-50 cursor-pointer"
                                             title="Kirim Ulang Link Reset Password"
                                           >
                                             <svg className={`w-3.5 h-3.5 ${undanganLoadingId === p._id ? "animate-spin" : ""}`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -1342,7 +1342,7 @@ export default function PanelKoordinator() {
                                           <button
                                             type="button"
                                             onClick={() => handleBukaDetailUndangan(p)}
-                                            className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-sky-50/70 text-sky-700 border border-sky-200/60 text-[11px] font-medium whitespace-nowrap hover:bg-sky-100 transition-colors"
+                                            className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-sky-50/70 text-sky-700 border border-sky-200/60 text-[11px] font-medium whitespace-nowrap hover:bg-sky-100 transition-colors cursor-pointer"
                                             title="Sisa waktu tautan aktivasi"
                                           >
                                             <svg className="w-3 h-3 text-sky-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
@@ -1355,7 +1355,7 @@ export default function PanelKoordinator() {
                                             type="button"
                                             onClick={() => handleBuatUndangan(p, "aktivasi")}
                                             disabled={undanganLoadingId === p._id}
-                                            className="w-7 h-7 rounded-full bg-[#133e35] text-white hover:bg-[#0f312a] flex items-center justify-center transition-colors shrink-0 shadow-2xs disabled:opacity-50"
+                                            className="w-7 h-7 rounded-lg bg-[#133e35] text-white hover:bg-[#0f312a] flex items-center justify-center transition-colors shrink-0 shadow-2xs disabled:opacity-50 cursor-pointer"
                                             title="Kirim Undangan Aktivasi"
                                           >
                                             <svg className={`w-3.5 h-3.5 ${undanganLoadingId === p._id ? "animate-spin" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
@@ -1390,7 +1390,7 @@ export default function PanelKoordinator() {
                                           type="button"
                                           onClick={() => handleBuatUndangan(p, "reset")}
                                           disabled={undanganLoadingId === p._id}
-                                          className="w-7 h-7 rounded-full border border-slate-200 text-slate-600 hover:bg-slate-100 hover:text-teal-800 flex items-center justify-center transition-colors shrink-0 disabled:opacity-50"
+                                          className="w-7 h-7 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-100 hover:text-teal-800 flex items-center justify-center transition-colors shrink-0 disabled:opacity-50 cursor-pointer"
                                           title="Reset Password Tutor"
                                         >
                                           <svg className={`w-3.5 h-3.5 ${undanganLoadingId === p._id ? "animate-spin" : ""}`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -1404,11 +1404,11 @@ export default function PanelKoordinator() {
 
                                 {/* 6. Aksi */}
                                 <td className="py-4 pl-4 pr-6 align-middle text-right whitespace-nowrap">
-                                  <div className="inline-flex items-center justify-end gap-1">
+                                  <div className="inline-flex items-center justify-end gap-1.5">
                                     <button
                                       type="button"
                                       onClick={() => handleOpenEditPengajar(p)}
-                                      className="p-1.5 text-slate-500 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-colors"
+                                      className="w-8 h-8 flex items-center justify-center text-slate-500 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-colors border border-transparent hover:border-slate-200 cursor-pointer"
                                       title="Edit Tutor"
                                     >
                                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
@@ -1418,7 +1418,7 @@ export default function PanelKoordinator() {
                                     <button
                                       type="button"
                                       onClick={() => handleDeletePengajar(p._id, p.nama)}
-                                      className="p-1.5 text-slate-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                                      className="w-8 h-8 flex items-center justify-center text-slate-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors border border-transparent hover:border-red-200 cursor-pointer"
                                       title="Hapus Tutor"
                                     >
                                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
