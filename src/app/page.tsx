@@ -581,7 +581,7 @@ export default function HalamanKatalog() {
                 </div>
               </div>
               <p className="text-[0.75rem] sm:text-[0.8125rem] text-[#444748] max-w-sm leading-relaxed">
-                Solusi bimbingan belajar terpadu untuk mendampingi langkah akademis Anda secara terarah, adaptif, dan menyenangkan.
+                Solusi bimbingan belajar terpadu untuk mendampingi langkah akademis siswa secara terarah, adaptif, dan menyenangkan.
               </p>
             </div>
 
