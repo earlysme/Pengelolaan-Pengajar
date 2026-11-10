@@ -9,7 +9,7 @@ interface TutorItem {
   jabatan: string;
   mataPelajaran: string[];
   jenjang?: string[];
-  kategori: "mipa" | "bahasa" | "kedokteran" | "soshum" | "psikologi";
+  kategori: "mipa" | "bahasa" | "soshum";
   almamater: string;
   ipk?: string;
   pengalaman: string;
@@ -124,11 +124,9 @@ const getJadwalSummary = (jadwal?: string[]) => {
 
 const FILTER_ITEMS = [
   { id: "all", label: "Semua Pengajar" },
-  { id: "mipa", label: "MIPA" },
+  { id: "mipa", label: "MIPA & Sains" },
   { id: "bahasa", label: "Bahasa & Literasi" },
-  { id: "kedokteran", label: "Kedokteran & Sains" },
-  { id: "soshum", label: "Sosial & Humaniora" },
-  { id: "psikologi", label: "Konselor Belajar" },
+  { id: "soshum", label: "IPS & Humaniora" },
 ];
 
 interface DBPengajarItem {
@@ -189,13 +187,9 @@ const mapDBToTutor = (p: DBPengajarItem): TutorItem => {
     jenjang: jenjangList,
     kategori: (p.mataPelajaran?.some((m: string) => /inggris|indonesia|bahasa|ielts|toefl|literasi/i.test(m))
       ? "bahasa"
-      : p.mataPelajaran?.some((m: string) => /ekonomi|sosiologi|sejarah|geografi|akuntansi|soshum/i.test(m))
+      : p.mataPelajaran?.some((m: string) => /ekonomi|sosiologi|sejarah|geografi|akuntansi|ips|soshum/i.test(m))
         ? "soshum"
-        : p.mataPelajaran?.some((m: string) => /psikologi|konseling/i.test(m))
-          ? "psikologi"
-          : p.mataPelajaran?.some((m: string) => /kedokteran|anatomi|farmasi/i.test(m))
-            ? "kedokteran"
-            : "mipa") as TutorItem["kategori"],
+        : "mipa") as TutorItem["kategori"],
     almamater: cleanEdu,
     ipk: p.ipk || "",
     pengalaman: "Pengajar Aktif",
@@ -294,7 +288,7 @@ export default function HalamanKatalog() {
               }}
               className="text-[0.875rem] text-[#444748] hover:text-[#173F3A] transition-colors py-1 font-medium cursor-pointer"
             >
-              Katalog Tutor
+              Katalog Pengajar
             </button>
 
             <button
@@ -313,7 +307,7 @@ export default function HalamanKatalog() {
               href="/login"
               className="inline-flex items-center justify-center px-5 sm:px-6 py-2 sm:py-2.5 rounded-full bg-[#173F3A] hover:bg-[#112d2a] text-white text-[0.8125rem] sm:text-[0.875rem] font-semibold transition-all duration-200 shadow-sm hover:shadow-md hover:scale-[1.02] active:scale-[0.98]"
             >
-              Masuk
+              Portal Pengajar
             </Link>
           </div>
         </div>
@@ -326,8 +320,8 @@ export default function HalamanKatalog() {
           <section id="katalog" className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 pt-10 sm:pt-16 pb-8 sm:pb-12 flex flex-col items-center text-center scroll-mt-20">
             {/* Overline Metric Pill */}
             <div className="inline-flex items-center gap-2 px-3 sm:px-3.5 py-1.5 rounded-full bg-[#F2D5A8]/50 text-[#173F3A] text-[0.7rem] sm:text-[0.75rem] font-semibold border border-[#D88A32]/30 shadow-xs mb-4 sm:mb-6">
-              <span className="inline-block w-2 h-2 rounded-full bg-[#B74E2C] animate-pulse"></span>
-              <span>Pengajar Terverifikasi &amp; Berpengalaman</span>
+              {/* <span className="inline-block w-2 h-2 rounded-full bg-[#B74E2C] animate-pulse"></span> */}
+              <span>Pengajar Ahli & Berpengalaman</span>
             </div>
 
             {/* Editorial Headline */}
@@ -338,7 +332,7 @@ export default function HalamanKatalog() {
 
             {/* Subtitle */}
             <p className="text-[0.9375rem] sm:text-[1.125rem] text-[#444748] max-w-2xl mx-auto mb-8 sm:mb-10 leading-relaxed font-normal">
-              Didukung pengajar lulusan perguruan tinggi terkemuka dengan metode belajar interaktif yang disesuaikan dengan kebutuhan belajar setiap siswa.
+              Belajar lebih efektif bersama tutor berdedikasi melalui pendekatan interaktif yang disesuaikan dengan ritme dan target belajar setiap siswa
             </p>
 
             {/* Segmented Filter Bar */}
@@ -601,7 +595,7 @@ export default function HalamanKatalog() {
                 }}
                 className="hover:text-[#173F3A] transition-colors cursor-pointer"
               >
-                Katalog Tutor
+                Katalog Pengajar
               </button>
               <button
                 type="button"
@@ -622,7 +616,7 @@ export default function HalamanKatalog() {
                 Konsultasi
               </button>
               <Link href="/login" className="text-[#173F3A] font-semibold hover:underline">
-                Portal Masuk
+                Portal Pengajar
               </Link>
             </nav>
           </div>
