@@ -327,19 +327,18 @@ export default function HalamanKatalog() {
             {/* Overline Metric Pill */}
             <div className="inline-flex items-center gap-2 px-3 sm:px-3.5 py-1.5 rounded-full bg-[#F2D5A8]/50 text-[#173F3A] text-[0.7rem] sm:text-[0.75rem] font-semibold border border-[#D88A32]/30 shadow-xs mb-4 sm:mb-6">
               <span className="inline-block w-2 h-2 rounded-full bg-[#B74E2C] animate-pulse"></span>
-              <span>Kurasi Pengajar Terakreditasi 2025</span>
+              <span>Pengajar Terverifikasi &amp; Berpengalaman</span>
             </div>
 
             {/* Editorial Headline */}
             <h1 className="font-serif text-[1.85rem] sm:text-[3rem] lg:text-[4rem] text-[#173F3A] max-w-4xl tracking-tight leading-[1.15] mb-4 sm:mb-5 font-bold">
-              Kenali pengajar yang membuat{" "}
-              <span className="italic font-normal text-[#B74E2C]">keajaiban belajar</span> terjadi
+              Temukan pengajar terbaik untuk dampingi{" "}
+              <span className="italic font-normal text-[#B74E2C]">prestasi belajar</span> Anda
             </h1>
 
             {/* Subtitle */}
             <p className="text-[0.9375rem] sm:text-[1.125rem] text-[#444748] max-w-2xl mx-auto mb-8 sm:mb-10 leading-relaxed font-normal">
-              Tim pendidik kuratorial lulusan almamater terkemuka, peraih medali olimpiade, dan
-              mentor berdedikasi yang membimbing potensi setiap siswa dengan ketenangan dan ketepatan.
+              Didukung pengajar lulusan perguruan tinggi terkemuka dengan metode belajar interaktif yang disesuaikan dengan kebutuhan belajar setiap siswa.
             </p>
 
             {/* Segmented Filter Bar */}
