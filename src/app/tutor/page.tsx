@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import CatatanMateriTab from "./CatatanMateriTab";
 
 interface PengajarData {
   _id: string;
@@ -266,13 +267,13 @@ export default function AreaTutor() {
   const hasUnsetSesi = unsetSesiSlots.length > 0;
   const isProfilFieldChanged = Boolean(
     initialData &&
-      (deskripsi !== initialData.deskripsi ||
-        pendidikan !== initialData.pendidikan ||
-        ipk !== initialData.ipk ||
-        domisili !== initialData.domisili ||
-        nomorWa !== initialData.nomorWa ||
-        tutorStatus !== initialData.status ||
-        JSON.stringify(tags) !== JSON.stringify(initialData.tags))
+    (deskripsi !== initialData.deskripsi ||
+      pendidikan !== initialData.pendidikan ||
+      ipk !== initialData.ipk ||
+      domisili !== initialData.domisili ||
+      nomorWa !== initialData.nomorWa ||
+      tutorStatus !== initialData.status ||
+      JSON.stringify(tags) !== JSON.stringify(initialData.tags))
   );
 
   const hasChanges = Boolean(isFotoChanged || isJadwalChanged || hasUnsetSesi || isProfilFieldChanged);
@@ -831,12 +832,20 @@ export default function AreaTutor() {
     }
   };
 
-  const handleLogout = async () => {
+  const performLogout = async () => {
     try {
       if (typeof window !== "undefined") localStorage.removeItem("genplasma_session");
       await fetch("/api/auth/logout", { method: "POST" });
     } catch { }
     router.push("/login");
+  };
+
+  const handleLogout = async () => {
+    if (hasChanges) {
+      triggerUnsavedWarning("logout");
+      return;
+    }
+    await performLogout();
   };
 
   const handleAddTag = () => {
@@ -851,6 +860,7 @@ export default function AreaTutor() {
   };
 
   const [confirmLeaveModalOpen, setConfirmLeaveModalOpen] = useState(false);
+  const [leaveAction, setLeaveAction] = useState<"public" | "logout">("public");
   const [isPreviewModalOpen, setIsPreviewModalOpen] = useState(false);
 
   // Mencegah navigasi / reload browser yang tidak sengaja jika masih ada perubahan yang belum disimpan
@@ -865,7 +875,38 @@ export default function AreaTutor() {
     return () => window.removeEventListener("beforeunload", handleBeforeUnload);
   }, [hasChanges]);
 
-  // Deteksi apakah tombol Simpan di dashboard sudah menyentuh/melewati header saat scroll
+  const triggerUnsavedWarning = (action: "public" | "logout") => {
+    showToast(unsavedInfo.summaryText);
+
+    // Khusus untuk sesi yang belum di-set / belum disimpan: beri 2 peringatan (notif + glow merah)
+    if (hasUnsetSesi || isJadwalChanged) {
+      const changedSlot =
+        unsetSesiSlots[0] ||
+        jadwalSlots.find(
+          (s, idx) => JSON.stringify(s) !== JSON.stringify(initialData?.jadwalSlots[idx])
+        ) ||
+        jadwalSlots[0];
+      if (changedSlot) {
+        const targetId = `slot-card-${changedSlot.id}`;
+        setHighlightedFieldId(targetId);
+        const elem = document.getElementById(targetId);
+        if (elem) elem.scrollIntoView({ behavior: "smooth", block: "center" });
+        setTimeout(() => setHighlightedFieldId(null), 4000);
+      }
+    }
+
+    setLeaveAction(action);
+    setConfirmLeaveModalOpen(true);
+  };
+
+  const handleLihatPublikClick = (e: React.MouseEvent) => {
+    if (hasChanges) {
+      e.preventDefault();
+      triggerUnsavedWarning("public");
+    }
+  };
+
+  // Deteksi apakah tombol Simpan di dashboard sudah menyentuh/sejajar dengan header saat scroll
   useEffect(() => {
     const updateDockState = () => {
       if (!hasChanges || !dashboardSaveRef.current) {
@@ -874,8 +915,7 @@ export default function AreaTutor() {
       }
       const headerHeight = window.innerWidth < 640 ? 64 : 80;
       const rect = dashboardSaveRef.current.getBoundingClientRect();
-      // Dock ke header saat tombol Simpan dashboard menyentuh/sejajar dengan batas bawah header
-      setIsHeaderSaveDocked(rect.top <= headerHeight - 2);
+      setIsHeaderSaveDocked(rect.top <= headerHeight + 4);
     };
 
     const rafId = requestAnimationFrame(updateDockState);
@@ -889,32 +929,6 @@ export default function AreaTutor() {
   }, [hasChanges, loading]);
 
   const showHeaderSave = hasChanges && isHeaderSaveDocked;
-
-  const handleLihatPublikClick = (e: React.MouseEvent) => {
-    if (hasChanges) {
-      e.preventDefault();
-      showToast(unsavedInfo.summaryText);
-
-      // Khusus untuk sesi yang belum di-set / belum disimpan: beri 2 peringatan (notif + glow merah)
-      if (hasUnsetSesi || isJadwalChanged) {
-        const changedSlot =
-          unsetSesiSlots[0] ||
-          jadwalSlots.find(
-            (s, idx) => JSON.stringify(s) !== JSON.stringify(initialData?.jadwalSlots[idx])
-          ) ||
-          jadwalSlots[0];
-        if (changedSlot) {
-          const targetId = `slot-card-${changedSlot.id}`;
-          setHighlightedFieldId(targetId);
-          const elem = document.getElementById(targetId);
-          if (elem) elem.scrollIntoView({ behavior: "smooth", block: "center" });
-          setTimeout(() => setHighlightedFieldId(null), 4000);
-        }
-      }
-
-      setConfirmLeaveModalOpen(true);
-    }
-  };
 
   const previewPublicCard = () => {
     setIsPreviewModalOpen(true);
@@ -937,59 +951,63 @@ export default function AreaTutor() {
           </div>
 
           {/* Desktop Navigation Links */}
-          <div className="hidden sm:flex items-center gap-2.5">
-            <button
-              type="button"
-              onClick={() => {
-                window.scrollTo({ top: 0, behavior: "smooth" });
-              }}
-              className="text-[0.8125rem] font-semibold text-[#173F3A] hover:bg-[#F2D5A8]/50 px-3.5 py-1.5 rounded-full border border-[#173F3A]/20 transition-colors flex items-center gap-1.5 cursor-pointer shadow-2xs"
-              title="Kembali ke bagian atas dashboard"
-            >
-              <span className="material-symbols-outlined text-[17px]">dashboard</span>
-              <span>Dashboard</span>
-            </button>
+          <div className="hidden md:flex items-center gap-3">
+            <nav className="flex items-center p-1 bg-[#efeeec] rounded-full gap-1">
+              <button
+                type="button"
+                onClick={() => bukaProfil()}
+                className={`px-3.5 py-1.5 rounded-full text-[0.8125rem] font-semibold transition-all whitespace-nowrap cursor-pointer flex items-center gap-1.5 ${activeTab !== "catatan" ? "bg-black text-white shadow-xs" : "text-[#444748] hover:text-black hover:bg-white/50"}`}
+                title="Kembali ke bagian atas dashboard"
+              >
+                <span className="material-symbols-outlined text-[16px]">dashboard</span>
+                <span>Dashboard</span>
+              </button>
 
-            <button
-              type="button"
-              onClick={() => {
-                document.getElementById("section-ketersediaan")?.scrollIntoView({ behavior: "smooth" });
-              }}
-              className="text-[0.8125rem] font-semibold text-[#173F3A] hover:bg-[#F2D5A8]/50 px-3.5 py-1.5 rounded-full border border-[#173F3A]/20 transition-colors flex items-center gap-1.5 shadow-2xs"
-              title="Navigasi ke ketersediaan hari & sesi mengajar"
-            >
-              <span className="material-symbols-outlined text-[17px]">event_available</span>
-              <span>Ketersediaan Mengajar</span>
-            </button>
+              <button
+                type="button"
+                onClick={() => bukaProfil("section-ketersediaan")}
+                className="px-3.5 py-1.5 rounded-full text-[0.8125rem] font-semibold transition-all whitespace-nowrap cursor-pointer flex items-center gap-1.5 text-[#444748] hover:text-black hover:bg-white/50"
+                title="Navigasi ke ketersediaan hari & sesi mengajar"
+              >
+                <span className="material-symbols-outlined text-[16px]">event_available</span>
+                <span>Ketersediaan Mengajar</span>
+              </button>
 
-            <button
-              type="button"
-              onClick={() => {
-                document.getElementById("section-profil-akun")?.scrollIntoView({ behavior: "smooth" });
-              }}
-              className="text-[0.8125rem] font-semibold text-[#173F3A] hover:bg-[#F2D5A8]/50 px-3.5 py-1.5 rounded-full border border-[#173F3A]/20 transition-colors flex items-center gap-1.5 shadow-2xs"
-              title="Navigasi ke latar belakang pendidikan, bio, kontak, & atur password"
-            >
-              <span className="material-symbols-outlined text-[17px]">manage_accounts</span>
-              <span>Profil &amp; Akun</span>
-            </button>
+              <button
+                type="button"
+                onClick={() => bukaProfil("section-profil-akun")}
+                className="px-3.5 py-1.5 rounded-full text-[0.8125rem] font-semibold transition-all whitespace-nowrap cursor-pointer flex items-center gap-1.5 text-[#444748] hover:text-black hover:bg-white/50"
+                title="Navigasi ke latar belakang pendidikan, bio, kontak, & atur password"
+              >
+                <span className="material-symbols-outlined text-[16px]">manage_accounts</span>
+                <span>Profil &amp; Akun</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={bukaCatatan}
+                className={`px-3.5 py-1.5 rounded-full text-[0.8125rem] font-semibold transition-all whitespace-nowrap cursor-pointer flex items-center gap-1.5 ${activeTab === "catatan" ? "bg-black text-white shadow-xs" : "text-[#444748] hover:text-black hover:bg-white/50"}`}
+                title="Catatan materi kelas reguler"
+              >
+                <span className="material-symbols-outlined text-[16px]">edit_note</span>
+                <span>Catatan Materi</span>
+              </button>
+            </nav>
 
             {hasChanges && (
               <div
-                className={`overflow-hidden transition-all duration-350 ease-[cubic-bezier(0.22,1,0.36,1)] ${
-                  showHeaderSave
-                    ? "max-w-[160px] opacity-100 scale-100 translate-y-0 blur-0 pointer-events-auto"
-                    : "max-w-0 opacity-0 scale-75 translate-y-2.5 blur-[4px] pointer-events-none"
-                }`}
+                className={`transition-all duration-350 ease-[cubic-bezier(0.22,1,0.36,1)] ${showHeaderSave
+                  ? "max-w-[160px] overflow-visible opacity-100 scale-100 translate-y-0 blur-0 pointer-events-auto"
+                  : "max-w-0 overflow-hidden opacity-0 scale-75 translate-y-4 blur-[4px] pointer-events-none"
+                  }`}
               >
                 <button
                   key={showHeaderSave ? "desktop-docked" : "desktop-undocked"}
                   type="button"
                   disabled={savingProfil}
                   onClick={() => handleSaveProfile()}
-                  className={`inline-flex items-center gap-1.5 bg-[#173F3A] text-white text-[0.8125rem] font-semibold px-3.5 py-1.5 rounded-full shadow-[0_4px_14px_rgba(23,63,58,0.28)] disabled:opacity-50 animate-pulse whitespace-nowrap ${
-                    showHeaderSave ? "liquid-dock-btn" : ""
-                  }`}
+                  className={`inline-flex items-center gap-1.5 bg-[#173F3A] text-white text-[0.8125rem] font-semibold px-3.5 py-1.5 rounded-full shadow-[0_4px_14px_rgba(23,63,58,0.28)] disabled:opacity-50 animate-pulse whitespace-nowrap ${showHeaderSave ? "liquid-dock-btn" : ""
+                    }`}
                   title="Simpan perubahan profil"
                 >
                   <span className="material-symbols-outlined text-[16px]">save</span>
@@ -1001,7 +1019,7 @@ export default function AreaTutor() {
             <button
               type="button"
               onClick={handleLogout}
-              className="text-[0.8125rem] font-medium text-[#ba1a1a] hover:bg-red-50 transition-colors flex items-center gap-1 px-3 py-1.5 rounded-full border border-red-200 shadow-2xs"
+              className="px-3.5 py-1.5 rounded-full text-[0.8125rem] font-semibold text-[#ba1a1a] hover:bg-rose-50 border border-rose-200 transition-all flex items-center gap-1.5 cursor-pointer"
               title="Keluar dari akun tutor"
             >
               <span className="material-symbols-outlined text-[16px]">logout</span>
@@ -1013,10 +1031,10 @@ export default function AreaTutor() {
           <div className="flex sm:hidden items-center gap-2">
             {hasChanges && (
               <div
-                className={`overflow-hidden transition-all duration-350 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+                className={`transition-all duration-350 ease-[cubic-bezier(0.22,1,0.36,1)] ${
                   showHeaderSave
-                    ? "max-w-[140px] opacity-100 scale-100 translate-y-0 blur-0 pointer-events-auto"
-                    : "max-w-0 opacity-0 scale-75 translate-y-2.5 blur-[4px] pointer-events-none"
+                    ? "max-w-[140px] overflow-visible opacity-100 scale-100 translate-y-0 blur-0 pointer-events-auto"
+                    : "max-w-0 overflow-hidden opacity-0 scale-75 translate-y-4 blur-[4px] pointer-events-none"
                 }`}
               >
                 <button
@@ -1024,9 +1042,8 @@ export default function AreaTutor() {
                   type="button"
                   disabled={savingProfil}
                   onClick={() => handleSaveProfile()}
-                  className={`inline-flex items-center gap-1 bg-[#173F3A] text-white text-[0.75rem] font-semibold px-3 py-1.5 rounded-full shadow-[0_4px_14px_rgba(23,63,58,0.28)] disabled:opacity-50 animate-pulse whitespace-nowrap ${
-                    showHeaderSave ? "liquid-dock-btn" : ""
-                  }`}
+                  className={`inline-flex items-center gap-1 bg-[#173F3A] text-white text-[0.75rem] font-semibold px-3 py-1.5 rounded-full shadow-[0_4px_14px_rgba(23,63,58,0.28)] disabled:opacity-50 animate-pulse whitespace-nowrap ${showHeaderSave ? "liquid-dock-btn" : ""
+                    }`}
                   title="Simpan perubahan profil"
                 >
                   <span className="material-symbols-outlined text-[15px]">save</span>
@@ -1051,20 +1068,19 @@ export default function AreaTutor() {
 
         {/* Mobile Hamburger Dropdown Menu */}
         <div
-          className={`sm:hidden overflow-hidden transition-all duration-200 ease-out border-[#173F3A]/10 bg-[#faf8f5]/95 backdrop-blur-xl ${
-            isMobileMenuOpen
-              ? "max-h-[420px] opacity-100 border-t shadow-lg pointer-events-auto"
-              : "max-h-0 opacity-0 border-t-0 pointer-events-none"
-          }`}
+          className={`sm:hidden overflow-hidden transition-all duration-200 ease-out border-[#173F3A]/10 bg-[#faf8f5]/95 backdrop-blur-xl ${isMobileMenuOpen
+            ? "max-h-[420px] opacity-100 border-t shadow-lg pointer-events-auto"
+            : "max-h-0 opacity-0 border-t-0 pointer-events-none"
+            }`}
         >
           <nav className="max-w-7xl mx-auto px-4 py-3 flex flex-col gap-1">
             <button
               type="button"
               onClick={() => {
                 setIsMobileMenuOpen(false);
-                window.scrollTo({ top: 0, behavior: "smooth" });
+                bukaProfil();
               }}
-              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-[0.875rem] font-semibold bg-black text-white shadow-xs transition-colors text-left cursor-pointer"
+              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-[0.875rem] font-semibold transition-colors text-left cursor-pointer ${activeTab === "profil" ? "bg-black text-white shadow-xs" : "text-[#444748] hover:text-[#173F3A] hover:bg-[#efeeec]"}`}
             >
               <span className="material-symbols-outlined text-[19px]">dashboard</span>
               <span>Dashboard</span>
@@ -1074,7 +1090,7 @@ export default function AreaTutor() {
               type="button"
               onClick={() => {
                 setIsMobileMenuOpen(false);
-                document.getElementById("section-ketersediaan")?.scrollIntoView({ behavior: "smooth" });
+                bukaProfil("section-ketersediaan");
               }}
               className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-[0.875rem] font-semibold text-[#444748] hover:text-[#173F3A] hover:bg-[#efeeec] transition-colors text-left cursor-pointer"
             >
@@ -1086,12 +1102,24 @@ export default function AreaTutor() {
               type="button"
               onClick={() => {
                 setIsMobileMenuOpen(false);
-                document.getElementById("section-profil-akun")?.scrollIntoView({ behavior: "smooth" });
+                bukaProfil("section-profil-akun");
               }}
               className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-[0.875rem] font-semibold text-[#444748] hover:text-[#173F3A] hover:bg-[#efeeec] transition-colors text-left cursor-pointer"
             >
               <span className="material-symbols-outlined text-[19px]">manage_accounts</span>
               <span>Profil &amp; Akun</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => {
+                setIsMobileMenuOpen(false);
+                bukaCatatan();
+              }}
+              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-[0.875rem] font-semibold transition-colors text-left cursor-pointer ${activeTab === "catatan" ? "bg-black text-white shadow-xs" : "text-[#444748] hover:text-[#173F3A] hover:bg-[#efeeec]"}`}
+            >
+              <span className="material-symbols-outlined text-[19px]">edit_note</span>
+              <span>Catatan Materi</span>
             </button>
 
             <button
@@ -1232,11 +1260,10 @@ export default function AreaTutor() {
                         type="button"
                         disabled={savingProfil}
                         onClick={() => handleSaveProfile()}
-                        className={`flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 bg-[#173F3A] text-white text-[0.8125rem] sm:text-[0.875rem] font-semibold px-5 py-2.5 rounded-full hover:bg-[#112F2B] transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] shadow-[0_4px_14px_rgba(23,63,58,0.28)] disabled:opacity-50 animate-pulse ${
-                          showHeaderSave
-                            ? "opacity-0 scale-90 -translate-y-2 blur-[3px] pointer-events-none"
-                            : "opacity-100 scale-100 translate-y-0 blur-0"
-                        }`}
+                        className={`flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 bg-[#173F3A] text-white text-[0.8125rem] sm:text-[0.875rem] font-semibold px-5 py-2.5 rounded-full hover:bg-[#112F2B] transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] shadow-[0_4px_14px_rgba(23,63,58,0.28)] disabled:opacity-50 animate-pulse ${showHeaderSave
+                          ? "opacity-0 scale-90 -translate-y-2 blur-[3px] pointer-events-none"
+                          : "opacity-100 scale-100 translate-y-0 blur-0"
+                          }`}
                       >
                         <span className="material-symbols-outlined text-[18px]">save</span>
                         <span>{savingProfil ? "Menyimpan..." : "Simpan Profil"}</span>
@@ -1361,716 +1388,726 @@ export default function AreaTutor() {
                 </div>
               </header>
 
-              {/* EDITORIAL PROFIL PUBLIK CANVAS */}
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 items-start">
-                {/* Primary Form Canvas (8 Columns) */}
-                <form
-                  onSubmit={handleSaveProfile}
-                  className="lg:col-span-8 space-y-6 sm:space-y-8 bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-7 lg:p-10 shadow-[0_2px_16px_rgba(0,0,0,0.03)] border border-[#173F3A]/10"
-                >
-                  {/* SECTION 1: Avatar Selection */}
-                  <fieldset className="space-y-5">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <legend className="font-serif text-[1.5rem] text-[#1a1c1b]">
-                          Foto &amp; Avatar Kurator
-                        </legend>
-                        <p className="text-[0.8125rem] text-[#444748] mt-1">
-                          Unggah foto asli Anda langsung dari perangkat atau pilih potret studio kurasi.
-                        </p>
-                      </div>
-                      <span className="font-mono text-[0.75rem] text-[#67645f]">BAGIAN 01/05</span>
-                    </div>
-
-                    {/* Opsi Unggah File Langsung dari Komputer / HP */}
-                    <div className="p-4 sm:p-5 bg-[#f4f3f1] rounded-2xl border-2 border-dashed border-[#e3e2e0] hover:border-black/50 transition-colors flex flex-col sm:flex-row items-center justify-between gap-4">
-                      <div className="flex items-center gap-3.5 w-full sm:w-auto">
-                        <div className="w-12 h-12 rounded-xl bg-white shadow-xs flex items-center justify-center text-black shrink-0">
-                          <span className="material-symbols-outlined text-[26px]">add_a_photo</span>
-                        </div>
+              {activeTab === "catatan" && currentTutor ? (
+                <CatatanMateriTab
+                  mataPelajaran={currentTutor.mataPelajaran || []}
+                  jenjang={currentTutor.jenjang || []}
+                  tutorId={currentTutor._id}
+                  getAuthHeader={getAuthHeader}
+                  showToast={showToast}
+                />
+              ) : (
+                /* EDITORIAL PROFIL PUBLIK CANVAS */
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 items-start">
+                  {/* Primary Form Canvas (8 Columns) */}
+                  <form
+                    onSubmit={handleSaveProfile}
+                    className="lg:col-span-8 space-y-6 sm:space-y-8 bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-7 lg:p-10 shadow-[0_2px_16px_rgba(0,0,0,0.03)] border border-[#173F3A]/10"
+                  >
+                    {/* SECTION 1: Avatar Selection */}
+                    <fieldset className="space-y-5">
+                      <div className="flex items-center justify-between">
                         <div>
-                          <span className="text-[0.875rem] font-semibold text-[#1a1c1b] block">
-                            Unggah Foto Asli dari Perangkat
-                          </span>
-                          <span className="text-[0.75rem] text-[#67645f]">
-                            Pilih file JPG, PNG, atau WebP dari laptop / smartphone Anda
-                          </span>
+                          <legend className="font-serif text-[1.5rem] text-[#1a1c1b]">
+                            Foto &amp; Avatar Kurator
+                          </legend>
+                          <p className="text-[0.8125rem] text-[#444748] mt-1">
+                            Unggah foto asli Anda langsung dari perangkat atau pilih potret studio kurasi.
+                          </p>
                         </div>
+                        <span className="font-mono text-[0.75rem] text-[#67645f]">BAGIAN 01/05</span>
                       </div>
-                      <label className="cursor-pointer shrink-0 inline-flex items-center gap-2 bg-black hover:bg-neutral-800 text-white text-[0.8125rem] font-semibold px-5 py-2.5 rounded-full shadow-xs transition-all w-full sm:w-auto justify-center">
-                        <span className="material-symbols-outlined text-[18px]">upload</span>
-                        <span>Pilih File Gambar</span>
-                        <input
-                          type="file"
-                          accept="image/png, image/jpeg, image/jpg, image/webp"
-                          className="hidden"
-                          onChange={handleFileUpload}
-                        />
-                      </label>
-                    </div>
 
-                    {/* Koleksi Studio Resmi */}
-                    <div className="space-y-3 pt-2">
-                      <span className="text-[0.75rem] text-[#444748] font-semibold block">
-                        Atau Pilih dari Koleksi Potret Studio Resmi:
-                      </span>
-                      <div className="grid grid-cols-3 sm:grid-cols-6 gap-3.5">
-                        {PRESET_AVATARS.map((url, idx) => {
-                          const isSelected = foto === url || selectedPresetIndex === idx;
-                          return (
-                            <button
-                              key={idx}
-                              type="button"
-                              onClick={() => {
-                                setFoto(url);
-                                setSelectedPresetIndex(idx);
-                              }}
-                              className={`group relative rounded-xl overflow-hidden aspect-square bg-[#efeeec] shadow-xs p-0.5 transition-all ${isSelected ? "bg-black" : "hover:bg-[#e3e2e0]"
-                                }`}
-                            >
-                              <img
-                                src={url}
-                                alt={`Preset ${idx + 1}`}
-                                className="w-full h-full object-cover rounded-[10px]"
-                              />
-                              {isSelected && (
-                                <span className="absolute inset-0 bg-black/20 backdrop-blur-[1px] flex items-center justify-center text-white">
-                                  <span className="material-symbols-outlined text-[20px]">check</span>
-                                </span>
-                              )}
-                            </button>
-                          );
-                        })}
+                      {/* Opsi Unggah File Langsung dari Komputer / HP */}
+                      <div className="p-4 sm:p-5 bg-[#f4f3f1] rounded-2xl border-2 border-dashed border-[#e3e2e0] hover:border-black/50 transition-colors flex flex-col sm:flex-row items-center justify-between gap-4">
+                        <div className="flex items-center gap-3.5 w-full sm:w-auto">
+                          <div className="w-12 h-12 rounded-xl bg-white shadow-xs flex items-center justify-center text-black shrink-0">
+                            <span className="material-symbols-outlined text-[26px]">add_a_photo</span>
+                          </div>
+                          <div>
+                            <span className="text-[0.875rem] font-semibold text-[#1a1c1b] block">
+                              Unggah Foto Asli dari Perangkat
+                            </span>
+                            <span className="text-[0.75rem] text-[#67645f]">
+                              Pilih file JPG, PNG, atau WebP dari laptop / smartphone Anda
+                            </span>
+                          </div>
+                        </div>
+                        <label className="cursor-pointer shrink-0 inline-flex items-center gap-2 bg-black hover:bg-neutral-800 text-white text-[0.8125rem] font-semibold px-5 py-2.5 rounded-full shadow-xs transition-all w-full sm:w-auto justify-center">
+                          <span className="material-symbols-outlined text-[18px]">upload</span>
+                          <span>Pilih File Gambar</span>
+                          <input
+                            type="file"
+                            accept="image/png, image/jpeg, image/jpg, image/webp"
+                            className="hidden"
+                            onChange={handleFileUpload}
+                          />
+                        </label>
                       </div>
-                    </div>
 
-                  </fieldset>
-
-                  <div className="h-px w-full bg-[#efeeec]"></div>
-
-                  {/* SECTION 2: HARI & JAM KETERSEDIAAN MENGAJAR */}
-                  <fieldset id="section-ketersediaan" className="space-y-5 scroll-mt-24">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <legend className="font-serif text-[1.5rem] text-[#173F3A] font-bold">
-                          Hari &amp; Jam Ketersediaan Mengajar
-                        </legend>
-                        <p className="text-[0.8125rem] text-[#444748] mt-1">
-                          Tentukan hari dan jam Anda siap membimbing. Jam ini akan langsung tampil di kartu katalog publik dan modal penjadwalan siswa.
-                        </p>
-                      </div>
-                      <span className="font-mono text-[0.75rem] text-[#B74E2C] font-semibold">BAGIAN 02/05</span>
-                    </div>
-
-                    {/* Pemilihan Hari */}
-                    <div className="space-y-3 pt-1">
-                      <span className="text-[0.75rem] text-[#444748] font-semibold block">
-                        1. Pilih Hari Aktif Mengajar:
-                      </span>
-                      <div className="flex flex-wrap gap-2">
-                        {DAFTAR_HARI.map((hari) => {
-                          const isSelected = hariTersedia.includes(hari);
-                          return (
-                            <button
-                              key={hari}
-                              type="button"
-                              onClick={() => toggleHari(hari)}
-                              className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-[0.8125rem] font-semibold transition-all ${isSelected
-                                ? "bg-[#173F3A] text-white shadow-xs"
-                                : "bg-[#faf8f5] text-[#444748] hover:bg-[#F2D5A8]/50 border border-[#173F3A]/15"
-                                }`}
-                            >
-                              <span
-                                className={`material-symbols-outlined text-[15px] ${isSelected ? "text-[#F2D5A8]" : "text-[#747878]"
+                      {/* Koleksi Studio Resmi */}
+                      <div className="space-y-3 pt-2">
+                        <span className="text-[0.75rem] text-[#444748] font-semibold block">
+                          Atau Pilih dari Koleksi Potret Studio Resmi:
+                        </span>
+                        <div className="grid grid-cols-3 sm:grid-cols-6 gap-3.5">
+                          {PRESET_AVATARS.map((url, idx) => {
+                            const isSelected = foto === url || selectedPresetIndex === idx;
+                            return (
+                              <button
+                                key={idx}
+                                type="button"
+                                onClick={() => {
+                                  setFoto(url);
+                                  setSelectedPresetIndex(idx);
+                                }}
+                                className={`group relative rounded-xl overflow-hidden aspect-square bg-[#efeeec] shadow-xs p-0.5 transition-all ${isSelected ? "bg-black" : "hover:bg-[#e3e2e0]"
                                   }`}
                               >
-                                {isSelected ? "check" : "calendar_today"}
-                              </span>
-                              <span>{hari}</span>
-                            </button>
-                          );
-                        })}
-                      </div>
-                    </div>
-
-                    {/* Pengaturan Jam per Hari */}
-                    <div className="space-y-3 pt-3">
-                      <div className="flex items-center justify-between">
-                        <span className="text-[0.75rem] text-[#444748] font-semibold block">
-                          2. Atur Jam &amp; Sesi untuk Hari Terpilih:
-                        </span>
-                        <span className="text-[0.72rem] text-[#67645f]">
-                          Total {jadwalSlots.length} sesi mengajar
-                        </span>
-                      </div>
-
-                      {hariTersedia.length === 0 ? (
-                        <div className="p-4 bg-amber-50/70 border border-amber-200/80 rounded-2xl text-[0.8125rem] text-amber-900 flex items-center gap-2.5">
-                          <span className="material-symbols-outlined text-amber-700 text-[20px]">info</span>
-                          <span>Silakan klik minimal satu hari di atas untuk mengatur jam mengajar Anda.</span>
-                        </div>
-                      ) : (
-                        <div className="space-y-3">
-                          {hariTersedia.map((hari) => {
-                            const slotsHari = jadwalSlots.filter((s) => s.hari === hari);
-                            return (
-                              <div
-                                key={hari}
-                                className="p-3.5 sm:p-4 bg-[#faf8f5] border border-[#173F3A]/15 rounded-xl sm:rounded-2xl space-y-3"
-                              >
-                                <div className="flex items-center justify-between border-b border-[#173F3A]/10 pb-2.5">
-                                  <div className="flex items-center gap-2">
-                                    <span className="w-2.5 h-2.5 rounded-full bg-[#B74E2C]"></span>
-                                    <span className="font-serif text-[1.05rem] sm:text-[1.125rem] font-bold text-[#173F3A]">
-                                      {hari}
-                                    </span>
-                                    <span className="text-[0.7rem] sm:text-[0.72rem] font-semibold px-2 py-0.5 rounded-full bg-[#F2D5A8]/60 text-[#173F3A]">
-                                      {slotsHari.length} sesi
-                                    </span>
-                                  </div>
-                                  <button
-                                    type="button"
-                                    onClick={() => addSlotForHari(hari)}
-                                    title="Tambah Sesi Jam"
-                                    className="w-8 h-8 rounded-full border border-[#B74E2C]/30 bg-white text-[#B74E2C] hover:bg-[#B74E2C]/10 flex items-center justify-center transition-colors shadow-2xs"
-                                  >
-                                    <span className="material-symbols-outlined text-[18px]">add</span>
-                                  </button>
-                                </div>
-
-                                <div className="space-y-2.5">
-                                  {slotsHari.map((slot, sIdx) => {
-                                    return (
-                                      <div
-                                        key={slot.id}
-                                        id={`slot-card-${slot.id}`}
-                                        className={`p-3 sm:p-4 bg-white rounded-xl border transition-all shadow-xs space-y-3 ${highlightedFieldId === `slot-card-${slot.id}` ? "field-highlight-fade ring-4 ring-rose-500/50" : "border-[#173F3A]/15 hover:border-[#173F3A]/30"}`}
-                                      >
-                                        <div className="flex items-center justify-between border-b border-[#173F3A]/10 pb-2">
-                                          <div className="flex items-center gap-2">
-                                            <span className="w-5 h-5 rounded-full bg-[#173F3A] text-white text-[0.7rem] font-bold flex items-center justify-center">
-                                              {sIdx + 1}
-                                            </span>
-                                            <span className="text-[0.8125rem] font-bold text-[#173F3A]">
-                                              Sesi ke-{sIdx + 1}
-                                            </span>
-                                          </div>
-
-                                          <button
-                                            type="button"
-                                            onClick={() => removeSlot(slot.id)}
-                                            title="Hapus sesi ini"
-                                            className="w-7 h-7 rounded-full text-rose-600 hover:text-rose-800 hover:bg-rose-50 flex items-center justify-center transition-colors"
-                                          >
-                                            <span className="material-symbols-outlined text-[18px]">delete</span>
-                                          </button>
-                                        </div>
-
-                                        {/* Dropdown Sesi & Pilihan Program & Pilihan Jenjang */}
-                                        <div className="flex flex-wrap items-end gap-2.5 sm:gap-3">
-                                          <div className="min-w-[min(215px,100%)] flex-[1.35_1_215px]">
-                                            <label className="text-[0.72rem] font-semibold text-[#173F3A] mb-1.5 flex items-center gap-1 whitespace-nowrap">
-                                              <span className="material-symbols-outlined text-[15px] shrink-0">schedule</span>
-                                              <span>Pilih Sesi Jadwal</span>
-                                            </label>
-                                            {(() => {
-                                              const presetsForDay = getPresetsByDay(slot.hari, masterSesiList);
-                                              const currentSelected = presetsForDay.find(
-                                                (p) => p.jamMulai === slot.jamMulai && p.jamSelesai === slot.jamSelesai
-                                              );
-                                              return (
-                                                <select
-                                                  value={currentSelected?.label || (slot.jamMulai && slot.jamSelesai ? "custom" : "")}
-                                                  onChange={(e) => {
-                                                    const val = e.target.value;
-                                                    if (!val) {
-                                                      updateSlot(slot.id, { jamMulai: "", jamSelesai: "" });
-                                                      return;
-                                                    }
-                                                    const selected = presetsForDay.find((p) => p.label === val);
-                                                    if (selected && selected.jamMulai && selected.jamSelesai) {
-                                                      updateSlot(slot.id, {
-                                                        jamMulai: selected.jamMulai,
-                                                        jamSelesai: selected.jamSelesai,
-                                                      });
-                                                    }
-                                                  }}
-                                                  className="w-full h-[38px] px-2.5 sm:px-3 py-1.5 text-[0.8125rem] font-medium text-[#173F3A] bg-[#faf8f5] border border-[#173F3A]/20 focus:border-[#173F3A] focus:bg-white rounded-xl focus:outline-none transition-colors"
-                                                >
-                                                  <option value="">— Pilih Sesi Jadwal —</option>
-                                                  {presetsForDay.map((p, pIdx) => (
-                                                    <option key={pIdx} value={p.label}>
-                                                      {p.label}
-                                                    </option>
-                                                  ))}
-                                                  {slot.jamMulai &&
-                                                    slot.jamSelesai &&
-                                                    !presetsForDay.some(
-                                                      (p) => p.jamMulai === slot.jamMulai && p.jamSelesai === slot.jamSelesai
-                                                    ) && (
-                                                      <option value="custom">
-                                                        {slot.jamMulai} - {slot.jamSelesai} WIB (Tersimpan)
-                                                      </option>
-                                                    )}
-                                                </select>
-                                              );
-                                            })()}
-                                          </div>
-
-                                          <div className="min-w-[min(175px,100%)] flex-[1_1_175px]">
-                                            <label className="text-[0.72rem] font-semibold text-[#173F3A] mb-1.5 flex items-center gap-1 whitespace-nowrap">
-                                              <span className="material-symbols-outlined text-[15px] shrink-0">school</span>
-                                              <span>Program (Centang Pilihan)</span>
-                                            </label>
-                                            <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 py-2 px-2.5 sm:px-3 bg-[#faf8f5] border border-[#173F3A]/20 rounded-xl min-h-[38px]">
-                                              <label className="inline-flex items-center gap-1.5 cursor-pointer select-none text-[0.8125rem] font-medium text-[#173F3A] whitespace-nowrap">
-                                                <input
-                                                  type="checkbox"
-                                                  checked={/reguler/i.test(slot.keterangan || "")}
-                                                  onChange={(e) => {
-                                                    const hasPrivate = /private/i.test(slot.keterangan || "");
-                                                    const isChecked = e.target.checked;
-                                                    let nextVal = "";
-                                                    if (isChecked && hasPrivate) nextVal = "Reguler, Private";
-                                                    else if (isChecked) nextVal = "Reguler";
-                                                    else if (hasPrivate) nextVal = "Private";
-                                                    else nextVal = "";
-                                                    updateSlot(slot.id, { keterangan: nextVal });
-                                                  }}
-                                                  className="w-4 h-4 rounded text-[#173F3A] focus:ring-[#173F3A] accent-[#173F3A] cursor-pointer shrink-0"
-                                                />
-                                                <span>Reguler</span>
-                                              </label>
-
-                                              <label className="inline-flex items-center gap-1.5 cursor-pointer select-none text-[0.8125rem] font-medium text-[#173F3A] whitespace-nowrap">
-                                                <input
-                                                  type="checkbox"
-                                                  checked={/private/i.test(slot.keterangan || "")}
-                                                  onChange={(e) => {
-                                                    const hasReguler = /reguler/i.test(slot.keterangan || "");
-                                                    const isChecked = e.target.checked;
-                                                    let nextVal = "";
-                                                    if (isChecked && hasReguler) nextVal = "Reguler, Private";
-                                                    else if (isChecked) nextVal = "Private";
-                                                    else if (hasReguler) nextVal = "Reguler";
-                                                    else nextVal = "";
-                                                    updateSlot(slot.id, { keterangan: nextVal });
-                                                  }}
-                                                  className="w-4 h-4 rounded text-[#173F3A] focus:ring-[#173F3A] accent-[#173F3A] cursor-pointer shrink-0"
-                                                />
-                                                <span>Private</span>
-                                              </label>
-                                            </div>
-                                          </div>
-
-                                          <div className="min-w-[min(190px,100%)] flex-[1.15_1_190px]">
-                                            <label className="text-[0.72rem] font-semibold text-[#173F3A] mb-1.5 flex items-center gap-1 whitespace-nowrap">
-                                              <span className="material-symbols-outlined text-[15px] shrink-0">layers</span>
-                                              <span>Jenjang (Centang Pilihan)</span>
-                                            </label>
-                                            <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1.5 py-2 px-2.5 sm:px-3 bg-[#faf8f5] border border-[#173F3A]/20 rounded-xl min-h-[38px]">
-                                              {allJenjangOptions.map((j) => {
-                                                const isChecked = (slot.jenjang || []).includes(j);
-                                                return (
-                                                  <label key={j} className="inline-flex items-center gap-1 cursor-pointer select-none text-[0.8125rem] font-medium text-[#173F3A] whitespace-nowrap">
-                                                    <input
-                                                      type="checkbox"
-                                                      checked={isChecked}
-                                                      onChange={(e) => {
-                                                        const currentJenjang = slot.jenjang || [];
-                                                        const nextJenjang = e.target.checked
-                                                          ? [...currentJenjang, j]
-                                                          : currentJenjang.filter((item) => item !== j);
-                                                        updateSlot(slot.id, { jenjang: nextJenjang });
-                                                      }}
-                                                      className="w-4 h-4 rounded text-[#173F3A] focus:ring-[#173F3A] accent-[#173F3A] cursor-pointer shrink-0"
-                                                    />
-                                                    <span>{j}</span>
-                                                  </label>
-                                                );
-                                              })}
-                                            </div>
-                                          </div>
-                                        </div>
-
-                                        {/* Status Indikator Sesi */}
-                                        <div className="pt-2 border-t border-[#173F3A]/10 flex items-start text-[0.75rem]">
-                                          {slot.jamMulai && slot.jamSelesai && slot.keterangan && slot.jenjang && slot.jenjang.length > 0 ? (
-                                            <div className="flex items-start gap-1.5 text-emerald-700 font-medium leading-tight">
-                                              <span className="material-symbols-outlined text-[16px] shrink-0 mt-0.5">check_circle</span>
-                                              <span>
-                                                Aktif: {slot.jamMulai} - {slot.jamSelesai} WIB ({slot.keterangan} • {slot.jenjang.join(", ")})
-                                              </span>
-                                            </div>
-                                          ) : !slot.jamMulai || !slot.jamSelesai ? (
-                                            <div className="flex items-center gap-1.5 text-amber-700">
-                                              <span className="material-symbols-outlined text-[16px] shrink-0">info</span>
-                                              <span>Pilih sesi jadwal di atas</span>
-                                            </div>
-                                          ) : !slot.keterangan ? (
-                                            <div className="flex items-center gap-1.5 text-amber-700">
-                                              <span className="material-symbols-outlined text-[16px] shrink-0">info</span>
-                                              <span>Pilih program (centang Reguler / Private)</span>
-                                            </div>
-                                          ) : (
-                                            <div className="flex items-center gap-1.5 text-amber-700">
-                                              <span className="material-symbols-outlined text-[16px] shrink-0">info</span>
-                                              <span>Pilih jenjang (centang {allJenjangOptions.join(" / ")})</span>
-                                            </div>
-                                          )}
-                                        </div>
-                                      </div>
-                                    );
-                                  })}
-                                </div>
-                              </div>
+                                <img
+                                  src={url}
+                                  alt={`Preset ${idx + 1}`}
+                                  className="w-full h-full object-cover rounded-[10px]"
+                                />
+                                {isSelected && (
+                                  <span className="absolute inset-0 bg-black/20 backdrop-blur-[1px] flex items-center justify-center text-white">
+                                    <span className="material-symbols-outlined text-[20px]">check</span>
+                                  </span>
+                                )}
+                              </button>
                             );
                           })}
                         </div>
-                      )}
-                    </div>
-                  </fieldset>
-
-                  <div className="h-px w-full bg-[#efeeec]"></div>
-
-                  {/* SECTION 3: Academic Background */}
-                  <fieldset id="section-profil-akun" className="space-y-4 scroll-mt-24">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <legend className="font-serif text-[1.35rem] sm:text-[1.5rem] text-[#1a1c1b]">
-                          Latar Belakang Pendidikan &amp; Gelar
-                        </legend>
-                        <p className="text-[0.75rem] sm:text-[0.8125rem] text-[#444748] mt-0.5 sm:mt-1">
-                          Dicantumkan pada kartu ringkas tutor dan kurikulum silabus wali siswa.
-                        </p>
-                      </div>
-                      <span className="font-mono text-[0.7rem] sm:text-[0.75rem] text-[#67645f]">BAGIAN 03/05</span>
-                    </div>
-
-                    <div className="space-y-2 pt-1">
-                      <label className="text-[0.75rem] text-[#444748]">
-                        Gelar, Program Studi, &amp; Almamater Utama
-                      </label>
-                      <div id="field-pendidikan"
-                        className={`bg-[#f4f3f1] rounded-xl px-3.5 sm:px-4 py-2.5 sm:py-3 focus-within:bg-[#efeeec] transition-all ${highlightedFieldId === "field-pendidikan" ? "field-highlight-fade ring-4 ring-rose-500/50" : ""}`}>
-                        <input
-                          type="text"
-                          value={pendidikan}
-                          onChange={(e) => setPendidikan(e.target.value)}
-                          placeholder="Contoh: S1 Pendidikan Fisika UI • S2 ITB"
-                          className="w-full bg-transparent text-[0.875rem] sm:text-[0.9375rem] text-[#1a1c1b] focus:outline-none"
-                        />
-                      </div>
-                      <p className="text-[0.75rem] sm:text-[0.8125rem] text-[#67645f]">
-                        Gunakan tanda titik peluru (•) untuk memisahkan jenjang pendidikan berurutan.
-                      </p>
-                    </div>
-
-                    {/* Tags Keahlian */}
-                    <div className="space-y-2 pt-2">
-                      <label className="text-[0.75rem] text-[#444748]">
-                        Fokus Materi &amp; Silabus yang Diberikan
-                      </label>
-                      <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
-                        {tags.map((tag, idx) => (
-                          <span
-                            key={idx}
-                            className="inline-flex items-center gap-1.5 bg-[#efeeec] px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full text-[0.8125rem] sm:text-[0.875rem] text-[#1a1c1b]"
-                          >
-                            <span>{tag}</span>
-                            <button
-                              type="button"
-                              onClick={() => handleRemoveTag(idx)}
-                              className="text-[#444748] hover:text-[#1a1c1b]"
-                            >
-                              <span className="material-symbols-outlined text-[15px] sm:text-[16px]">close</span>
-                            </button>
-                          </span>
-                        ))}
-                        <button
-                          type="button"
-                          onClick={handleAddTag}
-                          className="inline-flex items-center gap-1 bg-[#e3e2e0] hover:bg-[#c4c7c7]/50 text-[#444748] px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full text-[0.8125rem] sm:text-[0.875rem] transition-colors"
-                        >
-                          <span className="material-symbols-outlined text-[15px] sm:text-[16px]">add</span> Tambah Tag
-                        </button>
-                      </div>
-                    </div>
-                  </fieldset>
-
-                  <div className="h-px w-full bg-[#efeeec]"></div>
-
-                  {/* SECTION 4: Public Bio */}
-                  <fieldset className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <legend className="font-serif text-[1.35rem] sm:text-[1.5rem] text-[#1a1c1b]">
-                          Deskripsi Pengantar Mengajar
-                        </legend>
-                        <p className="text-[0.75rem] sm:text-[0.8125rem] text-[#444748] mt-0.5 sm:mt-1">
-                          Tampil secara utuh di Katalog Publik Pengajar Lentera Belajar.
-                        </p>
-                      </div>
-                      <span className="font-mono text-[0.7rem] sm:text-[0.75rem] text-[#67645f]">BAGIAN 04/05</span>
-                    </div>
-
-                    <div className="space-y-2">
-                      <div className="flex items-center justify-between text-[0.75rem]">
-                        <span className="text-[#444748]">Narasi Pendekatan &amp; Filosofi Bimbingan</span>
-                        <span className="text-[#67645f]">{deskripsi.length} / 600 Karakter</span>
-                      </div>
-                      <div id="field-deskripsi"
-                        className={`bg-[#f4f3f1] rounded-xl p-3.5 sm:p-4 focus-within:bg-[#efeeec] transition-all ${highlightedFieldId === "field-deskripsi" ? "field-highlight-fade ring-4 ring-rose-500/50" : ""}`}>
-                        <textarea
-                          rows={5}
-                          value={deskripsi}
-                          onChange={(e) => setDeskripsi(e.target.value)}
-                          placeholder="Tuliskan pengalaman, gaya bimbingan personal, serta pesan penyemangat bagi calon anak didik..."
-                          className="w-full bg-transparent text-[0.875rem] sm:text-[0.9375rem] text-[#1a1c1b] focus:outline-none resize-y leading-relaxed"
-                        />
                       </div>
 
-                      <div className="bg-[#e9e8e6]/60 rounded-xl p-3 sm:p-3.5 flex items-start gap-2.5 sm:gap-3">
-                        <span className="material-symbols-outlined text-[#444748] text-[18px] sm:text-[20px] shrink-0 mt-0.5">
-                          lightbulb
+                    </fieldset>
+
+                    <div className="h-px w-full bg-[#efeeec]"></div>
+
+                    {/* SECTION 2: HARI & JAM KETERSEDIAAN MENGAJAR */}
+                    <fieldset id="section-ketersediaan" className="space-y-5 scroll-mt-24">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <legend className="font-serif text-[1.5rem] text-[#173F3A] font-bold">
+                            Hari &amp; Jam Ketersediaan Mengajar
+                          </legend>
+                          <p className="text-[0.8125rem] text-[#444748] mt-1">
+                            Tentukan hari dan jam Anda siap membimbing. Jam ini akan langsung tampil di kartu katalog publik dan modal penjadwalan siswa.
+                          </p>
+                        </div>
+                        <span className="font-mono text-[0.75rem] text-[#B74E2C] font-semibold">BAGIAN 02/05</span>
+                      </div>
+
+                      {/* Pemilihan Hari */}
+                      <div className="space-y-3 pt-1">
+                        <span className="text-[0.75rem] text-[#444748] font-semibold block">
+                          1. Pilih Hari Aktif Mengajar:
                         </span>
-                        <p className="text-[0.75rem] sm:text-[0.8125rem] text-[#444748] leading-relaxed">
-                          <strong>Saran Editorial:</strong> Tuliskan dengan gaya bertutur hangat. Ceritakan bagaimana Anda mendampingi siswa yang kesulitan memahami konsep dasar.
-                        </p>
-                      </div>
-                    </div>
-                  </fieldset>
-
-                  <div className="h-px w-full bg-[#efeeec]"></div>
-
-                  {/* SECTION 5: Contact & Preferences */}
-                  <fieldset className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <legend className="font-serif text-[1.35rem] sm:text-[1.5rem] text-[#1a1c1b]">
-                          Kontak &amp; Domisili Bimbingan
-                        </legend>
-                        <p className="text-[0.75rem] sm:text-[0.8125rem] text-[#444748] mt-0.5 sm:mt-1">
-                          Saluran komunikasi langsung dan kota jangkauan mengajar.
-                        </p>
-                      </div>
-                      <span className="font-mono text-[0.7rem] sm:text-[0.75rem] text-[#67645f]">BAGIAN 05/05</span>
-                    </div>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 sm:gap-4 pt-1">
-                      <div className="space-y-1.5">
-                        <label className="text-[0.75rem] text-[#444748]">
-                          Nomor WhatsApp Resmi
-                        </label>
-                        <div className="bg-[#f4f3f1] rounded-xl px-3.5 sm:px-4 py-2 sm:py-2.5 flex items-center gap-2">
-                          <span className="text-[0.8125rem] text-[#67645f] font-mono">+62</span>
-                          <input
-                            type="tel"
-                            value={nomorWa}
-                            onChange={(e) => setNomorWa(e.target.value)}
-                            className="w-full bg-transparent text-[0.875rem] sm:text-[0.9375rem] text-[#1a1c1b] focus:outline-none font-mono"
-                          />
+                        <div className="flex flex-wrap gap-2">
+                          {DAFTAR_HARI.map((hari) => {
+                            const isSelected = hariTersedia.includes(hari);
+                            return (
+                              <button
+                                key={hari}
+                                type="button"
+                                onClick={() => toggleHari(hari)}
+                                className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-[0.8125rem] font-semibold transition-all ${isSelected
+                                  ? "bg-[#173F3A] text-white shadow-xs"
+                                  : "bg-[#faf8f5] text-[#444748] hover:bg-[#F2D5A8]/50 border border-[#173F3A]/15"
+                                  }`}
+                              >
+                                <span
+                                  className={`material-symbols-outlined text-[15px] ${isSelected ? "text-[#F2D5A8]" : "text-[#747878]"
+                                    }`}
+                                >
+                                  {isSelected ? "check" : "calendar_today"}
+                                </span>
+                                <span>{hari}</span>
+                              </button>
+                            );
+                          })}
                         </div>
                       </div>
 
-                      <div className="space-y-1.5">
-                        <label className="text-[0.75rem] text-[#444748]">Domisili Home-Base Tutor</label>
-                        <div className="bg-[#f4f3f1] rounded-xl px-3.5 sm:px-4 py-2 sm:py-2.5 flex items-center gap-2">
-                          <span className="material-symbols-outlined text-[#444748] text-[18px]">
-                            location_on
+                      {/* Pengaturan Jam per Hari */}
+                      <div className="space-y-3 pt-3">
+                        <div className="flex items-center justify-between">
+                          <span className="text-[0.75rem] text-[#444748] font-semibold block">
+                            2. Atur Jam &amp; Sesi untuk Hari Terpilih:
                           </span>
+                          <span className="text-[0.72rem] text-[#67645f]">
+                            Total {jadwalSlots.length} sesi mengajar
+                          </span>
+                        </div>
+
+                        {hariTersedia.length === 0 ? (
+                          <div className="p-4 bg-amber-50/70 border border-amber-200/80 rounded-2xl text-[0.8125rem] text-amber-900 flex items-center gap-2.5">
+                            <span className="material-symbols-outlined text-amber-700 text-[20px]">info</span>
+                            <span>Silakan klik minimal satu hari di atas untuk mengatur jam mengajar Anda.</span>
+                          </div>
+                        ) : (
+                          <div className="space-y-3">
+                            {hariTersedia.map((hari) => {
+                              const slotsHari = jadwalSlots.filter((s) => s.hari === hari);
+                              return (
+                                <div
+                                  key={hari}
+                                  className="p-3.5 sm:p-4 bg-[#faf8f5] border border-[#173F3A]/15 rounded-xl sm:rounded-2xl space-y-3"
+                                >
+                                  <div className="flex items-center justify-between border-b border-[#173F3A]/10 pb-2.5">
+                                    <div className="flex items-center gap-2">
+                                      <span className="w-2.5 h-2.5 rounded-full bg-[#B74E2C]"></span>
+                                      <span className="font-serif text-[1.05rem] sm:text-[1.125rem] font-bold text-[#173F3A]">
+                                        {hari}
+                                      </span>
+                                      <span className="text-[0.7rem] sm:text-[0.72rem] font-semibold px-2 py-0.5 rounded-full bg-[#F2D5A8]/60 text-[#173F3A]">
+                                        {slotsHari.length} sesi
+                                      </span>
+                                    </div>
+                                    <button
+                                      type="button"
+                                      onClick={() => addSlotForHari(hari)}
+                                      title="Tambah Sesi Jam"
+                                      className="w-8 h-8 rounded-full border border-[#B74E2C]/30 bg-white text-[#B74E2C] hover:bg-[#B74E2C]/10 flex items-center justify-center transition-colors shadow-2xs"
+                                    >
+                                      <span className="material-symbols-outlined text-[18px]">add</span>
+                                    </button>
+                                  </div>
+
+                                  <div className="space-y-2.5">
+                                    {slotsHari.map((slot, sIdx) => {
+                                      return (
+                                        <div
+                                          key={slot.id}
+                                          id={`slot-card-${slot.id}`}
+                                          className={`p-3 sm:p-4 bg-white rounded-xl border transition-all shadow-xs space-y-3 ${highlightedFieldId === `slot-card-${slot.id}` ? "field-highlight-fade ring-4 ring-rose-500/50" : "border-[#173F3A]/15 hover:border-[#173F3A]/30"}`}
+                                        >
+                                          <div className="flex items-center justify-between border-b border-[#173F3A]/10 pb-2">
+                                            <div className="flex items-center gap-2">
+                                              <span className="w-5 h-5 rounded-full bg-[#173F3A] text-white text-[0.7rem] font-bold flex items-center justify-center">
+                                                {sIdx + 1}
+                                              </span>
+                                              <span className="text-[0.8125rem] font-bold text-[#173F3A]">
+                                                Sesi ke-{sIdx + 1}
+                                              </span>
+                                            </div>
+
+                                            <button
+                                              type="button"
+                                              onClick={() => removeSlot(slot.id)}
+                                              title="Hapus sesi ini"
+                                              className="w-7 h-7 rounded-full text-rose-600 hover:text-rose-800 hover:bg-rose-50 flex items-center justify-center transition-colors"
+                                            >
+                                              <span className="material-symbols-outlined text-[18px]">delete</span>
+                                            </button>
+                                          </div>
+
+                                          {/* Dropdown Sesi & Pilihan Program & Pilihan Jenjang */}
+                                          <div className="flex flex-wrap items-end gap-2.5 sm:gap-3">
+                                            <div className="min-w-[min(215px,100%)] flex-[1.35_1_215px]">
+                                              <label className="text-[0.72rem] font-semibold text-[#173F3A] mb-1.5 flex items-center gap-1 whitespace-nowrap">
+                                                <span className="material-symbols-outlined text-[15px] shrink-0">schedule</span>
+                                                <span>Pilih Sesi Jadwal</span>
+                                              </label>
+                                              {(() => {
+                                                const presetsForDay = getPresetsByDay(slot.hari, masterSesiList);
+                                                const currentSelected = presetsForDay.find(
+                                                  (p) => p.jamMulai === slot.jamMulai && p.jamSelesai === slot.jamSelesai
+                                                );
+                                                return (
+                                                  <select
+                                                    value={currentSelected?.label || (slot.jamMulai && slot.jamSelesai ? "custom" : "")}
+                                                    onChange={(e) => {
+                                                      const val = e.target.value;
+                                                      if (!val) {
+                                                        updateSlot(slot.id, { jamMulai: "", jamSelesai: "" });
+                                                        return;
+                                                      }
+                                                      const selected = presetsForDay.find((p) => p.label === val);
+                                                      if (selected && selected.jamMulai && selected.jamSelesai) {
+                                                        updateSlot(slot.id, {
+                                                          jamMulai: selected.jamMulai,
+                                                          jamSelesai: selected.jamSelesai,
+                                                        });
+                                                      }
+                                                    }}
+                                                    className="w-full h-[38px] px-2.5 sm:px-3 py-1.5 text-[0.8125rem] font-medium text-[#173F3A] bg-[#faf8f5] border border-[#173F3A]/20 focus:border-[#173F3A] focus:bg-white rounded-xl focus:outline-none transition-colors"
+                                                  >
+                                                    <option value="">— Pilih Sesi Jadwal —</option>
+                                                    {presetsForDay.map((p, pIdx) => (
+                                                      <option key={pIdx} value={p.label}>
+                                                        {p.label}
+                                                      </option>
+                                                    ))}
+                                                    {slot.jamMulai &&
+                                                      slot.jamSelesai &&
+                                                      !presetsForDay.some(
+                                                        (p) => p.jamMulai === slot.jamMulai && p.jamSelesai === slot.jamSelesai
+                                                      ) && (
+                                                        <option value="custom">
+                                                          {slot.jamMulai} - {slot.jamSelesai} WIB (Tersimpan)
+                                                        </option>
+                                                      )}
+                                                  </select>
+                                                );
+                                              })()}
+                                            </div>
+
+                                            <div className="min-w-[min(175px,100%)] flex-[1_1_175px]">
+                                              <label className="text-[0.72rem] font-semibold text-[#173F3A] mb-1.5 flex items-center gap-1 whitespace-nowrap">
+                                                <span className="material-symbols-outlined text-[15px] shrink-0">school</span>
+                                                <span>Program (Centang Pilihan)</span>
+                                              </label>
+                                              <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 py-2 px-2.5 sm:px-3 bg-[#faf8f5] border border-[#173F3A]/20 rounded-xl min-h-[38px]">
+                                                <label className="inline-flex items-center gap-1.5 cursor-pointer select-none text-[0.8125rem] font-medium text-[#173F3A] whitespace-nowrap">
+                                                  <input
+                                                    type="checkbox"
+                                                    checked={/reguler/i.test(slot.keterangan || "")}
+                                                    onChange={(e) => {
+                                                      const hasPrivate = /private/i.test(slot.keterangan || "");
+                                                      const isChecked = e.target.checked;
+                                                      let nextVal = "";
+                                                      if (isChecked && hasPrivate) nextVal = "Reguler, Private";
+                                                      else if (isChecked) nextVal = "Reguler";
+                                                      else if (hasPrivate) nextVal = "Private";
+                                                      else nextVal = "";
+                                                      updateSlot(slot.id, { keterangan: nextVal });
+                                                    }}
+                                                    className="w-4 h-4 rounded text-[#173F3A] focus:ring-[#173F3A] accent-[#173F3A] cursor-pointer shrink-0"
+                                                  />
+                                                  <span>Reguler</span>
+                                                </label>
+
+                                                <label className="inline-flex items-center gap-1.5 cursor-pointer select-none text-[0.8125rem] font-medium text-[#173F3A] whitespace-nowrap">
+                                                  <input
+                                                    type="checkbox"
+                                                    checked={/private/i.test(slot.keterangan || "")}
+                                                    onChange={(e) => {
+                                                      const hasReguler = /reguler/i.test(slot.keterangan || "");
+                                                      const isChecked = e.target.checked;
+                                                      let nextVal = "";
+                                                      if (isChecked && hasReguler) nextVal = "Reguler, Private";
+                                                      else if (isChecked) nextVal = "Private";
+                                                      else if (hasReguler) nextVal = "Reguler";
+                                                      else nextVal = "";
+                                                      updateSlot(slot.id, { keterangan: nextVal });
+                                                    }}
+                                                    className="w-4 h-4 rounded text-[#173F3A] focus:ring-[#173F3A] accent-[#173F3A] cursor-pointer shrink-0"
+                                                  />
+                                                  <span>Private</span>
+                                                </label>
+                                              </div>
+                                            </div>
+
+                                            <div className="min-w-[min(190px,100%)] flex-[1.15_1_190px]">
+                                              <label className="text-[0.72rem] font-semibold text-[#173F3A] mb-1.5 flex items-center gap-1 whitespace-nowrap">
+                                                <span className="material-symbols-outlined text-[15px] shrink-0">layers</span>
+                                                <span>Jenjang (Centang Pilihan)</span>
+                                              </label>
+                                              <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1.5 py-2 px-2.5 sm:px-3 bg-[#faf8f5] border border-[#173F3A]/20 rounded-xl min-h-[38px]">
+                                                {allJenjangOptions.map((j) => {
+                                                  const isChecked = (slot.jenjang || []).includes(j);
+                                                  return (
+                                                    <label key={j} className="inline-flex items-center gap-1 cursor-pointer select-none text-[0.8125rem] font-medium text-[#173F3A] whitespace-nowrap">
+                                                      <input
+                                                        type="checkbox"
+                                                        checked={isChecked}
+                                                        onChange={(e) => {
+                                                          const currentJenjang = slot.jenjang || [];
+                                                          const nextJenjang = e.target.checked
+                                                            ? [...currentJenjang, j]
+                                                            : currentJenjang.filter((item) => item !== j);
+                                                          updateSlot(slot.id, { jenjang: nextJenjang });
+                                                        }}
+                                                        className="w-4 h-4 rounded text-[#173F3A] focus:ring-[#173F3A] accent-[#173F3A] cursor-pointer shrink-0"
+                                                      />
+                                                      <span>{j}</span>
+                                                    </label>
+                                                  );
+                                                })}
+                                              </div>
+                                            </div>
+                                          </div>
+
+                                          {/* Status Indikator Sesi */}
+                                          <div className="pt-2 border-t border-[#173F3A]/10 flex items-start text-[0.75rem]">
+                                            {slot.jamMulai && slot.jamSelesai && slot.keterangan && slot.jenjang && slot.jenjang.length > 0 ? (
+                                              <div className="flex items-start gap-1.5 text-emerald-700 font-medium leading-tight">
+                                                <span className="material-symbols-outlined text-[16px] shrink-0 mt-0.5">check_circle</span>
+                                                <span>
+                                                  Aktif: {slot.jamMulai} - {slot.jamSelesai} WIB ({slot.keterangan} • {slot.jenjang.join(", ")})
+                                                </span>
+                                              </div>
+                                            ) : !slot.jamMulai || !slot.jamSelesai ? (
+                                              <div className="flex items-center gap-1.5 text-amber-700">
+                                                <span className="material-symbols-outlined text-[16px] shrink-0">info</span>
+                                                <span>Pilih sesi jadwal di atas</span>
+                                              </div>
+                                            ) : !slot.keterangan ? (
+                                              <div className="flex items-center gap-1.5 text-amber-700">
+                                                <span className="material-symbols-outlined text-[16px] shrink-0">info</span>
+                                                <span>Pilih program (centang Reguler / Private)</span>
+                                              </div>
+                                            ) : (
+                                              <div className="flex items-center gap-1.5 text-amber-700">
+                                                <span className="material-symbols-outlined text-[16px] shrink-0">info</span>
+                                                <span>Pilih jenjang (centang {allJenjangOptions.join(" / ")})</span>
+                                              </div>
+                                            )}
+                                          </div>
+                                        </div>
+                                      );
+                                    })}
+                                  </div>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        )}
+                      </div>
+                    </fieldset>
+
+                    <div className="h-px w-full bg-[#efeeec]"></div>
+
+                    {/* SECTION 3: Academic Background */}
+                    <fieldset id="section-profil-akun" className="space-y-4 scroll-mt-24">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <legend className="font-serif text-[1.35rem] sm:text-[1.5rem] text-[#1a1c1b]">
+                            Latar Belakang Pendidikan &amp; Gelar
+                          </legend>
+                          <p className="text-[0.75rem] sm:text-[0.8125rem] text-[#444748] mt-0.5 sm:mt-1">
+                            Dicantumkan pada kartu ringkas tutor dan kurikulum silabus wali siswa.
+                          </p>
+                        </div>
+                        <span className="font-mono text-[0.7rem] sm:text-[0.75rem] text-[#67645f]">BAGIAN 03/05</span>
+                      </div>
+
+                      <div className="space-y-2 pt-1">
+                        <label className="text-[0.75rem] text-[#444748]">
+                          Gelar, Program Studi, &amp; Almamater Utama
+                        </label>
+                        <div id="field-pendidikan"
+                          className={`bg-[#f4f3f1] rounded-xl px-3.5 sm:px-4 py-2.5 sm:py-3 focus-within:bg-[#efeeec] transition-all ${highlightedFieldId === "field-pendidikan" ? "field-highlight-fade ring-4 ring-rose-500/50" : ""}`}>
                           <input
                             type="text"
-                            value={domisili}
-                            onChange={(e) => setDomisili(e.target.value)}
+                            value={pendidikan}
+                            onChange={(e) => setPendidikan(e.target.value)}
+                            placeholder="Contoh: S1 Pendidikan Fisika UI • S2 ITB"
                             className="w-full bg-transparent text-[0.875rem] sm:text-[0.9375rem] text-[#1a1c1b] focus:outline-none"
                           />
                         </div>
-                      </div>
-                    </div>
-                  </fieldset>
-
-                  <div className="h-px w-full bg-[#efeeec]"></div>
-
-                  {/* SECTION 6: KEAMANAN AKUN & UBAH PASSWORD */}
-                  <div id="section-password" className="p-4 sm:p-5 bg-[#faf8f5] border border-[#173F3A]/15 rounded-xl sm:rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4 scroll-mt-24">
-                    <div className="flex items-center gap-3">
-                      <span className="w-10 h-10 rounded-full bg-[#F2D5A8] flex items-center justify-center text-[#173F3A] shrink-0">
-                        <span className="material-symbols-outlined text-[20px]">lock_reset</span>
-                      </span>
-                      <div>
-                        <h4 className="font-serif text-[0.95rem] sm:text-[1rem] font-bold text-[#173F3A]">
-                          Keamanan &amp; Kata Sandi Akun
-                        </h4>
-                        <p className="text-[0.72rem] sm:text-[0.75rem] text-[#444748]">
-                          Atur atau perbarui kata sandi login akun tutor Anda secara mandiri.
+                        <p className="text-[0.75rem] sm:text-[0.8125rem] text-[#67645f]">
+                          Gunakan tanda titik peluru (•) untuk memisahkan jenjang pendidikan berurutan.
                         </p>
                       </div>
-                    </div>
 
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setPasswordError("");
-                        setNewPassword("");
-                        setConfirmPassword("");
-                        setIsPasswordModalOpen(true);
-                      }}
-                      className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-4 py-2.5 sm:py-2 bg-[#173F3A] hover:bg-[#112F2B] text-white text-[0.8125rem] font-semibold rounded-full transition-all shadow-xs shrink-0"
-                    >
-                      <span className="material-symbols-outlined text-[16px]">key</span>
-                      <span>Ubah Password</span>
-                    </button>
-                  </div>
+                      {/* Tags Keahlian */}
+                      <div className="space-y-2 pt-2">
+                        <label className="text-[0.75rem] text-[#444748]">
+                          Fokus Materi &amp; Silabus yang Diberikan
+                        </label>
+                        <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+                          {tags.map((tag, idx) => (
+                            <span
+                              key={idx}
+                              className="inline-flex items-center gap-1.5 bg-[#efeeec] px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full text-[0.8125rem] sm:text-[0.875rem] text-[#1a1c1b]"
+                            >
+                              <span>{tag}</span>
+                              <button
+                                type="button"
+                                onClick={() => handleRemoveTag(idx)}
+                                className="text-[#444748] hover:text-[#1a1c1b]"
+                              >
+                                <span className="material-symbols-outlined text-[15px] sm:text-[16px]">close</span>
+                              </button>
+                            </span>
+                          ))}
+                          <button
+                            type="button"
+                            onClick={handleAddTag}
+                            className="inline-flex items-center gap-1 bg-[#e3e2e0] hover:bg-[#c4c7c7]/50 text-[#444748] px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full text-[0.8125rem] sm:text-[0.875rem] transition-colors"
+                          >
+                            <span className="material-symbols-outlined text-[15px] sm:text-[16px]">add</span> Tambah Tag
+                          </button>
+                        </div>
+                      </div>
+                    </fieldset>
 
-                  {/* Form Submission Footer */}
-                  <div className="pt-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-                    <p className="text-[0.8125rem] text-[#67645f] order-2 sm:order-1 text-center sm:text-left">
-                      {hasChanges ? (
-                        <span className="text-amber-800 font-medium flex items-center justify-center sm:justify-start gap-1.5">
-                          <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
-                          {unsavedInfo.summaryText}
+                    <div className="h-px w-full bg-[#efeeec]"></div>
+
+                    {/* SECTION 4: Public Bio */}
+                    <fieldset className="space-y-4">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <legend className="font-serif text-[1.35rem] sm:text-[1.5rem] text-[#1a1c1b]">
+                            Deskripsi Pengantar Mengajar
+                          </legend>
+                          <p className="text-[0.75rem] sm:text-[0.8125rem] text-[#444748] mt-0.5 sm:mt-1">
+                            Tampil secara utuh di Katalog Publik Pengajar Lentera Belajar.
+                          </p>
+                        </div>
+                        <span className="font-mono text-[0.7rem] sm:text-[0.75rem] text-[#67645f]">BAGIAN 04/05</span>
+                      </div>
+
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between text-[0.75rem]">
+                          <span className="text-[#444748]">Narasi Pendekatan &amp; Filosofi Bimbingan</span>
+                          <span className="text-[#67645f]">{deskripsi.length} / 600 Karakter</span>
+                        </div>
+                        <div id="field-deskripsi"
+                          className={`bg-[#f4f3f1] rounded-xl p-3.5 sm:p-4 focus-within:bg-[#efeeec] transition-all ${highlightedFieldId === "field-deskripsi" ? "field-highlight-fade ring-4 ring-rose-500/50" : ""}`}>
+                          <textarea
+                            rows={5}
+                            value={deskripsi}
+                            onChange={(e) => setDeskripsi(e.target.value)}
+                            placeholder="Tuliskan pengalaman, gaya bimbingan personal, serta pesan penyemangat bagi calon anak didik..."
+                            className="w-full bg-transparent text-[0.875rem] sm:text-[0.9375rem] text-[#1a1c1b] focus:outline-none resize-y leading-relaxed"
+                          />
+                        </div>
+
+                        <div className="bg-[#e9e8e6]/60 rounded-xl p-3 sm:p-3.5 flex items-start gap-2.5 sm:gap-3">
+                          <span className="material-symbols-outlined text-[#444748] text-[18px] sm:text-[20px] shrink-0 mt-0.5">
+                            lightbulb
+                          </span>
+                          <p className="text-[0.75rem] sm:text-[0.8125rem] text-[#444748] leading-relaxed">
+                            <strong>Saran Editorial:</strong> Tuliskan dengan gaya bertutur hangat. Ceritakan bagaimana Anda mendampingi siswa yang kesulitan memahami konsep dasar.
+                          </p>
+                        </div>
+                      </div>
+                    </fieldset>
+
+                    <div className="h-px w-full bg-[#efeeec]"></div>
+
+                    {/* SECTION 5: Contact & Preferences */}
+                    <fieldset className="space-y-4">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <legend className="font-serif text-[1.35rem] sm:text-[1.5rem] text-[#1a1c1b]">
+                            Kontak &amp; Domisili Bimbingan
+                          </legend>
+                          <p className="text-[0.75rem] sm:text-[0.8125rem] text-[#444748] mt-0.5 sm:mt-1">
+                            Saluran komunikasi langsung dan kota jangkauan mengajar.
+                          </p>
+                        </div>
+                        <span className="font-mono text-[0.7rem] sm:text-[0.75rem] text-[#67645f]">BAGIAN 05/05</span>
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 sm:gap-4 pt-1">
+                        <div className="space-y-1.5">
+                          <label className="text-[0.75rem] text-[#444748]">
+                            Nomor WhatsApp Resmi
+                          </label>
+                          <div className="bg-[#f4f3f1] rounded-xl px-3.5 sm:px-4 py-2 sm:py-2.5 flex items-center gap-2">
+                            <span className="text-[0.8125rem] text-[#67645f] font-mono">+62</span>
+                            <input
+                              type="tel"
+                              value={nomorWa}
+                              onChange={(e) => setNomorWa(e.target.value)}
+                              className="w-full bg-transparent text-[0.875rem] sm:text-[0.9375rem] text-[#1a1c1b] focus:outline-none font-mono"
+                            />
+                          </div>
+                        </div>
+
+                        <div className="space-y-1.5">
+                          <label className="text-[0.75rem] text-[#444748]">Domisili Home-Base Tutor</label>
+                          <div className="bg-[#f4f3f1] rounded-xl px-3.5 sm:px-4 py-2 sm:py-2.5 flex items-center gap-2">
+                            <span className="material-symbols-outlined text-[#444748] text-[18px]">
+                              location_on
+                            </span>
+                            <input
+                              type="text"
+                              value={domisili}
+                              onChange={(e) => setDomisili(e.target.value)}
+                              className="w-full bg-transparent text-[0.875rem] sm:text-[0.9375rem] text-[#1a1c1b] focus:outline-none"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </fieldset>
+
+                    <div className="h-px w-full bg-[#efeeec]"></div>
+
+                    {/* SECTION 6: KEAMANAN AKUN & UBAH PASSWORD */}
+                    <div id="section-password" className="p-4 sm:p-5 bg-[#faf8f5] border border-[#173F3A]/15 rounded-xl sm:rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4 scroll-mt-24">
+                      <div className="flex items-center gap-3">
+                        <span className="w-10 h-10 rounded-full bg-[#F2D5A8] flex items-center justify-center text-[#173F3A] shrink-0">
+                          <span className="material-symbols-outlined text-[20px]">lock_reset</span>
                         </span>
-                      ) : (
-                        <span>
-                          Status: <strong className="text-black">Tersimpan di Cloud</strong>
-                        </span>
-                      )}
-                    </p>
-                    <div className="flex flex-col sm:flex-row items-center gap-2.5 sm:gap-3 w-full sm:w-auto order-1 sm:order-2">
+                        <div>
+                          <h4 className="font-serif text-[0.95rem] sm:text-[1rem] font-bold text-[#173F3A]">
+                            Keamanan &amp; Kata Sandi Akun
+                          </h4>
+                          <p className="text-[0.72rem] sm:text-[0.75rem] text-[#444748]">
+                            Atur atau perbarui kata sandi login akun tutor Anda secara mandiri.
+                          </p>
+                        </div>
+                      </div>
+
                       <button
                         type="button"
-                        onClick={previewPublicCard}
-                        className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-[#efeeec] hover:bg-[#e3e2e0] text-[#1a1c1b] text-[0.875rem] font-semibold px-6 py-2.5 sm:py-3 rounded-full transition-colors"
-                      >
-                        Pratinjau Kartu
-                      </button>
-                      {hasChanges && (
-                        <button
-                          type="submit"
-                          disabled={savingProfil}
-                          className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-[#173F3A] text-white text-[0.875rem] font-semibold px-7 py-2.5 sm:py-3 rounded-full hover:bg-[#112F2B] transition-all shadow-[0_4px_16px_rgba(23,63,58,0.2)] disabled:opacity-50 animate-in fade-in duration-200"
-                        >
-                          {savingProfil ? "Menyimpan..." : "Simpan Profil Saya"}
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                </form>
-
-                {/* Sidebar / Live Preview (4 Columns) */}
-                <aside className="lg:col-span-4 space-y-6">
-                  {/* Live Card Preview */}
-                  <div className="bg-white rounded-2xl p-6 border border-[#173F3A]/15 shadow-[0_2px_12px_rgba(23,63,58,0.04)] space-y-5">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <span className="w-2 h-2 rounded-full bg-[#173F3A]"></span>
-                        <h2 className="text-[0.875rem] font-semibold text-[#173F3A] uppercase tracking-wider">
-                          Pratinjau Kartu Publik
-                        </h2>
-                      </div>
-                      <span className="text-[0.75rem] text-[#444748]">Katalog</span>
-                    </div>
-
-                    <div
-                      onClick={() => setIsPreviewModalOpen(true)}
-                      className="group relative w-full rounded-2xl sm:rounded-3xl shadow-xs hover:shadow-xl transition-all duration-300 overflow-hidden cursor-pointer aspect-[3/4] sm:aspect-[4/5] bg-[#efeeec]"
-                      title="Klik untuk melihat pratinjau detail modal publik"
-                    >
-                      {/* Full-bleed Photo matching Public Card */}
-                      <img
-                        id="sidebar-live-portrait"
-                        src={foto || avatarFallbackUrl(currentTutor?.nama)}
-                        alt={currentTutor?.nama || "Tutor"}
-                        referrerPolicy="no-referrer"
-                        onError={(e) => {
-                          const fallback = avatarFallbackUrl(currentTutor?.nama);
-                          if (e.currentTarget.src !== fallback) {
-                            e.currentTarget.src = fallback;
-                          }
+                        onClick={() => {
+                          setPasswordError("");
+                          setNewPassword("");
+                          setConfirmPassword("");
+                          setIsPasswordModalOpen(true);
                         }}
-                        className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500 ease-out"
-                      />
-
-                      {/* Gradient Overlay for subtle contrast */}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/45 via-transparent to-black/10 pointer-events-none" />
-
-                      {/* Top Right: Ketersediaan Hari Badge */}
-                      {hariTersedia.length > 0 && (
-                        <div className="absolute top-3.5 right-3.5 bg-white/95 backdrop-blur-md px-2.5 py-1 rounded-full flex items-center gap-1.5 shadow-xs border border-[#173F3A]/15 pointer-events-none z-10">
-                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse shrink-0" />
-                          <span className="text-[0.72rem] font-bold text-[#173F3A] whitespace-nowrap">
-                            Tersedia {hariTersedia.length} Hari
-                          </span>
-                        </div>
-                      )}
-
-                      {/* Floating Pill Badge Nestled at Bottom */}
-                      <div className="absolute inset-x-3 bottom-3 p-3.5 rounded-2xl bg-white/95 backdrop-blur-md shadow-lg text-center transition-all duration-300 group-hover:-translate-y-1 z-10">
-                        <h3 className="text-[0.9375rem] text-[#1a1c1b] font-bold truncate leading-snug">
-                          {currentTutor?.nama || "-"}
-                        </h3>
-                        <p className="text-[0.78rem] text-[#444748] truncate mt-0.5 font-medium">
-                          {pendidikan ? pendidikan.split("•")[0].trim() : currentTutor?.pendidikan ? currentTutor.pendidikan.split("•")[0].trim() : "-"}
-                        </p>
-                        <div className="flex items-center justify-between gap-2 mt-2.5 pt-2 border-t border-[#efeeec]">
-                          <div className="flex items-center gap-1 flex-wrap min-w-0">
-                            {(() => {
-                              const derived = Array.from(new Set(jadwalSlots.flatMap((s) => s.jenjang || [])));
-                              const list = derived.length > 0 ? derived : (currentTutor?.jenjang || ["SMA"]);
-                              return list.filter((j) => !/utbk/i.test(j)).map((j) => (
-                                <span
-                                  key={j}
-                                  className="text-[0.68rem] font-bold px-2 py-0.5 rounded-md bg-[#173F3A]/10 text-[#173F3A] leading-tight"
-                                >
-                                  {j}
-                                </span>
-                              ));
-                            })()}
-                          </div>
-                          <span className="inline-flex items-center gap-0.5 text-[0.72rem] font-bold text-[#173F3A] group-hover:text-emerald-700 transition-colors shrink-0">
-                            <span>Jadwal</span>
-                            <span className="material-symbols-outlined text-[14px] transition-transform group-hover:translate-x-0.5">arrow_forward</span>
-                          </span>
-                        </div>
-                      </div>
+                        className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-4 py-2.5 sm:py-2 bg-[#173F3A] hover:bg-[#112F2B] text-white text-[0.8125rem] font-semibold rounded-full transition-all shadow-xs shrink-0"
+                      >
+                        <span className="material-symbols-outlined text-[16px]">key</span>
+                        <span>Ubah Password</span>
+                      </button>
                     </div>
 
-                    <div className="bg-[#faf8f5] rounded-xl p-4 border border-[#173F3A]/15 space-y-2.5">
-                      <div className="flex items-center justify-between">
-                        <span className="text-[0.6875rem] font-bold uppercase tracking-wider text-[#173F3A] block">
-                          Jadwal &amp; Jam Mengajar Publik
-                        </span>
-                        <span className="text-[0.7rem] text-[#B74E2C] font-semibold">
-                          {jadwalSlots.length} Sesi
-                        </span>
-                      </div>
-                      <div className="flex flex-col gap-1.5 max-h-48 overflow-y-auto pr-1">
-                        {jadwalSlots.length > 0 ? (
-                          jadwalSlots.map((s) => (
-                            <div
-                              key={s.id}
-                              className="bg-white text-[#173F3A] text-[0.72rem] font-medium px-2.5 py-1.5 rounded-lg border border-[#173F3A]/10 flex items-center justify-between gap-1 shadow-2xs"
-                            >
-                              <span className="font-semibold">{s.hari}:</span>
-                              <span className="font-mono text-[0.7rem]">{s.jamMulai}-{s.jamSelesai}</span>
-                              {s.keterangan && (
-                                <span className="text-[0.65rem] bg-[#F2D5A8]/70 text-[#173F3A] px-1.5 py-0.5 rounded font-semibold">
-                                  {s.keterangan}
-                                </span>
-                              )}
-                            </div>
-                          ))
-                        ) : (
-                          <span className="text-[0.75rem] text-[#67645f] italic">
-                            Belum memilih hari &amp; jam ketersediaan
+                    {/* Form Submission Footer */}
+                    <div className="pt-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+                      <p className="text-[0.8125rem] text-[#67645f] order-2 sm:order-1 text-center sm:text-left">
+                        {hasChanges ? (
+                          <span className="text-amber-800 font-medium flex items-center justify-center sm:justify-start gap-1.5">
+                            <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
+                            {unsavedInfo.summaryText}
                           </span>
+                        ) : (
+                          <span>
+                            Status: <strong className="text-black">Tersimpan di Cloud</strong>
+                          </span>
+                        )}
+                      </p>
+                      <div className="flex flex-col sm:flex-row items-center gap-2.5 sm:gap-3 w-full sm:w-auto order-1 sm:order-2">
+                        <button
+                          type="button"
+                          onClick={previewPublicCard}
+                          className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-[#efeeec] hover:bg-[#e3e2e0] text-[#1a1c1b] text-[0.875rem] font-semibold px-6 py-2.5 sm:py-3 rounded-full transition-colors"
+                        >
+                          Pratinjau Kartu
+                        </button>
+                        {hasChanges && (
+                          <button
+                            type="submit"
+                            disabled={savingProfil}
+                            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-[#173F3A] text-white text-[0.875rem] font-semibold px-7 py-2.5 sm:py-3 rounded-full hover:bg-[#112F2B] transition-all shadow-[0_4px_16px_rgba(23,63,58,0.2)] disabled:opacity-50 animate-in fade-in duration-200"
+                          >
+                            {savingProfil ? "Menyimpan..." : "Simpan Profil Saya"}
+                          </button>
                         )}
                       </div>
                     </div>
-                  </div>
-                </aside>
-              </div>
+                  </form>
+
+                  {/* Sidebar / Live Preview (4 Columns) */}
+                  <aside className="lg:col-span-4 space-y-6">
+                    {/* Live Card Preview */}
+                    <div className="bg-white rounded-2xl p-6 border border-[#173F3A]/15 shadow-[0_2px_12px_rgba(23,63,58,0.04)] space-y-5">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <span className="w-2 h-2 rounded-full bg-[#173F3A]"></span>
+                          <h2 className="text-[0.875rem] font-semibold text-[#173F3A] uppercase tracking-wider">
+                            Pratinjau Kartu Publik
+                          </h2>
+                        </div>
+                        <span className="text-[0.75rem] text-[#444748]">Katalog</span>
+                      </div>
+
+                      <div
+                        onClick={() => setIsPreviewModalOpen(true)}
+                        className="group relative w-full rounded-2xl sm:rounded-3xl shadow-xs hover:shadow-xl transition-all duration-300 overflow-hidden cursor-pointer aspect-[3/4] sm:aspect-[4/5] bg-[#efeeec]"
+                        title="Klik untuk melihat pratinjau detail modal publik"
+                      >
+                        {/* Full-bleed Photo matching Public Card */}
+                        <img
+                          id="sidebar-live-portrait"
+                          src={foto || avatarFallbackUrl(currentTutor?.nama)}
+                          alt={currentTutor?.nama || "Tutor"}
+                          referrerPolicy="no-referrer"
+                          onError={(e) => {
+                            const fallback = avatarFallbackUrl(currentTutor?.nama);
+                            if (e.currentTarget.src !== fallback) {
+                              e.currentTarget.src = fallback;
+                            }
+                          }}
+                          className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500 ease-out"
+                        />
+
+                        {/* Gradient Overlay for subtle contrast */}
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/45 via-transparent to-black/10 pointer-events-none" />
+
+                        {/* Top Right: Ketersediaan Hari Badge */}
+                        {hariTersedia.length > 0 && (
+                          <div className="absolute top-3.5 right-3.5 bg-white/95 backdrop-blur-md px-2.5 py-1 rounded-full flex items-center gap-1.5 shadow-xs border border-[#173F3A]/15 pointer-events-none z-10">
+                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse shrink-0" />
+                            <span className="text-[0.72rem] font-bold text-[#173F3A] whitespace-nowrap">
+                              Tersedia {hariTersedia.length} Hari
+                            </span>
+                          </div>
+                        )}
+
+                        {/* Floating Pill Badge Nestled at Bottom */}
+                        <div className="absolute inset-x-3 bottom-3 p-3.5 rounded-2xl bg-white/95 backdrop-blur-md shadow-lg text-center transition-all duration-300 group-hover:-translate-y-1 z-10">
+                          <h3 className="text-[0.9375rem] text-[#1a1c1b] font-bold truncate leading-snug">
+                            {currentTutor?.nama || "-"}
+                          </h3>
+                          <p className="text-[0.78rem] text-[#444748] truncate mt-0.5 font-medium">
+                            {pendidikan ? pendidikan.split("•")[0].trim() : currentTutor?.pendidikan ? currentTutor.pendidikan.split("•")[0].trim() : "-"}
+                          </p>
+                          <div className="flex items-center justify-between gap-2 mt-2.5 pt-2 border-t border-[#efeeec]">
+                            <div className="flex items-center gap-1 flex-wrap min-w-0">
+                              {(() => {
+                                const derived = Array.from(new Set(jadwalSlots.flatMap((s) => s.jenjang || [])));
+                                const list = derived.length > 0 ? derived : (currentTutor?.jenjang || ["SMA"]);
+                                return list.filter((j) => !/utbk/i.test(j)).map((j) => (
+                                  <span
+                                    key={j}
+                                    className="text-[0.68rem] font-bold px-2 py-0.5 rounded-md bg-[#173F3A]/10 text-[#173F3A] leading-tight"
+                                  >
+                                    {j}
+                                  </span>
+                                ));
+                              })()}
+                            </div>
+                            <span className="inline-flex items-center gap-0.5 text-[0.72rem] font-bold text-[#173F3A] group-hover:text-emerald-700 transition-colors shrink-0">
+                              <span>Jadwal</span>
+                              <span className="material-symbols-outlined text-[14px] transition-transform group-hover:translate-x-0.5">arrow_forward</span>
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="bg-[#faf8f5] rounded-xl p-4 border border-[#173F3A]/15 space-y-2.5">
+                        <div className="flex items-center justify-between">
+                          <span className="text-[0.6875rem] font-bold uppercase tracking-wider text-[#173F3A] block">
+                            Jadwal &amp; Jam Mengajar Publik
+                          </span>
+                          <span className="text-[0.7rem] text-[#B74E2C] font-semibold">
+                            {jadwalSlots.length} Sesi
+                          </span>
+                        </div>
+                        <div className="flex flex-col gap-1.5 max-h-48 overflow-y-auto pr-1">
+                          {jadwalSlots.length > 0 ? (
+                            jadwalSlots.map((s) => (
+                              <div
+                                key={s.id}
+                                className="bg-white text-[#173F3A] text-[0.72rem] font-medium px-2.5 py-1.5 rounded-lg border border-[#173F3A]/10 flex items-center justify-between gap-1 shadow-2xs"
+                              >
+                                <span className="font-semibold">{s.hari}:</span>
+                                <span className="font-mono text-[0.7rem]">{s.jamMulai}-{s.jamSelesai}</span>
+                                {s.keterangan && (
+                                  <span className="text-[0.65rem] bg-[#F2D5A8]/70 text-[#173F3A] px-1.5 py-0.5 rounded font-semibold">
+                                    {s.keterangan}
+                                  </span>
+                                )}
+                              </div>
+                            ))
+                          ) : (
+                            <span className="text-[0.75rem] text-[#67645f] italic">
+                              Belum memilih hari &amp; jam ketersediaan
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </aside>
+                </div>
+              )}
             </section>
           </div>
         )}
@@ -2276,7 +2313,9 @@ export default function AreaTutor() {
                   {unsavedInfo.title}
                 </h3>
                 <p className="text-[0.875rem] text-[#444748] mt-1.5 leading-relaxed">
-                  {unsavedInfo.modalMessage}
+                  {leaveAction === "logout"
+                    ? unsavedInfo.modalMessage.replace("membuka halaman publik sekarang", "keluar dari akun sekarang")
+                    : unsavedInfo.modalMessage}
                 </p>
               </div>
             </div>
@@ -2292,13 +2331,17 @@ export default function AreaTutor() {
               </button>
               <button
                 type="button"
-                onClick={() => {
+                onClick={async () => {
                   setConfirmLeaveModalOpen(false);
-                  router.push("/");
+                  if (leaveAction === "logout") {
+                    await performLogout();
+                  } else {
+                    router.push("/");
+                  }
                 }}
                 className="px-4 py-2.5 rounded-full text-[0.8125rem] font-medium text-amber-700 bg-amber-50 hover:bg-amber-100 border border-amber-200/80 transition-colors"
               >
-                Buka Tanpa Menyimpan
+                {leaveAction === "logout" ? "Keluar Tanpa Menyimpan" : "Buka Tanpa Menyimpan"}
               </button>
               <button
                 type="button"
@@ -2307,13 +2350,17 @@ export default function AreaTutor() {
                   const ok = await handleSaveProfile();
                   setConfirmLeaveModalOpen(false);
                   if (ok) {
-                    router.push("/");
+                    if (leaveAction === "logout") {
+                      await performLogout();
+                    } else {
+                      router.push("/");
+                    }
                   }
                 }}
                 className="px-5 py-2.5 bg-[#173F3A] hover:bg-[#12312d] text-white rounded-full text-[0.8125rem] font-semibold transition-all shadow-sm disabled:opacity-50 flex items-center justify-center gap-1.5"
               >
                 <span className="material-symbols-outlined text-[16px]">save</span>
-                <span>{savingProfil ? "Menyimpan..." : "Simpan & Buka"}</span>
+                <span>{savingProfil ? "Menyimpan..." : leaveAction === "logout" ? "Simpan & Keluar" : "Simpan & Buka"}</span>
               </button>
             </div>
           </div>
