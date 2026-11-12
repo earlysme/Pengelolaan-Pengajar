@@ -1,6 +1,7 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono, Newsreader } from "next/font/google";
 import "./globals.css";
+import MobilePullToRefresh from "@/components/MobilePullToRefresh";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -18,6 +19,13 @@ const newsreader = Newsreader({
   style: ["normal", "italic"],
 });
 
+export const viewport: Viewport = {
+  themeColor: "#faf8f5",
+  colorScheme: "light",
+  width: "device-width",
+  initialScale: 1,
+};
+
 export const metadata: Metadata = {
   title: "Gen Plasma - Direktori & Sistem Informasi Pengajar",
   description:
@@ -25,6 +33,10 @@ export const metadata: Metadata = {
   icons: {
     icon: "/logo.svg",
     apple: "/logo.png",
+  },
+  other: {
+    "color-scheme": "light",
+    "supported-color-schemes": "light",
   },
 };
 
@@ -36,9 +48,12 @@ export default function RootLayout({
   return (
     <html
       lang="id"
+      style={{ colorScheme: "light" }}
       className={`${geistSans.variable} ${geistMono.variable} ${newsreader.variable} h-full antialiased`}
     >
       <head>
+        <meta name="color-scheme" content="light" />
+        <meta name="supported-color-schemes" content="light" />
         <link rel="icon" href="/logo.svg" type="image/svg+xml" />
         <link
           rel="stylesheet"
@@ -46,6 +61,7 @@ export default function RootLayout({
         />
       </head>
       <body className="min-h-full flex flex-col font-sans bg-[#faf8f5] text-[#172421]">
+        <MobilePullToRefresh />
         {children}
       </body>
     </html>

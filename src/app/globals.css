@@ -22,6 +22,34 @@
   --font-serif: var(--font-newsreader), Newsreader, Georgia, serif;
 }
 
+/* Kunci browser mobile & WebView agar selalu Light Mode (tidak terpengaruh Dark Mode HP) */
+html,
+body {
+  color-scheme: light !important;
+  background-color: #faf8f5 !important;
+  color: #172421 !important;
+  overscroll-behavior-y: contain;
+}
+
+/* Pastikan form kontrol native tidak di-invert oleh browser Android */
+input,
+select,
+textarea,
+button {
+  color-scheme: light !important;
+}
+
+/* Mencegah auto-inversion / force dark mode pada browser bawaan Android */
+@media (prefers-color-scheme: dark) {
+
+  html,
+  body {
+    color-scheme: light !important;
+    background-color: #faf8f5 !important;
+    color: #172421 !important;
+  }
+}
+
 /* Material Symbols icon helper */
 .material-symbols-outlined {
   font-family: 'Material Symbols Outlined';
