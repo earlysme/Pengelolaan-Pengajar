@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
@@ -225,6 +225,8 @@ export default function AreaTutor() {
   const [passwordError, setPasswordError] = useState("");
   const [showForgotInfo, setShowForgotInfo] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isHeaderSaveDocked, setIsHeaderSaveDocked] = useState(false);
+  const dashboardSaveRef = useRef<HTMLDivElement>(null);
 
   // Daftar hari unik dari slot yang aktif
   const hariTersedia = Array.from(new Set(jadwalSlots.map((s) => s.hari)));
@@ -863,6 +865,31 @@ export default function AreaTutor() {
     return () => window.removeEventListener("beforeunload", handleBeforeUnload);
   }, [hasChanges]);
 
+  // Deteksi apakah tombol Simpan di dashboard sudah menyentuh/melewati header saat scroll
+  useEffect(() => {
+    const updateDockState = () => {
+      if (!hasChanges || !dashboardSaveRef.current) {
+        setIsHeaderSaveDocked(false);
+        return;
+      }
+      const headerHeight = window.innerWidth < 640 ? 64 : 80;
+      const rect = dashboardSaveRef.current.getBoundingClientRect();
+      // Dock ke header saat tombol Simpan dashboard menyentuh/sejajar dengan batas bawah header
+      setIsHeaderSaveDocked(rect.top <= headerHeight - 2);
+    };
+
+    const rafId = requestAnimationFrame(updateDockState);
+    window.addEventListener("scroll", updateDockState, { passive: true });
+    window.addEventListener("resize", updateDockState, { passive: true });
+    return () => {
+      cancelAnimationFrame(rafId);
+      window.removeEventListener("scroll", updateDockState);
+      window.removeEventListener("resize", updateDockState);
+    };
+  }, [hasChanges, loading]);
+
+  const showHeaderSave = hasChanges && isHeaderSaveDocked;
+
   const handleLihatPublikClick = (e: React.MouseEvent) => {
     if (hasChanges) {
       e.preventDefault();
@@ -947,6 +974,30 @@ export default function AreaTutor() {
               <span>Profil &amp; Akun</span>
             </button>
 
+            {hasChanges && (
+              <div
+                className={`overflow-hidden transition-all duration-350 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+                  showHeaderSave
+                    ? "max-w-[160px] opacity-100 scale-100 translate-y-0 blur-0 pointer-events-auto"
+                    : "max-w-0 opacity-0 scale-75 translate-y-2.5 blur-[4px] pointer-events-none"
+                }`}
+              >
+                <button
+                  key={showHeaderSave ? "desktop-docked" : "desktop-undocked"}
+                  type="button"
+                  disabled={savingProfil}
+                  onClick={() => handleSaveProfile()}
+                  className={`inline-flex items-center gap-1.5 bg-[#173F3A] text-white text-[0.8125rem] font-semibold px-3.5 py-1.5 rounded-full shadow-[0_4px_14px_rgba(23,63,58,0.28)] disabled:opacity-50 animate-pulse whitespace-nowrap ${
+                    showHeaderSave ? "liquid-dock-btn" : ""
+                  }`}
+                  title="Simpan perubahan profil"
+                >
+                  <span className="material-symbols-outlined text-[16px]">save</span>
+                  <span>{savingProfil ? "Menyimpan..." : "Simpan"}</span>
+                </button>
+              </div>
+            )}
+
             <button
               type="button"
               onClick={handleLogout}
@@ -958,19 +1009,30 @@ export default function AreaTutor() {
             </button>
           </div>
 
-          {/* Mobile Right Actions: Tombol Simpan Cepat + Hamburger Menu */}
+          {/* Mobile Right Actions: Tombol Simpan Cepat (Dock saat scroll) + Hamburger Menu */}
           <div className="flex sm:hidden items-center gap-2">
             {hasChanges && (
-              <button
-                type="button"
-                disabled={savingProfil}
-                onClick={() => handleSaveProfile()}
-                className="inline-flex items-center gap-1 bg-[#173F3A] text-white text-[0.75rem] font-semibold px-3 py-1.5 rounded-full shadow-xs disabled:opacity-50 animate-pulse"
-                title="Simpan perubahan profil"
+              <div
+                className={`overflow-hidden transition-all duration-350 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+                  showHeaderSave
+                    ? "max-w-[140px] opacity-100 scale-100 translate-y-0 blur-0 pointer-events-auto"
+                    : "max-w-0 opacity-0 scale-75 translate-y-2.5 blur-[4px] pointer-events-none"
+                }`}
               >
-                <span className="material-symbols-outlined text-[15px]">save</span>
-                <span>Simpan</span>
-              </button>
+                <button
+                  key={showHeaderSave ? "mobile-docked" : "mobile-undocked"}
+                  type="button"
+                  disabled={savingProfil}
+                  onClick={() => handleSaveProfile()}
+                  className={`inline-flex items-center gap-1 bg-[#173F3A] text-white text-[0.75rem] font-semibold px-3 py-1.5 rounded-full shadow-[0_4px_14px_rgba(23,63,58,0.28)] disabled:opacity-50 animate-pulse whitespace-nowrap ${
+                    showHeaderSave ? "liquid-dock-btn" : ""
+                  }`}
+                  title="Simpan perubahan profil"
+                >
+                  <span className="material-symbols-outlined text-[15px]">save</span>
+                  <span>{savingProfil ? "Menyimpan..." : "Simpan"}</span>
+                </button>
+              </div>
             )}
 
             <button
@@ -1130,12 +1192,6 @@ export default function AreaTutor() {
                     </div>
 
                     <div className="space-y-1 sm:space-y-1.5 min-w-0">
-                      <div className="flex flex-wrap items-center gap-2">
-                        <span className="bg-[#e3e2e0] text-[#1a1c1b] text-[0.7rem] sm:text-[0.75rem] font-semibold px-2.5 sm:px-3 py-0.5 sm:py-1 rounded-full uppercase tracking-wider">
-                          Profil Mandiri Tutor
-                        </span>
-                      </div>
-
                       <h1 className="font-serif text-[1.65rem] sm:text-[2.25rem] lg:text-[2.5rem] text-[#1a1c1b] tracking-tight leading-tight">
                         {currentTutor?.nama || "-"}
                       </h1>
@@ -1162,7 +1218,7 @@ export default function AreaTutor() {
                   </div>
 
                   {/* Right: Personal Status & Actions */}
-                  <div className="flex items-center gap-2.5 sm:gap-3 w-full sm:w-auto">
+                  <div ref={dashboardSaveRef} className="flex items-center gap-2.5 sm:gap-3 w-full sm:w-auto">
                     <Link
                       href="/"
                       onClick={handleLihatPublikClick}
@@ -1176,7 +1232,11 @@ export default function AreaTutor() {
                         type="button"
                         disabled={savingProfil}
                         onClick={() => handleSaveProfile()}
-                        className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 bg-[#173F3A] text-white text-[0.8125rem] sm:text-[0.875rem] font-semibold px-5 py-2.5 rounded-full hover:bg-[#112F2B] transition-all shadow-[0_4px_12px_rgba(23,63,58,0.2)] disabled:opacity-50 animate-in fade-in zoom-in-95 duration-200"
+                        className={`flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 bg-[#173F3A] text-white text-[0.8125rem] sm:text-[0.875rem] font-semibold px-5 py-2.5 rounded-full hover:bg-[#112F2B] transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] shadow-[0_4px_14px_rgba(23,63,58,0.28)] disabled:opacity-50 animate-pulse ${
+                          showHeaderSave
+                            ? "opacity-0 scale-90 -translate-y-2 blur-[3px] pointer-events-none"
+                            : "opacity-100 scale-100 translate-y-0 blur-0"
+                        }`}
                       >
                         <span className="material-symbols-outlined text-[18px]">save</span>
                         <span>{savingProfil ? "Menyimpan..." : "Simpan Profil"}</span>
@@ -1258,17 +1318,22 @@ export default function AreaTutor() {
                   })()}
 
                   {/* Box 4: Status Ketersediaan Tutor */}
-                  <div className="bg-white/80 rounded-xl p-2 sm:p-3.5 border border-[#173F3A]/10 flex items-center gap-2 sm:gap-3.5 shadow-2xs">
-                    <div
-                      className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center shrink-0 ${statusTampil === "Aktif"
-                        ? "bg-emerald-100 text-emerald-800"
-                        : statusTampil === "Cuti"
-                          ? "bg-amber-100 text-amber-800"
-                          : "bg-rose-100 text-rose-800"
-                        }`}
-                    >
-                      <span className="material-symbols-outlined text-[16px] sm:text-[20px]">
-                        {statusTampil === "Aktif" ? "check_circle" : statusTampil === "Cuti" ? "pause_circle" : "block"}
+                  <div className="bg-white/80 rounded-xl p-2 sm:p-3.5 border border-[#173F3A]/10 flex flex-col sm:flex-row sm:items-center justify-center gap-1.5 sm:gap-3.5 shadow-2xs">
+                    <div className="flex items-center gap-1.5 sm:contents">
+                      <div
+                        className={`w-5 h-5 sm:w-10 sm:h-10 rounded-full flex items-center justify-center shrink-0 ${statusTampil === "Aktif"
+                          ? "bg-emerald-100 text-emerald-800"
+                          : statusTampil === "Cuti"
+                            ? "bg-amber-100 text-amber-800"
+                            : "bg-rose-100 text-rose-800"
+                          }`}
+                      >
+                        <span className="material-symbols-outlined text-[13px] sm:text-[20px]">
+                          {statusTampil === "Aktif" ? "check_circle" : statusTampil === "Cuti" ? "pause_circle" : "block"}
+                        </span>
+                      </div>
+                      <span className="text-[0.62rem] text-[#67645f] font-medium leading-tight sm:hidden">
+                        Status Ketersediaan
                       </span>
                     </div>
                     <div className="flex-1 min-w-0">
@@ -1276,7 +1341,7 @@ export default function AreaTutor() {
                         value={statusTampil}
                         disabled={updatingStatus || akunDinonaktifkan}
                         onChange={(e) => handleStatusChange(e.target.value as "Aktif" | "Cuti")}
-                        className={`text-[0.7rem] sm:text-[0.82rem] font-bold rounded-lg px-1.5 py-0.5 border cursor-pointer focus:outline-none transition-colors w-full ${statusTampil === "Aktif"
+                        className={`text-[0.72rem] sm:text-[0.82rem] font-bold rounded-lg px-2 py-1 sm:px-1.5 sm:py-0.5 border cursor-pointer focus:outline-none transition-colors w-full ${statusTampil === "Aktif"
                           ? "bg-emerald-50 text-emerald-800 border-emerald-300"
                           : statusTampil === "Cuti"
                             ? "bg-amber-50 text-amber-800 border-amber-300"
@@ -1288,7 +1353,7 @@ export default function AreaTutor() {
                         <option value="Aktif">Aktif Mengajar</option>
                         <option value="Cuti">Sedang Cuti</option>
                       </select>
-                      <div className="text-[0.62rem] sm:text-[0.7rem] text-[#67645f] mt-0.5 font-medium truncate">
+                      <div className="hidden sm:block text-[0.7rem] text-[#67645f] mt-0.5 font-medium truncate">
                         Status Ketersediaan
                       </div>
                     </div>
