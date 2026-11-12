@@ -199,6 +199,7 @@ function formatCountdown(kadaluarsaIso?: string, nowMs: number = 0) {
 export default function PanelKoordinator() {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<TabModul>("dashboard");
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [dbError, setDbError] = useState("");
 
@@ -876,25 +877,25 @@ export default function PanelKoordinator() {
     <div className="bg-[#faf8f5] font-sans text-[#172421] min-h-screen selection:bg-[#F2D5A8] selection:text-[#173F3A]">
       {/* Top Navbar Sederhana & Bersih */}
       <header className="fixed top-0 w-full z-50 bg-[#faf8f5]/90 backdrop-blur-xl border-b border-[#173F3A]/10 shadow-[0_1px_8px_rgba(23,63,58,0.04)]">
-        <div className="h-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 flex items-center justify-between gap-4">
-          <div className="flex items-center gap-3 shrink-0">
-            <Link href="/" className="flex items-center gap-2.5 transition-opacity hover:opacity-85">
-              <img src="/logo.svg" alt="Gen Plasma" className="w-8 h-8 object-contain shrink-0" />
+        <div className="h-14 sm:h-16 max-w-7xl mx-auto px-3.5 sm:px-6 lg:px-12 flex items-center justify-between gap-3 sm:gap-4">
+          <div className="flex items-center gap-2.5 sm:gap-3 shrink-0">
+            <Link href="/" className="flex items-center gap-2 sm:gap-2.5 transition-opacity hover:opacity-85">
+              <img src="/logo.svg" alt="Gen Plasma" className="w-7 h-7 sm:w-8 sm:h-8 object-contain shrink-0" />
               <div className="flex flex-col justify-center">
-                <span className="font-serif text-[1.25rem] leading-none tracking-tight text-[#173F3A] select-none font-bold translate-y-[2px]">
+                <span className="font-serif text-[1.15rem] sm:text-[1.25rem] leading-none tracking-tight text-[#173F3A] select-none font-bold translate-y-[1px] sm:translate-y-[2px]">
                   Gen Plasma
                 </span>
               </div>
             </Link>
           </div>
 
-          <div className="flex items-center gap-2 sm:gap-3">
-            {/* Tab Panel Sejajar di Header dengan Button Keluar */}
-            <nav className="flex items-center p-1 bg-[#efeeec] rounded-full gap-1 overflow-x-auto no-scrollbar max-w-[210px] sm:max-w-none">
+          {/* Desktop Navigation Tabs + Keluar */}
+          <div className="hidden md:flex items-center gap-3">
+            <nav className="flex items-center p-1 bg-[#efeeec] rounded-full gap-1">
               <button
                 type="button"
                 onClick={() => setActiveTab("dashboard")}
-                className={`px-2.5 sm:px-3.5 py-1 sm:py-1.5 rounded-full text-[0.75rem] sm:text-[0.8125rem] font-semibold transition-all whitespace-nowrap ${
+                className={`px-3.5 py-1.5 rounded-full text-[0.8125rem] font-semibold transition-all whitespace-nowrap cursor-pointer ${
                   activeTab === "dashboard" || activeTab === "pengajar"
                     ? "bg-black text-white shadow-xs"
                     : "text-[#444748] hover:text-black hover:bg-white/50"
@@ -905,58 +906,150 @@ export default function PanelKoordinator() {
               <button
                 type="button"
                 onClick={() => setActiveTab("mapel")}
-                className={`px-2.5 sm:px-3.5 py-1 sm:py-1.5 rounded-full text-[0.75rem] sm:text-[0.8125rem] font-semibold transition-all whitespace-nowrap ${
+                className={`px-3.5 py-1.5 rounded-full text-[0.8125rem] font-semibold transition-all whitespace-nowrap cursor-pointer ${
                   activeTab === "mapel"
                     ? "bg-black text-white shadow-xs"
                     : "text-[#444748] hover:text-black hover:bg-white/50"
                 }`}
               >
-                <span className="inline sm:hidden">Mapel</span>
-                <span className="hidden sm:inline">Kelola Mata Pelajaran</span>
+                Kelola Mata Pelajaran
               </button>
               <button
                 type="button"
                 onClick={() => setActiveTab("jenjang")}
-                className={`px-2.5 sm:px-3.5 py-1 sm:py-1.5 rounded-full text-[0.75rem] sm:text-[0.8125rem] font-semibold transition-all whitespace-nowrap ${
+                className={`px-3.5 py-1.5 rounded-full text-[0.8125rem] font-semibold transition-all whitespace-nowrap cursor-pointer ${
                   activeTab === "jenjang"
                     ? "bg-black text-white shadow-xs"
                     : "text-[#444748] hover:text-black hover:bg-white/50"
                 }`}
               >
-                <span className="inline sm:hidden">Jenjang</span>
-                <span className="hidden sm:inline">Kelola Jenjang</span>
+                Kelola Jenjang
               </button>
             </nav>
 
-            <div className="h-6 w-px bg-[#e3e2e0] mx-1 hidden sm:block"></div>
+            <div className="h-6 w-px bg-[#e3e2e0] mx-1"></div>
 
             <button
               type="button"
               onClick={handleLogout}
-              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#efeeec] hover:bg-red-50 hover:text-[#ba1a1a] text-[0.8125rem] font-medium transition-colors shrink-0"
+              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#efeeec] hover:bg-red-50 hover:text-[#ba1a1a] text-[0.8125rem] font-medium transition-colors shrink-0 cursor-pointer"
               title="Keluar dari panel admin"
             >
               <span className="material-symbols-outlined text-[18px]">logout</span>
-              <span className="hidden sm:inline">Keluar</span>
+              <span>Keluar</span>
             </button>
           </div>
+
+          {/* Mobile Hamburger Button */}
+          <button
+            type="button"
+            onClick={() => setIsMobileMenuOpen((prev) => !prev)}
+            aria-label={isMobileMenuOpen ? "Tutup menu koordinator" : "Buka menu koordinator"}
+            aria-expanded={isMobileMenuOpen}
+            className="md:hidden w-9 h-9 rounded-xl bg-white border border-[#173F3A]/15 text-[#173F3A] flex items-center justify-center hover:bg-[#efeeec] active:scale-95 transition-all shadow-2xs cursor-pointer"
+          >
+            <span className="material-symbols-outlined text-[21px]">
+              {isMobileMenuOpen ? "close" : "menu"}
+            </span>
+          </button>
+        </div>
+
+        {/* Mobile Hamburger Dropdown Menu */}
+        <div
+          className={`md:hidden overflow-hidden transition-all duration-200 ease-out border-[#173F3A]/10 bg-[#faf8f5]/95 backdrop-blur-xl ${
+            isMobileMenuOpen
+              ? "max-h-[320px] opacity-100 border-t shadow-lg pointer-events-auto"
+              : "max-h-0 opacity-0 border-t-0 pointer-events-none"
+          }`}
+        >
+          <nav className="max-w-7xl mx-auto px-3.5 py-3 flex flex-col gap-1">
+            <button
+              type="button"
+              onClick={() => {
+                setActiveTab("dashboard");
+                setIsMobileMenuOpen(false);
+              }}
+              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-[0.875rem] font-semibold transition-colors text-left cursor-pointer ${
+                activeTab === "dashboard" || activeTab === "pengajar"
+                  ? "bg-black text-white shadow-xs"
+                  : "text-[#444748] hover:text-[#173F3A] hover:bg-[#efeeec]"
+              }`}
+            >
+              <span className="material-symbols-outlined text-[19px]">dashboard</span>
+              <span>Dashboard</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => {
+                setActiveTab("mapel");
+                setIsMobileMenuOpen(false);
+              }}
+              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-[0.875rem] font-semibold transition-colors text-left cursor-pointer ${
+                activeTab === "mapel"
+                  ? "bg-black text-white shadow-xs"
+                  : "text-[#444748] hover:text-[#173F3A] hover:bg-[#efeeec]"
+              }`}
+            >
+              <span className="material-symbols-outlined text-[19px]">menu_book</span>
+              <span>Kelola Mata Pelajaran</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => {
+                setActiveTab("jenjang");
+                setIsMobileMenuOpen(false);
+              }}
+              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-[0.875rem] font-semibold transition-colors text-left cursor-pointer ${
+                activeTab === "jenjang"
+                  ? "bg-black text-white shadow-xs"
+                  : "text-[#444748] hover:text-[#173F3A] hover:bg-[#efeeec]"
+              }`}
+            >
+              <span className="material-symbols-outlined text-[19px]">school</span>
+              <span>Kelola Jenjang</span>
+            </button>
+
+            <div className="h-px bg-[#173F3A]/10 my-1.5" />
+
+            <button
+              type="button"
+              onClick={() => {
+                setIsMobileMenuOpen(false);
+                handleLogout();
+              }}
+              className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200/80 text-[0.875rem] font-semibold transition-colors cursor-pointer"
+            >
+              <span className="material-symbols-outlined text-[18px]">logout</span>
+              <span>Keluar</span>
+            </button>
+          </nav>
         </div>
       </header>
 
+      {/* Backdrop penutup dropdown saat klik area luar */}
+      {isMobileMenuOpen && (
+        <div
+          onClick={() => setIsMobileMenuOpen(false)}
+          className="fixed inset-0 top-14 sm:top-16 z-40 bg-black/15 backdrop-blur-[1px] md:hidden"
+        />
+      )}
+
       {/* Main Content Area */}
-      <main className="w-full bg-[#faf9f7] min-h-[calc(100vh-140px)] pt-16">
-        <div className="max-w-7xl mx-auto px-6 lg:px-12 py-10">
+      <main className="w-full bg-[#faf9f7] min-h-[calc(100vh-140px)] pt-14 sm:pt-16">
+        <div className="max-w-7xl mx-auto px-3.5 sm:px-6 lg:px-12 py-5 sm:py-10">
           <div className="flex flex-col w-full">
             {dbError && (
-              <div className="mb-6 p-4 rounded-2xl bg-rose-50 border border-rose-200 text-rose-800 flex items-center justify-between">
-                <div className="flex items-center gap-2.5">
-                  <span className="material-symbols-outlined text-[20px] text-rose-600">error</span>
-                  <span className="text-[0.875rem] font-medium">{dbError}</span>
+              <div className="mb-5 sm:mb-6 p-3.5 sm:p-4 rounded-xl sm:rounded-2xl bg-rose-50 border border-rose-200 text-rose-800 flex items-center justify-between gap-3">
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <span className="material-symbols-outlined text-[20px] text-rose-600 shrink-0">error</span>
+                  <span className="text-[0.8125rem] sm:text-[0.875rem] font-medium">{dbError}</span>
                 </div>
                 <button
                   type="button"
                   onClick={() => fetchAllData()}
-                  className="text-[0.8125rem] font-semibold underline hover:text-rose-950 px-2 py-1"
+                  className="text-[0.78rem] sm:text-[0.8125rem] font-semibold underline hover:text-rose-950 px-2 py-1 shrink-0"
                 >
                   Muat Ulang
                 </button>
@@ -966,115 +1059,115 @@ export default function PanelKoordinator() {
             {(activeTab === "dashboard" || activeTab === "pengajar") && (
               <>
                 {/* Editorial Page Intro Header */}
-                <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8">
-                  <div className="space-y-1.5 max-w-2xl">
-                    <div className="inline-flex items-center gap-2 text-[#444748] text-[0.75rem] font-semibold uppercase tracking-widest">
+                <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 md:gap-6 mb-5 sm:mb-8">
+                  <div className="space-y-1 sm:space-y-1.5 max-w-2xl">
+                    <div className="inline-flex items-center gap-2 text-[#444748] text-[0.68rem] sm:text-[0.75rem] font-semibold uppercase tracking-widest">
                       <span className="w-2 h-2 rounded-full bg-black"></span>
                       Direktori &amp; Tata Kelola Pendidik
                     </div>
-                    <h1 className="font-serif text-[2.25rem] lg:text-[2.5rem] text-[#1a1c1b] font-normal tracking-tight leading-tight">
+                    <h1 className="font-serif text-[1.5rem] sm:text-[2.25rem] lg:text-[2.5rem] text-[#1a1c1b] font-normal tracking-tight leading-tight">
                       Basis Data Pengajar &amp; Rekam Kinerja
                     </h1>
-                    <p className="text-[0.9375rem] text-[#444748] leading-relaxed">
+                    <p className="text-[0.8125rem] sm:text-[0.9375rem] text-[#444748] leading-relaxed">
                       Kendali terpadu profil pendidik, verifikasi kualifikasi, alokasi jam mengajar, serta pemantauan
                       integritas Berita Acara Pembelajaran (BAP).
                     </p>
                   </div>
 
                   {/* Quick Actions Top Bar */}
-                  <div className="flex items-center gap-2 self-start md:self-auto">
+                  <div className="grid grid-cols-2 sm:flex items-center gap-2 w-full md:w-auto">
                     <button
                       type="button"
                       onClick={() => window.print()}
-                      className="inline-flex items-center gap-2 px-4 py-2.5 rounded-full bg-[#efeeec] hover:bg-[#e3e2e0] text-[#1a1c1b] text-[0.875rem] font-semibold transition-colors shadow-xs"
+                      className="inline-flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2.5 rounded-full bg-[#efeeec] hover:bg-[#e3e2e0] text-[#1a1c1b] text-[0.78rem] sm:text-[0.875rem] font-semibold transition-colors shadow-xs cursor-pointer"
                     >
-                      <span className="material-symbols-outlined text-[18px]">file_download</span>
-                      Ekspor Laporan
+                      <span className="material-symbols-outlined text-[17px] sm:text-[18px]">file_download</span>
+                      <span className="truncate">Ekspor Laporan</span>
                     </button>
                     <button
                       type="button"
                       onClick={handleOpenAddPengajar}
-                      className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-black hover:bg-neutral-800 text-white text-[0.875rem] font-semibold shadow-sm transition-all active:scale-[0.98]"
+                      className="inline-flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-5 py-2.5 rounded-full bg-black hover:bg-neutral-800 text-white text-[0.78rem] sm:text-[0.875rem] font-semibold shadow-sm transition-all active:scale-[0.98] cursor-pointer"
                     >
-                      <span className="material-symbols-outlined text-[18px]">person_add</span>
-                      Tambah Tutor Baru
+                      <span className="material-symbols-outlined text-[17px] sm:text-[18px]">person_add</span>
+                      <span className="truncate">Tambah Tutor</span>
                     </button>
                   </div>
                 </div>
 
-                {/* Operational Stat Indicators (Editorial Cards) - Opsi A: Data & Status Akun Tutor */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+                {/* Operational Stat Indicators (2x2 di Mobile, 4 kolom di Desktop) */}
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4 mb-5 sm:mb-8">
                   {/* Kartu 1: Total Tutor */}
-                  <div className="p-6 rounded-2xl bg-white border border-[#e3e2e0] shadow-[0_2px_8px_rgba(0,0,0,0.02)] flex flex-col justify-between">
-                    <div className="flex items-center justify-between text-[#444748] mb-3">
-                      <span className="text-[0.75rem] font-semibold uppercase tracking-wider">Total Tutor Terdaftar</span>
-                      <span className="material-symbols-outlined text-[20px]">groups</span>
+                  <div className="p-3.5 sm:p-6 rounded-xl sm:rounded-2xl bg-white border border-[#e3e2e0] shadow-[0_2px_8px_rgba(0,0,0,0.02)] flex flex-col justify-between">
+                    <div className="flex items-center justify-between gap-1 text-[#444748] mb-2 sm:mb-3">
+                      <span className="text-[0.65rem] sm:text-[0.75rem] font-semibold uppercase tracking-wider truncate">Total Tutor</span>
+                      <span className="material-symbols-outlined text-[17px] sm:text-[20px] shrink-0">groups</span>
                     </div>
-                    <div className="flex items-baseline gap-2">
-                      <span className="font-serif text-[2.25rem] text-[#1a1c1b] leading-none">{pengajarList.length}</span>
-                      <span className="text-[0.8125rem] text-[#444748]">Pendidik</span>
+                    <div className="flex items-baseline gap-1.5 sm:gap-2">
+                      <span className="font-serif text-[1.65rem] sm:text-[2.25rem] text-[#1a1c1b] leading-none">{pengajarList.length}</span>
+                      <span className="text-[0.72rem] sm:text-[0.8125rem] text-[#444748]">Pendidik</span>
                     </div>
-                    <div className="mt-4 pt-3 border-t border-[#efeeec] flex items-center justify-between text-[0.75rem] text-[#444748]">
-                      <span>Katalog Pendidik</span>
-                      <span className="font-medium text-black">Basis Data Terpadu</span>
+                    <div className="mt-2.5 sm:mt-4 pt-2 sm:pt-3 border-t border-[#efeeec] flex items-center justify-between gap-1 text-[0.65rem] sm:text-[0.75rem] text-[#444748]">
+                      <span className="truncate">Katalog</span>
+                      <span className="font-medium text-black shrink-0">Terpadu</span>
                     </div>
                   </div>
 
                   {/* Kartu 2: Tutor Aktif Mengajar */}
-                  <div className="p-6 rounded-2xl bg-white border border-[#e3e2e0] shadow-[0_2px_8px_rgba(0,0,0,0.02)] flex flex-col justify-between">
-                    <div className="flex items-center justify-between text-[#444748] mb-3">
-                      <span className="text-[0.75rem] font-semibold uppercase tracking-wider">Tutor Aktif Mengajar</span>
-                      <span className="material-symbols-outlined text-[20px] text-emerald-600">verified_user</span>
+                  <div className="p-3.5 sm:p-6 rounded-xl sm:rounded-2xl bg-white border border-[#e3e2e0] shadow-[0_2px_8px_rgba(0,0,0,0.02)] flex flex-col justify-between">
+                    <div className="flex items-center justify-between gap-1 text-[#444748] mb-2 sm:mb-3">
+                      <span className="text-[0.65rem] sm:text-[0.75rem] font-semibold uppercase tracking-wider truncate">Tutor Aktif</span>
+                      <span className="material-symbols-outlined text-[17px] sm:text-[20px] text-emerald-600 shrink-0">verified_user</span>
                     </div>
-                    <div className="flex items-baseline gap-2">
-                      <span className="font-serif text-[2.25rem] text-emerald-800 leading-none">
+                    <div className="flex items-baseline gap-1.5 sm:gap-2">
+                      <span className="font-serif text-[1.65rem] sm:text-[2.25rem] text-emerald-800 leading-none">
                         {pengajarList.filter((p) => p.status === "Aktif").length}
                       </span>
-                      <span className="text-[0.8125rem] text-[#444748]">Pendidik</span>
+                      <span className="text-[0.72rem] sm:text-[0.8125rem] text-[#444748]">Pendidik</span>
                     </div>
-                    <div className="mt-4 pt-3 border-t border-[#efeeec] flex items-center justify-between text-[0.75rem] text-[#444748]">
-                      <span>Nonaktif / Cuti</span>
-                      <span className="font-medium text-[#B74E2C]">
-                        {pengajarList.filter((p) => p.status !== "Aktif").length} Pendidik
+                    <div className="mt-2.5 sm:mt-4 pt-2 sm:pt-3 border-t border-[#efeeec] flex items-center justify-between gap-1 text-[0.65rem] sm:text-[0.75rem] text-[#444748]">
+                      <span className="truncate">Nonaktif/Cuti</span>
+                      <span className="font-medium text-[#B74E2C] shrink-0">
+                        {pengajarList.filter((p) => p.status !== "Aktif").length} Tutor
                       </span>
                     </div>
                   </div>
 
                   {/* Kartu 3: Status Aktivasi Akun */}
-                  <div className="p-6 rounded-2xl bg-white border border-[#e3e2e0] shadow-[0_2px_8px_rgba(0,0,0,0.02)] flex flex-col justify-between">
-                    <div className="flex items-center justify-between text-[#444748] mb-3">
-                      <span className="text-[0.75rem] font-semibold uppercase tracking-wider">Menunggu Aktivasi</span>
-                      <span className="material-symbols-outlined text-[20px] text-amber-600">mark_email_unread</span>
+                  <div className="p-3.5 sm:p-6 rounded-xl sm:rounded-2xl bg-white border border-[#e3e2e0] shadow-[0_2px_8px_rgba(0,0,0,0.02)] flex flex-col justify-between">
+                    <div className="flex items-center justify-between gap-1 text-[#444748] mb-2 sm:mb-3">
+                      <span className="text-[0.65rem] sm:text-[0.75rem] font-semibold uppercase tracking-wider truncate">Belum Aktivasi</span>
+                      <span className="material-symbols-outlined text-[17px] sm:text-[20px] text-amber-600 shrink-0">mark_email_unread</span>
                     </div>
-                    <div className="flex items-baseline gap-2">
-                      <span className="font-serif text-[2.25rem] text-amber-800 leading-none">
+                    <div className="flex items-baseline gap-1.5 sm:gap-2">
+                      <span className="font-serif text-[1.65rem] sm:text-[2.25rem] text-amber-800 leading-none">
                         {pengajarList.filter((p) => !p.akunDiaktifkanPada).length}
                       </span>
-                      <span className="text-[0.8125rem] text-[#444748]">Belum Aktivasi</span>
+                      <span className="text-[0.72rem] sm:text-[0.8125rem] text-[#444748] truncate">Menunggu</span>
                     </div>
-                    <div className="mt-4 pt-3 border-t border-[#efeeec] flex items-center justify-between text-[0.75rem] text-[#444748]">
-                      <span>Akun Terverifikasi</span>
-                      <span className="font-medium text-emerald-700">
+                    <div className="mt-2.5 sm:mt-4 pt-2 sm:pt-3 border-t border-[#efeeec] flex items-center justify-between gap-1 text-[0.65rem] sm:text-[0.75rem] text-[#444748]">
+                      <span className="truncate">Terverifikasi</span>
+                      <span className="font-medium text-emerald-700 shrink-0">
                         {pengajarList.filter((p) => p.akunDiaktifkanPada).length} Aktif
                       </span>
                     </div>
                   </div>
 
                   {/* Kartu 4: Ketersediaan Jadwal Tutor */}
-                  <div className="p-6 rounded-2xl bg-white border border-[#e3e2e0] shadow-[0_2px_8px_rgba(0,0,0,0.02)] flex flex-col justify-between">
-                    <div className="flex items-center justify-between text-[#444748] mb-3">
-                      <span className="text-[0.75rem] font-semibold uppercase tracking-wider">Jadwal Ketersediaan</span>
-                      <span className="material-symbols-outlined text-[20px] text-[#173F3A]">calendar_month</span>
+                  <div className="p-3.5 sm:p-6 rounded-xl sm:rounded-2xl bg-white border border-[#e3e2e0] shadow-[0_2px_8px_rgba(0,0,0,0.02)] flex flex-col justify-between">
+                    <div className="flex items-center justify-between gap-1 text-[#444748] mb-2 sm:mb-3">
+                      <span className="text-[0.65rem] sm:text-[0.75rem] font-semibold uppercase tracking-wider truncate">Jadwal Terisi</span>
+                      <span className="material-symbols-outlined text-[17px] sm:text-[20px] text-[#173F3A] shrink-0">calendar_month</span>
                     </div>
-                    <div className="flex items-baseline gap-2">
-                      <span className="font-serif text-[2.25rem] text-[#173F3A] leading-none">
+                    <div className="flex items-baseline gap-1.5 sm:gap-2">
+                      <span className="font-serif text-[1.65rem] sm:text-[2.25rem] text-[#173F3A] leading-none">
                         {pengajarList.filter((p) => p.jadwalTersedia && p.jadwalTersedia.length > 0).length}
                       </span>
-                      <span className="text-[0.8125rem] text-[#444748]">/ {pengajarList.length} Tutor</span>
+                      <span className="text-[0.72rem] sm:text-[0.8125rem] text-[#444748]">/ {pengajarList.length} Tutor</span>
                     </div>
-                    <div className="mt-4 pt-3 border-t border-[#efeeec] flex items-center justify-between text-[0.75rem] text-[#444748]">
-                      <span>Sudah Atur Sesi</span>
-                      <span className="font-medium text-[#173F3A]">
+                    <div className="mt-2.5 sm:mt-4 pt-2 sm:pt-3 border-t border-[#efeeec] flex items-center justify-between gap-1 text-[0.65rem] sm:text-[0.75rem] text-[#444748]">
+                      <span className="truncate">Atur Sesi</span>
+                      <span className="font-medium text-[#173F3A] shrink-0">
                         {pengajarList.length > 0
                           ? Math.round(
                               (pengajarList.filter((p) => p.jadwalTersedia && p.jadwalTersedia.length > 0).length /
@@ -1089,28 +1182,28 @@ export default function PanelKoordinator() {
                 </div>
 
                 {/* Tabel & Filter Database Tutor */}
-            <div className="space-y-6">
+            <div className="space-y-4 sm:space-y-6">
                 {/* Search & Filter Strip */}
-                <div className="p-4 rounded-2xl bg-white border border-[#e3e2e0] shadow-xs flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4">
+                <div className="p-3 sm:p-4 rounded-xl sm:rounded-2xl bg-white border border-[#e3e2e0] shadow-xs flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-2.5 sm:gap-4">
                   <div className="relative flex-1">
-                    <span className="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-[#747878] text-[20px]">
+                    <span className="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-[#747878] text-[19px] sm:text-[20px]">
                       search
                     </span>
                     <input
                       type="text"
                       value={searchPengajar}
                       onChange={(e) => setSearchPengajar(e.target.value)}
-                      placeholder="Cari nama tutor, ID pegawai, keahlian mata pelajaran, atau nomor WhatsApp..."
-                      className="w-full pl-11 pr-4 py-2.5 rounded-xl bg-[#f4f3f1] text-[#1a1c1b] placeholder:text-[#67645f] text-[0.875rem] focus:outline-none focus:bg-white focus:ring-1 focus:ring-black transition-all"
+                      placeholder="Cari nama tutor, ID, mapel, atau WhatsApp..."
+                      className="w-full pl-10 sm:pl-11 pr-4 py-2 sm:py-2.5 rounded-xl bg-[#f4f3f1] text-[#1a1c1b] placeholder:text-[#67645f] text-[0.8125rem] sm:text-[0.875rem] focus:outline-none focus:bg-white focus:ring-1 focus:ring-black transition-all"
                     />
                   </div>
 
-                  <div className="flex flex-wrap items-center gap-2.5">
-                    <div className="relative">
+                  <div className="grid grid-cols-2 sm:flex items-center gap-2 sm:gap-2.5 w-full lg:w-auto">
+                    <div className="relative w-full sm:w-auto">
                       <select
                         value={statusFilter}
                         onChange={(e) => setStatusFilter(e.target.value)}
-                        className="appearance-none pl-4 pr-9 py-2.5 rounded-xl bg-[#f4f3f1] text-[#1a1c1b] text-[0.8125rem] font-medium cursor-pointer focus:outline-none"
+                        className="w-full appearance-none pl-3 sm:pl-4 pr-8 sm:pr-9 py-2 sm:py-2.5 rounded-xl bg-[#f4f3f1] text-[#1a1c1b] text-[0.78rem] sm:text-[0.8125rem] font-medium cursor-pointer focus:outline-none"
                       >
                         <option value="Semua">Semua Status</option>
                         <option value="Aktif">Aktif</option>
@@ -1125,11 +1218,11 @@ export default function PanelKoordinator() {
                       </span>
                     </div>
 
-                    <div className="relative">
+                    <div className="relative w-full sm:w-auto">
                       <select
                         value={jenjangFilter}
                         onChange={(e) => setJenjangFilter(e.target.value)}
-                        className="appearance-none pl-4 pr-9 py-2.5 rounded-xl bg-[#f4f3f1] text-[#1a1c1b] text-[0.8125rem] font-medium cursor-pointer focus:outline-none"
+                        className="w-full appearance-none pl-3 sm:pl-4 pr-8 sm:pr-9 py-2 sm:py-2.5 rounded-xl bg-[#f4f3f1] text-[#1a1c1b] text-[0.78rem] sm:text-[0.8125rem] font-medium cursor-pointer focus:outline-none"
                       >
                         <option value="Semua">Semua Jenjang</option>
                         {(jenjangList.length > 0 ? jenjangList.map((j) => j.nama) : DAFTAR_JENJANG).map((j) => (
@@ -1145,17 +1238,251 @@ export default function PanelKoordinator() {
                   </div>
                 </div>
 
-                {/* Editorial Table - Styled based on specification */}
-                <div id="tableContainer" className="bg-white rounded-2xl border border-slate-200/90 shadow-sm overflow-hidden">
-                  <div className="overflow-x-auto">
-                    <table className="w-full text-left border-collapse">
+                {/* Editorial Table (Desktop) & Card List (Mobile) */}
+                <div id="tableContainer" className="bg-white rounded-xl sm:rounded-2xl border border-slate-200/90 shadow-sm overflow-hidden">
+                  {/* MOBILE CARD LIST (Tampil hanya di HP < md, tanpa scroll horizontal) */}
+                  <div className="block md:hidden divide-y divide-slate-200/70">
+                    {loading ? (
+                      <div className="py-12 text-center text-slate-500 text-sm">
+                        <span className="material-symbols-outlined text-[28px] animate-spin block mb-2">
+                          progress_activity
+                        </span>
+                        Memuat basis data pendidik...
+                      </div>
+                    ) : filteredPengajar.length === 0 ? (
+                      <div className="py-12 px-4 text-center text-slate-500 text-sm">
+                        Tidak ada pengajar yang sesuai dengan kriteria pencarian.
+                      </div>
+                    ) : (
+                      filteredPengajar.map((p) => {
+                        const hariList = extractUniqueDays(p.jadwalTersedia);
+                        const countdownText = formatCountdown(p.aktivasiKadaluarsa, nowTime);
+                        const hasActiveCountdown = Boolean(countdownText);
+                        const fotoUrl = cleanImageUrl(p.foto);
+                        const initials =
+                          p.nama
+                            .trim()
+                            .split(/\s+/)
+                            .slice(0, 2)
+                            .map((w) => w[0]?.toUpperCase() || "")
+                            .join("") || "TU";
+
+                        return (
+                          <div key={p._id} className="p-3.5 sm:p-4 space-y-3 hover:bg-slate-50/60 transition-colors">
+                            {/* Header Kartu: Avatar, Nama, ID & Status */}
+                            <div className="flex items-start justify-between gap-2.5">
+                              <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                                {fotoUrl ? (
+                                  <img
+                                    src={fotoUrl}
+                                    alt={p.nama}
+                                    referrerPolicy="no-referrer"
+                                    className="w-11 h-11 rounded-xl object-cover shrink-0 border border-slate-200 shadow-2xs"
+                                    onError={(e) => {
+                                      e.currentTarget.style.display = "none";
+                                      if (e.currentTarget.nextElementSibling) {
+                                        (e.currentTarget.nextElementSibling as HTMLElement).style.display = "flex";
+                                      }
+                                    }}
+                                  />
+                                ) : null}
+                                <div
+                                  className={`w-11 h-11 rounded-xl bg-[#133e35] text-white flex items-center justify-center font-semibold text-xs tracking-wide shrink-0 shadow-2xs ${
+                                    fotoUrl ? "hidden" : "flex"
+                                  }`}
+                                >
+                                  {initials}
+                                </div>
+
+                                <div className="min-w-0 flex-1">
+                                  <p className="font-semibold text-slate-900 text-[0.9rem] leading-tight truncate">
+                                    {p.nama}
+                                  </p>
+                                  <div className="flex items-center gap-1.5 mt-1">
+                                    <span className="px-1.5 py-0.5 bg-slate-100 border border-slate-200/80 text-slate-600 rounded text-[10px] font-mono shrink-0">
+                                      {p.nip || "GP-26-001"}
+                                    </span>
+                                    {p.pendidikan && (
+                                      <span className="text-[11px] text-slate-500 truncate">
+                                        {p.pendidikan}
+                                      </span>
+                                    )}
+                                  </div>
+                                </div>
+                              </div>
+
+                              {/* Status Badge */}
+                              <div className="shrink-0">
+                                {p.statusResetPassword ? (
+                                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium bg-orange-50 text-orange-700 border border-orange-200/80 whitespace-nowrap">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-orange-500"></span>
+                                    Reset PW
+                                  </span>
+                                ) : !p.akunDiaktifkanPada ? (
+                                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium bg-amber-50 text-amber-700 border border-amber-200/80 whitespace-nowrap">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
+                                    Belum Aktif
+                                  </span>
+                                ) : (
+                                  <span
+                                    className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium whitespace-nowrap ${
+                                      p.status === "Aktif"
+                                        ? "bg-emerald-50 text-emerald-700 border border-emerald-200/80"
+                                        : p.status === "Cuti"
+                                        ? "bg-amber-50 text-amber-700 border border-amber-200/80"
+                                        : "bg-slate-100 text-slate-600 border border-slate-200"
+                                    }`}
+                                  >
+                                    <span
+                                      className={`w-1.5 h-1.5 rounded-full ${
+                                        p.status === "Aktif"
+                                          ? "bg-emerald-500"
+                                          : p.status === "Cuti"
+                                          ? "bg-amber-500"
+                                          : "bg-slate-400"
+                                      }`}
+                                    ></span>
+                                    {p.status}
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+
+                            {/* Grid Info Terstruktur: Mapel, Jenjang & Jadwal */}
+                            <div className="bg-[#faf9f7] rounded-xl border border-slate-200/70 p-2.5 space-y-2 text-[11.5px]">
+                              <div className="flex items-start gap-2">
+                                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 w-14 shrink-0 pt-0.5">
+                                  Mapel
+                                </span>
+                                <div className="flex flex-wrap items-center gap-1 min-w-0">
+                                  {p.mataPelajaran.map((m, idx) => (
+                                    <span
+                                      key={idx}
+                                      className="px-2 py-0.5 bg-white border border-slate-200/80 text-slate-700 rounded-md text-[11px] font-medium"
+                                    >
+                                      {m}
+                                    </span>
+                                  ))}
+                                </div>
+                              </div>
+
+                              <div className="flex items-center gap-2">
+                                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 w-14 shrink-0">
+                                  Jenjang
+                                </span>
+                                <p className="text-[11.5px] font-medium text-slate-700 truncate">
+                                  <span className="font-semibold text-slate-900">
+                                    {p.jenjang && p.jenjang.length > 0 ? p.jenjang.join(", ") : "-"}
+                                  </span>
+                                  <span className="text-slate-300 mx-1.5">•</span>
+                                  <span>{p.jenisKelas.join(", ") || "Reguler"}</span>
+                                </p>
+                              </div>
+
+                              <div className="flex items-start gap-2">
+                                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 w-14 shrink-0 pt-0.5">
+                                  Jadwal
+                                </span>
+                                <div className="flex flex-wrap items-center gap-1 min-w-0">
+                                  {hariList.length > 0 ? (
+                                    hariList.map((day, idx) => (
+                                      <span
+                                        key={`d-${idx}`}
+                                        className="px-2 py-0.5 bg-[#173F3A]/8 border border-[#173F3A]/15 text-[#173F3A] rounded-md text-[11px] font-semibold"
+                                      >
+                                        {day}
+                                      </span>
+                                    ))
+                                  ) : (
+                                    <span className="px-2 py-0.5 rounded-md text-[11px] text-slate-400 italic bg-white border border-dashed border-slate-200">
+                                      Belum diatur tutor
+                                    </span>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* Baris Aksi Cepat (Thumb-friendly) */}
+                            <div className="pt-0.5 flex items-center justify-between gap-2 flex-wrap">
+                              <a
+                                href={`https://wa.me/${p.nomorTelepon.replace(/^0/, "62")}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200/70 text-[11.5px] font-semibold active:scale-95 transition-transform"
+                              >
+                                <span className="material-symbols-outlined text-[14px]">chat</span>
+                                <span>{p.nomorTelepon}</span>
+                              </a>
+
+                              <div className="flex items-center gap-1.5 ml-auto">
+                                {hasActiveCountdown ? (
+                                  <button
+                                    type="button"
+                                    onClick={() => handleBukaDetailUndangan(p)}
+                                    className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-sky-50 text-sky-700 border border-sky-200 text-[11px] font-mono font-semibold cursor-pointer"
+                                    title="Buka link & sisa waktu"
+                                  >
+                                    <span className="material-symbols-outlined text-[14px]">schedule</span>
+                                    <span>{countdownText}</span>
+                                  </button>
+                                ) : !p.akunDiaktifkanPada && !p.statusResetPassword ? (
+                                  <button
+                                    type="button"
+                                    onClick={() => handleBuatUndangan(p, "aktivasi")}
+                                    disabled={undanganLoadingId === p._id}
+                                    className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-[#133e35] text-white text-[11.5px] font-semibold disabled:opacity-50 cursor-pointer"
+                                  >
+                                    <span className="material-symbols-outlined text-[14px]">mail</span>
+                                    <span>Undangan</span>
+                                  </button>
+                                ) : (
+                                  <button
+                                    type="button"
+                                    onClick={() => handleBuatUndangan(p, "reset")}
+                                    disabled={undanganLoadingId === p._id}
+                                    className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white text-slate-700 text-[11.5px] font-medium disabled:opacity-50 cursor-pointer"
+                                  >
+                                    <span className="material-symbols-outlined text-[14px]">lock_reset</span>
+                                    <span>Reset</span>
+                                  </button>
+                                )}
+
+                                <button
+                                  type="button"
+                                  onClick={() => handleOpenEditPengajar(p)}
+                                  className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-[11.5px] font-semibold cursor-pointer"
+                                  title="Edit Tutor"
+                                >
+                                  <span className="material-symbols-outlined text-[14px]">edit</span>
+                                  <span>Edit</span>
+                                </button>
+
+                                <button
+                                  type="button"
+                                  onClick={() => handleDeletePengajar(p._id, p.nama)}
+                                  className="w-8 h-8 flex items-center justify-center rounded-lg bg-rose-50 text-rose-600 border border-rose-200/70 hover:bg-rose-100 cursor-pointer"
+                                  title="Hapus Tutor"
+                                >
+                                  <span className="material-symbols-outlined text-[16px]">delete</span>
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })
+                    )}
+                  </div>
+
+                  {/* DESKTOP TABLE (Tetap utuh di md+) */}
+                  <div className="hidden md:block overflow-x-auto">
+                    <table className="w-full min-w-[900px] text-left border-collapse">
                       <thead>
-                        <tr className="border-b border-slate-200/80 bg-slate-50/70 text-[11px] font-bold tracking-wider text-slate-500 uppercase">
-                          <th className="py-3.5 pl-6 pr-4 w-[32%] whitespace-nowrap">Nama &amp; Rekam Profil</th>
-                          <th className="py-3.5 px-4 w-[16%] whitespace-nowrap">Mata Pelajaran</th>
-                          <th className="py-3.5 px-4 w-[13%] whitespace-nowrap">Jenjang &amp; Kelas</th>
+                        <tr className="border-b border-slate-200/90 bg-slate-50/90 text-[11px] font-bold tracking-wider text-slate-500 uppercase">
+                          <th className="py-3.5 pl-6 pr-4 w-[31%] whitespace-nowrap">Nama &amp; Rekam Profil</th>
+                          <th className="py-3.5 px-4 w-[17%] whitespace-nowrap">Mata Pelajaran</th>
+                          <th className="py-3.5 px-4 w-[14%] whitespace-nowrap">Jenjang &amp; Kelas</th>
                           <th className="py-3.5 px-4 w-[16%] whitespace-nowrap">Ketersediaan Hari</th>
-                          <th className="py-3.5 px-4 w-[15%] whitespace-nowrap">Status</th>
+                          <th className="py-3.5 px-4 w-[14%] whitespace-nowrap">Status</th>
                           <th className="py-3.5 pl-4 pr-6 w-[8%] text-right whitespace-nowrap">Aksi</th>
                         </tr>
                       </thead>
@@ -1436,12 +1763,12 @@ export default function PanelKoordinator() {
                   </div>
 
                   {/* Table Footer */}
-                  <div className="p-4 bg-[#f4f3f1] border-t border-[#e3e2e0] flex flex-col sm:flex-row items-center justify-between gap-3 text-[0.8125rem] text-[#67645f]">
+                  <div className="p-3.5 sm:p-4 bg-[#f4f3f1] border-t border-[#e3e2e0] flex flex-col sm:flex-row items-center justify-between gap-2 sm:gap-3 text-[0.78rem] sm:text-[0.8125rem] text-[#67645f] text-center sm:text-left">
                     <span>
                       Menampilkan <strong className="text-black">{filteredPengajar.length}</strong> dari{" "}
                       <strong className="text-black">{pengajarList.length}</strong> total tutor
                     </span>
-                    <span className="text-[0.75rem]">Sinkronisasi data langsung dengan MongoDB Atlas</span>
+                    <span className="text-[0.7rem] sm:text-[0.75rem]">Sinkronisasi data langsung dengan MongoDB Atlas</span>
                   </div>
                 </div>
               </div>
@@ -1450,40 +1777,40 @@ export default function PanelKoordinator() {
 
             {/* TAB KELOLA MATA PELAJARAN MASTER */}
             {activeTab === "mapel" && (
-              <div className="space-y-8 animate-in fade-in duration-200">
-                <div className="p-6 sm:p-8 rounded-2xl bg-white border border-[#e3e2e0] shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-6">
+              <div className="space-y-5 sm:space-y-8 animate-in fade-in duration-200">
+                <div className="p-4 sm:p-8 rounded-xl sm:rounded-2xl bg-white border border-[#e3e2e0] shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4 sm:gap-6">
                   <div className="max-w-2xl">
-                    <span className="text-[0.75rem] font-bold text-[#173F3A] uppercase tracking-wider block mb-1">
+                    <span className="text-[0.68rem] sm:text-[0.75rem] font-bold text-[#173F3A] uppercase tracking-wider block mb-1">
                       Basis Data Master
                     </span>
-                    <h2 className="font-serif text-[1.85rem] text-[#173F3A] font-bold leading-tight">
+                    <h2 className="font-serif text-[1.45rem] sm:text-[1.85rem] text-[#173F3A] font-bold leading-tight">
                       Kelola Master Mata Pelajaran
                     </h2>
-                    <p className="text-[0.875rem] text-[#444748] mt-1.5 leading-relaxed">
+                    <p className="text-[0.8125rem] sm:text-[0.875rem] text-[#444748] mt-1 sm:mt-1.5 leading-relaxed">
                       Standarisasi bidang keilmuan pengajar agar pilihan mata pelajaran selalu unik dan seragam di katalog maupun profil tutor.
                     </p>
                   </div>
-                  <div className="p-4 rounded-xl bg-[#faf9f7] border border-[#e3e2e0] flex items-center gap-3 shrink-0">
+                  <div className="p-3.5 sm:p-4 rounded-xl bg-[#faf9f7] border border-[#e3e2e0] flex items-center gap-3 shrink-0">
                     <span className="w-10 h-10 rounded-lg bg-[#F2D5A8] flex items-center justify-center text-[#173F3A]">
                       <span className="material-symbols-outlined text-[22px]">menu_book</span>
                     </span>
                     <div>
-                      <span className="text-[0.75rem] text-[#67645f] block">Total Terdaftar</span>
-                      <span className="text-[1.25rem] font-bold text-[#173F3A]">{mapelList.length} Mapel</span>
+                      <span className="text-[0.72rem] sm:text-[0.75rem] text-[#67645f] block">Total Terdaftar</span>
+                      <span className="text-[1.125rem] sm:text-[1.25rem] font-bold text-[#173F3A]">{mapelList.length} Mapel</span>
                     </div>
                   </div>
                 </div>
 
-                <div className="bg-white rounded-2xl p-6 sm:p-8 border border-[#e3e2e0] shadow-xs space-y-6">
+                <div className="bg-white rounded-xl sm:rounded-2xl p-4 sm:p-8 border border-[#e3e2e0] shadow-xs space-y-5 sm:space-y-6">
                   <div>
-                    <h3 className="font-semibold text-[1rem] text-[#1a1c1b] mb-1">Tambah Mata Pelajaran Baru</h3>
-                    <p className="text-[0.8125rem] text-[#67645f]">
+                    <h3 className="font-semibold text-[0.95rem] sm:text-[1rem] text-[#1a1c1b] mb-1">Tambah Mata Pelajaran Baru</h3>
+                    <p className="text-[0.78rem] sm:text-[0.8125rem] text-[#67645f]">
                       Ketik nama mata pelajaran baru untuk langsung menambahkannya ke database master MongoDB.
                     </p>
                   </div>
 
                   {/* Form Tambah Mapel */}
-                  <form onSubmit={handleAddMapel} className="flex gap-2 max-w-xl">
+                  <form onSubmit={handleAddMapel} className="flex flex-col sm:flex-row gap-2 max-w-xl">
                     <input
                       type="text"
                       placeholder="Contoh: Robotika, Coding Anak, Bahasa Mandarin..."
@@ -1494,7 +1821,7 @@ export default function PanelKoordinator() {
                     <button
                       type="submit"
                       disabled={submittingMaster || !newMapelNama.trim()}
-                      className="px-6 py-2.5 rounded-xl bg-[#173F3A] hover:bg-[#112F2B] text-white text-[0.8125rem] font-semibold transition-all shadow-xs disabled:opacity-50 shrink-0 flex items-center gap-1.5"
+                      className="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-[#173F3A] hover:bg-[#112F2B] text-white text-[0.8125rem] font-semibold transition-all shadow-xs disabled:opacity-50 shrink-0 flex items-center justify-center gap-1.5"
                     >
                       <span className="material-symbols-outlined text-[16px]">add</span>
                       <span>Tambah Mapel</span>
@@ -1503,7 +1830,7 @@ export default function PanelKoordinator() {
 
                   {/* Grid Mapel */}
                   <div className="pt-4 border-t border-[#efeeec]">
-                    <h4 className="text-[0.8125rem] font-semibold text-[#444748] uppercase tracking-wider mb-3">
+                    <h4 className="text-[0.75rem] sm:text-[0.8125rem] font-semibold text-[#444748] uppercase tracking-wider mb-3">
                       Daftar Mata Pelajaran Aktif ({mapelList.length})
                     </h4>
                     {mapelList.length === 0 ? (
@@ -1511,7 +1838,7 @@ export default function PanelKoordinator() {
                         Belum ada mata pelajaran terdaftar.
                       </p>
                     ) : (
-                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5 sm:gap-3">
                         {mapelList.map((m) => {
                           const tutorCount = pengajarList.filter((p) =>
                             p.mataPelajaran.includes(m.nama)
@@ -1519,7 +1846,7 @@ export default function PanelKoordinator() {
                           return (
                             <div
                               key={m._id}
-                              className="p-3.5 bg-[#faf9f7] rounded-xl border border-[#e3e2e0] flex items-center justify-between gap-3 hover:border-[#173F3A]/30 transition-colors"
+                              className="p-3 sm:p-3.5 bg-[#faf9f7] rounded-xl border border-[#e3e2e0] flex items-center justify-between gap-3 hover:border-[#173F3A]/30 transition-colors"
                             >
                               <div className="flex items-center gap-2.5 min-w-0">
                                 <span className="w-2 h-2 rounded-full bg-[#173F3A] shrink-0"></span>
@@ -1550,40 +1877,40 @@ export default function PanelKoordinator() {
 
             {/* TAB KELOLA JENJANG MASTER */}
             {activeTab === "jenjang" && (
-              <div className="space-y-8 animate-in fade-in duration-200">
-                <div className="p-6 sm:p-8 rounded-2xl bg-white border border-[#e3e2e0] shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-6">
+              <div className="space-y-5 sm:space-y-8 animate-in fade-in duration-200">
+                <div className="p-4 sm:p-8 rounded-xl sm:rounded-2xl bg-white border border-[#e3e2e0] shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4 sm:gap-6">
                   <div className="max-w-2xl">
-                    <span className="text-[0.75rem] font-bold text-[#B74E2C] uppercase tracking-wider block mb-1">
+                    <span className="text-[0.68rem] sm:text-[0.75rem] font-bold text-[#B74E2C] uppercase tracking-wider block mb-1">
                       Basis Data Master
                     </span>
-                    <h2 className="font-serif text-[1.85rem] text-[#173F3A] font-bold leading-tight">
+                    <h2 className="font-serif text-[1.45rem] sm:text-[1.85rem] text-[#173F3A] font-bold leading-tight">
                       Kelola Master Jenjang Bimbingan
                     </h2>
-                    <p className="text-[0.875rem] text-[#444748] mt-1.5 leading-relaxed">
+                    <p className="text-[0.8125rem] sm:text-[0.875rem] text-[#444748] mt-1 sm:mt-1.5 leading-relaxed">
                       Kelola tingkatan jenjang pendidikan (SD, SMP, SMA, dsb.) secara terpusat agar pengelompokan tutor terstandarisasi.
                     </p>
                   </div>
-                  <div className="p-4 rounded-xl bg-[#faf9f7] border border-[#e3e2e0] flex items-center gap-3 shrink-0">
+                  <div className="p-3.5 sm:p-4 rounded-xl bg-[#faf9f7] border border-[#e3e2e0] flex items-center gap-3 shrink-0">
                     <span className="w-10 h-10 rounded-lg bg-[#F2D5A8] flex items-center justify-center text-[#173F3A]">
                       <span className="material-symbols-outlined text-[22px]">school</span>
                     </span>
                     <div>
-                      <span className="text-[0.75rem] text-[#67645f] block">Total Terdaftar</span>
-                      <span className="text-[1.25rem] font-bold text-[#173F3A]">{jenjangList.length} Jenjang</span>
+                      <span className="text-[0.72rem] sm:text-[0.75rem] text-[#67645f] block">Total Terdaftar</span>
+                      <span className="text-[1.125rem] sm:text-[1.25rem] font-bold text-[#173F3A]">{jenjangList.length} Jenjang</span>
                     </div>
                   </div>
                 </div>
 
-                <div className="bg-white rounded-2xl p-6 sm:p-8 border border-[#e3e2e0] shadow-xs space-y-6">
+                <div className="bg-white rounded-xl sm:rounded-2xl p-4 sm:p-8 border border-[#e3e2e0] shadow-xs space-y-5 sm:space-y-6">
                   <div>
-                    <h3 className="font-semibold text-[1rem] text-[#1a1c1b] mb-1">Tambah Jenjang Bimbingan Baru</h3>
-                    <p className="text-[0.8125rem] text-[#67645f]">
+                    <h3 className="font-semibold text-[0.95rem] sm:text-[1rem] text-[#1a1c1b] mb-1">Tambah Jenjang Bimbingan Baru</h3>
+                    <p className="text-[0.78rem] sm:text-[0.8125rem] text-[#67645f]">
                       Ketik tingkatan jenjang baru untuk ditambahkan ke daftar referensi bimbingan belajar.
                     </p>
                   </div>
 
                   {/* Form Tambah Jenjang */}
-                  <form onSubmit={handleAddJenjang} className="flex gap-2 max-w-xl">
+                  <form onSubmit={handleAddJenjang} className="flex flex-col sm:flex-row gap-2 max-w-xl">
                     <input
                       type="text"
                       placeholder="Contoh: PAUD, Universitas, Umum..."
@@ -1594,7 +1921,7 @@ export default function PanelKoordinator() {
                     <button
                       type="submit"
                       disabled={submittingMaster || !newJenjangNama.trim()}
-                      className="px-6 py-2.5 rounded-xl bg-[#173F3A] hover:bg-[#112F2B] text-white text-[0.8125rem] font-semibold transition-all shadow-xs disabled:opacity-50 shrink-0 flex items-center gap-1.5"
+                      className="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-[#173F3A] hover:bg-[#112F2B] text-white text-[0.8125rem] font-semibold transition-all shadow-xs disabled:opacity-50 shrink-0 flex items-center justify-center gap-1.5"
                     >
                       <span className="material-symbols-outlined text-[16px]">add</span>
                       <span>Tambah Jenjang</span>
@@ -1603,7 +1930,7 @@ export default function PanelKoordinator() {
 
                   {/* Grid Jenjang */}
                   <div className="pt-4 border-t border-[#efeeec]">
-                    <h4 className="text-[0.8125rem] font-semibold text-[#444748] uppercase tracking-wider mb-3">
+                    <h4 className="text-[0.75rem] sm:text-[0.8125rem] font-semibold text-[#444748] uppercase tracking-wider mb-3">
                       Daftar Jenjang Aktif ({jenjangList.length})
                     </h4>
                     {jenjangList.length === 0 ? (
@@ -1611,7 +1938,7 @@ export default function PanelKoordinator() {
                         Belum ada jenjang terdaftar.
                       </p>
                     ) : (
-                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5 sm:gap-3">
                         {jenjangList.map((j) => {
                           const tutorCount = pengajarList.filter((p) =>
                             p.jenjang && p.jenjang.includes(j.nama)
@@ -2302,8 +2629,17 @@ export default function PanelKoordinator() {
 
       {/* Modal Undangan / Detail Countdown */}
       {undangan && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4 animate-in fade-in duration-200">
-          <div className="w-full max-w-lg bg-white rounded-2xl border border-[#e3e2e0] p-6 shadow-2xl space-y-4">
+        <div
+          onClick={() => setUndangan(null)}
+          className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/45 backdrop-blur-xs p-0 sm:px-4 animate-in fade-in duration-200"
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="w-full max-w-lg bg-white rounded-t-3xl sm:rounded-2xl border border-[#e3e2e0] p-4 pb-6 sm:p-6 shadow-2xl space-y-4 max-h-[92vh] overflow-y-auto"
+          >
+            <div className="flex justify-center sm:hidden -mt-1 mb-1">
+              <span className="w-10 h-1 rounded-full bg-[#173F3A]/20" />
+            </div>
             <div className="flex items-start justify-between gap-3 border-b border-[#efeeec] pb-3">
               <div>
                 <h3 className="font-serif text-[1.35rem] font-bold text-[#1a1c1b]">
@@ -2422,11 +2758,11 @@ export default function PanelKoordinator() {
                 </button>
               )}
 
-              <div className="flex items-center gap-2 ml-auto">
+              <div className="grid grid-cols-2 sm:flex items-center gap-2 w-full sm:w-auto sm:ml-auto">
                 <button
                   type="button"
                   onClick={() => setUndangan(null)}
-                  className="px-4 py-2 rounded-full border border-[#e3e2e0] hover:bg-[#efeeec] text-[0.8125rem] font-medium text-[#444748] transition-colors cursor-pointer"
+                  className="w-full sm:w-auto px-4 py-2.5 sm:py-2 rounded-full border border-[#e3e2e0] hover:bg-[#efeeec] text-[0.8125rem] font-medium text-[#444748] transition-colors cursor-pointer text-center"
                 >
                   Tutup
                 </button>
@@ -2434,10 +2770,10 @@ export default function PanelKoordinator() {
                   href={undangan.waUrl}
                   target="_blank"
                   rel="noreferrer"
-                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-[#173F3A] hover:bg-[#112F2B] text-white text-[0.8125rem] font-medium shadow-xs transition-colors cursor-pointer"
+                  className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-4 py-2.5 sm:py-2 rounded-full bg-[#173F3A] hover:bg-[#112F2B] text-white text-[0.8125rem] font-medium shadow-xs transition-colors cursor-pointer"
                 >
                   <span className="material-symbols-outlined text-[16px]">chat</span>
-                  <span>Kirim via WhatsApp</span>
+                  <span>Kirim WA</span>
                 </a>
               </div>
             </div>
@@ -2446,28 +2782,42 @@ export default function PanelKoordinator() {
       )}
 
       {isPengajarModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-xs animate-in fade-in duration-200">
-          <div className="bg-white rounded-2xl border border-[#e3e2e0] max-w-lg w-full p-6 sm:p-8 shadow-2xl space-y-6 max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between border-b border-[#efeeec] pb-4">
-              <h2 className="font-serif text-[1.5rem] text-[#1a1c1b]">
-                {isEditingPengajar ? "Sunting Profil Tutor" : "Tambah Tutor Baru"}
-              </h2>
-              <button
-                type="button"
-                onClick={() => setIsPengajarModalOpen(false)}
-                className="w-8 h-8 rounded-full hover:bg-[#efeeec] flex items-center justify-center text-[#747878] hover:text-black transition-colors"
-              >
-                <span className="material-symbols-outlined text-[20px]">close</span>
-              </button>
+        <div
+          onClick={() => setIsPengajarModalOpen(false)}
+          className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/45 backdrop-blur-xs animate-in fade-in duration-200"
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="bg-white rounded-t-3xl sm:rounded-2xl border border-[#e3e2e0] max-w-lg w-full shadow-2xl flex flex-col max-h-[92vh] sm:max-h-[90vh] overflow-hidden"
+          >
+            {/* Header Modal Fixed */}
+            <div className="shrink-0 px-4 pt-3 pb-3 sm:px-8 sm:pt-7 sm:pb-4 border-b border-[#efeeec] bg-white">
+              <div className="flex justify-center sm:hidden mb-2">
+                <span className="w-10 h-1 rounded-full bg-[#173F3A]/20" />
+              </div>
+              <div className="flex items-center justify-between gap-3">
+                <h2 className="font-serif text-[1.3rem] sm:text-[1.5rem] text-[#1a1c1b]">
+                  {isEditingPengajar ? "Sunting Profil Tutor" : "Tambah Tutor Baru"}
+                </h2>
+                <button
+                  type="button"
+                  onClick={() => setIsPengajarModalOpen(false)}
+                  className="w-8 h-8 rounded-full hover:bg-[#efeeec] flex items-center justify-center text-[#747878] hover:text-black transition-colors shrink-0"
+                >
+                  <span className="material-symbols-outlined text-[20px]">close</span>
+                </button>
+              </div>
             </div>
 
-            {errorPengajar && (
-              <div className="p-3 bg-red-50 border border-red-200 text-[#ba1a1a] rounded-xl text-[0.8125rem]">
-                {errorPengajar}
-              </div>
-            )}
+            {/* Body Form Scrollable */}
+            <div className="flex-1 min-h-0 overflow-y-auto px-4 py-4 sm:px-8 sm:py-5 space-y-4">
+              {errorPengajar && (
+                <div className="p-3 bg-red-50 border border-red-200 text-[#ba1a1a] rounded-xl text-[0.8125rem]">
+                  {errorPengajar}
+                </div>
+              )}
 
-            <form onSubmit={handleSubmitPengajar} className="space-y-4">
+              <form id="pengajar-modal-form" onSubmit={handleSubmitPengajar} className="space-y-4">
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div className="sm:col-span-2">
                   <label className="block text-[0.8125rem] font-medium text-[#1a1c1b] mb-1.5">
@@ -2611,49 +2961,67 @@ export default function PanelKoordinator() {
                 </div>
               </div>
 
-              <div className="pt-4 border-t border-[#efeeec] flex items-center justify-end gap-3">
-                <button
-                  type="button"
-                  onClick={() => setIsPengajarModalOpen(false)}
-                  className="px-5 py-2.5 rounded-full text-[0.8125rem] font-semibold text-[#444748] hover:bg-[#efeeec] transition-colors"
-                >
-                  Batal
-                </button>
-                <button
-                  type="submit"
-                  disabled={submittingPengajar}
-                  className="px-6 py-2.5 rounded-full bg-black hover:bg-neutral-800 text-white text-[0.8125rem] font-semibold transition-colors shadow-xs disabled:opacity-50"
-                >
-                  {submittingPengajar ? "Menyimpan..." : "Simpan Data Tutor"}
-                </button>
-              </div>
-            </form>
+              </form>
+            </div>
+
+            {/* Footer Modal Fixed */}
+            <div className="shrink-0 px-4 py-3.5 pb-5 sm:px-8 sm:py-5 border-t border-[#efeeec] bg-[#faf9f7] sm:bg-white grid grid-cols-2 sm:flex items-center justify-end gap-2.5 sm:gap-3">
+              <button
+                type="button"
+                onClick={() => setIsPengajarModalOpen(false)}
+                className="w-full sm:w-auto px-5 py-2.5 rounded-full text-[0.8125rem] font-semibold text-[#444748] bg-white sm:bg-transparent border border-[#e3e2e0] sm:border-transparent hover:bg-[#efeeec] transition-colors text-center cursor-pointer"
+              >
+                Batal
+              </button>
+              <button
+                type="submit"
+                form="pengajar-modal-form"
+                disabled={submittingPengajar}
+                className="w-full sm:w-auto px-5 sm:px-6 py-2.5 rounded-full bg-black hover:bg-neutral-800 text-white text-[0.8125rem] font-semibold transition-colors shadow-xs disabled:opacity-50 text-center cursor-pointer"
+              >
+                {submittingPengajar ? "Menyimpan..." : "Simpan Data"}
+              </button>
+            </div>
           </div>
         </div>
       )}
 
       {/* Modal Buat Jadwal Baru */}
       {isJadwalModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-xs animate-in fade-in duration-200">
-          <div className="bg-white rounded-2xl border border-[#e3e2e0] max-w-lg w-full p-6 sm:p-8 shadow-2xl space-y-6 max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between border-b border-[#efeeec] pb-4">
-              <h2 className="font-serif text-[1.5rem] text-[#1a1c1b]">Buat Jadwal Kelas Resmi</h2>
-              <button
-                type="button"
-                onClick={() => setIsJadwalModalOpen(false)}
-                className="w-8 h-8 rounded-full hover:bg-[#efeeec] flex items-center justify-center text-[#747878] hover:text-black transition-colors"
-              >
-                <span className="material-symbols-outlined text-[20px]">close</span>
-              </button>
+        <div
+          onClick={() => setIsJadwalModalOpen(false)}
+          className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/45 backdrop-blur-xs animate-in fade-in duration-200"
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="bg-white rounded-t-3xl sm:rounded-2xl border border-[#e3e2e0] max-w-lg w-full shadow-2xl flex flex-col max-h-[92vh] sm:max-h-[90vh] overflow-hidden"
+          >
+            {/* Header Modal Fixed */}
+            <div className="shrink-0 px-4 pt-3 pb-3 sm:px-8 sm:pt-7 sm:pb-4 border-b border-[#efeeec] bg-white">
+              <div className="flex justify-center sm:hidden mb-2">
+                <span className="w-10 h-1 rounded-full bg-[#173F3A]/20" />
+              </div>
+              <div className="flex items-center justify-between gap-3">
+                <h2 className="font-serif text-[1.3rem] sm:text-[1.5rem] text-[#1a1c1b]">Buat Jadwal Kelas Resmi</h2>
+                <button
+                  type="button"
+                  onClick={() => setIsJadwalModalOpen(false)}
+                  className="w-8 h-8 rounded-full hover:bg-[#efeeec] flex items-center justify-center text-[#747878] hover:text-black transition-colors shrink-0"
+                >
+                  <span className="material-symbols-outlined text-[20px]">close</span>
+                </button>
+              </div>
             </div>
 
-            {errorJadwal && (
-              <div className="p-3 bg-red-50 border border-red-200 text-[#ba1a1a] rounded-xl text-[0.8125rem]">
-                {errorJadwal}
-              </div>
-            )}
+            {/* Body Form Scrollable */}
+            <div className="flex-1 min-h-0 overflow-y-auto px-4 py-4 sm:px-8 sm:py-5 space-y-4">
+              {errorJadwal && (
+                <div className="p-3 bg-red-50 border border-red-200 text-[#ba1a1a] rounded-xl text-[0.8125rem]">
+                  {errorJadwal}
+                </div>
+              )}
 
-            <form onSubmit={handleSubmitJadwal} className="space-y-4">
+              <form id="jadwal-modal-form" onSubmit={handleSubmitJadwal} className="space-y-4">
               <div>
                 <label className="block text-[0.8125rem] font-medium text-[#1a1c1b] mb-1.5">Nama Kelas</label>
                 <input
@@ -2857,23 +3225,27 @@ export default function PanelKoordinator() {
                 </div>
               </div>
 
-              <div className="pt-4 border-t border-[#efeeec] flex items-center justify-end gap-3">
-                <button
-                  type="button"
-                  onClick={() => setIsJadwalModalOpen(false)}
-                  className="px-5 py-2.5 rounded-full text-[0.8125rem] font-semibold text-[#444748] hover:bg-[#efeeec] transition-colors"
-                >
-                  Batal
-                </button>
-                <button
-                  type="submit"
-                  disabled={submittingJadwal}
-                  className="px-6 py-2.5 rounded-full bg-black hover:bg-neutral-800 text-white text-[0.8125rem] font-semibold transition-colors shadow-xs disabled:opacity-50"
-                >
-                  {submittingJadwal ? "Menyimpan..." : "Simpan Jadwal"}
-                </button>
-              </div>
-            </form>
+              </form>
+            </div>
+
+            {/* Footer Modal Fixed */}
+            <div className="shrink-0 px-4 py-3.5 pb-5 sm:px-8 sm:py-5 border-t border-[#efeeec] bg-[#faf9f7] sm:bg-white grid grid-cols-2 sm:flex items-center justify-end gap-2.5 sm:gap-3">
+              <button
+                type="button"
+                onClick={() => setIsJadwalModalOpen(false)}
+                className="w-full sm:w-auto px-5 py-2.5 rounded-full text-[0.8125rem] font-semibold text-[#444748] bg-white sm:bg-transparent border border-[#e3e2e0] sm:border-transparent hover:bg-[#efeeec] transition-colors text-center cursor-pointer"
+              >
+                Batal
+              </button>
+              <button
+                type="submit"
+                form="jadwal-modal-form"
+                disabled={submittingJadwal}
+                className="w-full sm:w-auto px-5 sm:px-6 py-2.5 rounded-full bg-black hover:bg-neutral-800 text-white text-[0.8125rem] font-semibold transition-colors shadow-xs disabled:opacity-50 text-center cursor-pointer"
+              >
+                {submittingJadwal ? "Menyimpan..." : "Simpan Jadwal"}
+              </button>
+            </div>
           </div>
         </div>
       )}

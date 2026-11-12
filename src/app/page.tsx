@@ -214,6 +214,12 @@ export default function HalamanKatalog() {
   const [isDbLoaded, setIsDbLoaded] = useState(false);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState("");
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  const scrollToSection = (id: string) => {
+    setIsMobileMenuOpen(false);
+    document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
+  };
 
   const loadFromDB = async () => {
     try {
@@ -302,16 +308,75 @@ export default function HalamanKatalog() {
             </button>
           </nav>
 
-          <div className="flex items-center gap-3 sm:gap-4">
+          <div className="flex items-center gap-2 sm:gap-4">
             <Link
               href="/login"
-              className="inline-flex items-center justify-center px-4 sm:px-6 py-1.5 sm:py-2.5 rounded-full bg-[#173F3A] hover:bg-[#112d2a] text-white text-[0.75rem] sm:text-[0.875rem] font-semibold transition-all duration-200 shadow-sm hover:shadow-md hover:scale-[1.02] active:scale-[0.98]"
+              className="hidden lg:inline-flex items-center justify-center px-6 py-2.5 rounded-full bg-[#173F3A] hover:bg-[#112d2a] text-white text-[0.875rem] font-semibold transition-all duration-200 shadow-sm hover:shadow-md hover:scale-[1.02] active:scale-[0.98]"
             >
               Portal Pengajar
             </Link>
+
+            <button
+              type="button"
+              onClick={() => setIsMobileMenuOpen((prev) => !prev)}
+              aria-label={isMobileMenuOpen ? "Tutup menu navigasi" : "Buka menu navigasi"}
+              aria-expanded={isMobileMenuOpen}
+              className="lg:hidden w-9 h-9 rounded-xl bg-white border border-[#173F3A]/15 text-[#173F3A] flex items-center justify-center hover:bg-[#eae6df]/60 active:scale-95 transition-all shadow-2xs cursor-pointer"
+            >
+              <span className="material-symbols-outlined text-[21px]">
+                {isMobileMenuOpen ? "close" : "menu"}
+              </span>
+            </button>
           </div>
         </div>
+
+        {/* Mobile Hamburger Dropdown Menu (Vertikal Dropdown, bukan slide) */}
+        <div
+          className={`lg:hidden overflow-hidden transition-all duration-200 ease-out border-[#173F3A]/10 bg-[#faf9f7]/95 backdrop-blur-xl ${
+            isMobileMenuOpen
+              ? "max-h-[260px] opacity-100 border-t shadow-lg pointer-events-auto"
+              : "max-h-0 opacity-0 border-t-0 pointer-events-none"
+          }`}
+        >
+          <nav className="max-w-7xl mx-auto px-3.5 py-3 flex flex-col gap-1">
+            <button
+              type="button"
+              onClick={() => scrollToSection("katalog")}
+              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-[0.875rem] font-medium text-[#444748] hover:text-[#173F3A] hover:bg-[#eae6df]/70 active:bg-[#eae6df] transition-colors text-left cursor-pointer"
+            >
+              <span className="material-symbols-outlined text-[19px] text-[#173F3A]/80">grid_view</span>
+              <span>Katalog Pengajar</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => scrollToSection("konsultasi")}
+              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-[0.875rem] font-medium text-[#444748] hover:text-[#173F3A] hover:bg-[#eae6df]/70 active:bg-[#eae6df] transition-colors text-left cursor-pointer"
+            >
+              <span className="material-symbols-outlined text-[19px] text-[#173F3A]/80">chat</span>
+              <span>Konsultasi</span>
+            </button>
+
+            <div className="h-px bg-[#173F3A]/10 my-1.5" />
+
+            <Link
+              href="/login"
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="w-full inline-flex items-center justify-center px-5 py-2.5 rounded-full bg-[#173F3A] hover:bg-[#112d2a] text-white text-[0.875rem] font-semibold transition-all shadow-sm active:scale-[0.98]"
+            >
+              Portal Pengajar
+            </Link>
+          </nav>
+        </div>
       </header>
+
+      {/* Backdrop penutup dropdown saat klik area luar */}
+      {isMobileMenuOpen && (
+        <div
+          onClick={() => setIsMobileMenuOpen(false)}
+          className="fixed inset-0 top-14 sm:top-20 z-40 bg-black/15 backdrop-blur-[1px] lg:hidden"
+        />
+      )}
 
       {/* Main Content */}
       <main className="w-full pt-14 sm:pt-20 bg-[#faf9f7]">
