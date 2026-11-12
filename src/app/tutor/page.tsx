@@ -254,18 +254,77 @@ export default function AreaTutor() {
     tags: string[];
   } | null>(null);
 
-  const hasChanges = Boolean(
-    initialData &&
-    (foto !== initialData.foto ||
-      deskripsi !== initialData.deskripsi ||
-      pendidikan !== initialData.pendidikan ||
-      ipk !== initialData.ipk ||
-      domisili !== initialData.domisili ||
-      nomorWa !== initialData.nomorWa ||
-      tutorStatus !== initialData.status ||
-      JSON.stringify(jadwalSlots) !== JSON.stringify(initialData.jadwalSlots) ||
-      JSON.stringify(tags) !== JSON.stringify(initialData.tags))
+  const isFotoChanged = Boolean(initialData && foto !== initialData.foto);
+  const isJadwalChanged = Boolean(
+    initialData && JSON.stringify(jadwalSlots) !== JSON.stringify(initialData.jadwalSlots)
   );
+  const unsetSesiSlots = jadwalSlots.filter(
+    (s) => !s.jamMulai || !s.jamSelesai || !s.keterangan?.trim() || !s.jenjang || s.jenjang.length === 0
+  );
+  const hasUnsetSesi = unsetSesiSlots.length > 0;
+  const isProfilFieldChanged = Boolean(
+    initialData &&
+      (deskripsi !== initialData.deskripsi ||
+        pendidikan !== initialData.pendidikan ||
+        ipk !== initialData.ipk ||
+        domisili !== initialData.domisili ||
+        nomorWa !== initialData.nomorWa ||
+        tutorStatus !== initialData.status ||
+        JSON.stringify(tags) !== JSON.stringify(initialData.tags))
+  );
+
+  const hasChanges = Boolean(isFotoChanged || isJadwalChanged || hasUnsetSesi || isProfilFieldChanged);
+
+  const unsavedInfo = (() => {
+    const items: string[] = [];
+    if (isFotoChanged) items.push("foto profil");
+    if (hasUnsetSesi) {
+      const hariUnset = Array.from(new Set(unsetSesiSlots.map((s) => s.hari))).join(", ");
+      items.push(`sesi jadwal belum di-set (${hariUnset})`);
+    } else if (isJadwalChanged) {
+      items.push("sesi jadwal");
+    }
+    if (isProfilFieldChanged && initialData) {
+      const fieldNames: string[] = [];
+      if (deskripsi !== initialData.deskripsi) fieldNames.push("bio/deskripsi");
+      if (pendidikan !== initialData.pendidikan) fieldNames.push("pendidikan");
+      if (ipk !== initialData.ipk) fieldNames.push("IPK");
+      if (domisili !== initialData.domisili) fieldNames.push("domisili");
+      if (nomorWa !== initialData.nomorWa) fieldNames.push("nomor WhatsApp");
+      if (tutorStatus !== initialData.status) fieldNames.push("status mengajar");
+      if (JSON.stringify(tags) !== JSON.stringify(initialData.tags)) fieldNames.push("fokus materi");
+      if (fieldNames.length > 0) items.push(fieldNames.join(", "));
+    }
+
+    let title = "Perubahan Belum Disimpan";
+    let summaryText = "Perubahan belum disimpan";
+    let modalMessage = "Anda memiliki perubahan yang belum disimpan.";
+
+    if (isFotoChanged && !isJadwalChanged && !hasUnsetSesi && !isProfilFieldChanged) {
+      title = "Foto Profil Belum Disimpan";
+      summaryText = "Foto belum disimpan";
+      modalMessage =
+        "Anda telah mengubah foto profil tetapi belum menekan tombol Simpan Profil. Jika membuka halaman publik sekarang, foto baru tersebut belum muncul di publik.";
+    } else if ((isJadwalChanged || hasUnsetSesi) && !isFotoChanged && !isProfilFieldChanged) {
+      if (hasUnsetSesi) {
+        const hariUnset = Array.from(new Set(unsetSesiSlots.map((s) => s.hari))).join(", ");
+        title = "Sesi Jadwal Belum Di-set / Disimpan";
+        summaryText = `Sesi hari ${hariUnset} belum di-set`;
+        modalMessage = `Sesi jadwal pada hari ${hariUnset} belum di-set lengkap atau belum disimpan. Silakan pilih jam sesi, program, dan jenjang lalu tekan Simpan Profil terlebih dahulu.`;
+      } else {
+        title = "Sesi Jadwal Belum Disimpan";
+        summaryText = "Sesi jadwal belum disimpan";
+        modalMessage =
+          "Anda telah mengubah sesi jadwal mengajar tetapi belum menekan tombol Simpan Profil. Jika membuka halaman publik sekarang, perubahan sesi jadwal tersebut belum muncul di publik.";
+      }
+    } else if (items.length > 0) {
+      const formatted = items.length === 1 ? items[0] : `${items.slice(0, -1).join(", ")} dan ${items[items.length - 1]}`;
+      summaryText = `${formatted.charAt(0).toUpperCase() + formatted.slice(1)} belum disimpan`;
+      modalMessage = `Anda memiliki perubahan pada ${formatted} yang belum disimpan. Jika membuka halaman publik sekarang, perubahan tersebut belum muncul di publik.`;
+    }
+
+    return { title, summaryText, modalMessage };
+  })();
 
   const populateTutor = (t: PengajarData) => {
     setCurrentTutor(t);
@@ -608,9 +667,9 @@ export default function AreaTutor() {
   };
 
   // Simpan Profil & Ketersediaan Hari & Jam
-  const handleSaveProfile = async (e?: React.FormEvent) => {
+  const handleSaveProfile = async (e?: React.FormEvent): Promise<boolean> => {
     if (e) e.preventDefault();
-    if (!currentTutor) return;
+    if (!currentTutor) return false;
 
     // Validasi slot ketersediaan (harus sudah memilih sesi jadwal & memilih minimal satu program)
     for (const s of jadwalSlots) {
@@ -621,7 +680,7 @@ export default function AreaTutor() {
         const elem = document.getElementById(targetId);
         if (elem) elem.scrollIntoView({ behavior: "smooth", block: "center" });
         setTimeout(() => setHighlightedFieldId(null), 4000);
-        return;
+        return false;
       }
       if (!s.keterangan || s.keterangan.trim() === "") {
         const targetId = `slot-card-${s.id}`;
@@ -630,7 +689,7 @@ export default function AreaTutor() {
         const elem = document.getElementById(targetId);
         if (elem) elem.scrollIntoView({ behavior: "smooth", block: "center" });
         setTimeout(() => setHighlightedFieldId(null), 4000);
-        return;
+        return false;
       }
       if (!s.jenjang || s.jenjang.length === 0) {
         const targetId = `slot-card-${s.id}`;
@@ -639,7 +698,7 @@ export default function AreaTutor() {
         const elem = document.getElementById(targetId);
         if (elem) elem.scrollIntoView({ behavior: "smooth", block: "center" });
         setTimeout(() => setHighlightedFieldId(null), 4000);
-        return;
+        return false;
       }
     }
 
@@ -650,7 +709,7 @@ export default function AreaTutor() {
       const elem = document.getElementById(targetId);
       if (elem) elem.scrollIntoView({ behavior: "smooth", block: "center" });
       setTimeout(() => setHighlightedFieldId(null), 4000);
-      return;
+      return false;
     }
 
     if (!pendidikan.trim()) {
@@ -660,7 +719,7 @@ export default function AreaTutor() {
       const elem = document.getElementById(targetId);
       if (elem) elem.scrollIntoView({ behavior: "smooth", block: "center" });
       setTimeout(() => setHighlightedFieldId(null), 4000);
-      return;
+      return false;
     }
 
     if (!deskripsi.trim()) {
@@ -670,7 +729,7 @@ export default function AreaTutor() {
       const elem = document.getElementById(targetId);
       if (elem) elem.scrollIntoView({ behavior: "smooth", block: "center" });
       setTimeout(() => setHighlightedFieldId(null), 4000);
-      return;
+      return false;
     }
 
     try {
@@ -757,11 +816,14 @@ export default function AreaTutor() {
             }
             : null
         );
+        return true;
       } else {
         showToast("Gagal menyimpan profil.");
+        return false;
       }
     } catch {
       showToast("Kendala koneksi.");
+      return false;
     } finally {
       setSavingProfil(false);
     }
@@ -804,6 +866,25 @@ export default function AreaTutor() {
   const handleLihatPublikClick = (e: React.MouseEvent) => {
     if (hasChanges) {
       e.preventDefault();
+      showToast(unsavedInfo.summaryText);
+
+      // Khusus untuk sesi yang belum di-set / belum disimpan: beri 2 peringatan (notif + glow merah)
+      if (hasUnsetSesi || isJadwalChanged) {
+        const changedSlot =
+          unsetSesiSlots[0] ||
+          jadwalSlots.find(
+            (s, idx) => JSON.stringify(s) !== JSON.stringify(initialData?.jadwalSlots[idx])
+          ) ||
+          jadwalSlots[0];
+        if (changedSlot) {
+          const targetId = `slot-card-${changedSlot.id}`;
+          setHighlightedFieldId(targetId);
+          const elem = document.getElementById(targetId);
+          if (elem) elem.scrollIntoView({ behavior: "smooth", block: "center" });
+          setTimeout(() => setHighlightedFieldId(null), 4000);
+        }
+      }
+
       setConfirmLeaveModalOpen(true);
     }
   };
@@ -1783,7 +1864,7 @@ export default function AreaTutor() {
                       {hasChanges ? (
                         <span className="text-amber-800 font-medium flex items-center justify-center sm:justify-start gap-1.5">
                           <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
-                          Perubahan belum disimpan
+                          {unsavedInfo.summaryText}
                         </span>
                       ) : (
                         <span>
@@ -2127,10 +2208,10 @@ export default function AreaTutor() {
               </div>
               <div>
                 <h3 className="font-serif text-[1.25rem] text-[#173F3A] font-bold leading-snug">
-                  Perubahan Belum Disimpan
+                  {unsavedInfo.title}
                 </h3>
                 <p className="text-[0.875rem] text-[#444748] mt-1.5 leading-relaxed">
-                  Anda telah mengubah foto, sesi jadwal, atau data profil lainnya tetapi belum menekan tombol <strong>Simpan Profil</strong>. Jika membuka halaman publik sekarang, perubahan tersebut belum muncul di publik.
+                  {unsavedInfo.modalMessage}
                 </p>
               </div>
             </div>
@@ -2158,9 +2239,11 @@ export default function AreaTutor() {
                 type="button"
                 disabled={savingProfil}
                 onClick={async () => {
-                  await handleSaveProfile();
+                  const ok = await handleSaveProfile();
                   setConfirmLeaveModalOpen(false);
-                  router.push("/");
+                  if (ok) {
+                    router.push("/");
+                  }
                 }}
                 className="px-5 py-2.5 bg-[#173F3A] hover:bg-[#12312d] text-white rounded-full text-[0.8125rem] font-semibold transition-all shadow-sm disabled:opacity-50 flex items-center justify-center gap-1.5"
               >

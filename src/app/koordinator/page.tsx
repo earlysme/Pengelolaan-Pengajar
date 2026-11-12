@@ -2932,7 +2932,7 @@ export default function PanelKoordinator() {
                     type="button"
                     onClick={() => {
                       setIsPengajarModalOpen(false);
-                      setActiveTab("master");
+                      setActiveTab("mapel");
                     }}
                     className="text-[0.7rem] text-[#B74E2C] hover:underline font-semibold"
                   >
