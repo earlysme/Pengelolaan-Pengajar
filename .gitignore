@@ -45,8 +45,10 @@ env.download
 
 # typescript
 *.tsbuildinfo
+/prd
 next-env.d.ts
-prd/AGENTS.md
+AGENTS.md
+DEPLOYMENT.md
 prd/GEMINI.md
 prd/planning_keinginan_klien.md
 SCRIPT_DEMO_APLIKASI.txt
