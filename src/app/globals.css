@@ -99,6 +99,56 @@ button {
   border-color: #e11d48 !important;
 }
 
+/* Fluid / Liquid Glass dock transition untuk tombol Simpan di header */
+@keyframes liquidDockIn {
+  0% {
+    opacity: 0;
+    transform: translateY(14px) scaleX(1.16) scaleY(0.74);
+    filter: blur(6px);
+  }
+  55% {
+    opacity: 1;
+    transform: translateY(-2px) scaleX(0.96) scaleY(1.05);
+    filter: blur(0px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0px);
+  }
+}
+
+@keyframes liquidGlassSheen {
+  0% {
+    transform: translateX(-140%) skewX(-20deg);
+    opacity: 0;
+  }
+  25% {
+    opacity: 0.75;
+  }
+  100% {
+    transform: translateX(220%) skewX(-20deg);
+    opacity: 0;
+  }
+}
+
+.liquid-dock-btn {
+  position: relative;
+  overflow: hidden;
+  animation: liquidDockIn 0.48s cubic-bezier(0.22, 1.28, 0.36, 1) forwards;
+  backdrop-filter: blur(12px);
+}
+
+.liquid-dock-btn::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  width: 55%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.38), transparent);
+  pointer-events: none;
+  animation: liquidGlassSheen 0.85s ease-out 0.1s forwards;
+}
+
 /* Global cursor pointer untuk button di seluruh project */
 button,
 [role="button"] {
