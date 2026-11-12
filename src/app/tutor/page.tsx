@@ -928,51 +928,53 @@ export default function AreaTutor() {
           </div>
 
           {/* Desktop Navigation Links */}
-          <div className="hidden sm:flex items-center gap-2.5">
-            <button
-              type="button"
-              onClick={() => bukaProfil()}
-              className="text-[0.8125rem] font-semibold text-[#173F3A] hover:bg-[#F2D5A8]/50 px-3.5 py-1.5 rounded-full border border-[#173F3A]/20 transition-colors flex items-center gap-1.5 cursor-pointer shadow-2xs"
-              title="Kembali ke bagian atas dashboard"
-            >
-              <span className="material-symbols-outlined text-[17px]">dashboard</span>
-              <span>Dashboard</span>
-            </button>
+          <div className="hidden md:flex items-center gap-3">
+            <nav className="flex items-center p-1 bg-[#efeeec] rounded-full gap-1">
+              <button
+                type="button"
+                onClick={() => bukaProfil()}
+                className={`px-3.5 py-1.5 rounded-full text-[0.8125rem] font-semibold transition-all whitespace-nowrap cursor-pointer flex items-center gap-1.5 ${activeTab !== "catatan" ? "bg-black text-white shadow-xs" : "text-[#444748] hover:text-black hover:bg-white/50"}`}
+                title="Kembali ke bagian atas dashboard"
+              >
+                <span className="material-symbols-outlined text-[16px]">dashboard</span>
+                <span>Dashboard</span>
+              </button>
 
-            <button
-              type="button"
-              onClick={() => bukaProfil("section-ketersediaan")}
-              className="text-[0.8125rem] font-semibold text-[#173F3A] hover:bg-[#F2D5A8]/50 px-3.5 py-1.5 rounded-full border border-[#173F3A]/20 transition-colors flex items-center gap-1.5 shadow-2xs"
-              title="Navigasi ke ketersediaan hari & sesi mengajar"
-            >
-              <span className="material-symbols-outlined text-[17px]">event_available</span>
-              <span>Ketersediaan Mengajar</span>
-            </button>
+              <button
+                type="button"
+                onClick={() => bukaProfil("section-ketersediaan")}
+                className="px-3.5 py-1.5 rounded-full text-[0.8125rem] font-semibold transition-all whitespace-nowrap cursor-pointer flex items-center gap-1.5 text-[#444748] hover:text-black hover:bg-white/50"
+                title="Navigasi ke ketersediaan hari & sesi mengajar"
+              >
+                <span className="material-symbols-outlined text-[16px]">event_available</span>
+                <span>Ketersediaan Mengajar</span>
+              </button>
 
-            <button
-              type="button"
-              onClick={() => bukaProfil("section-profil-akun")}
-              className="text-[0.8125rem] font-semibold text-[#173F3A] hover:bg-[#F2D5A8]/50 px-3.5 py-1.5 rounded-full border border-[#173F3A]/20 transition-colors flex items-center gap-1.5 shadow-2xs"
-              title="Navigasi ke latar belakang pendidikan, bio, kontak, & atur password"
-            >
-              <span className="material-symbols-outlined text-[17px]">manage_accounts</span>
-              <span>Profil &amp; Akun</span>
-            </button>
+              <button
+                type="button"
+                onClick={() => bukaProfil("section-profil-akun")}
+                className="px-3.5 py-1.5 rounded-full text-[0.8125rem] font-semibold transition-all whitespace-nowrap cursor-pointer flex items-center gap-1.5 text-[#444748] hover:text-black hover:bg-white/50"
+                title="Navigasi ke latar belakang pendidikan, bio, kontak, & atur password"
+              >
+                <span className="material-symbols-outlined text-[16px]">manage_accounts</span>
+                <span>Profil &amp; Akun</span>
+              </button>
 
-            <button
-              type="button"
-              onClick={bukaCatatan}
-              className={`text-[0.8125rem] font-semibold text-[#173F3A] hover:bg-[#F2D5A8]/50 px-3.5 py-1.5 rounded-full border border-[#173F3A]/20 transition-colors flex items-center gap-1.5 shadow-2xs cursor-pointer ${activeTab === "catatan" ? "bg-[#F2D5A8]/60" : ""}`}
-              title="Catatan materi kelas reguler"
-            >
-              <span className="material-symbols-outlined text-[17px]">edit_note</span>
-              <span>Catatan Materi</span>
-            </button>
+              <button
+                type="button"
+                onClick={bukaCatatan}
+                className={`px-3.5 py-1.5 rounded-full text-[0.8125rem] font-semibold transition-all whitespace-nowrap cursor-pointer flex items-center gap-1.5 ${activeTab === "catatan" ? "bg-black text-white shadow-xs" : "text-[#444748] hover:text-black hover:bg-white/50"}`}
+                title="Catatan materi kelas reguler"
+              >
+                <span className="material-symbols-outlined text-[16px]">edit_note</span>
+                <span>Catatan Materi</span>
+              </button>
+            </nav>
 
             <button
               type="button"
               onClick={handleLogout}
-              className="text-[0.8125rem] font-medium text-[#ba1a1a] hover:bg-red-50 transition-colors flex items-center gap-1 px-3 py-1.5 rounded-full border border-red-200 shadow-2xs"
+              className="px-3.5 py-1.5 rounded-full text-[0.8125rem] font-semibold text-[#ba1a1a] hover:bg-rose-50 border border-rose-200 transition-all flex items-center gap-1.5 cursor-pointer"
               title="Keluar dari akun tutor"
             >
               <span className="material-symbols-outlined text-[16px]">logout</span>
