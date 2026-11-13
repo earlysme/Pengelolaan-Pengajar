@@ -229,6 +229,23 @@ export default function AreaTutor() {
   const [isHeaderSaveDocked, setIsHeaderSaveDocked] = useState(false);
   const dashboardSaveRef = useRef<HTMLDivElement>(null);
 
+  // Tab halaman tutor: profil (default) atau catatan materi kelas reguler
+  const [activeTab, setActiveTab] = useState<"profil" | "catatan">("profil");
+
+  // Pindah ke tab profil, lalu scroll ke bagian tertentu (atau ke atas)
+  const bukaProfil = (idBagian?: string) => {
+    setActiveTab("profil");
+    setTimeout(() => {
+      if (idBagian) document.getElementById(idBagian)?.scrollIntoView({ behavior: "smooth" });
+      else window.scrollTo({ top: 0, behavior: "smooth" });
+    }, 50);
+  };
+
+  const bukaCatatan = () => {
+    setActiveTab("catatan");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
   // Daftar hari unik dari slot yang aktif
   const hariTersedia = Array.from(new Set(jadwalSlots.map((s) => s.hari)));
 
@@ -906,7 +923,7 @@ export default function AreaTutor() {
     }
   };
 
-  // Deteksi apakah tombol Simpan di dashboard sudah menyentuh/sejajar dengan header saat scroll
+  // Deteksi apakah tombol Simpan di dashboard sudah menyentuh/melewati header saat scroll
   useEffect(() => {
     const updateDockState = () => {
       if (!hasChanges || !dashboardSaveRef.current) {
@@ -915,7 +932,8 @@ export default function AreaTutor() {
       }
       const headerHeight = window.innerWidth < 640 ? 64 : 80;
       const rect = dashboardSaveRef.current.getBoundingClientRect();
-      setIsHeaderSaveDocked(rect.top <= headerHeight + 4);
+      // Dock ke header saat tombol Simpan dashboard menyentuh/sejajar dengan batas bawah header
+      setIsHeaderSaveDocked(rect.top <= headerHeight - 2);
     };
 
     const rafId = requestAnimationFrame(updateDockState);
@@ -1027,15 +1045,14 @@ export default function AreaTutor() {
             </button>
           </div>
 
-          {/* Mobile Right Actions: Tombol Simpan Cepat (Dock saat scroll) + Hamburger Menu */}
+          {/* Mobile Right Actions: Tombol Simpan Cepat + Hamburger Menu */}
           <div className="flex sm:hidden items-center gap-2">
             {hasChanges && (
               <div
-                className={`transition-all duration-350 ease-[cubic-bezier(0.22,1,0.36,1)] ${
-                  showHeaderSave
-                    ? "max-w-[140px] overflow-visible opacity-100 scale-100 translate-y-0 blur-0 pointer-events-auto"
-                    : "max-w-0 overflow-hidden opacity-0 scale-75 translate-y-4 blur-[4px] pointer-events-none"
-                }`}
+                className={`overflow-hidden transition-all duration-350 ease-[cubic-bezier(0.22,1,0.36,1)] ${showHeaderSave
+                  ? "max-w-[140px] opacity-100 scale-100 translate-y-0 blur-0 pointer-events-auto"
+                  : "max-w-0 opacity-0 scale-75 translate-y-2.5 blur-[4px] pointer-events-none"
+                  }`}
               >
                 <button
                   key={showHeaderSave ? "mobile-docked" : "mobile-undocked"}
@@ -1220,6 +1237,12 @@ export default function AreaTutor() {
                     </div>
 
                     <div className="space-y-1 sm:space-y-1.5 min-w-0">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="bg-[#e3e2e0] text-[#1a1c1b] text-[0.7rem] sm:text-[0.75rem] font-semibold px-2.5 sm:px-3 py-0.5 sm:py-1 rounded-full uppercase tracking-wider">
+                          Profil Mandiri Tutor
+                        </span>
+                      </div>
+
                       <h1 className="font-serif text-[1.65rem] sm:text-[2.25rem] lg:text-[2.5rem] text-[#1a1c1b] tracking-tight leading-tight">
                         {currentTutor?.nama || "-"}
                       </h1>
@@ -1345,22 +1368,17 @@ export default function AreaTutor() {
                   })()}
 
                   {/* Box 4: Status Ketersediaan Tutor */}
-                  <div className="bg-white/80 rounded-xl p-2 sm:p-3.5 border border-[#173F3A]/10 flex flex-col sm:flex-row sm:items-center justify-center gap-1.5 sm:gap-3.5 shadow-2xs">
-                    <div className="flex items-center gap-1.5 sm:contents">
-                      <div
-                        className={`w-5 h-5 sm:w-10 sm:h-10 rounded-full flex items-center justify-center shrink-0 ${statusTampil === "Aktif"
-                          ? "bg-emerald-100 text-emerald-800"
-                          : statusTampil === "Cuti"
-                            ? "bg-amber-100 text-amber-800"
-                            : "bg-rose-100 text-rose-800"
-                          }`}
-                      >
-                        <span className="material-symbols-outlined text-[13px] sm:text-[20px]">
-                          {statusTampil === "Aktif" ? "check_circle" : statusTampil === "Cuti" ? "pause_circle" : "block"}
-                        </span>
-                      </div>
-                      <span className="text-[0.62rem] text-[#67645f] font-medium leading-tight sm:hidden">
-                        Status Ketersediaan
+                  <div className="bg-white/80 rounded-xl p-2 sm:p-3.5 border border-[#173F3A]/10 flex items-center gap-2 sm:gap-3.5 shadow-2xs">
+                    <div
+                      className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center shrink-0 ${statusTampil === "Aktif"
+                        ? "bg-emerald-100 text-emerald-800"
+                        : statusTampil === "Cuti"
+                          ? "bg-amber-100 text-amber-800"
+                          : "bg-rose-100 text-rose-800"
+                        }`}
+                    >
+                      <span className="material-symbols-outlined text-[16px] sm:text-[20px]">
+                        {statusTampil === "Aktif" ? "check_circle" : statusTampil === "Cuti" ? "pause_circle" : "block"}
                       </span>
                     </div>
                     <div className="flex-1 min-w-0">
@@ -1368,7 +1386,7 @@ export default function AreaTutor() {
                         value={statusTampil}
                         disabled={updatingStatus || akunDinonaktifkan}
                         onChange={(e) => handleStatusChange(e.target.value as "Aktif" | "Cuti")}
-                        className={`text-[0.72rem] sm:text-[0.82rem] font-bold rounded-lg px-2 py-1 sm:px-1.5 sm:py-0.5 border cursor-pointer focus:outline-none transition-colors w-full ${statusTampil === "Aktif"
+                        className={`text-[0.7rem] sm:text-[0.82rem] font-bold rounded-lg px-1.5 py-0.5 border cursor-pointer focus:outline-none transition-colors w-full ${statusTampil === "Aktif"
                           ? "bg-emerald-50 text-emerald-800 border-emerald-300"
                           : statusTampil === "Cuti"
                             ? "bg-amber-50 text-amber-800 border-amber-300"
@@ -1380,7 +1398,7 @@ export default function AreaTutor() {
                         <option value="Aktif">Aktif Mengajar</option>
                         <option value="Cuti">Sedang Cuti</option>
                       </select>
-                      <div className="hidden sm:block text-[0.7rem] text-[#67645f] mt-0.5 font-medium truncate">
+                      <div className="text-[0.62rem] sm:text-[0.7rem] text-[#67645f] mt-0.5 font-medium truncate">
                         Status Ketersediaan
                       </div>
                     </div>

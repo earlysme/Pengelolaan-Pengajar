@@ -290,7 +290,7 @@ export default function PanelKoordinator() {
         const parsed = JSON.parse(saved);
         if (parsed.token) return { Authorization: `Bearer ${parsed.token}` };
       }
-    } catch {}
+    } catch { }
     return {};
   }, []);
 
@@ -449,7 +449,7 @@ export default function PanelKoordinator() {
                 return;
               }
             }
-          } catch {}
+          } catch { }
         }
 
         if (isMounted) {
@@ -465,7 +465,7 @@ export default function PanelKoordinator() {
               if (isMounted) fetchAllData();
               return;
             }
-          } catch {}
+          } catch { }
         }
         if (isMounted) router.push("/login");
       }
@@ -541,13 +541,13 @@ export default function PanelKoordinator() {
           prev.map((item) =>
             item._id === p._id
               ? {
-                  ...item,
-                  statusResetPassword: json.data.isResetPassword,
-                  aktivasiKadaluarsa: json.data.berlakuHingga,
-                  aktivasiLink: json.data.link,
-                  aktivasiWaUrl: json.data.waUrl,
-                  akunDiaktifkanPada: item.akunDiaktifkanPada || (isResetAction ? new Date().toISOString() : undefined),
-                }
+                ...item,
+                statusResetPassword: json.data.isResetPassword,
+                aktivasiKadaluarsa: json.data.berlakuHingga,
+                aktivasiLink: json.data.link,
+                aktivasiWaUrl: json.data.waUrl,
+                akunDiaktifkanPada: item.akunDiaktifkanPada || (isResetAction ? new Date().toISOString() : undefined),
+              }
               : item
           )
         );
@@ -692,6 +692,42 @@ export default function PanelKoordinator() {
     }
   };
 
+  const [deletingAll, setDeletingAll] = useState(false);
+  const handleDeleteAllPengajar = async () => {
+    if (pengajarList.length === 0) {
+      alert("Belum ada data tutor untuk dihapus.");
+      return;
+    }
+    const konfirmasi1 = confirm(
+      `PERINGATAN: Anda akan menghapus SELURUH (${pengajarList.length}) data tutor!\n\nData yang dihapus tidak dapat dipulihkan. Apakah Anda yakin ingin melanjutkan?`
+    );
+    if (!konfirmasi1) return;
+
+    const konfirmasi2 = prompt(
+      `Ketik "HAPUS SEMUA" untuk mengonfirmasi penghapusan seluruh data tutor:`
+    );
+    if (konfirmasi2 !== "HAPUS SEMUA") {
+      alert("Penghapusan dibatalkan. Kata kunci konfirmasi tidak cocok.");
+      return;
+    }
+
+    try {
+      setDeletingAll(true);
+      const res = await fetch("/api/pengajar", { method: "DELETE" });
+      const json = await res.json();
+      if (json.success) {
+        alert(json.message || "Seluruh data tutor berhasil dihapus.");
+        fetchAllData();
+      } else {
+        alert(json.error || "Gagal menghapus data.");
+      }
+    } catch {
+      alert("Terjadi kendala koneksi.");
+    } finally {
+      setDeletingAll(false);
+    }
+  };
+
   // --- Handlers Modul 2 (Ketersediaan Approval) ---
   const handleUpdateStatusKetersediaan = async (
     id: string,
@@ -828,7 +864,7 @@ export default function PanelKoordinator() {
     try {
       if (typeof window !== "undefined") localStorage.removeItem("genplasma_session");
       await fetch("/api/auth/logout", { method: "POST" });
-    } catch {}
+    } catch { }
     router.push("/login");
   };
 
@@ -895,33 +931,30 @@ export default function PanelKoordinator() {
               <button
                 type="button"
                 onClick={() => setActiveTab("dashboard")}
-                className={`px-3.5 py-1.5 rounded-full text-[0.8125rem] font-semibold transition-all whitespace-nowrap cursor-pointer ${
-                  activeTab === "dashboard" || activeTab === "pengajar"
-                    ? "bg-black text-white shadow-xs"
-                    : "text-[#444748] hover:text-black hover:bg-white/50"
-                }`}
+                className={`px-3.5 py-1.5 rounded-full text-[0.8125rem] font-semibold transition-all whitespace-nowrap cursor-pointer ${activeTab === "dashboard" || activeTab === "pengajar"
+                  ? "bg-black text-white shadow-xs"
+                  : "text-[#444748] hover:text-black hover:bg-white/50"
+                  }`}
               >
                 Dashboard
               </button>
               <button
                 type="button"
                 onClick={() => setActiveTab("mapel")}
-                className={`px-3.5 py-1.5 rounded-full text-[0.8125rem] font-semibold transition-all whitespace-nowrap cursor-pointer ${
-                  activeTab === "mapel"
-                    ? "bg-black text-white shadow-xs"
-                    : "text-[#444748] hover:text-black hover:bg-white/50"
-                }`}
+                className={`px-3.5 py-1.5 rounded-full text-[0.8125rem] font-semibold transition-all whitespace-nowrap cursor-pointer ${activeTab === "mapel"
+                  ? "bg-black text-white shadow-xs"
+                  : "text-[#444748] hover:text-black hover:bg-white/50"
+                  }`}
               >
                 Kelola Mata Pelajaran
               </button>
               <button
                 type="button"
                 onClick={() => setActiveTab("jenjang")}
-                className={`px-3.5 py-1.5 rounded-full text-[0.8125rem] font-semibold transition-all whitespace-nowrap cursor-pointer ${
-                  activeTab === "jenjang"
-                    ? "bg-black text-white shadow-xs"
-                    : "text-[#444748] hover:text-black hover:bg-white/50"
-                }`}
+                className={`px-3.5 py-1.5 rounded-full text-[0.8125rem] font-semibold transition-all whitespace-nowrap cursor-pointer ${activeTab === "jenjang"
+                  ? "bg-black text-white shadow-xs"
+                  : "text-[#444748] hover:text-black hover:bg-white/50"
+                  }`}
               >
                 Kelola Jenjang
               </button>
@@ -956,11 +989,10 @@ export default function PanelKoordinator() {
 
         {/* Mobile Hamburger Dropdown Menu */}
         <div
-          className={`md:hidden overflow-hidden transition-all duration-200 ease-out border-[#173F3A]/10 bg-[#faf8f5]/95 backdrop-blur-xl ${
-            isMobileMenuOpen
-              ? "max-h-[320px] opacity-100 border-t shadow-lg pointer-events-auto"
-              : "max-h-0 opacity-0 border-t-0 pointer-events-none"
-          }`}
+          className={`md:hidden overflow-hidden transition-all duration-200 ease-out border-[#173F3A]/10 bg-[#faf8f5]/95 backdrop-blur-xl ${isMobileMenuOpen
+            ? "max-h-[320px] opacity-100 border-t shadow-lg pointer-events-auto"
+            : "max-h-0 opacity-0 border-t-0 pointer-events-none"
+            }`}
         >
           <nav className="max-w-7xl mx-auto px-3.5 py-3 flex flex-col gap-1">
             <button
@@ -969,11 +1001,10 @@ export default function PanelKoordinator() {
                 setActiveTab("dashboard");
                 setIsMobileMenuOpen(false);
               }}
-              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-[0.875rem] font-semibold transition-colors text-left cursor-pointer ${
-                activeTab === "dashboard" || activeTab === "pengajar"
-                  ? "bg-black text-white shadow-xs"
-                  : "text-[#444748] hover:text-[#173F3A] hover:bg-[#efeeec]"
-              }`}
+              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-[0.875rem] font-semibold transition-colors text-left cursor-pointer ${activeTab === "dashboard" || activeTab === "pengajar"
+                ? "bg-black text-white shadow-xs"
+                : "text-[#444748] hover:text-[#173F3A] hover:bg-[#efeeec]"
+                }`}
             >
               <span className="material-symbols-outlined text-[19px]">dashboard</span>
               <span>Dashboard</span>
@@ -985,11 +1016,10 @@ export default function PanelKoordinator() {
                 setActiveTab("mapel");
                 setIsMobileMenuOpen(false);
               }}
-              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-[0.875rem] font-semibold transition-colors text-left cursor-pointer ${
-                activeTab === "mapel"
-                  ? "bg-black text-white shadow-xs"
-                  : "text-[#444748] hover:text-[#173F3A] hover:bg-[#efeeec]"
-              }`}
+              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-[0.875rem] font-semibold transition-colors text-left cursor-pointer ${activeTab === "mapel"
+                ? "bg-black text-white shadow-xs"
+                : "text-[#444748] hover:text-[#173F3A] hover:bg-[#efeeec]"
+                }`}
             >
               <span className="material-symbols-outlined text-[19px]">menu_book</span>
               <span>Kelola Mata Pelajaran</span>
@@ -1001,11 +1031,10 @@ export default function PanelKoordinator() {
                 setActiveTab("jenjang");
                 setIsMobileMenuOpen(false);
               }}
-              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-[0.875rem] font-semibold transition-colors text-left cursor-pointer ${
-                activeTab === "jenjang"
-                  ? "bg-black text-white shadow-xs"
-                  : "text-[#444748] hover:text-[#173F3A] hover:bg-[#efeeec]"
-              }`}
+              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-[0.875rem] font-semibold transition-colors text-left cursor-pointer ${activeTab === "jenjang"
+                ? "bg-black text-white shadow-xs"
+                : "text-[#444748] hover:text-[#173F3A] hover:bg-[#efeeec]"
+                }`}
             >
               <span className="material-symbols-outlined text-[19px]">school</span>
               <span>Kelola Jenjang</span>
@@ -1059,30 +1088,41 @@ export default function PanelKoordinator() {
             {(activeTab === "dashboard" || activeTab === "pengajar") && (
               <>
                 {/* Editorial Page Intro Header */}
-                <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 md:gap-6 mb-5 sm:mb-8">
+                <div className="flex flex-col md:flex-row md:items-start justify-between gap-4 md:gap-6 mb-5 sm:mb-8">
                   <div className="space-y-1 sm:space-y-1.5 max-w-2xl">
                     <div className="inline-flex items-center gap-2 text-[#444748] text-[0.68rem] sm:text-[0.75rem] font-semibold uppercase tracking-widest">
                       <span className="w-2 h-2 rounded-full bg-black"></span>
-                      Direktori &amp; Tata Kelola Pendidik
+                      Direktori &amp; Tata Kelola Pengajar
                     </div>
                     <h1 className="font-serif text-[1.5rem] sm:text-[2.25rem] lg:text-[2.5rem] text-[#1a1c1b] font-normal tracking-tight leading-tight">
-                      Basis Data Pengajar &amp; Rekam Kinerja
+                      Basis Data Pengajar
                     </h1>
                     <p className="text-[0.8125rem] sm:text-[0.9375rem] text-[#444748] leading-relaxed">
-                      Kendali terpadu profil pendidik, verifikasi kualifikasi, alokasi jam mengajar, serta pemantauan
-                      integritas Berita Acara Pembelajaran (BAP).
+                      Kelola profil, kualifikasi, dan jam mengajar tutor dalam satu tempat.
                     </p>
                   </div>
 
                   {/* Quick Actions Top Bar */}
-                  <div className="grid grid-cols-2 sm:flex items-center gap-2 w-full md:w-auto">
-                    <button
+                  <div className="grid grid-cols-2 sm:flex items-center gap-2 w-full md:w-auto md:mt-7 lg:mt-8">
+                    {/* <button
                       type="button"
                       onClick={() => window.print()}
                       className="inline-flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2.5 rounded-full bg-[#efeeec] hover:bg-[#e3e2e0] text-[#1a1c1b] text-[0.78rem] sm:text-[0.875rem] font-semibold transition-colors shadow-xs cursor-pointer"
                     >
                       <span className="material-symbols-outlined text-[17px] sm:text-[18px]">file_download</span>
                       <span className="truncate">Ekspor Laporan</span>
+                    </button> */}
+                    <button
+                      type="button"
+                      disabled={deletingAll || pengajarList.length === 0}
+                      onClick={handleDeleteAllPengajar}
+                      className="inline-flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2.5 rounded-full bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200/80 text-[0.78rem] sm:text-[0.875rem] font-semibold transition-all shadow-xs disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                      title="Hapus seluruh data tutor di basis data"
+                    >
+                      <span className="material-symbols-outlined text-[17px] sm:text-[18px]">
+                        {deletingAll ? "progress_activity" : "delete_sweep"}
+                      </span>
+                      <span className="truncate">{deletingAll ? "Menghapus..." : "Hapus Semua Tutor"}</span>
                     </button>
                     <button
                       type="button"
@@ -1170,10 +1210,10 @@ export default function PanelKoordinator() {
                       <span className="font-medium text-[#173F3A] shrink-0">
                         {pengajarList.length > 0
                           ? Math.round(
-                              (pengajarList.filter((p) => p.jadwalTersedia && p.jadwalTersedia.length > 0).length /
-                                pengajarList.length) *
-                                100
-                            )
+                            (pengajarList.filter((p) => p.jadwalTersedia && p.jadwalTersedia.length > 0).length /
+                              pengajarList.length) *
+                            100
+                          )
                           : 0}
                         % Terisi
                       </span>
@@ -1182,598 +1222,592 @@ export default function PanelKoordinator() {
                 </div>
 
                 {/* Tabel & Filter Database Tutor */}
-            <div className="space-y-4 sm:space-y-6">
-                {/* Search & Filter Strip */}
-                <div className="p-3 sm:p-4 rounded-xl sm:rounded-2xl bg-white border border-[#e3e2e0] shadow-xs flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-2.5 sm:gap-4">
-                  <div className="relative flex-1">
-                    <span className="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-[#747878] text-[19px] sm:text-[20px]">
-                      search
-                    </span>
-                    <input
-                      type="text"
-                      value={searchPengajar}
-                      onChange={(e) => setSearchPengajar(e.target.value)}
-                      placeholder="Cari nama tutor, ID, mapel, atau WhatsApp..."
-                      className="w-full pl-10 sm:pl-11 pr-4 py-2 sm:py-2.5 rounded-xl bg-[#f4f3f1] text-[#1a1c1b] placeholder:text-[#67645f] text-[0.8125rem] sm:text-[0.875rem] focus:outline-none focus:bg-white focus:ring-1 focus:ring-black transition-all"
-                    />
-                  </div>
-
-                  <div className="grid grid-cols-2 sm:flex items-center gap-2 sm:gap-2.5 w-full lg:w-auto">
-                    <div className="relative w-full sm:w-auto">
-                      <select
-                        value={statusFilter}
-                        onChange={(e) => setStatusFilter(e.target.value)}
-                        className="w-full appearance-none pl-3 sm:pl-4 pr-8 sm:pr-9 py-2 sm:py-2.5 rounded-xl bg-[#f4f3f1] text-[#1a1c1b] text-[0.78rem] sm:text-[0.8125rem] font-medium cursor-pointer focus:outline-none"
-                      >
-                        <option value="Semua">Semua Status</option>
-                        <option value="Aktif">Aktif</option>
-                        <option value="Cuti">Cuti</option>
-                        <option value="Menunggu Aktivasi">Menunggu Aktivasi</option>
-                        <option value="Belum Aktivasi">Belum Aktivasi</option>
-                        <option value="Reset Password">Reset Password</option>
-                        <option value="Nonaktif">Nonaktif</option>
-                      </select>
-                      <span className="material-symbols-outlined absolute right-2.5 top-1/2 -translate-y-1/2 text-[#747878] pointer-events-none text-[18px]">
-                        expand_more
+                <div className="space-y-4 sm:space-y-6">
+                  {/* Search & Filter Strip */}
+                  <div className="p-3 sm:p-4 rounded-xl sm:rounded-2xl bg-white border border-[#e3e2e0] shadow-xs flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-2.5 sm:gap-4">
+                    <div className="relative flex-1">
+                      <span className="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-[#747878] text-[19px] sm:text-[20px]">
+                        search
                       </span>
+                      <input
+                        type="text"
+                        value={searchPengajar}
+                        onChange={(e) => setSearchPengajar(e.target.value)}
+                        placeholder="Cari nama tutor, ID, mapel, atau WhatsApp..."
+                        className="w-full pl-10 sm:pl-11 pr-4 py-2 sm:py-2.5 rounded-xl bg-[#f4f3f1] text-[#1a1c1b] placeholder:text-[#67645f] text-[0.8125rem] sm:text-[0.875rem] focus:outline-none focus:bg-white focus:ring-1 focus:ring-black transition-all"
+                      />
                     </div>
 
-                    <div className="relative w-full sm:w-auto">
-                      <select
-                        value={jenjangFilter}
-                        onChange={(e) => setJenjangFilter(e.target.value)}
-                        className="w-full appearance-none pl-3 sm:pl-4 pr-8 sm:pr-9 py-2 sm:py-2.5 rounded-xl bg-[#f4f3f1] text-[#1a1c1b] text-[0.78rem] sm:text-[0.8125rem] font-medium cursor-pointer focus:outline-none"
-                      >
-                        <option value="Semua">Semua Jenjang</option>
-                        {(jenjangList.length > 0 ? jenjangList.map((j) => j.nama) : DAFTAR_JENJANG).map((j) => (
-                          <option key={j} value={j}>
-                            {j}
-                          </option>
-                        ))}
-                      </select>
-                      <span className="material-symbols-outlined absolute right-2.5 top-1/2 -translate-y-1/2 text-[#747878] pointer-events-none text-[18px]">
-                        expand_more
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Editorial Table (Desktop) & Card List (Mobile) */}
-                <div id="tableContainer" className="bg-white rounded-xl sm:rounded-2xl border border-slate-200/90 shadow-sm overflow-hidden">
-                  {/* MOBILE CARD LIST (Tampil hanya di HP < md, tanpa scroll horizontal) */}
-                  <div className="block md:hidden divide-y divide-slate-200/70">
-                    {loading ? (
-                      <div className="py-12 text-center text-slate-500 text-sm">
-                        <span className="material-symbols-outlined text-[28px] animate-spin block mb-2">
-                          progress_activity
+                    <div className="grid grid-cols-2 sm:flex items-center gap-2 sm:gap-2.5 w-full lg:w-auto">
+                      <div className="relative w-full sm:w-auto">
+                        <select
+                          value={statusFilter}
+                          onChange={(e) => setStatusFilter(e.target.value)}
+                          className="w-full appearance-none pl-3 sm:pl-4 pr-8 sm:pr-9 py-2 sm:py-2.5 rounded-xl bg-[#f4f3f1] text-[#1a1c1b] text-[0.78rem] sm:text-[0.8125rem] font-medium cursor-pointer focus:outline-none"
+                        >
+                          <option value="Semua">Semua Status</option>
+                          <option value="Aktif">Aktif</option>
+                          <option value="Cuti">Cuti</option>
+                          <option value="Menunggu Aktivasi">Menunggu Aktivasi</option>
+                          <option value="Belum Aktivasi">Belum Aktivasi</option>
+                          <option value="Reset Password">Reset Password</option>
+                          <option value="Nonaktif">Nonaktif</option>
+                        </select>
+                        <span className="material-symbols-outlined absolute right-2.5 top-1/2 -translate-y-1/2 text-[#747878] pointer-events-none text-[18px]">
+                          expand_more
                         </span>
-                        Memuat basis data pendidik...
                       </div>
-                    ) : filteredPengajar.length === 0 ? (
-                      <div className="py-12 px-4 text-center text-slate-500 text-sm">
-                        Tidak ada pengajar yang sesuai dengan kriteria pencarian.
+
+                      <div className="relative w-full sm:w-auto">
+                        <select
+                          value={jenjangFilter}
+                          onChange={(e) => setJenjangFilter(e.target.value)}
+                          className="w-full appearance-none pl-3 sm:pl-4 pr-8 sm:pr-9 py-2 sm:py-2.5 rounded-xl bg-[#f4f3f1] text-[#1a1c1b] text-[0.78rem] sm:text-[0.8125rem] font-medium cursor-pointer focus:outline-none"
+                        >
+                          <option value="Semua">Semua Jenjang</option>
+                          {(jenjangList.length > 0 ? jenjangList.map((j) => j.nama) : DAFTAR_JENJANG).map((j) => (
+                            <option key={j} value={j}>
+                              {j}
+                            </option>
+                          ))}
+                        </select>
+                        <span className="material-symbols-outlined absolute right-2.5 top-1/2 -translate-y-1/2 text-[#747878] pointer-events-none text-[18px]">
+                          expand_more
+                        </span>
                       </div>
-                    ) : (
-                      filteredPengajar.map((p) => {
-                        const hariList = extractUniqueDays(p.jadwalTersedia);
-                        const countdownText = formatCountdown(p.aktivasiKadaluarsa, nowTime);
-                        const hasActiveCountdown = Boolean(countdownText);
-                        const fotoUrl = cleanImageUrl(p.foto);
-                        const initials =
-                          p.nama
-                            .trim()
-                            .split(/\s+/)
-                            .slice(0, 2)
-                            .map((w) => w[0]?.toUpperCase() || "")
-                            .join("") || "TU";
-
-                        return (
-                          <div key={p._id} className="p-3.5 sm:p-4 space-y-3 hover:bg-slate-50/60 transition-colors">
-                            {/* Header Kartu: Avatar, Nama, ID & Status */}
-                            <div className="flex items-start justify-between gap-2.5">
-                              <div className="flex items-center gap-2.5 min-w-0 flex-1">
-                                {fotoUrl ? (
-                                  <img
-                                    src={fotoUrl}
-                                    alt={p.nama}
-                                    referrerPolicy="no-referrer"
-                                    className="w-11 h-11 rounded-xl object-cover shrink-0 border border-slate-200 shadow-2xs"
-                                    onError={(e) => {
-                                      e.currentTarget.style.display = "none";
-                                      if (e.currentTarget.nextElementSibling) {
-                                        (e.currentTarget.nextElementSibling as HTMLElement).style.display = "flex";
-                                      }
-                                    }}
-                                  />
-                                ) : null}
-                                <div
-                                  className={`w-11 h-11 rounded-xl bg-[#133e35] text-white flex items-center justify-center font-semibold text-xs tracking-wide shrink-0 shadow-2xs ${
-                                    fotoUrl ? "hidden" : "flex"
-                                  }`}
-                                >
-                                  {initials}
-                                </div>
-
-                                <div className="min-w-0 flex-1">
-                                  <p className="font-semibold text-slate-900 text-[0.9rem] leading-tight truncate">
-                                    {p.nama}
-                                  </p>
-                                  <div className="flex items-center gap-1.5 mt-1">
-                                    <span className="px-1.5 py-0.5 bg-slate-100 border border-slate-200/80 text-slate-600 rounded text-[10px] font-mono shrink-0">
-                                      {p.nip || "GP-26-001"}
-                                    </span>
-                                    {p.pendidikan && (
-                                      <span className="text-[11px] text-slate-500 truncate">
-                                        {p.pendidikan}
-                                      </span>
-                                    )}
-                                  </div>
-                                </div>
-                              </div>
-
-                              {/* Status Badge */}
-                              <div className="shrink-0">
-                                {p.statusResetPassword ? (
-                                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium bg-orange-50 text-orange-700 border border-orange-200/80 whitespace-nowrap">
-                                    <span className="w-1.5 h-1.5 rounded-full bg-orange-500"></span>
-                                    Reset PW
-                                  </span>
-                                ) : !p.akunDiaktifkanPada ? (
-                                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium bg-amber-50 text-amber-700 border border-amber-200/80 whitespace-nowrap">
-                                    <span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
-                                    Belum Aktif
-                                  </span>
-                                ) : (
-                                  <span
-                                    className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium whitespace-nowrap ${
-                                      p.status === "Aktif"
-                                        ? "bg-emerald-50 text-emerald-700 border border-emerald-200/80"
-                                        : p.status === "Cuti"
-                                        ? "bg-amber-50 text-amber-700 border border-amber-200/80"
-                                        : "bg-slate-100 text-slate-600 border border-slate-200"
-                                    }`}
-                                  >
-                                    <span
-                                      className={`w-1.5 h-1.5 rounded-full ${
-                                        p.status === "Aktif"
-                                          ? "bg-emerald-500"
-                                          : p.status === "Cuti"
-                                          ? "bg-amber-500"
-                                          : "bg-slate-400"
-                                      }`}
-                                    ></span>
-                                    {p.status}
-                                  </span>
-                                )}
-                              </div>
-                            </div>
-
-                            {/* Grid Info Terstruktur: Mapel, Jenjang & Jadwal */}
-                            <div className="bg-[#faf9f7] rounded-xl border border-slate-200/70 p-2.5 space-y-2 text-[11.5px]">
-                              <div className="flex items-start gap-2">
-                                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 w-14 shrink-0 pt-0.5">
-                                  Mapel
-                                </span>
-                                <div className="flex flex-wrap items-center gap-1 min-w-0">
-                                  {p.mataPelajaran.map((m, idx) => (
-                                    <span
-                                      key={idx}
-                                      className="px-2 py-0.5 bg-white border border-slate-200/80 text-slate-700 rounded-md text-[11px] font-medium"
-                                    >
-                                      {m}
-                                    </span>
-                                  ))}
-                                </div>
-                              </div>
-
-                              <div className="flex items-center gap-2">
-                                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 w-14 shrink-0">
-                                  Jenjang
-                                </span>
-                                <p className="text-[11.5px] font-medium text-slate-700 truncate">
-                                  <span className="font-semibold text-slate-900">
-                                    {p.jenjang && p.jenjang.length > 0 ? p.jenjang.join(", ") : "-"}
-                                  </span>
-                                  <span className="text-slate-300 mx-1.5">•</span>
-                                  <span>{p.jenisKelas.join(", ") || "Reguler"}</span>
-                                </p>
-                              </div>
-
-                              <div className="flex items-start gap-2">
-                                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 w-14 shrink-0 pt-0.5">
-                                  Jadwal
-                                </span>
-                                <div className="flex flex-wrap items-center gap-1 min-w-0">
-                                  {hariList.length > 0 ? (
-                                    hariList.map((day, idx) => (
-                                      <span
-                                        key={`d-${idx}`}
-                                        className="px-2 py-0.5 bg-[#173F3A]/8 border border-[#173F3A]/15 text-[#173F3A] rounded-md text-[11px] font-semibold"
-                                      >
-                                        {day}
-                                      </span>
-                                    ))
-                                  ) : (
-                                    <span className="px-2 py-0.5 rounded-md text-[11px] text-slate-400 italic bg-white border border-dashed border-slate-200">
-                                      Belum diatur tutor
-                                    </span>
-                                  )}
-                                </div>
-                              </div>
-                            </div>
-
-                            {/* Baris Aksi Cepat (Thumb-friendly) */}
-                            <div className="pt-0.5 flex items-center justify-between gap-2 flex-wrap">
-                              <a
-                                href={`https://wa.me/${p.nomorTelepon.replace(/^0/, "62")}`}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200/70 text-[11.5px] font-semibold active:scale-95 transition-transform"
-                              >
-                                <span className="material-symbols-outlined text-[14px]">chat</span>
-                                <span>{p.nomorTelepon}</span>
-                              </a>
-
-                              <div className="flex items-center gap-1.5 ml-auto">
-                                {hasActiveCountdown ? (
-                                  <button
-                                    type="button"
-                                    onClick={() => handleBukaDetailUndangan(p)}
-                                    className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-sky-50 text-sky-700 border border-sky-200 text-[11px] font-mono font-semibold cursor-pointer"
-                                    title="Buka link & sisa waktu"
-                                  >
-                                    <span className="material-symbols-outlined text-[14px]">schedule</span>
-                                    <span>{countdownText}</span>
-                                  </button>
-                                ) : !p.akunDiaktifkanPada && !p.statusResetPassword ? (
-                                  <button
-                                    type="button"
-                                    onClick={() => handleBuatUndangan(p, "aktivasi")}
-                                    disabled={undanganLoadingId === p._id}
-                                    className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-[#133e35] text-white text-[11.5px] font-semibold disabled:opacity-50 cursor-pointer"
-                                  >
-                                    <span className="material-symbols-outlined text-[14px]">mail</span>
-                                    <span>Undangan</span>
-                                  </button>
-                                ) : (
-                                  <button
-                                    type="button"
-                                    onClick={() => handleBuatUndangan(p, "reset")}
-                                    disabled={undanganLoadingId === p._id}
-                                    className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white text-slate-700 text-[11.5px] font-medium disabled:opacity-50 cursor-pointer"
-                                  >
-                                    <span className="material-symbols-outlined text-[14px]">lock_reset</span>
-                                    <span>Reset</span>
-                                  </button>
-                                )}
-
-                                <button
-                                  type="button"
-                                  onClick={() => handleOpenEditPengajar(p)}
-                                  className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-[11.5px] font-semibold cursor-pointer"
-                                  title="Edit Tutor"
-                                >
-                                  <span className="material-symbols-outlined text-[14px]">edit</span>
-                                  <span>Edit</span>
-                                </button>
-
-                                <button
-                                  type="button"
-                                  onClick={() => handleDeletePengajar(p._id, p.nama)}
-                                  className="w-8 h-8 flex items-center justify-center rounded-lg bg-rose-50 text-rose-600 border border-rose-200/70 hover:bg-rose-100 cursor-pointer"
-                                  title="Hapus Tutor"
-                                >
-                                  <span className="material-symbols-outlined text-[16px]">delete</span>
-                                </button>
-                              </div>
-                            </div>
-                          </div>
-                        );
-                      })
-                    )}
+                    </div>
                   </div>
 
-                  {/* DESKTOP TABLE (Tetap utuh di md+) */}
-                  <div className="hidden md:block overflow-x-auto">
-                    <table className="w-full min-w-[900px] text-left border-collapse">
-                      <thead>
-                        <tr className="border-b border-slate-200/90 bg-slate-50/90 text-[11px] font-bold tracking-wider text-slate-500 uppercase">
-                          <th className="py-3.5 pl-6 pr-4 w-[31%] whitespace-nowrap">Nama &amp; Rekam Profil</th>
-                          <th className="py-3.5 px-4 w-[17%] whitespace-nowrap">Mata Pelajaran</th>
-                          <th className="py-3.5 px-4 w-[14%] whitespace-nowrap">Jenjang &amp; Kelas</th>
-                          <th className="py-3.5 px-4 w-[16%] whitespace-nowrap">Ketersediaan Hari</th>
-                          <th className="py-3.5 px-4 w-[14%] whitespace-nowrap">Status</th>
-                          <th className="py-3.5 pl-4 pr-6 w-[8%] text-right whitespace-nowrap">Aksi</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-slate-100 text-sm">
-                        {loading ? (
-                          <tr>
-                            <td colSpan={6} className="py-12 text-center text-slate-500">
-                              <span className="material-symbols-outlined text-[28px] animate-spin block mb-2">
-                                progress_activity
-                              </span>
-                              Memuat basis data pendidik...
-                            </td>
-                          </tr>
-                        ) : filteredPengajar.length === 0 ? (
-                          <tr>
-                            <td colSpan={6} className="py-12 text-center text-slate-500">
-                              Tidak ada pengajar yang sesuai dengan kriteria pencarian.
-                            </td>
-                          </tr>
-                        ) : (
-                          filteredPengajar.map((p) => {
-                            const hariList = extractUniqueDays(p.jadwalTersedia);
-                            const countdownText = formatCountdown(p.aktivasiKadaluarsa, nowTime);
-                            const hasActiveCountdown = Boolean(countdownText);
-                            const fotoUrl = cleanImageUrl(p.foto);
-
-                            // Initial avatar fallback (2 huruf)
-                            const initials = p.nama
+                  {/* Editorial Table (Desktop) & Card List (Mobile) */}
+                  <div id="tableContainer" className="bg-white rounded-xl sm:rounded-2xl border border-slate-200/90 shadow-sm overflow-hidden">
+                    {/* MOBILE CARD LIST (Tampil hanya di HP < md, tanpa scroll horizontal) */}
+                    <div className="block md:hidden divide-y divide-slate-200/70">
+                      {loading ? (
+                        <div className="py-12 text-center text-slate-500 text-sm">
+                          <span className="material-symbols-outlined text-[28px] animate-spin block mb-2">
+                            progress_activity
+                          </span>
+                          Memuat basis data pendidik...
+                        </div>
+                      ) : filteredPengajar.length === 0 ? (
+                        <div className="py-12 px-4 text-center text-slate-500 text-sm">
+                          Tidak ada pengajar yang sesuai dengan kriteria pencarian.
+                        </div>
+                      ) : (
+                        filteredPengajar.map((p) => {
+                          const hariList = extractUniqueDays(p.jadwalTersedia);
+                          const countdownText = formatCountdown(p.aktivasiKadaluarsa, nowTime);
+                          const hasActiveCountdown = Boolean(countdownText);
+                          const fotoUrl = cleanImageUrl(p.foto);
+                          const initials =
+                            p.nama
                               .trim()
                               .split(/\s+/)
                               .slice(0, 2)
                               .map((w) => w[0]?.toUpperCase() || "")
                               .join("") || "TU";
 
-                            return (
-                              <tr key={p._id} className="group hover:bg-slate-50/70 transition-colors">
-                                {/* 1. Nama & Rekam Profil */}
-                                <td className="py-4 pl-6 pr-4 align-middle">
-                                  <div className="flex items-center gap-3.5">
-                                    {fotoUrl ? (
-                                      <img
-                                        src={fotoUrl}
-                                        alt={p.nama}
-                                        referrerPolicy="no-referrer"
-                                        className="w-11 h-11 rounded-xl object-cover shrink-0 border border-slate-200 shadow-sm"
-                                        onError={(e) => {
-                                          e.currentTarget.style.display = "none";
-                                          if (e.currentTarget.nextElementSibling) {
-                                            (e.currentTarget.nextElementSibling as HTMLElement).style.display = "flex";
-                                          }
-                                        }}
-                                      />
-                                    ) : null}
-                                    <div
-                                      className={`w-11 h-11 rounded-xl bg-[#133e35] text-white flex items-center justify-center font-semibold text-sm tracking-wide shrink-0 shadow-sm ${
-                                        fotoUrl ? "hidden" : "flex"
+                          return (
+                            <div key={p._id} className="p-3.5 sm:p-4 space-y-3 hover:bg-slate-50/60 transition-colors">
+                              {/* Header Kartu: Avatar, Nama, ID & Status */}
+                              <div className="flex items-start justify-between gap-2.5">
+                                <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                                  {fotoUrl ? (
+                                    <img
+                                      src={fotoUrl}
+                                      alt={p.nama}
+                                      referrerPolicy="no-referrer"
+                                      className="w-11 h-11 rounded-xl object-cover shrink-0 border border-slate-200 shadow-2xs"
+                                      onError={(e) => {
+                                        e.currentTarget.style.display = "none";
+                                        if (e.currentTarget.nextElementSibling) {
+                                          (e.currentTarget.nextElementSibling as HTMLElement).style.display = "flex";
+                                        }
+                                      }}
+                                    />
+                                  ) : null}
+                                  <div
+                                    className={`w-11 h-11 rounded-xl bg-[#133e35] text-white flex items-center justify-center font-semibold text-xs tracking-wide shrink-0 shadow-2xs ${fotoUrl ? "hidden" : "flex"
                                       }`}
-                                    >
-                                      {initials}
-                                    </div>
+                                  >
+                                    {initials}
+                                  </div>
 
-                                    {/* Detail Profil (3 Baris Terstruktur) */}
-                                    <div className="min-w-0 flex-1 space-y-1">
-                                      <div className="flex items-center gap-2">
-                                        <p className="font-semibold text-slate-900 text-sm leading-tight truncate">
-                                          {p.nama}
-                                        </p>
-                                      </div>
-                                      {/* Baris NIP & WhatsApp */}
-                                      <div className="flex items-center gap-2 flex-nowrap">
-                                        <span className="px-2 py-0.5 bg-slate-100 border border-slate-200/70 text-slate-600 rounded text-[11px] font-mono whitespace-nowrap">
-                                          ID: {p.nip || "GP-26-001"}
-                                        </span>
-                                        <span className="text-slate-300 text-xs select-none">•</span>
-                                        <a
-                                          href={`https://wa.me/${p.nomorTelepon.replace(/^0/, "62")}`}
-                                          target="_blank"
-                                          rel="noopener noreferrer"
-                                          className="inline-flex items-center gap-1 text-xs font-medium text-emerald-700 hover:text-emerald-800 hover:underline whitespace-nowrap"
-                                          title="Hubungi via WhatsApp"
-                                        >
-                                          <svg className="w-3.5 h-3.5 text-emerald-600 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                            <path strokeLinecap="round" strokeLinejoin="round" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path>
-                                          </svg>
-                                          <span>{p.nomorTelepon}</span>
-                                        </a>
-                                      </div>
-                                      {/* Baris Pendidikan */}
+                                  <div className="min-w-0 flex-1">
+                                    <p className="font-semibold text-slate-900 text-[0.9rem] leading-tight truncate">
+                                      {p.nama}
+                                    </p>
+                                    <div className="flex items-center gap-1.5 mt-1">
+                                      <span className="px-1.5 py-0.5 bg-slate-100 border border-slate-200/80 text-slate-600 rounded text-[10px] font-mono shrink-0">
+                                        {p.nip || "GP-26-001"}
+                                      </span>
                                       {p.pendidikan && (
-                                        <p className="text-xs text-slate-500 truncate max-w-[260px]" title={p.pendidikan}>
+                                        <span className="text-[11px] text-slate-500 truncate">
                                           {p.pendidikan}
-                                        </p>
+                                        </span>
                                       )}
                                     </div>
                                   </div>
-                                </td>
+                                </div>
 
-                                {/* 2. Mata Pelajaran */}
-                                <td className="py-4 px-4 align-middle">
-                                  <div className="flex flex-wrap items-center gap-1.5">
+                                {/* Status Badge */}
+                                <div className="shrink-0">
+                                  {p.statusResetPassword ? (
+                                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium bg-orange-50 text-orange-700 border border-orange-200/80 whitespace-nowrap">
+                                      <span className="w-1.5 h-1.5 rounded-full bg-orange-500"></span>
+                                      Reset PW
+                                    </span>
+                                  ) : !p.akunDiaktifkanPada ? (
+                                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium bg-amber-50 text-amber-700 border border-amber-200/80 whitespace-nowrap">
+                                      <span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
+                                      Belum Aktif
+                                    </span>
+                                  ) : (
+                                    <span
+                                      className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium whitespace-nowrap ${p.status === "Aktif"
+                                        ? "bg-emerald-50 text-emerald-700 border border-emerald-200/80"
+                                        : p.status === "Cuti"
+                                          ? "bg-amber-50 text-amber-700 border border-amber-200/80"
+                                          : "bg-slate-100 text-slate-600 border border-slate-200"
+                                        }`}
+                                    >
+                                      <span
+                                        className={`w-1.5 h-1.5 rounded-full ${p.status === "Aktif"
+                                          ? "bg-emerald-500"
+                                          : p.status === "Cuti"
+                                            ? "bg-amber-500"
+                                            : "bg-slate-400"
+                                          }`}
+                                      ></span>
+                                      {p.status}
+                                    </span>
+                                  )}
+                                </div>
+                              </div>
+
+                              {/* Grid Info Terstruktur: Mapel, Jenjang & Jadwal */}
+                              <div className="bg-[#faf9f7] rounded-xl border border-slate-200/70 p-2.5 space-y-2 text-[11.5px]">
+                                <div className="flex items-start gap-2">
+                                  <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 w-14 shrink-0 pt-0.5">
+                                    Mapel
+                                  </span>
+                                  <div className="flex flex-wrap items-center gap-1 min-w-0">
                                     {p.mataPelajaran.map((m, idx) => (
                                       <span
                                         key={idx}
-                                        className="px-2.5 py-1 bg-slate-100 text-slate-700 rounded-full text-xs font-medium whitespace-nowrap"
+                                        className="px-2 py-0.5 bg-white border border-slate-200/80 text-slate-700 rounded-md text-[11px] font-medium"
                                       >
                                         {m}
                                       </span>
                                     ))}
                                   </div>
-                                </td>
+                                </div>
 
-                                {/* 3. Jenjang & Kelas */}
-                                <td className="py-4 px-4 align-middle whitespace-nowrap">
-                                  <p className="text-sm font-semibold text-slate-800 leading-snug">
-                                    {p.jenjang && p.jenjang.length > 0 ? p.jenjang.join(", ") : "-"}
+                                <div className="flex items-center gap-2">
+                                  <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 w-14 shrink-0">
+                                    Jenjang
+                                  </span>
+                                  <p className="text-[11.5px] font-medium text-slate-700 truncate">
+                                    <span className="font-semibold text-slate-900">
+                                      {p.jenjang && p.jenjang.length > 0 ? p.jenjang.join(", ") : "-"}
+                                    </span>
+                                    <span className="text-slate-300 mx-1.5">•</span>
+                                    <span>{p.jenisKelas.join(", ") || "Reguler"}</span>
                                   </p>
-                                  <p className="text-xs text-slate-500 mt-0.5">
-                                    {p.jenisKelas.join(", ") || "Reguler"}
-                                  </p>
-                                </td>
+                                </div>
 
-                                {/* 4. Ketersediaan Hari */}
-                                <td className="py-4 px-4 align-middle">
-                                  {hariList.length > 0 ? (
-                                    <div className="flex flex-wrap items-center gap-1.5">
-                                      {hariList.map((day, idx) => (
+                                <div className="flex items-start gap-2">
+                                  <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 w-14 shrink-0 pt-0.5">
+                                    Jadwal
+                                  </span>
+                                  <div className="flex flex-wrap items-center gap-1 min-w-0">
+                                    {hariList.length > 0 ? (
+                                      hariList.map((day, idx) => (
                                         <span
-                                          key={idx}
-                                          className="px-2.5 py-1 bg-white border border-slate-200 text-slate-700 rounded-full text-xs font-medium shadow-2xs whitespace-nowrap"
+                                          key={`d-${idx}`}
+                                          className="px-2 py-0.5 bg-[#173F3A]/8 border border-[#173F3A]/15 text-[#173F3A] rounded-md text-[11px] font-semibold"
                                         >
                                           {day}
                                         </span>
+                                      ))
+                                    ) : (
+                                      <span className="px-2 py-0.5 rounded-md text-[11px] text-slate-400 italic bg-white border border-dashed border-slate-200">
+                                        Belum diatur tutor
+                                      </span>
+                                    )}
+                                  </div>
+                                </div>
+                              </div>
+
+                              {/* Baris Aksi Cepat (Thumb-friendly) */}
+                              <div className="pt-0.5 flex items-center justify-between gap-2 flex-wrap">
+                                <a
+                                  href={`https://wa.me/${p.nomorTelepon.replace(/^0/, "62")}`}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200/70 text-[11.5px] font-semibold active:scale-95 transition-transform"
+                                >
+                                  <span className="material-symbols-outlined text-[14px]">chat</span>
+                                  <span>{p.nomorTelepon}</span>
+                                </a>
+
+                                <div className="flex items-center gap-1.5 ml-auto">
+                                  {hasActiveCountdown ? (
+                                    <button
+                                      type="button"
+                                      onClick={() => handleBukaDetailUndangan(p)}
+                                      className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-sky-50 text-sky-700 border border-sky-200 text-[11px] font-mono font-semibold cursor-pointer"
+                                      title="Buka link & sisa waktu"
+                                    >
+                                      <span className="material-symbols-outlined text-[14px]">schedule</span>
+                                      <span>{countdownText}</span>
+                                    </button>
+                                  ) : !p.akunDiaktifkanPada && !p.statusResetPassword ? (
+                                    <button
+                                      type="button"
+                                      onClick={() => handleBuatUndangan(p, "aktivasi")}
+                                      disabled={undanganLoadingId === p._id}
+                                      className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-[#133e35] text-white text-[11.5px] font-semibold disabled:opacity-50 cursor-pointer"
+                                    >
+                                      <span className="material-symbols-outlined text-[14px]">mail</span>
+                                      <span>Undangan</span>
+                                    </button>
+                                  ) : (
+                                    <button
+                                      type="button"
+                                      onClick={() => handleBuatUndangan(p, "reset")}
+                                      disabled={undanganLoadingId === p._id}
+                                      className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white text-slate-700 text-[11.5px] font-medium disabled:opacity-50 cursor-pointer"
+                                    >
+                                      <span className="material-symbols-outlined text-[14px]">lock_reset</span>
+                                      <span>Reset</span>
+                                    </button>
+                                  )}
+
+                                  <button
+                                    type="button"
+                                    onClick={() => handleOpenEditPengajar(p)}
+                                    className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-[11.5px] font-semibold cursor-pointer"
+                                    title="Edit Tutor"
+                                  >
+                                    <span className="material-symbols-outlined text-[14px]">edit</span>
+                                    <span>Edit</span>
+                                  </button>
+
+                                  <button
+                                    type="button"
+                                    onClick={() => handleDeletePengajar(p._id, p.nama)}
+                                    className="w-8 h-8 flex items-center justify-center rounded-lg bg-rose-50 text-rose-600 border border-rose-200/70 hover:bg-rose-100 cursor-pointer"
+                                    title="Hapus Tutor"
+                                  >
+                                    <span className="material-symbols-outlined text-[16px]">delete</span>
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })
+                      )}
+                    </div>
+
+                    {/* DESKTOP TABLE (Tetap utuh di md+) */}
+                    <div className="hidden md:block overflow-x-auto">
+                      <table className="w-full min-w-[900px] text-left border-collapse">
+                        <thead>
+                          <tr className="border-b border-slate-200/90 bg-slate-50/90 text-[11px] font-bold tracking-wider text-slate-500 uppercase">
+                            <th className="py-3.5 pl-6 pr-4 w-[31%] whitespace-nowrap">Nama &amp; Rekam Profil</th>
+                            <th className="py-3.5 px-4 w-[17%] whitespace-nowrap">Mata Pelajaran</th>
+                            <th className="py-3.5 px-4 w-[14%] whitespace-nowrap">Jenjang &amp; Kelas</th>
+                            <th className="py-3.5 px-4 w-[16%] whitespace-nowrap">Ketersediaan Hari</th>
+                            <th className="py-3.5 px-4 w-[14%] whitespace-nowrap">Status</th>
+                            <th className="py-3.5 pl-4 pr-6 w-[8%] text-right whitespace-nowrap">Aksi</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-100 text-sm">
+                          {loading ? (
+                            <tr>
+                              <td colSpan={6} className="py-12 text-center text-slate-500">
+                                <span className="material-symbols-outlined text-[28px] animate-spin block mb-2">
+                                  progress_activity
+                                </span>
+                                Memuat basis data pendidik...
+                              </td>
+                            </tr>
+                          ) : filteredPengajar.length === 0 ? (
+                            <tr>
+                              <td colSpan={6} className="py-12 text-center text-slate-500">
+                                Tidak ada pengajar yang sesuai dengan kriteria pencarian.
+                              </td>
+                            </tr>
+                          ) : (
+                            filteredPengajar.map((p) => {
+                              const hariList = extractUniqueDays(p.jadwalTersedia);
+                              const countdownText = formatCountdown(p.aktivasiKadaluarsa, nowTime);
+                              const hasActiveCountdown = Boolean(countdownText);
+                              const fotoUrl = cleanImageUrl(p.foto);
+
+                              // Initial avatar fallback (2 huruf)
+                              const initials = p.nama
+                                .trim()
+                                .split(/\s+/)
+                                .slice(0, 2)
+                                .map((w) => w[0]?.toUpperCase() || "")
+                                .join("") || "TU";
+
+                              return (
+                                <tr key={p._id} className="group hover:bg-slate-50/70 transition-colors">
+                                  {/* 1. Nama & Rekam Profil */}
+                                  <td className="py-4 pl-6 pr-4 align-middle">
+                                    <div className="flex items-center gap-3.5">
+                                      {fotoUrl ? (
+                                        <img
+                                          src={fotoUrl}
+                                          alt={p.nama}
+                                          referrerPolicy="no-referrer"
+                                          className="w-11 h-11 rounded-xl object-cover shrink-0 border border-slate-200 shadow-sm"
+                                          onError={(e) => {
+                                            e.currentTarget.style.display = "none";
+                                            if (e.currentTarget.nextElementSibling) {
+                                              (e.currentTarget.nextElementSibling as HTMLElement).style.display = "flex";
+                                            }
+                                          }}
+                                        />
+                                      ) : null}
+                                      <div
+                                        className={`w-11 h-11 rounded-xl bg-[#133e35] text-white flex items-center justify-center font-semibold text-sm tracking-wide shrink-0 shadow-sm ${fotoUrl ? "hidden" : "flex"
+                                          }`}
+                                      >
+                                        {initials}
+                                      </div>
+
+                                      {/* Detail Profil (3 Baris Terstruktur) */}
+                                      <div className="min-w-0 flex-1 space-y-1">
+                                        <div className="flex items-center gap-2">
+                                          <p className="font-semibold text-slate-900 text-sm leading-tight truncate">
+                                            {p.nama}
+                                          </p>
+                                        </div>
+                                        {/* Baris NIP & WhatsApp */}
+                                        <div className="flex items-center gap-2 flex-nowrap">
+                                          <span className="px-2 py-0.5 bg-slate-100 border border-slate-200/70 text-slate-600 rounded text-[11px] font-mono whitespace-nowrap">
+                                            ID: {p.nip || "GP-26-001"}
+                                          </span>
+                                          <span className="text-slate-300 text-xs select-none">•</span>
+                                          <a
+                                            href={`https://wa.me/${p.nomorTelepon.replace(/^0/, "62")}`}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="inline-flex items-center gap-1 text-xs font-medium text-emerald-700 hover:text-emerald-800 hover:underline whitespace-nowrap"
+                                            title="Hubungi via WhatsApp"
+                                          >
+                                            <svg className="w-3.5 h-3.5 text-emerald-600 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                              <path strokeLinecap="round" strokeLinejoin="round" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path>
+                                            </svg>
+                                            <span>{p.nomorTelepon}</span>
+                                          </a>
+                                        </div>
+                                        {/* Baris Pendidikan */}
+                                        {p.pendidikan && (
+                                          <p className="text-xs text-slate-500 truncate max-w-[260px]" title={p.pendidikan}>
+                                            {p.pendidikan}
+                                          </p>
+                                        )}
+                                      </div>
+                                    </div>
+                                  </td>
+
+                                  {/* 2. Mata Pelajaran */}
+                                  <td className="py-4 px-4 align-middle">
+                                    <div className="flex flex-wrap items-center gap-1.5">
+                                      {p.mataPelajaran.map((m, idx) => (
+                                        <span
+                                          key={idx}
+                                          className="px-2.5 py-1 bg-slate-100 text-slate-700 rounded-full text-xs font-medium whitespace-nowrap"
+                                        >
+                                          {m}
+                                        </span>
                                       ))}
                                     </div>
-                                  ) : (
-                                    <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs text-slate-400 italic bg-slate-50 border border-dashed border-slate-200 whitespace-nowrap">
-                                      Belum diatur tutor
-                                    </span>
-                                  )}
-                                </td>
+                                  </td>
 
-                                {/* 5. Status & Akses */}
-                                <td className="py-4 px-4 align-middle">
-                                  <div className={`flex ${hasActiveCountdown ? "flex-col items-start gap-1" : "items-center gap-2"}`}>
-                                    {p.statusResetPassword ? (
-                                      <>
-                                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-orange-50 text-orange-700 border border-orange-200/80 whitespace-nowrap">
-                                          <span className="w-1.5 h-1.5 rounded-full bg-orange-500"></span>
-                                          Reset Password
-                                        </span>
-                                        {hasActiveCountdown ? (
-                                          <button
-                                            type="button"
-                                            onClick={() => handleBukaDetailUndangan(p)}
-                                            className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-emerald-50/70 text-emerald-700 border border-emerald-200/60 text-[11px] font-medium whitespace-nowrap hover:bg-emerald-100 transition-colors cursor-pointer"
-                                            title="Sisa waktu tautan reset password"
+                                  {/* 3. Jenjang & Kelas */}
+                                  <td className="py-4 px-4 align-middle whitespace-nowrap">
+                                    <p className="text-sm font-semibold text-slate-800 leading-snug">
+                                      {p.jenjang && p.jenjang.length > 0 ? p.jenjang.join(", ") : "-"}
+                                    </p>
+                                    <p className="text-xs text-slate-500 mt-0.5">
+                                      {p.jenisKelas.join(", ") || "Reguler"}
+                                    </p>
+                                  </td>
+
+                                  {/* 4. Ketersediaan Hari */}
+                                  <td className="py-4 px-4 align-middle">
+                                    {hariList.length > 0 ? (
+                                      <div className="flex flex-wrap items-center gap-1.5">
+                                        {hariList.map((day, idx) => (
+                                          <span
+                                            key={idx}
+                                            className="px-2.5 py-1 bg-white border border-slate-200 text-slate-700 rounded-full text-xs font-medium shadow-2xs whitespace-nowrap"
                                           >
-                                            <svg className="w-3 h-3 text-emerald-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
-                                              <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                            </svg>
-                                            <span className="font-mono">{countdownText}</span>
-                                          </button>
-                                        ) : (
+                                            {day}
+                                          </span>
+                                        ))}
+                                      </div>
+                                    ) : (
+                                      <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs text-slate-400 italic bg-slate-50 border border-dashed border-slate-200 whitespace-nowrap">
+                                        Belum diatur tutor
+                                      </span>
+                                    )}
+                                  </td>
+
+                                  {/* 5. Status & Akses */}
+                                  <td className="py-4 px-4 align-middle">
+                                    <div className={`flex ${hasActiveCountdown ? "flex-col items-start gap-1" : "items-center gap-2"}`}>
+                                      {p.statusResetPassword ? (
+                                        <>
+                                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-orange-50 text-orange-700 border border-orange-200/80 whitespace-nowrap">
+                                            <span className="w-1.5 h-1.5 rounded-full bg-orange-500"></span>
+                                            Reset Password
+                                          </span>
+                                          {hasActiveCountdown ? (
+                                            <button
+                                              type="button"
+                                              onClick={() => handleBukaDetailUndangan(p)}
+                                              className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-emerald-50/70 text-emerald-700 border border-emerald-200/60 text-[11px] font-medium whitespace-nowrap hover:bg-emerald-100 transition-colors cursor-pointer"
+                                              title="Sisa waktu tautan reset password"
+                                            >
+                                              <svg className="w-3 h-3 text-emerald-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+                                                <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                              </svg>
+                                              <span className="font-mono">{countdownText}</span>
+                                            </button>
+                                          ) : (
+                                            <button
+                                              type="button"
+                                              onClick={() => handleBuatUndangan(p, "reset")}
+                                              disabled={undanganLoadingId === p._id}
+                                              className="w-7 h-7 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-100 hover:text-teal-800 flex items-center justify-center transition-colors shrink-0 disabled:opacity-50 cursor-pointer"
+                                              title="Kirim Ulang Link Reset Password"
+                                            >
+                                              <svg className={`w-3.5 h-3.5 ${undanganLoadingId === p._id ? "animate-spin" : ""}`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                                <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                                              </svg>
+                                            </button>
+                                          )}
+                                        </>
+                                      ) : !p.akunDiaktifkanPada ? (
+                                        <>
+                                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-amber-50 text-amber-700 border border-amber-200/80 whitespace-nowrap">
+                                            <span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
+                                            Belum Aktivasi
+                                          </span>
+                                          {hasActiveCountdown ? (
+                                            <button
+                                              type="button"
+                                              onClick={() => handleBukaDetailUndangan(p)}
+                                              className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-sky-50/70 text-sky-700 border border-sky-200/60 text-[11px] font-medium whitespace-nowrap hover:bg-sky-100 transition-colors cursor-pointer"
+                                              title="Sisa waktu tautan aktivasi"
+                                            >
+                                              <svg className="w-3 h-3 text-sky-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+                                                <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                              </svg>
+                                              <span className="font-mono">{countdownText}</span>
+                                            </button>
+                                          ) : (
+                                            <button
+                                              type="button"
+                                              onClick={() => handleBuatUndangan(p, "aktivasi")}
+                                              disabled={undanganLoadingId === p._id}
+                                              className="w-7 h-7 rounded-lg bg-[#133e35] text-white hover:bg-[#0f312a] flex items-center justify-center transition-colors shrink-0 shadow-2xs disabled:opacity-50 cursor-pointer"
+                                              title="Kirim Undangan Aktivasi"
+                                            >
+                                              <svg className={`w-3.5 h-3.5 ${undanganLoadingId === p._id ? "animate-spin" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+                                                <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                                              </svg>
+                                            </button>
+                                          )}
+                                        </>
+                                      ) : (
+                                        <>
+                                          <span
+                                            className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium whitespace-nowrap ${p.status === "Aktif"
+                                              ? "bg-emerald-50 text-emerald-700 border border-emerald-200/80"
+                                              : p.status === "Cuti"
+                                                ? "bg-amber-50 text-amber-700 border border-amber-200/80"
+                                                : "bg-slate-100 text-slate-600 border border-slate-200"
+                                              }`}
+                                          >
+                                            <span
+                                              className={`w-1.5 h-1.5 rounded-full ${p.status === "Aktif"
+                                                ? "bg-emerald-500"
+                                                : p.status === "Cuti"
+                                                  ? "bg-amber-500"
+                                                  : "bg-slate-400"
+                                                }`}
+                                            ></span>
+                                            {p.status}
+                                          </span>
                                           <button
                                             type="button"
                                             onClick={() => handleBuatUndangan(p, "reset")}
                                             disabled={undanganLoadingId === p._id}
                                             className="w-7 h-7 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-100 hover:text-teal-800 flex items-center justify-center transition-colors shrink-0 disabled:opacity-50 cursor-pointer"
-                                            title="Kirim Ulang Link Reset Password"
+                                            title="Reset Password Tutor"
                                           >
                                             <svg className={`w-3.5 h-3.5 ${undanganLoadingId === p._id ? "animate-spin" : ""}`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                                               <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
                                             </svg>
                                           </button>
-                                        )}
-                                      </>
-                                    ) : !p.akunDiaktifkanPada ? (
-                                      <>
-                                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-amber-50 text-amber-700 border border-amber-200/80 whitespace-nowrap">
-                                          <span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
-                                          Belum Aktivasi
-                                        </span>
-                                        {hasActiveCountdown ? (
-                                          <button
-                                            type="button"
-                                            onClick={() => handleBukaDetailUndangan(p)}
-                                            className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-sky-50/70 text-sky-700 border border-sky-200/60 text-[11px] font-medium whitespace-nowrap hover:bg-sky-100 transition-colors cursor-pointer"
-                                            title="Sisa waktu tautan aktivasi"
-                                          >
-                                            <svg className="w-3 h-3 text-sky-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
-                                              <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                            </svg>
-                                            <span className="font-mono">{countdownText}</span>
-                                          </button>
-                                        ) : (
-                                          <button
-                                            type="button"
-                                            onClick={() => handleBuatUndangan(p, "aktivasi")}
-                                            disabled={undanganLoadingId === p._id}
-                                            className="w-7 h-7 rounded-lg bg-[#133e35] text-white hover:bg-[#0f312a] flex items-center justify-center transition-colors shrink-0 shadow-2xs disabled:opacity-50 cursor-pointer"
-                                            title="Kirim Undangan Aktivasi"
-                                          >
-                                            <svg className={`w-3.5 h-3.5 ${undanganLoadingId === p._id ? "animate-spin" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
-                                              <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
-                                            </svg>
-                                          </button>
-                                        )}
-                                      </>
-                                    ) : (
-                                      <>
-                                        <span
-                                          className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium whitespace-nowrap ${
-                                            p.status === "Aktif"
-                                              ? "bg-emerald-50 text-emerald-700 border border-emerald-200/80"
-                                              : p.status === "Cuti"
-                                              ? "bg-amber-50 text-amber-700 border border-amber-200/80"
-                                              : "bg-slate-100 text-slate-600 border border-slate-200"
-                                          }`}
-                                        >
-                                          <span
-                                            className={`w-1.5 h-1.5 rounded-full ${
-                                              p.status === "Aktif"
-                                                ? "bg-emerald-500"
-                                                : p.status === "Cuti"
-                                                ? "bg-amber-500"
-                                                : "bg-slate-400"
-                                            }`}
-                                          ></span>
-                                          {p.status}
-                                        </span>
-                                        <button
-                                          type="button"
-                                          onClick={() => handleBuatUndangan(p, "reset")}
-                                          disabled={undanganLoadingId === p._id}
-                                          className="w-7 h-7 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-100 hover:text-teal-800 flex items-center justify-center transition-colors shrink-0 disabled:opacity-50 cursor-pointer"
-                                          title="Reset Password Tutor"
-                                        >
-                                          <svg className={`w-3.5 h-3.5 ${undanganLoadingId === p._id ? "animate-spin" : ""}`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                            <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
-                                          </svg>
-                                        </button>
-                                      </>
-                                    )}
-                                  </div>
-                                </td>
+                                        </>
+                                      )}
+                                    </div>
+                                  </td>
 
-                                {/* 6. Aksi */}
-                                <td className="py-4 pl-4 pr-6 align-middle text-right whitespace-nowrap">
-                                  <div className="inline-flex items-center justify-end gap-1.5">
-                                    <button
-                                      type="button"
-                                      onClick={() => handleOpenEditPengajar(p)}
-                                      className="w-8 h-8 flex items-center justify-center text-slate-500 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-colors border border-transparent hover:border-slate-200 cursor-pointer"
-                                      title="Edit Tutor"
-                                    >
-                                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
-                                        <path strokeLinecap="round" strokeLinejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path>
-                                      </svg>
-                                    </button>
-                                    <button
-                                      type="button"
-                                      onClick={() => handleDeletePengajar(p._id, p.nama)}
-                                      className="w-8 h-8 flex items-center justify-center text-slate-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors border border-transparent hover:border-red-200 cursor-pointer"
-                                      title="Hapus Tutor"
-                                    >
-                                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
-                                        <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                                      </svg>
-                                    </button>
-                                  </div>
-                                </td>
-                              </tr>
-                            );
-                          })
-                        )}
-                      </tbody>
-                    </table>
-                  </div>
+                                  {/* 6. Aksi */}
+                                  <td className="py-4 pl-4 pr-6 align-middle text-right whitespace-nowrap">
+                                    <div className="inline-flex items-center justify-end gap-1.5">
+                                      <button
+                                        type="button"
+                                        onClick={() => handleOpenEditPengajar(p)}
+                                        className="w-8 h-8 flex items-center justify-center text-slate-500 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-colors border border-transparent hover:border-slate-200 cursor-pointer"
+                                        title="Edit Tutor"
+                                      >
+                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+                                          <path strokeLinecap="round" strokeLinejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path>
+                                        </svg>
+                                      </button>
+                                      <button
+                                        type="button"
+                                        onClick={() => handleDeletePengajar(p._id, p.nama)}
+                                        className="w-8 h-8 flex items-center justify-center text-slate-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors border border-transparent hover:border-red-200 cursor-pointer"
+                                        title="Hapus Tutor"
+                                      >
+                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+                                          <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                        </svg>
+                                      </button>
+                                    </div>
+                                  </td>
+                                </tr>
+                              );
+                            })
+                          )}
+                        </tbody>
+                      </table>
+                    </div>
 
-                  {/* Table Footer */}
-                  <div className="p-3.5 sm:p-4 bg-[#f4f3f1] border-t border-[#e3e2e0] flex flex-col sm:flex-row items-center justify-between gap-2 sm:gap-3 text-[0.78rem] sm:text-[0.8125rem] text-[#67645f] text-center sm:text-left">
-                    <span>
-                      Menampilkan <strong className="text-black">{filteredPengajar.length}</strong> dari{" "}
-                      <strong className="text-black">{pengajarList.length}</strong> total tutor
-                    </span>
-                    <span className="text-[0.7rem] sm:text-[0.75rem]">Sinkronisasi data langsung dengan MongoDB Atlas</span>
+                    {/* Table Footer */}
+                    <div className="p-3.5 sm:p-4 bg-[#f4f3f1] border-t border-[#e3e2e0] flex flex-col sm:flex-row items-center justify-between gap-2 sm:gap-3 text-[0.78rem] sm:text-[0.8125rem] text-[#67645f] text-center sm:text-left">
+                      <span>
+                        Menampilkan <strong className="text-black">{filteredPengajar.length}</strong> dari{" "}
+                        <strong className="text-black">{pengajarList.length}</strong> total tutor
+                      </span>
+                      <span className="text-[0.7rem] sm:text-[0.75rem]">Sinkronisasi data langsung dengan MongoDB Atlas</span>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </>
-          )}
+              </>
+            )}
 
             {/* TAB KELOLA MATA PELAJARAN MASTER */}
             {activeTab === "mapel" && (
@@ -2007,12 +2041,12 @@ export default function PanelKoordinator() {
                       {(masterSesiList.filter((s) => s.hariGroup === "Senin - Kamis" || s.hari.includes("Senin")).length > 0
                         ? masterSesiList.filter((s) => s.hariGroup === "Senin - Kamis" || s.hari.includes("Senin"))
                         : [
-                            { _id: "sk1", nama: "Sesi 1", waktuLabel: "13.00 - 14.15", durasiMenit: 75 },
-                            { _id: "sk2", nama: "Sesi 2", waktuLabel: "14.30 - 15.45", durasiMenit: 75 },
-                            { _id: "sk3", nama: "Sesi 3", waktuLabel: "16.00 - 17.15", durasiMenit: 75 },
-                            { _id: "sk4", nama: "Sesi 4", waktuLabel: "17.15 - 18.30", durasiMenit: 75 },
-                            { _id: "sk5", nama: "Sesi 5", waktuLabel: "18.45 - 20.00", durasiMenit: 75 },
-                          ]
+                          { _id: "sk1", nama: "Sesi 1", waktuLabel: "13.00 - 14.15", durasiMenit: 75 },
+                          { _id: "sk2", nama: "Sesi 2", waktuLabel: "14.30 - 15.45", durasiMenit: 75 },
+                          { _id: "sk3", nama: "Sesi 3", waktuLabel: "16.00 - 17.15", durasiMenit: 75 },
+                          { _id: "sk4", nama: "Sesi 4", waktuLabel: "17.15 - 18.30", durasiMenit: 75 },
+                          { _id: "sk5", nama: "Sesi 5", waktuLabel: "18.45 - 20.00", durasiMenit: 75 },
+                        ]
                       ).map((s) => (
                         <div
                           key={s._id}
@@ -2051,13 +2085,13 @@ export default function PanelKoordinator() {
                       {(masterSesiList.filter((s) => s.hariGroup === "Jumat" || s.hari.includes("Jumat")).length > 0
                         ? masterSesiList.filter((s) => s.hariGroup === "Jumat" || s.hari.includes("Jumat"))
                         : [
-                            { _id: "j1", nama: "Sesi 1", waktuLabel: "11.30 - 12.45", durasiMenit: 75 },
-                            { _id: "j2", nama: "Sesi 2", waktuLabel: "13.00 - 14.15", durasiMenit: 75 },
-                            { _id: "j3", nama: "Sesi 3", waktuLabel: "14.30 - 15.45", durasiMenit: 75 },
-                            { _id: "j4", nama: "Sesi 4", waktuLabel: "16.00 - 17.15", durasiMenit: 75 },
-                            { _id: "j5", nama: "Sesi 5", waktuLabel: "17.15 - 18.30", durasiMenit: 75 },
-                            { _id: "j6", nama: "Sesi 6", waktuLabel: "18.45 - 20.00", durasiMenit: 75 },
-                          ]
+                          { _id: "j1", nama: "Sesi 1", waktuLabel: "11.30 - 12.45", durasiMenit: 75 },
+                          { _id: "j2", nama: "Sesi 2", waktuLabel: "13.00 - 14.15", durasiMenit: 75 },
+                          { _id: "j3", nama: "Sesi 3", waktuLabel: "14.30 - 15.45", durasiMenit: 75 },
+                          { _id: "j4", nama: "Sesi 4", waktuLabel: "16.00 - 17.15", durasiMenit: 75 },
+                          { _id: "j5", nama: "Sesi 5", waktuLabel: "17.15 - 18.30", durasiMenit: 75 },
+                          { _id: "j6", nama: "Sesi 6", waktuLabel: "18.45 - 20.00", durasiMenit: 75 },
+                        ]
                       ).map((s) => (
                         <div
                           key={s._id}
@@ -2096,15 +2130,15 @@ export default function PanelKoordinator() {
                       {(masterSesiList.filter((s) => s.hariGroup === "Sabtu" || s.hari.includes("Sabtu")).length > 0
                         ? masterSesiList.filter((s) => s.hariGroup === "Sabtu" || s.hari.includes("Sabtu"))
                         : [
-                            { _id: "s1", nama: "Sesi 1", waktuLabel: "09.00 - 10.15", durasiMenit: 75 },
-                            { _id: "s2", nama: "Sesi 2", waktuLabel: "10.15 - 11.30", durasiMenit: 75 },
-                            { _id: "s3", nama: "Sesi 3", waktuLabel: "11.30 - 12.45", durasiMenit: 75 },
-                            { _id: "s4", nama: "Sesi 4", waktuLabel: "13.00 - 14.15", durasiMenit: 75 },
-                            { _id: "s5", nama: "Sesi 5", waktuLabel: "14.15 - 15.30", durasiMenit: 75 },
-                            { _id: "s6", nama: "Sesi 6", waktuLabel: "15.30 - 16.45", durasiMenit: 75 },
-                            { _id: "s7", nama: "Sesi 7", waktuLabel: "16.45 - 18.00", durasiMenit: 75 },
-                            { _id: "s8", nama: "Sesi 8", waktuLabel: "18.00 - 19.15", durasiMenit: 75 },
-                          ]
+                          { _id: "s1", nama: "Sesi 1", waktuLabel: "09.00 - 10.15", durasiMenit: 75 },
+                          { _id: "s2", nama: "Sesi 2", waktuLabel: "10.15 - 11.30", durasiMenit: 75 },
+                          { _id: "s3", nama: "Sesi 3", waktuLabel: "11.30 - 12.45", durasiMenit: 75 },
+                          { _id: "s4", nama: "Sesi 4", waktuLabel: "13.00 - 14.15", durasiMenit: 75 },
+                          { _id: "s5", nama: "Sesi 5", waktuLabel: "14.15 - 15.30", durasiMenit: 75 },
+                          { _id: "s6", nama: "Sesi 6", waktuLabel: "15.30 - 16.45", durasiMenit: 75 },
+                          { _id: "s7", nama: "Sesi 7", waktuLabel: "16.45 - 18.00", durasiMenit: 75 },
+                          { _id: "s8", nama: "Sesi 8", waktuLabel: "18.00 - 19.15", durasiMenit: 75 },
+                        ]
                       ).map((s) => (
                         <div
                           key={s._id}
@@ -2614,11 +2648,10 @@ export default function PanelKoordinator() {
                 </div>
                 <div className="space-y-0.5">
                   <h2 className="text-[0.875rem] font-semibold text-[#1a1c1b]">
-                    Prosedur Kurasi &amp; Penjaminan Mutu Tutor Lentera Belajar
+                    Alur Koordinasi &amp; Pemantauan Tutor
                   </h2>
                   <p className="text-[0.8125rem] text-[#444748] leading-relaxed">
-                    Setiap pendidik melalui telaah kualifikasi pedagogis, verifikasi ketersediaan hari, serta validasi
-                    Berita Acara Pembelajaran sebelum rekonsiliasi honor bulanan diterbitkan.
+                    Penempatan tutor disesuaikan dengan keahlian mengajar dan ketersediaan jadwal, serta dilengkapi pencatatan Berita Acara Pembelajaran pada setiap sesi.
                   </p>
                 </div>
               </div>
@@ -2680,11 +2713,10 @@ export default function PanelKoordinator() {
               const cd = formatCountdown(undangan.berlakuHingga, nowTime);
               return (
                 <div
-                  className={`p-3.5 rounded-xl border flex items-center justify-between text-[0.8125rem] ${
-                    cd
-                      ? "bg-emerald-50/80 border-emerald-200 text-emerald-950"
-                      : "bg-red-50 border-red-200 text-red-900"
-                  }`}
+                  className={`p-3.5 rounded-xl border flex items-center justify-between text-[0.8125rem] ${cd
+                    ? "bg-emerald-50/80 border-emerald-200 text-emerald-950"
+                    : "bg-red-50 border-red-200 text-red-900"
+                    }`}
                 >
                   <div className="flex items-center gap-2">
                     <span className="material-symbols-outlined text-[20px] text-emerald-700">
@@ -2818,148 +2850,148 @@ export default function PanelKoordinator() {
               )}
 
               <form id="pengajar-modal-form" onSubmit={handleSubmitPengajar} className="space-y-4">
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div className="sm:col-span-2">
-                  <label className="block text-[0.8125rem] font-medium text-[#1a1c1b] mb-1.5">
-                    Nama Lengkap &amp; Gelar
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="Contoh: Siti Rahmawati, M.Si."
-                    value={formNama}
-                    onChange={(e) => setFormNama(e.target.value)}
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-[#faf9f7] border border-[#e3e2e0] text-[0.875rem] focus:outline-none focus:border-black"
-                  />
-                </div>
-                <div>
-                  <label className="block text-[0.8125rem] font-medium text-[#1a1c1b] mb-1.5">
-                    ID Pegawai (Opsional)
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="Otomatis: GP-26-001"
-                    value={formNip}
-                    onChange={(e) => setFormNip(e.target.value)}
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-[#faf9f7] border border-[#e3e2e0] text-[0.875rem] focus:outline-none focus:border-black font-mono uppercase"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-[0.8125rem] font-medium text-[#1a1c1b] mb-1.5">Nomor WhatsApp</label>
-                  <input
-                    type="tel"
-                    required
-                    placeholder="081234567890"
-                    value={formTelepon}
-                    onChange={(e) => setFormTelepon(e.target.value)}
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-[#faf9f7] border border-[#e3e2e0] text-[0.875rem] focus:outline-none focus:border-black font-mono"
-                  />
-                </div>
-                <div>
-                  <label className="block text-[0.8125rem] font-medium text-[#1a1c1b] mb-1.5">Status Pendidik</label>
-                  <select
-                    value={formStatus}
-                    onChange={(e) => setFormStatus(e.target.value as "Aktif" | "Cuti" | "Nonaktif")}
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-[#faf9f7] border border-[#e3e2e0] text-[0.875rem] focus:outline-none focus:border-black"
-                  >
-                    <option value="Aktif">Aktif</option>
-                    <option value="Cuti">Cuti</option>
-                    <option value="Nonaktif">Nonaktif</option>
-                  </select>
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-[0.8125rem] font-medium text-[#1a1c1b] mb-1.5">
-                  Latar Belakang Pendidikan &amp; Almamater
-                </label>
-                <input
-                  type="text"
-                  placeholder="Contoh: S1 Kimia UI • S2 ITB"
-                  value={formPendidikan}
-                  onChange={(e) => setFormPendidikan(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-[#faf9f7] border border-[#e3e2e0] text-[0.875rem] focus:outline-none focus:border-black"
-                />
-              </div>
-
-              <div>
-                <label className="block text-[0.8125rem] font-medium text-[#1a1c1b] mb-1.5">
-                  Tautan URL Foto Profil
-                </label>
-                <div className="flex items-center gap-3">
-                  <div className="w-14 h-16 rounded-xl overflow-hidden bg-[#e3e2e0] border border-[#e3e2e0] shrink-0 flex items-center justify-center shadow-xs">
-                    {formFoto.trim() ? (
-                      <img
-                        src={cleanImageUrl(formFoto)}
-                        alt="Preview Foto"
-                        referrerPolicy="no-referrer"
-                        className="w-full h-full object-cover"
-                        onError={(e) => {
-                          const fallback = getAvatarFallback(formNama || "Tutor");
-                          if (e.currentTarget.src !== fallback) {
-                            e.currentTarget.src = fallback;
-                          }
-                        }}
-                      />
-                    ) : (
-                      <span className="material-symbols-outlined text-[#747878] text-[26px]">person</span>
-                    )}
-                  </div>
-                  <div className="flex-1 space-y-1">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  <div className="sm:col-span-2">
+                    <label className="block text-[0.8125rem] font-medium text-[#1a1c1b] mb-1.5">
+                      Nama Lengkap &amp; Gelar
+                    </label>
                     <input
                       type="text"
-                      placeholder="https://images.unsplash.com/... atau link Google Drive publik"
-                      value={formFoto}
-                      onChange={(e) => setFormFoto(e.target.value)}
-                      className="w-full px-3.5 py-2.5 rounded-xl bg-[#faf9f7] border border-[#e3e2e0] text-[0.875rem] focus:outline-none focus:border-black font-mono"
+                      required
+                      placeholder="Contoh: Siti Rahmawati, M.Si."
+                      value={formNama}
+                      onChange={(e) => setFormNama(e.target.value)}
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-[#faf9f7] border border-[#e3e2e0] text-[0.875rem] focus:outline-none focus:border-black"
                     />
-                    <span className="text-[0.7rem] text-[#67645f] block">
-                      Mendukung URL web gambar langsung (JPG, PNG, Unsplash) maupun link publik Google Drive.
-                    </span>
+                  </div>
+                  <div>
+                    <label className="block text-[0.8125rem] font-medium text-[#1a1c1b] mb-1.5">
+                      ID Pegawai (Opsional)
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="Otomatis: GP-26-001"
+                      value={formNip}
+                      onChange={(e) => setFormNip(e.target.value)}
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-[#faf9f7] border border-[#e3e2e0] text-[0.875rem] focus:outline-none focus:border-black font-mono uppercase"
+                    />
                   </div>
                 </div>
-              </div>
 
-              <div>
-                <div className="flex items-center justify-between mb-1.5">
-                  <label className="block text-[0.8125rem] font-medium text-[#1a1c1b]">
-                    Mata Pelajaran (Pilih yang relevan)
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-[0.8125rem] font-medium text-[#1a1c1b] mb-1.5">Nomor WhatsApp</label>
+                    <input
+                      type="tel"
+                      required
+                      placeholder="081234567890"
+                      value={formTelepon}
+                      onChange={(e) => setFormTelepon(e.target.value)}
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-[#faf9f7] border border-[#e3e2e0] text-[0.875rem] focus:outline-none focus:border-black font-mono"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[0.8125rem] font-medium text-[#1a1c1b] mb-1.5">Status Pendidik</label>
+                    <select
+                      value={formStatus}
+                      onChange={(e) => setFormStatus(e.target.value as "Aktif" | "Cuti" | "Nonaktif")}
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-[#faf9f7] border border-[#e3e2e0] text-[0.875rem] focus:outline-none focus:border-black"
+                    >
+                      <option value="Aktif">Aktif</option>
+                      <option value="Cuti">Cuti</option>
+                      <option value="Nonaktif">Nonaktif</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-[0.8125rem] font-medium text-[#1a1c1b] mb-1.5">
+                    Latar Belakang Pendidikan &amp; Almamater
                   </label>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setIsPengajarModalOpen(false);
-                      setActiveTab("mapel");
-                    }}
-                    className="text-[0.7rem] text-[#B74E2C] hover:underline font-semibold"
-                  >
-                    + Kelola Master Mapel
-                  </button>
+                  <input
+                    type="text"
+                    placeholder="Contoh: S1 Kimia UI • S2 ITB"
+                    value={formPendidikan}
+                    onChange={(e) => setFormPendidikan(e.target.value)}
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-[#faf9f7] border border-[#e3e2e0] text-[0.875rem] focus:outline-none focus:border-black"
+                  />
                 </div>
-                <div className="flex flex-wrap gap-1.5 pt-1">
-                  {(mapelList.length > 0 ? mapelList.map((m) => m.nama) : DAFTAR_MAPEL).map((m) => {
-                    const selected = formMapel.includes(m);
-                    return (
-                      <button
-                        key={m}
-                        type="button"
-                        onClick={() => {
-                          setFormMapel((prev) => (selected ? prev.filter((item) => item !== m) : [...prev, m]));
-                        }}
-                        className={`px-3 py-1 rounded-full text-[0.75rem] font-medium transition-colors ${selected
-                          ? "bg-black text-white shadow-xs"
-                          : "bg-[#f4f3f1] text-[#444748] hover:bg-[#efeeec] border border-[#e3e2e0]"
-                          }`}
-                      >
-                        {m}
-                      </button>
-                    );
-                  })}
+
+                <div>
+                  <label className="block text-[0.8125rem] font-medium text-[#1a1c1b] mb-1.5">
+                    Tautan URL Foto Profil
+                  </label>
+                  <div className="flex items-center gap-3">
+                    <div className="w-14 h-16 rounded-xl overflow-hidden bg-[#e3e2e0] border border-[#e3e2e0] shrink-0 flex items-center justify-center shadow-xs">
+                      {formFoto.trim() ? (
+                        <img
+                          src={cleanImageUrl(formFoto)}
+                          alt="Preview Foto"
+                          referrerPolicy="no-referrer"
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            const fallback = getAvatarFallback(formNama || "Tutor");
+                            if (e.currentTarget.src !== fallback) {
+                              e.currentTarget.src = fallback;
+                            }
+                          }}
+                        />
+                      ) : (
+                        <span className="material-symbols-outlined text-[#747878] text-[26px]">person</span>
+                      )}
+                    </div>
+                    <div className="flex-1 space-y-1">
+                      <input
+                        type="text"
+                        placeholder="https://images.unsplash.com/... atau link Google Drive publik"
+                        value={formFoto}
+                        onChange={(e) => setFormFoto(e.target.value)}
+                        className="w-full px-3.5 py-2.5 rounded-xl bg-[#faf9f7] border border-[#e3e2e0] text-[0.875rem] focus:outline-none focus:border-black font-mono"
+                      />
+                      <span className="text-[0.7rem] text-[#67645f] block">
+                        Mendukung URL web gambar langsung (JPG, PNG, Unsplash) maupun link publik Google Drive.
+                      </span>
+                    </div>
+                  </div>
                 </div>
-              </div>
+
+                <div>
+                  <div className="flex items-center justify-between mb-1.5">
+                    <label className="block text-[0.8125rem] font-medium text-[#1a1c1b]">
+                      Mata Pelajaran (Pilih yang relevan)
+                    </label>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsPengajarModalOpen(false);
+                        setActiveTab("mapel");
+                      }}
+                      className="text-[0.7rem] text-[#B74E2C] hover:underline font-semibold"
+                    >
+                      + Kelola Master Mapel
+                    </button>
+                  </div>
+                  <div className="flex flex-wrap gap-1.5 pt-1">
+                    {(mapelList.length > 0 ? mapelList.map((m) => m.nama) : DAFTAR_MAPEL).map((m) => {
+                      const selected = formMapel.includes(m);
+                      return (
+                        <button
+                          key={m}
+                          type="button"
+                          onClick={() => {
+                            setFormMapel((prev) => (selected ? prev.filter((item) => item !== m) : [...prev, m]));
+                          }}
+                          className={`px-3 py-1 rounded-full text-[0.75rem] font-medium transition-colors ${selected
+                            ? "bg-black text-white shadow-xs"
+                            : "bg-[#f4f3f1] text-[#444748] hover:bg-[#efeeec] border border-[#e3e2e0]"
+                            }`}
+                        >
+                          {m}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
 
               </form>
             </div>
@@ -3022,208 +3054,206 @@ export default function PanelKoordinator() {
               )}
 
               <form id="jadwal-modal-form" onSubmit={handleSubmitJadwal} className="space-y-4">
-              <div>
-                <label className="block text-[0.8125rem] font-medium text-[#1a1c1b] mb-1.5">Nama Kelas</label>
-                <input
-                  type="text"
-                  required
-                  placeholder="Contoh: XII MIPA Intensif UTBK 1"
-                  value={jadwalNamaKelas}
-                  onChange={(e) => setJadwalNamaKelas(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-[#faf9f7] border border-[#e3e2e0] text-[0.875rem] focus:outline-none focus:border-black"
-                />
-              </div>
-
-              <div>
-                <label className="block text-[0.8125rem] font-medium text-[#1a1c1b] mb-1.5">Tutor Pengajar</label>
-                <select
-                  value={jadwalPengajarId}
-                  onChange={(e) => setJadwalPengajarId(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-[#faf9f7] border border-[#e3e2e0] text-[0.875rem] focus:outline-none focus:border-black"
-                >
-                  {pengajarList.map((p) => (
-                    <option key={p._id} value={p._id}>
-                      {p.nama} ({p.mataPelajaran.join(", ")})
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-[0.8125rem] font-medium text-[#1a1c1b] mb-1.5">Mata Pelajaran</label>
-                  <select
-                    value={jadwalMapel}
-                    onChange={(e) => setJadwalMapel(e.target.value)}
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-[#faf9f7] border border-[#e3e2e0] text-[0.875rem] focus:outline-none focus:border-black"
-                  >
-                    {DAFTAR_MAPEL.map((m) => (
-                      <option key={m} value={m}>
-                        {m}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-[0.8125rem] font-medium text-[#1a1c1b] mb-1.5">Jenjang</label>
-                  <select
-                    value={jadwalJenjang}
-                    onChange={(e) => setJadwalJenjang(e.target.value)}
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-[#faf9f7] border border-[#e3e2e0] text-[0.875rem] focus:outline-none focus:border-black"
-                  >
-                    {DAFTAR_JENJANG.map((j) => (
-                      <option key={j} value={j}>
-                        {j}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-[0.8125rem] font-medium text-[#1a1c1b] mb-1.5">Hari</label>
-                <select
-                  value={jadwalHari}
-                  onChange={(e) => {
-                    const newHari = e.target.value;
-                    setJadwalHari(newHari);
-                    if (newHari === "Sabtu") {
-                      setJadwalSesi("Sesi 1");
-                      setJadwalMulai("09:00");
-                      setJadwalSelesai("10:15");
-                    } else if (newHari === "Jumat") {
-                      setJadwalSesi("Sesi 1");
-                      setJadwalMulai("11:30");
-                      setJadwalSelesai("12:45");
-                    } else if (["Senin", "Selasa", "Rabu", "Kamis"].includes(newHari)) {
-                      setJadwalSesi("Sesi 1");
-                      setJadwalMulai("13:00");
-                      setJadwalSelesai("14:15");
-                    }
-                  }}
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-[#faf9f7] border border-[#e3e2e0] text-[0.8125rem] focus:outline-none focus:border-black"
-                >
-                  {DAFTAR_HARI.map((h) => (
-                    <option key={h} value={h}>
-                      {h}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Slot Sesi Cepat (Senin s/d Sabtu) */}
-              {["Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"].includes(jadwalHari) && (
-                <div>
-                  <div className="flex items-center justify-between mb-1.5">
-                    <label className="block text-[0.8125rem] font-medium text-[#1a1c1b]">
-                      Pilih Slot Sesi Hari {jadwalHari}
-                    </label>
-                    <span className="text-[0.7rem] text-[#67645f] font-mono">75 menit / sesi</span>
-                  </div>
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                    {(masterSesiList.filter((s) => s.hari.includes(jadwalHari)).length > 0
-                      ? masterSesiList.filter((s) => s.hari.includes(jadwalHari))
-                      : jadwalHari === "Sabtu"
-                      ? [
-                          { nama: "Sesi 1", jamMulai: "09:00", jamSelesai: "10:15", waktuLabel: "09.00 - 10.15" },
-                          { nama: "Sesi 2", jamMulai: "10:15", jamSelesai: "11:30", waktuLabel: "10.15 - 11.30" },
-                          { nama: "Sesi 3", jamMulai: "11:30", jamSelesai: "12:45", waktuLabel: "11.30 - 12.45" },
-                          { nama: "Sesi 4", jamMulai: "13:00", jamSelesai: "14:15", waktuLabel: "13.00 - 14.15" },
-                          { nama: "Sesi 5", jamMulai: "14:15", jamSelesai: "15:30", waktuLabel: "14.15 - 15.30" },
-                          { nama: "Sesi 6", jamMulai: "15:30", jamSelesai: "16:45", waktuLabel: "15.30 - 16.45" },
-                          { nama: "Sesi 7", jamMulai: "16:45", jamSelesai: "18:00", waktuLabel: "16.45 - 18.00" },
-                          { nama: "Sesi 8", jamMulai: "18:00", jamSelesai: "19:15", waktuLabel: "18.00 - 19.15" },
-                        ]
-                      : jadwalHari === "Jumat"
-                      ? [
-                          { nama: "Sesi 1", jamMulai: "11:30", jamSelesai: "12:45", waktuLabel: "11.30 - 12.45" },
-                          { nama: "Sesi 2", jamMulai: "13:00", jamSelesai: "14:15", waktuLabel: "13.00 - 14.15" },
-                          { nama: "Sesi 3", jamMulai: "14:30", jamSelesai: "15:45", waktuLabel: "14.30 - 15.45" },
-                          { nama: "Sesi 4", jamMulai: "16:00", jamSelesai: "17:15", waktuLabel: "16.00 - 17.15" },
-                          { nama: "Sesi 5", jamMulai: "17:15", jamSelesai: "18:30", waktuLabel: "17.15 - 18.30" },
-                          { nama: "Sesi 6", jamMulai: "18:45", jamSelesai: "20:00", waktuLabel: "18.45 - 20.00" },
-                        ]
-                      : [
-                          { nama: "Sesi 1", jamMulai: "13:00", jamSelesai: "14:15", waktuLabel: "13.00 - 14.15" },
-                          { nama: "Sesi 2", jamMulai: "14:30", jamSelesai: "15:45", waktuLabel: "14.30 - 15.45" },
-                          { nama: "Sesi 3", jamMulai: "16:00", jamSelesai: "17:15", waktuLabel: "16.00 - 17.15" },
-                          { nama: "Sesi 4", jamMulai: "17:15", jamSelesai: "18:30", waktuLabel: "17.15 - 18.30" },
-                          { nama: "Sesi 5", jamMulai: "18:45", jamSelesai: "20:00", waktuLabel: "18.45 - 20.00" },
-                        ]
-                    ).map((s) => {
-                      const isSelected = jadwalMulai === s.jamMulai && jadwalSelesai === s.jamSelesai;
-                      return (
-                        <button
-                          key={s.nama}
-                          type="button"
-                          onClick={() => {
-                            setJadwalSesi(s.nama);
-                            setJadwalMulai(s.jamMulai);
-                            setJadwalSelesai(s.jamSelesai);
-                          }}
-                          className={`p-2.5 rounded-xl text-left border transition-all ${
-                            isSelected
-                              ? "bg-[#173F3A] text-white border-[#173F3A] shadow-xs"
-                              : "bg-[#faf9f7] text-[#1a1c1b] border-[#e3e2e0] hover:border-black/40 hover:bg-white"
-                          }`}
-                        >
-                          <span className="block font-semibold text-xs leading-tight">{s.nama}</span>
-                          <span
-                            className={`block text-[11px] font-mono mt-0.5 ${
-                              isSelected ? "text-[#F2D5A8]" : "text-[#67645f]"
-                            }`}
-                          >
-                            {s.waktuLabel}
-                          </span>
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-              )}
-
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-[0.8125rem] font-medium text-[#1a1c1b] mb-1.5">Jam Mulai</label>
-                  <input
-                    type="time"
-                    value={jadwalMulai}
-                    onChange={(e) => setJadwalMulai(e.target.value)}
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-[#faf9f7] border border-[#e3e2e0] text-[0.8125rem] focus:outline-none"
-                  />
-                </div>
-                <div>
-                  <label className="block text-[0.8125rem] font-medium text-[#1a1c1b] mb-1.5">Jam Selesai</label>
-                  <input
-                    type="time"
-                    value={jadwalSelesai}
-                    onChange={(e) => setJadwalSelesai(e.target.value)}
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-[#faf9f7] border border-[#e3e2e0] text-[0.8125rem] focus:outline-none"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-[0.8125rem] font-medium text-[#1a1c1b] mb-1.5">Ruangan / Link</label>
+                  <label className="block text-[0.8125rem] font-medium text-[#1a1c1b] mb-1.5">Nama Kelas</label>
                   <input
                     type="text"
-                    value={jadwalRuangan}
-                    onChange={(e) => setJadwalRuangan(e.target.value)}
-                    placeholder="Ruang A1 / Zoom Link"
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-[#faf9f7] border border-[#e3e2e0] text-[0.875rem] focus:outline-none"
+                    required
+                    placeholder="Contoh: XII MIPA Intensif UTBK 1"
+                    value={jadwalNamaKelas}
+                    onChange={(e) => setJadwalNamaKelas(e.target.value)}
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-[#faf9f7] border border-[#e3e2e0] text-[0.875rem] focus:outline-none focus:border-black"
                   />
                 </div>
+
                 <div>
-                  <label className="block text-[0.8125rem] font-medium text-[#1a1c1b] mb-1.5">Jumlah Siswa</label>
-                  <input
-                    type="number"
-                    value={jadwalSiswa}
-                    onChange={(e) => setJadwalSiswa(Number(e.target.value))}
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-[#faf9f7] border border-[#e3e2e0] text-[0.875rem] focus:outline-none"
-                  />
+                  <label className="block text-[0.8125rem] font-medium text-[#1a1c1b] mb-1.5">Tutor Pengajar</label>
+                  <select
+                    value={jadwalPengajarId}
+                    onChange={(e) => setJadwalPengajarId(e.target.value)}
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-[#faf9f7] border border-[#e3e2e0] text-[0.875rem] focus:outline-none focus:border-black"
+                  >
+                    {pengajarList.map((p) => (
+                      <option key={p._id} value={p._id}>
+                        {p.nama} ({p.mataPelajaran.join(", ")})
+                      </option>
+                    ))}
+                  </select>
                 </div>
-              </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-[0.8125rem] font-medium text-[#1a1c1b] mb-1.5">Mata Pelajaran</label>
+                    <select
+                      value={jadwalMapel}
+                      onChange={(e) => setJadwalMapel(e.target.value)}
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-[#faf9f7] border border-[#e3e2e0] text-[0.875rem] focus:outline-none focus:border-black"
+                    >
+                      {DAFTAR_MAPEL.map((m) => (
+                        <option key={m} value={m}>
+                          {m}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-[0.8125rem] font-medium text-[#1a1c1b] mb-1.5">Jenjang</label>
+                    <select
+                      value={jadwalJenjang}
+                      onChange={(e) => setJadwalJenjang(e.target.value)}
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-[#faf9f7] border border-[#e3e2e0] text-[0.875rem] focus:outline-none focus:border-black"
+                    >
+                      {DAFTAR_JENJANG.map((j) => (
+                        <option key={j} value={j}>
+                          {j}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-[0.8125rem] font-medium text-[#1a1c1b] mb-1.5">Hari</label>
+                  <select
+                    value={jadwalHari}
+                    onChange={(e) => {
+                      const newHari = e.target.value;
+                      setJadwalHari(newHari);
+                      if (newHari === "Sabtu") {
+                        setJadwalSesi("Sesi 1");
+                        setJadwalMulai("09:00");
+                        setJadwalSelesai("10:15");
+                      } else if (newHari === "Jumat") {
+                        setJadwalSesi("Sesi 1");
+                        setJadwalMulai("11:30");
+                        setJadwalSelesai("12:45");
+                      } else if (["Senin", "Selasa", "Rabu", "Kamis"].includes(newHari)) {
+                        setJadwalSesi("Sesi 1");
+                        setJadwalMulai("13:00");
+                        setJadwalSelesai("14:15");
+                      }
+                    }}
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-[#faf9f7] border border-[#e3e2e0] text-[0.8125rem] focus:outline-none focus:border-black"
+                  >
+                    {DAFTAR_HARI.map((h) => (
+                      <option key={h} value={h}>
+                        {h}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Slot Sesi Cepat (Senin s/d Sabtu) */}
+                {["Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"].includes(jadwalHari) && (
+                  <div>
+                    <div className="flex items-center justify-between mb-1.5">
+                      <label className="block text-[0.8125rem] font-medium text-[#1a1c1b]">
+                        Pilih Slot Sesi Hari {jadwalHari}
+                      </label>
+                      <span className="text-[0.7rem] text-[#67645f] font-mono">75 menit / sesi</span>
+                    </div>
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                      {(masterSesiList.filter((s) => s.hari.includes(jadwalHari)).length > 0
+                        ? masterSesiList.filter((s) => s.hari.includes(jadwalHari))
+                        : jadwalHari === "Sabtu"
+                          ? [
+                            { nama: "Sesi 1", jamMulai: "09:00", jamSelesai: "10:15", waktuLabel: "09.00 - 10.15" },
+                            { nama: "Sesi 2", jamMulai: "10:15", jamSelesai: "11:30", waktuLabel: "10.15 - 11.30" },
+                            { nama: "Sesi 3", jamMulai: "11:30", jamSelesai: "12:45", waktuLabel: "11.30 - 12.45" },
+                            { nama: "Sesi 4", jamMulai: "13:00", jamSelesai: "14:15", waktuLabel: "13.00 - 14.15" },
+                            { nama: "Sesi 5", jamMulai: "14:15", jamSelesai: "15:30", waktuLabel: "14.15 - 15.30" },
+                            { nama: "Sesi 6", jamMulai: "15:30", jamSelesai: "16:45", waktuLabel: "15.30 - 16.45" },
+                            { nama: "Sesi 7", jamMulai: "16:45", jamSelesai: "18:00", waktuLabel: "16.45 - 18.00" },
+                            { nama: "Sesi 8", jamMulai: "18:00", jamSelesai: "19:15", waktuLabel: "18.00 - 19.15" },
+                          ]
+                          : jadwalHari === "Jumat"
+                            ? [
+                              { nama: "Sesi 1", jamMulai: "11:30", jamSelesai: "12:45", waktuLabel: "11.30 - 12.45" },
+                              { nama: "Sesi 2", jamMulai: "13:00", jamSelesai: "14:15", waktuLabel: "13.00 - 14.15" },
+                              { nama: "Sesi 3", jamMulai: "14:30", jamSelesai: "15:45", waktuLabel: "14.30 - 15.45" },
+                              { nama: "Sesi 4", jamMulai: "16:00", jamSelesai: "17:15", waktuLabel: "16.00 - 17.15" },
+                              { nama: "Sesi 5", jamMulai: "17:15", jamSelesai: "18:30", waktuLabel: "17.15 - 18.30" },
+                              { nama: "Sesi 6", jamMulai: "18:45", jamSelesai: "20:00", waktuLabel: "18.45 - 20.00" },
+                            ]
+                            : [
+                              { nama: "Sesi 1", jamMulai: "13:00", jamSelesai: "14:15", waktuLabel: "13.00 - 14.15" },
+                              { nama: "Sesi 2", jamMulai: "14:30", jamSelesai: "15:45", waktuLabel: "14.30 - 15.45" },
+                              { nama: "Sesi 3", jamMulai: "16:00", jamSelesai: "17:15", waktuLabel: "16.00 - 17.15" },
+                              { nama: "Sesi 4", jamMulai: "17:15", jamSelesai: "18:30", waktuLabel: "17.15 - 18.30" },
+                              { nama: "Sesi 5", jamMulai: "18:45", jamSelesai: "20:00", waktuLabel: "18.45 - 20.00" },
+                            ]
+                      ).map((s) => {
+                        const isSelected = jadwalMulai === s.jamMulai && jadwalSelesai === s.jamSelesai;
+                        return (
+                          <button
+                            key={s.nama}
+                            type="button"
+                            onClick={() => {
+                              setJadwalSesi(s.nama);
+                              setJadwalMulai(s.jamMulai);
+                              setJadwalSelesai(s.jamSelesai);
+                            }}
+                            className={`p-2.5 rounded-xl text-left border transition-all ${isSelected
+                              ? "bg-[#173F3A] text-white border-[#173F3A] shadow-xs"
+                              : "bg-[#faf9f7] text-[#1a1c1b] border-[#e3e2e0] hover:border-black/40 hover:bg-white"
+                              }`}
+                          >
+                            <span className="block font-semibold text-xs leading-tight">{s.nama}</span>
+                            <span
+                              className={`block text-[11px] font-mono mt-0.5 ${isSelected ? "text-[#F2D5A8]" : "text-[#67645f]"
+                                }`}
+                            >
+                              {s.waktuLabel}
+                            </span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-[0.8125rem] font-medium text-[#1a1c1b] mb-1.5">Jam Mulai</label>
+                    <input
+                      type="time"
+                      value={jadwalMulai}
+                      onChange={(e) => setJadwalMulai(e.target.value)}
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-[#faf9f7] border border-[#e3e2e0] text-[0.8125rem] focus:outline-none"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[0.8125rem] font-medium text-[#1a1c1b] mb-1.5">Jam Selesai</label>
+                    <input
+                      type="time"
+                      value={jadwalSelesai}
+                      onChange={(e) => setJadwalSelesai(e.target.value)}
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-[#faf9f7] border border-[#e3e2e0] text-[0.8125rem] focus:outline-none"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-[0.8125rem] font-medium text-[#1a1c1b] mb-1.5">Ruangan / Link</label>
+                    <input
+                      type="text"
+                      value={jadwalRuangan}
+                      onChange={(e) => setJadwalRuangan(e.target.value)}
+                      placeholder="Ruang A1 / Zoom Link"
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-[#faf9f7] border border-[#e3e2e0] text-[0.875rem] focus:outline-none"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[0.8125rem] font-medium text-[#1a1c1b] mb-1.5">Jumlah Siswa</label>
+                    <input
+                      type="number"
+                      value={jadwalSiswa}
+                      onChange={(e) => setJadwalSiswa(Number(e.target.value))}
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-[#faf9f7] border border-[#e3e2e0] text-[0.875rem] focus:outline-none"
+                    />
+                  </div>
+                </div>
 
               </form>
             </div>

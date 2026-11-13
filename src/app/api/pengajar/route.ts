@@ -109,3 +109,22 @@ export async function POST(request: Request) {
     return NextResponse.json({ success: false, error: message }, { status: 400 });
   }
 }
+
+// DELETE: Menghapus semua data pengajar (khusus koordinator)
+export async function DELETE() {
+  try {
+    if (!(await requireKoordinator())) {
+      return NextResponse.json({ success: false, error: "Akses khusus koordinator." }, { status: 401 });
+    }
+    await connectDB();
+    const result = await Pengajar.deleteMany({});
+    return NextResponse.json({
+      success: true,
+      message: `Semua data pengajar berhasil dihapus (${result.deletedCount} data).`,
+      deletedCount: result.deletedCount,
+    });
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : "Terjadi kesalahan server";
+    return NextResponse.json({ success: false, error: message }, { status: 500 });
+  }
+}
