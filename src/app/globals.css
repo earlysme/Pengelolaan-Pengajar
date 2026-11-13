@@ -103,12 +103,12 @@ button {
 @keyframes liquidDockIn {
   0% {
     opacity: 0;
-    transform: translateY(14px) scaleX(1.16) scaleY(0.74);
-    filter: blur(6px);
+    transform: translateY(28px) scaleX(1.12) scaleY(0.76);
+    filter: blur(5px);
   }
   55% {
     opacity: 1;
-    transform: translateY(-2px) scaleX(0.96) scaleY(1.05);
+    transform: translateY(-2px) scaleX(0.97) scaleY(1.04);
     filter: blur(0px);
   }
   100% {

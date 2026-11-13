@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import CatatanMateriTab from "./CatatanMateriTab";
@@ -226,6 +226,8 @@ export default function AreaTutor() {
   const [passwordError, setPasswordError] = useState("");
   const [showForgotInfo, setShowForgotInfo] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isHeaderSaveDocked, setIsHeaderSaveDocked] = useState(false);
+  const dashboardSaveRef = useRef<HTMLDivElement>(null);
 
   // Tab halaman tutor: profil (default) atau catatan materi kelas reguler
   const [activeTab, setActiveTab] = useState<"profil" | "catatan">("profil");
@@ -847,12 +849,20 @@ export default function AreaTutor() {
     }
   };
 
-  const handleLogout = async () => {
+  const performLogout = async () => {
     try {
       if (typeof window !== "undefined") localStorage.removeItem("genplasma_session");
       await fetch("/api/auth/logout", { method: "POST" });
     } catch { }
     router.push("/login");
+  };
+
+  const handleLogout = async () => {
+    if (hasChanges) {
+      triggerUnsavedWarning("logout");
+      return;
+    }
+    await performLogout();
   };
 
   const handleAddTag = () => {
@@ -867,6 +877,7 @@ export default function AreaTutor() {
   };
 
   const [confirmLeaveModalOpen, setConfirmLeaveModalOpen] = useState(false);
+  const [leaveAction, setLeaveAction] = useState<"public" | "logout">("public");
   const [isPreviewModalOpen, setIsPreviewModalOpen] = useState(false);
 
   // Mencegah navigasi / reload browser yang tidak sengaja jika masih ada perubahan yang belum disimpan
@@ -881,31 +892,61 @@ export default function AreaTutor() {
     return () => window.removeEventListener("beforeunload", handleBeforeUnload);
   }, [hasChanges]);
 
+  const triggerUnsavedWarning = (action: "public" | "logout") => {
+    showToast(unsavedInfo.summaryText);
+
+    // Khusus untuk sesi yang belum di-set / belum disimpan: beri 2 peringatan (notif + glow merah)
+    if (hasUnsetSesi || isJadwalChanged) {
+      const changedSlot =
+        unsetSesiSlots[0] ||
+        jadwalSlots.find(
+          (s, idx) => JSON.stringify(s) !== JSON.stringify(initialData?.jadwalSlots[idx])
+        ) ||
+        jadwalSlots[0];
+      if (changedSlot) {
+        const targetId = `slot-card-${changedSlot.id}`;
+        setHighlightedFieldId(targetId);
+        const elem = document.getElementById(targetId);
+        if (elem) elem.scrollIntoView({ behavior: "smooth", block: "center" });
+        setTimeout(() => setHighlightedFieldId(null), 4000);
+      }
+    }
+
+    setLeaveAction(action);
+    setConfirmLeaveModalOpen(true);
+  };
+
   const handleLihatPublikClick = (e: React.MouseEvent) => {
     if (hasChanges) {
       e.preventDefault();
-      showToast(unsavedInfo.summaryText);
-
-      // Khusus untuk sesi yang belum di-set / belum disimpan: beri 2 peringatan (notif + glow merah)
-      if (hasUnsetSesi || isJadwalChanged) {
-        const changedSlot =
-          unsetSesiSlots[0] ||
-          jadwalSlots.find(
-            (s, idx) => JSON.stringify(s) !== JSON.stringify(initialData?.jadwalSlots[idx])
-          ) ||
-          jadwalSlots[0];
-        if (changedSlot) {
-          const targetId = `slot-card-${changedSlot.id}`;
-          setHighlightedFieldId(targetId);
-          const elem = document.getElementById(targetId);
-          if (elem) elem.scrollIntoView({ behavior: "smooth", block: "center" });
-          setTimeout(() => setHighlightedFieldId(null), 4000);
-        }
-      }
-
-      setConfirmLeaveModalOpen(true);
+      triggerUnsavedWarning("public");
     }
   };
+
+  // Deteksi apakah tombol Simpan di dashboard sudah menyentuh/melewati header saat scroll
+  useEffect(() => {
+    const updateDockState = () => {
+      if (!hasChanges || !dashboardSaveRef.current) {
+        setIsHeaderSaveDocked(false);
+        return;
+      }
+      const headerHeight = window.innerWidth < 640 ? 64 : 80;
+      const rect = dashboardSaveRef.current.getBoundingClientRect();
+      // Dock ke header saat tombol Simpan dashboard menyentuh/sejajar dengan batas bawah header
+      setIsHeaderSaveDocked(rect.top <= headerHeight - 2);
+    };
+
+    const rafId = requestAnimationFrame(updateDockState);
+    window.addEventListener("scroll", updateDockState, { passive: true });
+    window.addEventListener("resize", updateDockState, { passive: true });
+    return () => {
+      cancelAnimationFrame(rafId);
+      window.removeEventListener("scroll", updateDockState);
+      window.removeEventListener("resize", updateDockState);
+    };
+  }, [hasChanges, loading]);
+
+  const showHeaderSave = hasChanges && isHeaderSaveDocked;
 
   const previewPublicCard = () => {
     setIsPreviewModalOpen(true);
@@ -971,6 +1012,28 @@ export default function AreaTutor() {
               </button>
             </nav>
 
+            {hasChanges && (
+              <div
+                className={`transition-all duration-350 ease-[cubic-bezier(0.22,1,0.36,1)] ${showHeaderSave
+                  ? "max-w-[160px] overflow-visible opacity-100 scale-100 translate-y-0 blur-0 pointer-events-auto"
+                  : "max-w-0 overflow-hidden opacity-0 scale-75 translate-y-4 blur-[4px] pointer-events-none"
+                  }`}
+              >
+                <button
+                  key={showHeaderSave ? "desktop-docked" : "desktop-undocked"}
+                  type="button"
+                  disabled={savingProfil}
+                  onClick={() => handleSaveProfile()}
+                  className={`inline-flex items-center gap-1.5 bg-[#173F3A] text-white text-[0.8125rem] font-semibold px-3.5 py-1.5 rounded-full shadow-[0_4px_14px_rgba(23,63,58,0.28)] disabled:opacity-50 animate-pulse whitespace-nowrap ${showHeaderSave ? "liquid-dock-btn" : ""
+                    }`}
+                  title="Simpan perubahan profil"
+                >
+                  <span className="material-symbols-outlined text-[16px]">save</span>
+                  <span>{savingProfil ? "Menyimpan..." : "Simpan"}</span>
+                </button>
+              </div>
+            )}
+
             <button
               type="button"
               onClick={handleLogout}
@@ -985,16 +1048,25 @@ export default function AreaTutor() {
           {/* Mobile Right Actions: Tombol Simpan Cepat + Hamburger Menu */}
           <div className="flex sm:hidden items-center gap-2">
             {hasChanges && (
-              <button
-                type="button"
-                disabled={savingProfil}
-                onClick={() => handleSaveProfile()}
-                className="inline-flex items-center gap-1 bg-[#173F3A] text-white text-[0.75rem] font-semibold px-3 py-1.5 rounded-full shadow-xs disabled:opacity-50 animate-pulse"
-                title="Simpan perubahan profil"
+              <div
+                className={`overflow-hidden transition-all duration-350 ease-[cubic-bezier(0.22,1,0.36,1)] ${showHeaderSave
+                  ? "max-w-[140px] opacity-100 scale-100 translate-y-0 blur-0 pointer-events-auto"
+                  : "max-w-0 opacity-0 scale-75 translate-y-2.5 blur-[4px] pointer-events-none"
+                  }`}
               >
-                <span className="material-symbols-outlined text-[15px]">save</span>
-                <span>Simpan</span>
-              </button>
+                <button
+                  key={showHeaderSave ? "mobile-docked" : "mobile-undocked"}
+                  type="button"
+                  disabled={savingProfil}
+                  onClick={() => handleSaveProfile()}
+                  className={`inline-flex items-center gap-1 bg-[#173F3A] text-white text-[0.75rem] font-semibold px-3 py-1.5 rounded-full shadow-[0_4px_14px_rgba(23,63,58,0.28)] disabled:opacity-50 animate-pulse whitespace-nowrap ${showHeaderSave ? "liquid-dock-btn" : ""
+                    }`}
+                  title="Simpan perubahan profil"
+                >
+                  <span className="material-symbols-outlined text-[15px]">save</span>
+                  <span>{savingProfil ? "Menyimpan..." : "Simpan"}</span>
+                </button>
+              </div>
             )}
 
             <button
@@ -1014,8 +1086,8 @@ export default function AreaTutor() {
         {/* Mobile Hamburger Dropdown Menu */}
         <div
           className={`sm:hidden overflow-hidden transition-all duration-200 ease-out border-[#173F3A]/10 bg-[#faf8f5]/95 backdrop-blur-xl ${isMobileMenuOpen
-              ? "max-h-[420px] opacity-100 border-t shadow-lg pointer-events-auto"
-              : "max-h-0 opacity-0 border-t-0 pointer-events-none"
+            ? "max-h-[420px] opacity-100 border-t shadow-lg pointer-events-auto"
+            : "max-h-0 opacity-0 border-t-0 pointer-events-none"
             }`}
         >
           <nav className="max-w-7xl mx-auto px-4 py-3 flex flex-col gap-1">
@@ -1197,7 +1269,7 @@ export default function AreaTutor() {
                   </div>
 
                   {/* Right: Personal Status & Actions */}
-                  <div className="flex items-center gap-2.5 sm:gap-3 w-full sm:w-auto">
+                  <div ref={dashboardSaveRef} className="flex items-center gap-2.5 sm:gap-3 w-full sm:w-auto">
                     <Link
                       href="/"
                       onClick={handleLihatPublikClick}
@@ -1211,7 +1283,10 @@ export default function AreaTutor() {
                         type="button"
                         disabled={savingProfil}
                         onClick={() => handleSaveProfile()}
-                        className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 bg-[#173F3A] text-white text-[0.8125rem] sm:text-[0.875rem] font-semibold px-5 py-2.5 rounded-full hover:bg-[#112F2B] transition-all shadow-[0_4px_12px_rgba(23,63,58,0.2)] disabled:opacity-50 animate-in fade-in zoom-in-95 duration-200"
+                        className={`flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 bg-[#173F3A] text-white text-[0.8125rem] sm:text-[0.875rem] font-semibold px-5 py-2.5 rounded-full hover:bg-[#112F2B] transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] shadow-[0_4px_14px_rgba(23,63,58,0.28)] disabled:opacity-50 animate-pulse ${showHeaderSave
+                          ? "opacity-0 scale-90 -translate-y-2 blur-[3px] pointer-events-none"
+                          : "opacity-100 scale-100 translate-y-0 blur-0"
+                          }`}
                       >
                         <span className="material-symbols-outlined text-[18px]">save</span>
                         <span>{savingProfil ? "Menyimpan..." : "Simpan Profil"}</span>
@@ -2256,7 +2331,9 @@ export default function AreaTutor() {
                   {unsavedInfo.title}
                 </h3>
                 <p className="text-[0.875rem] text-[#444748] mt-1.5 leading-relaxed">
-                  {unsavedInfo.modalMessage}
+                  {leaveAction === "logout"
+                    ? unsavedInfo.modalMessage.replace("membuka halaman publik sekarang", "keluar dari akun sekarang")
+                    : unsavedInfo.modalMessage}
                 </p>
               </div>
             </div>
@@ -2272,13 +2349,17 @@ export default function AreaTutor() {
               </button>
               <button
                 type="button"
-                onClick={() => {
+                onClick={async () => {
                   setConfirmLeaveModalOpen(false);
-                  router.push("/");
+                  if (leaveAction === "logout") {
+                    await performLogout();
+                  } else {
+                    router.push("/");
+                  }
                 }}
                 className="px-4 py-2.5 rounded-full text-[0.8125rem] font-medium text-amber-700 bg-amber-50 hover:bg-amber-100 border border-amber-200/80 transition-colors"
               >
-                Buka Tanpa Menyimpan
+                {leaveAction === "logout" ? "Keluar Tanpa Menyimpan" : "Buka Tanpa Menyimpan"}
               </button>
               <button
                 type="button"
@@ -2287,13 +2368,17 @@ export default function AreaTutor() {
                   const ok = await handleSaveProfile();
                   setConfirmLeaveModalOpen(false);
                   if (ok) {
-                    router.push("/");
+                    if (leaveAction === "logout") {
+                      await performLogout();
+                    } else {
+                      router.push("/");
+                    }
                   }
                 }}
                 className="px-5 py-2.5 bg-[#173F3A] hover:bg-[#12312d] text-white rounded-full text-[0.8125rem] font-semibold transition-all shadow-sm disabled:opacity-50 flex items-center justify-center gap-1.5"
               >
                 <span className="material-symbols-outlined text-[16px]">save</span>
-                <span>{savingProfil ? "Menyimpan..." : "Simpan & Buka"}</span>
+                <span>{savingProfil ? "Menyimpan..." : leaveAction === "logout" ? "Simpan & Keluar" : "Simpan & Buka"}</span>
               </button>
             </div>
           </div>
